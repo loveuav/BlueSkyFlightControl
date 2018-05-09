@@ -1,0 +1,138 @@
+/**********************************************************************************************************
+                                天穹飞控 —— 致力于打造中国最好的多旋翼开源飞控
+                                Github: github.com/loveuav/BlueSkyFlightControl
+                                技术讨论：bbs.loveuav.com/forum-68-1.html
+ * @文件     drv_spi.c
+ * @说明     SPI驱动
+ * @版本  	 V1.0
+ * @作者     BlueSky
+ * @网站     bbs.loveuav.com
+ * @日期     2018.05 
+**********************************************************************************************************/
+#include "drv_spi.h"
+
+/**********************************************************************************************************
+*函 数 名: Spi_Open
+*功能说明: SPI初始化
+*形    参: 设备号
+*返 回 值: 无
+**********************************************************************************************************/
+void Spi_Open(uint8_t deviceNum)
+{
+    SPI_InitTypeDef SPI_InitStructure; 
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_DOWN;
+
+	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
+	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b; 
+	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
+	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
+	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
+	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB; 
+	SPI_InitStructure.SPI_CRCPolynomial = 7; 
+	
+	if(deviceNum == 1)
+	{  
+		GPIO_PinAFConfig(SPI1_GPIO, SPI1_PINSOURCE_MOSI, GPIO_AF_SPI1);
+		GPIO_PinAFConfig(SPI1_GPIO, SPI1_PINSOURCE_MISO, GPIO_AF_SPI1);
+		GPIO_PinAFConfig(SPI1_GPIO, SPI1_PINSOURCE_SCK, GPIO_AF_SPI1);
+		GPIO_InitStructure.GPIO_Pin = SPI1_PIN_MOSI;
+		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin =  SPI1_PIN_MISO;
+		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin =  SPI1_PIN_SCK;
+		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);		
+        
+        SPI_InitStructure.SPI_BaudRatePrescaler = SPI1_CLOCKDIV;
+        SPI_Init(SPI1, &SPI_InitStructure); 
+        SPI_Cmd(SPI1, ENABLE);
+	}
+    else if(deviceNum == 2)
+    {
+		GPIO_PinAFConfig(SPI2_GPIO, SPI2_PINSOURCE_MOSI, GPIO_AF_SPI2);
+		GPIO_PinAFConfig(SPI2_GPIO, SPI2_PINSOURCE_MISO, GPIO_AF_SPI2);
+		GPIO_PinAFConfig(SPI2_GPIO, SPI2_PINSOURCE_SCK, GPIO_AF_SPI2);
+		GPIO_InitStructure.GPIO_Pin = SPI2_PIN_MOSI;
+		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin =  SPI2_PIN_MISO;
+		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);
+		GPIO_InitStructure.GPIO_Pin =  SPI2_PIN_SCK;
+		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);	  
+        
+        SPI_InitStructure.SPI_BaudRatePrescaler = SPI2_CLOCKDIV;
+        SPI_Init(SPI2, &SPI_InitStructure); 
+        SPI_Cmd(SPI2, ENABLE);        
+    }
+}
+
+/**********************************************************************************************************
+*函 数 名: Spi_SingleWirteAndRead
+*功能说明: SPI单字节读取
+*形    参: 设备号 写入的数据
+*返 回 值: 读取到的数据
+**********************************************************************************************************/
+uint8_t Spi_SingleWirteAndRead(uint8_t deviceNum, uint8_t dat) 
+{ 
+    if(deviceNum == 1)
+    {
+        while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET); 
+        SPI_I2S_SendData(SPI1, dat); 
+        while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET); 
+        return SPI_I2S_ReceiveData(SPI1);         
+    }
+    else if(deviceNum == 2)
+    {
+        while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET); 
+        SPI_I2S_SendData(SPI2, dat); 
+        while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET); 
+        return SPI_I2S_ReceiveData(SPI2);             
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/**********************************************************************************************************
+*函 数 名: SPI_MultiWriteAndRead
+*功能说明: SPI多字节读取
+*形    参: 设备号 写入数据缓冲区指针 读出数据缓冲区指针 数据长度
+            同时只能写入或者读出，写入时读取缓冲区设置为NULL，读出时反之
+*返 回 值: 无
+**********************************************************************************************************/
+void SPI_MultiWriteAndRead(uint8_t deviceNum, uint8_t *out, uint8_t *in, int len)
+{
+    uint8_t b;
+    if(deviceNum == 1)
+    {    
+        while (len--) 
+        {
+            b = in ? *(in++) : 0xFF;		
+            while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+            SPI_I2S_SendData(SPI1, b); 
+            while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET); 
+            b = SPI_I2S_ReceiveData(SPI1); 
+            if (out)
+                *(out++) = b;
+        }
+    }
+    else if(deviceNum == 2)
+    {
+        while (len--) 
+        {
+            b = in ? *(in++) : 0xFF;		
+            while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET);
+            SPI_I2S_SendData(SPI2, b); 
+            while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET); 
+            b = SPI_I2S_ReceiveData(SPI2); 
+            if (out)
+                *(out++) = b;
+        }
+    }
+}
+

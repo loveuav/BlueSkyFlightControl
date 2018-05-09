@@ -1,0 +1,9 @@
+OBJ/
+*.TMP
+PROJECT/*.txt
+PROJECT/*.ini
+PROJECT/*.bak
+PROJECT/DebugConfig/
+PROJECT/*.scvd
+PROJECT/*.Administrator
+PROJECT/*.uvoptx
