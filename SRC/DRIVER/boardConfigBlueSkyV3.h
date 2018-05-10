@@ -13,6 +13,46 @@
 #ifndef __BOARDCONFIGBLUESKYV3_H__
 #define __BOARDCONFIGBLUESKYV3_H__
 
+/**********************************************************************************************************
+*传感器配置
+**********************************************************************************************************/
+#define GYRO_TYPE            MPU6000
+#define BARO_TYPE            MS5611    
+#define MAG_TYPE             QMC5883
+
+#define GYRO_SPI             1
+#define GYRO_CS_GPIO         GPIOC
+#define GYRO_CS_PIN          GPIO_Pin_2
+
+#define TEMP_TIM_FREQ        21000000
+#define TEMP_TIM_PERIOD      52499
+#define TEMP_TIM             1
+#define TEMP_CH              1
+
+#define BARO_SPI             1
+#define BARO_CS_GPIO         GPIOD
+#define BARO_CS_PIN          GPIO_Pin_7
+
+#define MAG_I2C              1
+#define GPS_UART             4
+#define TOF_UART             0
+#define SBUS_UART            0
+
+#define PWM_TIM_FREQ         21000000
+#define PWM_TIM_PERIOD       52499
+#define PWM1_TIM             0
+#define PWM1_CH              0
+#define PWM2_TIM             0
+#define PWM2_CH              0
+#define PWM3_TIM             0
+#define PWM3_CH              0
+#define PWM4_TIM             0
+#define PWM4_CH              0
+
+#define PPM_TIM_FREQ         21000000
+#define PPM_TIM_PERIOD       52499
+#define PPM_TIM              0
+#define PPM_CH               0
 
 /**********************************************************************************************************
 *外设使能配置
@@ -122,9 +162,9 @@
 #define SPI1_CLOCKDIV           SPI_BaudRatePrescaler_8
 
 #define SPI2_GPIO               GPIOA
-#define SPI2_PINSOURCE_MOSI     GPIO_Pin_6
-#define SPI2_PINSOURCE_MISO     GPIO_Pin_7
-#define SPI2_PINSOURCE_SCK      GPIO_Pin_7
+#define SPI2_PINSOURCE_MOSI     GPIO_PinSource7
+#define SPI2_PINSOURCE_MISO     GPIO_PinSource6
+#define SPI2_PINSOURCE_SCK      GPIO_PinSource5
 #define SPI2_PIN_MOSI           GPIO_Pin_6
 #define SPI2_PIN_MISO           GPIO_Pin_7
 #define SPI2_PIN_SCK            GPIO_Pin_7
@@ -153,22 +193,22 @@
 #if(configUSE_TIM1_CH1 == 1)
 	#define TIM1_CH1_GPIO             GPIOA
 	#define TIM1_CH1_PIN              GPIO_Pin_7
-	#define TIM1_CH1_PINSOURCE        GPIO_Pin_7
+	#define TIM1_CH1_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM1_CH2 == 1)
 	#define TIM1_CH2_GPIO             GPIOA
 	#define TIM1_CH2_PIN              GPIO_Pin_7
-	#define TIM1_CH3_PINSOURCE        GPIO_Pin_7
+	#define TIM1_CH3_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM1_CH3 == 1)
 	#define TIM1_CH3_GPIO             GPIOA
 	#define TIM1_CH3_PIN              GPIO_Pin_7
-	#define TIM1_CH3_PINSOURCE        GPIO_Pin_7
+	#define TIM1_CH3_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM1_CH4 == 1)
 	#define TIM1_CH4_GPIO             GPIOA
 	#define TIM1_CH4_PIN              GPIO_Pin_7
-	#define TIM1_CH4_PINSOURCE        GPIO_Pin_7
+	#define TIM1_CH4_PINSOURCE        GPIO_PinSource5
 #endif
 
 #define TIM2_CLOCK                    84
@@ -177,22 +217,22 @@
 #if(configUSE_TIM2_CH1 == 1)
 	#define TIM2_CH1_GPIO             GPIOA
 	#define TIM2_CH1_PIN              GPIO_Pin_7
-	#define TIM2_CH1_PINSOURCE        GPIO_Pin_7
+	#define TIM2_CH1_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM2_CH2 == 1)
 	#define TIM2_CH2_GPIO             GPIOA
 	#define TIM2_CH2_PIN              GPIO_Pin_7
-	#define TIM2_CH2_PINSOURCE        GPIO_Pin_7
+	#define TIM2_CH2_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM2_CH3 == 1)
 	#define TIM2_CH3_GPIO             GPIOA
 	#define TIM2_CH3_PIN              GPIO_Pin_7
-	#define TIM2_CH3_PINSOURCE        GPIO_Pin_7
+	#define TIM2_CH3_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM2_CH4 == 1)
 	#define TIM2_CH4_GPIO             GPIOA
 	#define TIM2_CH4_PIN              GPIO_Pin_7
-	#define TIM2_CH4_PINSOURCE        GPIO_Pin_7
+	#define TIM2_CH4_PINSOURCE        GPIO_PinSource5
 #endif	
 
 #define TIM3_CLOCK                    84
@@ -201,22 +241,22 @@
 #if(configUSE_TIM3_CH1 == 1)
 	#define TIM3_CH1_GPIO             GPIOA
 	#define TIM3_CH1_PIN              GPIO_Pin_7
-	#define TIM3_CH1_PINSOURCE        GPIO_Pin_7
+	#define TIM3_CH1_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM3_CH2 == 1)
 	#define TIM3_CH2_GPIO             GPIOA
 	#define TIM3_CH2_PIN              GPIO_Pin_7
-	#define TIM3_CH2_PINSOURCE        GPIO_Pin_7
+	#define TIM3_CH2_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM3_CH3 == 1)
 	#define TIM3_CH3_GPIO             GPIOA
 	#define TIM3_CH3_PIN              GPIO_Pin_7
-	#define TIM3_CH3_PINSOURCE        GPIO_Pin_7
+	#define TIM3_CH3_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM3_CH4 == 1)
 	#define TIM3_CH4_GPIO             GPIOA
 	#define TIM3_CH4_PIN              GPIO_Pin_7
-	#define TIM3_CH4_PINSOURCE        GPIO_Pin_7
+	#define TIM3_CH4_PINSOURCE        GPIO_PinSource5
 #endif	
 
 #define TIM4_CLOCK                    84
@@ -225,22 +265,22 @@
 #if(configUSE_TIM4_CH1 == 1)
 	#define TIM4_CH1_GPIO             GPIOA
 	#define TIM4_CH1_PIN              GPIO_Pin_7
-	#define TIM4_CH1_PINSOURCE        GPIO_Pin_7
+	#define TIM4_CH1_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM4_CH2 == 1)
 	#define TIM4_CH2_GPIO             GPIOA
 	#define TIM4_CH2_PIN              GPIO_Pin_7
-	#define TIM4_CH2_PINSOURCE        GPIO_Pin_7
+	#define TIM4_CH2_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM4_CH3 == 1)
 	#define TIM4_CH3_GPIO             GPIOA
 	#define TIM4_CH3_PIN              GPIO_Pin_7
-	#define TIM4_CH3_PINSOURCE        GPIO_Pin_7
+	#define TIM4_CH3_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM4_CH4 == 1)
 	#define TIM4_CH4_GPIO             GPIOA
 	#define TIM4_CH4_PIN              GPIO_Pin_7
-	#define TIM4_CH4_PINSOURCE        GPIO_Pin_7
+	#define TIM4_CH4_PINSOURCE        GPIO_PinSource5
 #endif	
 
 

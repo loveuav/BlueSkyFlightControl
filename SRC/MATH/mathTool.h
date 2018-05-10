@@ -2,6 +2,7 @@
 #define __MATHTOOL_H__
 
 #include <stdint.h>
+#include "stdbool.h"
 #include <math.h>
 
 #include "vector3.h"
@@ -15,7 +16,7 @@
 #define DEG_TO_RAD 0.01745329f	//角度转弧度
 #define RAD_TO_DEG 57.29577951f	//弧度转角度
 
-#define EARTH_RADIUS  6371.004 //km
+#define EARTH_RADIUS  6371.004f //km
 
 #define HALF_SQRT_2 0.70710678118654757f	//根号2的值
 

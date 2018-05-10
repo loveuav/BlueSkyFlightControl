@@ -7,3 +7,4 @@ PROJECT/DebugConfig/
 PROJECT/*.scvd
 PROJECT/*.Administrator
 PROJECT/*.uvoptx
+PROJECT/*.dep

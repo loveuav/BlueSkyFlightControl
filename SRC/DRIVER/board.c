@@ -32,6 +32,7 @@ void BoardInit(void)
 	SysPeriphClockInit();
 	
 	//SPI初始化
+    Spi_GPIO_Init();
 	#if (configUSE_SPI1 == 1)
 		Spi_Open(1);
 	#endif

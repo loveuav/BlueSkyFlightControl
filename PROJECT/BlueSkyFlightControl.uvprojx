@@ -456,6 +456,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\MODULE\module.h</FilePath>
             </File>
+            <File>
+              <FileName>mpu6000.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\mpu6000.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu6000.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MODULE\mpu6000.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
