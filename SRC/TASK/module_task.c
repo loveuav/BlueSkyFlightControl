@@ -74,7 +74,7 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
 	//挂起调度器
 	vTaskSuspendAll();
 
-    //地磁传感器
+    //地磁传感器初始化
     MagSensorInit();
     //气压传感器初始化
     BaroSensorInit();
