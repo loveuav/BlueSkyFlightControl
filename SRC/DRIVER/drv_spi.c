@@ -257,7 +257,7 @@ void Spi_BaroSingleWrite(uint8_t reg, uint8_t value)
 void Spi_BaroMultiRead(uint8_t reg,uint8_t *data, uint8_t length)
 {
 	Spi_BaroEnable();
-	Spi_SingleWirteAndRead(BARO_SPI, reg | 0x80);
+	Spi_SingleWirteAndRead(BARO_SPI, reg);
 	SPI_MultiWriteAndRead(BARO_SPI, data, NULL, length);	
 	Spi_BaroDisable();	
 }

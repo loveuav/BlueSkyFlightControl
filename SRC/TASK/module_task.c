@@ -15,6 +15,7 @@
 
 //声明任务句柄
 xTaskHandle imuSensorReadTask;
+xTaskHandle sensorUpdateTask;
 
 /**********************************************************************************************************
 *函 数 名: vImuSensorReadTask
@@ -49,13 +50,53 @@ portTASK_FUNCTION(vImuSensorReadTask, pvParameters)
 		//读取温度传感器
 		TempSensorRead(tempRawData);		
 		
-		//往消息队列中填充数据
+		//更新消息队列，通知数据预处理任务对IMU数据进行预处理
 		xQueueSendToBack(messageQueue[ACC_SENSOR_READ],  (void *)&accRawData, 0); 		
 		xQueueSendToBack(messageQueue[GYRO_SENSOR_READ],  (void *)&gyroRawData, 0); 
 		xQueueSendToBack(messageQueue[TEMP_SENSOR_READ],  (void *)&tempRawData, 0); 
 
         //睡眠1ms
 		vTaskDelayUntil(&xLastWakeTime, (1 / portTICK_RATE_MS));
+	}
+}
+
+/**********************************************************************************************************
+*函 数 名: vSensorUpdateTask
+*功能说明: IMU之外的传感器数据更新任务
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+portTASK_FUNCTION(vSensorUpdateTask, pvParameters) 
+{
+	portTickType xLastWakeTime;
+    static uint16_t count = 0;
+    
+	//挂起调度器
+	vTaskSuspendAll();
+
+    //地磁传感器
+    MagSensorInit();
+    //气压传感器初始化
+    BaroSensorInit();
+    
+	//唤醒调度器
+	xTaskResumeAll();
+
+	xLastWakeTime = xTaskGetTickCount();
+	for(;;) 
+	{
+        //地磁传感器数据更新 100Hz
+		if(count % 2 == 0)	
+            MagSensorUpdate();
+ 
+        //气压传感器数据更新 50Hz
+        if(count % 4 == 0)
+            BaroSensorUpdate();	
+        
+        count++;
+        
+        //睡眠5ms
+		vTaskDelayUntil(&xLastWakeTime, (5 / portTICK_RATE_MS));
 	}
 }
 
@@ -67,7 +108,8 @@ portTASK_FUNCTION(vImuSensorReadTask, pvParameters)
 **********************************************************************************************************/
 void ModuleTaskCreate(void)
 {
-	xTaskCreate(vImuSensorReadTask, "imuSensorReadTask", IMU_SENSOR_READ_TASK_STACK, NULL, IMU_SENSOR_READ_TASK_PRIORITY, &imuSensorReadTask); 
+	xTaskCreate(vImuSensorReadTask, "imuSensorRead", IMU_SENSOR_READ_TASK_STACK, NULL, IMU_SENSOR_READ_TASK_PRIORITY, &imuSensorReadTask); 
+	xTaskCreate(vSensorUpdateTask, "sensorUpdate", SENSOR_UPDATE_TASK_STACK, NULL, SENSOR_UPDATE_TASK_PRIORITY, &sensorUpdateTask); 
 }
 
 
@@ -82,6 +124,16 @@ int16_t	GetImuSensorReadTaskStackUse(void)
 	return uxTaskGetStackHighWaterMark(imuSensorReadTask);
 }
 
+/**********************************************************************************************************
+*函 数 名: GetSensorUpdateTaskStackUse
+*功能说明: 获取任务堆栈使用情况
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+int16_t	GetSensorUpdateTaskStackUse(void)
+{
+	return uxTaskGetStackHighWaterMark(sensorUpdateTask);
+}
 
 
 

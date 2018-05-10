@@ -16,17 +16,18 @@
 #include "task.h"
 #include "queue.h"
 
+#include "board.h"
 #include "mathTool.h"
 
 #include "module_task.h"
 
 //任务堆栈大小
 #define IMU_SENSOR_READ_TASK_STACK		      256
-
+#define SENSOR_UPDATE_TASK_STACK              256
 
 //任务优先级
 #define IMU_SENSOR_READ_TASK_PRIORITY		  13
-
+#define SENSOR_UPDATE_TASK_PRIORITY           8
 
 //typedef struct{
 

@@ -30,13 +30,11 @@ void Soft_I2c_Open(uint8_t deviceNum)
     {
         GPIO_InitStructure.GPIO_Pin =  SOFT_I2C1_PIN_SCL | SOFT_I2C1_PIN_SDA;
         GPIO_Init(SOFT_I2C1_GPIO, &GPIO_InitStructure);	
-        GPIO_Init(SOFT_I2C1_GPIO, &GPIO_InitStructure);
     }  
     else if(deviceNum == 2)
     {
         GPIO_InitStructure.GPIO_Pin =  SOFT_I2C2_PIN_SCL | SOFT_I2C2_PIN_SDA;
         GPIO_Init(SOFT_I2C2_GPIO, &GPIO_InitStructure);	
-        GPIO_Init(SOFT_I2C2_GPIO, &GPIO_InitStructure);
     }      
 }
 
@@ -49,9 +47,9 @@ void Soft_I2c_Open(uint8_t deviceNum)
 void Soft_I2c_Delay(uint8_t deviceNum)
 {
     uint8_t i;
-	__nop();__nop();__nop();
-	__nop();__nop();__nop();
-	__nop();__nop();__nop();
+//	__nop();__nop();__nop();
+//	__nop();__nop();__nop();
+//	__nop();__nop();__nop();
 
     if(deviceNum == 1)
     {
@@ -147,11 +145,17 @@ uint8_t Soft_I2c_SCL_Read(uint8_t deviceNum)
 {
     if(deviceNum == 1)
     {
-        return  SOFT_I2C1_GPIO->IDR & SOFT_I2C1_PIN_SCL;
+        if(!(SOFT_I2C1_GPIO->IDR & SOFT_I2C1_PIN_SCL))
+            return 0;
+        else
+            return 1;
     }  
     else if(deviceNum == 2)
     {
-        return  SOFT_I2C2_GPIO->IDR & SOFT_I2C2_PIN_SCL;
+        if(!(SOFT_I2C2_GPIO->IDR & SOFT_I2C2_PIN_SCL))
+            return 0;
+        else
+            return 1;
     } 
     else
     {
@@ -169,11 +173,17 @@ uint8_t Soft_I2c_SDA_Read(uint8_t deviceNum)
 {
     if(deviceNum == 1)
     {
-        return  SOFT_I2C1_GPIO->IDR & SOFT_I2C1_PIN_SDA;
+        if(!(SOFT_I2C1_GPIO->IDR & SOFT_I2C1_PIN_SDA))
+            return 0;
+        else
+            return 1;
     }  
     else if(deviceNum == 2)
     {
-        return  SOFT_I2C2_GPIO->IDR & SOFT_I2C2_PIN_SDA;
+        if(!(SOFT_I2C2_GPIO->IDR & SOFT_I2C2_PIN_SDA))
+            return 0;
+        else
+            return 1;
     } 
     else
     {
@@ -367,7 +377,7 @@ bool Soft_I2c_Single_Write(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address,u8 
 **********************************************************************************************************/
 uint8_t Soft_I2C_Single_Read(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address)
 {   
-    unsigned char REG_data;     	
+    uint8_t REG_data;     	
     if(!Soft_I2c_Start(deviceNum))
         return false;
     Soft_I2c_SendByte(deviceNum, SlaveAddress);  

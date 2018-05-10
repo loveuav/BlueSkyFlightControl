@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     messageQueue.c
- * @说明     消息队列
+ * @说明     消息队列，主要用于对数据传递实时性要求较高的任务间通信
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com

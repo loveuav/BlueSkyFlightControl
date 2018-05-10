@@ -493,6 +493,26 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\MODULE\mpu6000.h</FilePath>
             </File>
+            <File>
+              <FileName>ms5611.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\ms5611.c</FilePath>
+            </File>
+            <File>
+              <FileName>ms5611.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MODULE\ms5611.h</FilePath>
+            </File>
+            <File>
+              <FileName>qmc5883.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\qmc5883.c</FilePath>
+            </File>
+            <File>
+              <FileName>qmc5883.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MODULE\qmc5883.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
