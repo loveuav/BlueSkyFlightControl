@@ -1,8 +1,7 @@
 #ifndef __VECTOR3_H__
 #define __VECTOR3_H__
 
-#include <stdint.h>
-#include <math.h>
+#include "mathTool.h"
 
 typedef struct{
 	float x;
@@ -30,9 +29,13 @@ typedef struct{
 
 Vector3f_t Vector3iTo3f(Vector3i_t vector);
 Vector3i_t Vector3fTo3i(Vector3f_t vector);
+Vector3f_t Vector3f_Add(Vector3f_t v1, Vector3f_t v2);
+Vector3f_t Vector3f_Sub(Vector3f_t v1, Vector3f_t v2);
+
 Vector3f_t VectorCrossProduct(Vector3f_t a, Vector3f_t b);
-Vector3f_t Vector3MulMatrix3(Vector3f_t vector, float* m);
+Vector3f_t Matrix3MulVector3(float* m, Vector3f_t vector);
 Vector3f_t VectorRotate(Vector3f_t vector, Vector3f_t deltaAngle);
+void EulerAngleToDCM(Vector3f_t angle, float* dcM);
 
 #endif
 

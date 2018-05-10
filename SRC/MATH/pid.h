@@ -1,7 +1,7 @@
 #ifndef _PID_H
 #define _PID_H
 
-#include <stdint.h>
+#include "mathTool.h"
 
 typedef struct
 {

@@ -6,7 +6,6 @@
 #include <math.h>
 
 #include "vector3.h"
-#include "matrix3.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -37,7 +36,9 @@ float Pythagorous3(float a, float b, float c);
 float Pythagorous4(float a, float b, float c, float d);
 
 float WrapDegree360(float angle);
-    
+
+
+
 #endif
 
 

@@ -1,8 +1,7 @@
 #ifndef _MATRIX3_H_
 #define _MATRIX3_H_
 
-#include <stdint.h>
-#include <math.h>
+#include "mathTool.h"
 
 void Matrix3_Add(float* a,float* b,float* c);
 void Matrix3_Sub(float* a,float* b,float* c);
