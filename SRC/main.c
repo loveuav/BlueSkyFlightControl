@@ -48,6 +48,7 @@
 #include "task.h"
 
 #include "board.h"
+#include "messageQueue.h"
 
 xTaskHandle startTask;
 
@@ -59,7 +60,13 @@ portTASK_FUNCTION(vStartTask, pvParameters)
 
     //硬件初始化
     BoardInit();
-
+    
+    //消息队列创建
+    MessageQueueCreate();
+        
+    //创建用户任务
+    ModuleTaskCreate();
+    
     for(;;)
     {
         vTaskDelay(5000);

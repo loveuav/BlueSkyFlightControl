@@ -388,6 +388,33 @@
         </Group>
         <Group>
           <GroupName>TASK</GroupName>
+          <Files>
+            <File>
+              <FileName>TaskConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\TASK\TaskConfig.h</FilePath>
+            </File>
+            <File>
+              <FileName>module_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\TASK\module_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>module_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\TASK\module_task.h</FilePath>
+            </File>
+            <File>
+              <FileName>messageQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\TASK\messageQueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>messageQueue.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\TASK\messageQueue.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>NAVIGATION</GroupName>

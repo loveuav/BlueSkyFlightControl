@@ -1,3 +1,14 @@
+/**********************************************************************************************************
+                                天穹飞控 —— 致力于打造中国最好的多旋翼开源飞控
+                                Github: github.com/loveuav/BlueSkyFlightControl
+                                技术讨论：bbs.loveuav.com/forum-68-1.html
+ * @文件     mpu6000.c
+ * @说明     MPU6000六轴传感器驱动
+ * @版本  	 V1.0
+ * @作者     BlueSky
+ * @网站     bbs.loveuav.com
+ * @日期     2018.05 
+**********************************************************************************************************/
 #include "mpu6000.h"
 #include "drv_spi.h"
 
@@ -138,11 +149,7 @@ bool MPU6000_Detect(void)
 *返 回 值: 无
 **********************************************************************************************************/
 void MPU6000_Init(void)
-{
-	
-	//检测传感器是否存在
-	MPU6000_Detect();
-	
+{	
 	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x80);
 	SoftDelayMs(50);
 	
@@ -195,8 +202,8 @@ void MPU6000_ReadAcc(Vector3i_t* acc)
 	acc->x = ((((int16_t)buffer[0]) << 8) | buffer[1]); 
 	acc->y = ((((int16_t)buffer[2]) << 8) | buffer[3]);  
 	acc->z = ((((int16_t)buffer[4]) << 8) | buffer[5]); 
-	
-	SoftDelayUs(1);
+    
+    SoftDelayUs(1);
 }
 
 /**********************************************************************************************************
@@ -213,8 +220,8 @@ void MPU6000_ReadGyro(Vector3i_t* gyro)
 	gyro->x = ((((int16_t)buffer[0]) << 8) | buffer[1]);	
 	gyro->y = ((((int16_t)buffer[2]) << 8) | buffer[3]);
 	gyro->z = ((((int16_t)buffer[4]) << 8) | buffer[5]);
-	
-	SoftDelayUs(1);
+    
+    SoftDelayUs(1);
 }
 
 /**********************************************************************************************************
@@ -231,8 +238,8 @@ void MPU6000_ReadTemp(float* temp)
 	Spi_GyroMultiRead(MPU_RA_TEMP_OUT_H, buffer, 2);	
 	temperature_temp = ((((int16_t)buffer[0]) << 8) | buffer[1]);		
 	*temp = 36.53f + (float)temperature_temp / 340;
-	
-	SoftDelayUs(1);
+    
+    SoftDelayUs(1);
 }
 
 /**********************************************************************************************************
