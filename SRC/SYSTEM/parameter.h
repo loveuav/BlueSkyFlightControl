@@ -4,6 +4,7 @@
 #include "board.h"
 
 enum {
+    PARAM_CHECK_SUM,
     PARAM_GYRO_OFFSET_X,
     PARAM_GYRO_OFFSET_Y,
     PARAM_GYRO_OFFSET_Z,

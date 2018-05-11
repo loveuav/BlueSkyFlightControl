@@ -31,6 +31,22 @@ void ParamInit(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: ParamDataReset
+*功能说明: 参数置零
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void ParamDataReset(void)
+{
+    uint32_t i;
+    
+    for(i=0;i<PARAM_NUM*4;i++)
+    {
+        param_data[i] = 0;
+    }
+}
+
+/**********************************************************************************************************
 *函 数 名: ParamReadFromFlash
 *功能说明: 把飞控参数存储区的内容读取出来
 *形    参: 无
@@ -38,10 +54,25 @@ void ParamInit(void)
 **********************************************************************************************************/
 static void ParamReadFromFlash(void)
 {
-	uint16_t i = 0;
-
-	for (i = 0; i < PARAM_NUM*4; i++)
+	uint32_t i = 0;
+    uint32_t dataSum = 0, checkSum = 0;
+    
+	for (i=0;i<PARAM_NUM*4;i++)
 		param_data[i] = Flash_ReadByte(FLASH_USER_PARA_START_ADDR, i);
+    
+    //计算参数和
+    for(i=4;i<PARAM_NUM*4;i++)
+    {
+        dataSum += param_data[i];
+    }
+    
+    ParamGetData(PARAM_CHECK_SUM, &checkSum, 4);
+    
+    //和保存的校验和进行对比，如果不符合则重置所有参数
+    if(checkSum != dataSum)
+    {
+        ParamDataReset();
+    }
 }
 
 /**********************************************************************************************************
@@ -52,8 +83,18 @@ static void ParamReadFromFlash(void)
 **********************************************************************************************************/
 void ParamSaveToFlash(void)
 {
+    uint32_t i = 0;
+    uint32_t dataSum = 0;
+      
     if(param_save_cnt == 1)
-    {      
+    {
+        //计算参数和
+        for(i=4;i<PARAM_NUM*4;i++)
+        {
+            dataSum += param_data[i];
+        }              
+        memcpy(param_data+PARAM_CHECK_SUM*4, &dataSum, 4);
+            
         Flash_WriteByte(FLASH_USER_PARA_START_ADDR, param_data, PARAM_NUM*4);
     }
 	

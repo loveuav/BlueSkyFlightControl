@@ -29,10 +29,6 @@
 #define IMU_SENSOR_READ_TASK_PRIORITY		  13
 #define SENSOR_UPDATE_TASK_PRIORITY           8
 
-//typedef struct{
-
-//}TASK_STACK_REMAIN_t;
-
 enum {
     GYRO_SENSOR_READ,
     ACC_SENSOR_READ,
