@@ -495,6 +495,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\MATH\pid.h</FilePath>
             </File>
+            <File>
+              <FileName>gaussNewton.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MATH\gaussNewton.c</FilePath>
+            </File>
+            <File>
+              <FileName>gaussNewton.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MATH\gaussNewton.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -519,6 +529,16 @@
               <FileName>gyroscope.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\SRC\SENSOR\gyroscope.h</FilePath>
+            </File>
+            <File>
+              <FileName>accelerometer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\SENSOR\accelerometer.c</FilePath>
+            </File>
+            <File>
+              <FileName>accelerometer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SENSOR\accelerometer.h</FilePath>
             </File>
           </Files>
         </Group>

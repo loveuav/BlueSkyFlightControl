@@ -46,10 +46,8 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     ModuleTaskCreate();
     SensorTaskCreate();
     
-    for(;;)
-    {
-        vTaskDelay(5000);
-    }
+    //删除本任务
+    vTaskDelete(NULL);
 }
 
 int main(void)

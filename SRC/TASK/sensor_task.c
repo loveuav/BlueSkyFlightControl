@@ -12,6 +12,7 @@
 #include "TaskConfig.h"
 
 #include "gyroscope.h"
+#include "accelerometer.h"
 
 xTaskHandle imuDataPreTreatTask;
 
@@ -34,7 +35,9 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 	
     //陀螺仪校准参数初始化
 	GyroCaliDataInit();
-
+    //加速度校准参数初始化
+    AccCaliDataInit();
+    
 	//唤醒调度器
 	xTaskResumeAll();
 
@@ -47,10 +50,14 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 		
 		//陀螺仪校准
 		GyroCalibration(*gyroRawData);	
-
+        //加速度校准
+        AccCalibration(*accRawData);
+        
 		//陀螺仪数据预处理
 		GyroDataPreTreat(*gyroRawData, gyroData);
-
+        //加速度数据预处理
+        AccDataPreTreat(*accRawData, accData);
+        
 		//IMU安装误差校准
         //······
         
