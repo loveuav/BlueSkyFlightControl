@@ -96,7 +96,7 @@ void AccCalibration(Vector3f_t accRaw)
 	static Vector3f_t new_offset;
 	static Vector3f_t new_scale;
     static Vector3f_t samples[6];
-    bool success = 0;
+    bool success = true;
     
 	if(acc.cali.should_cali)
 	{

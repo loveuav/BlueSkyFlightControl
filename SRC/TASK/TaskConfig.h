@@ -23,14 +23,17 @@
 #include "sensor_task.h"
 
 //任务堆栈大小
-#define IMU_SENSOR_READ_TASK_STACK		      256
+#define IMU_SENSOR_READ_TASK_STACK            256
 #define SENSOR_UPDATE_TASK_STACK              256
-#define IMU_DATA_PRETREAT_TASK_STACK           256
+#define IMU_DATA_PRETREAT_TASK_STACK          256
+#define OTHER_SENSOR_TASK_STACK               256
 
 //任务优先级
-#define IMU_SENSOR_READ_TASK_PRIORITY		  13
-#define IMU_DATA_PRETREAT_TASK_PRIORITY        12
+#define IMU_SENSOR_READ_TASK_PRIORITY         13
+#define IMU_DATA_PRETREAT_TASK_PRIORITY       12
 #define SENSOR_UPDATE_TASK_PRIORITY           8
+#define OTHER_SENSOR_TASK_PRIORITY            7
+
 
 enum {
     GYRO_SENSOR_READ,

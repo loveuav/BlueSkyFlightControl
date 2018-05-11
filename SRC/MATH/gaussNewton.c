@@ -4,6 +4,7 @@
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     gaussNewton.c
  * @说明     用于求解非线性方程最优解的高斯牛顿算法
+ *           算法实现来自：chionophilous.wordpress.com/2012/09/01/implementing-the-gauss-newton-algorithm-for-sphere-fitting-1-of-3/
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -21,7 +22,7 @@ static void GaussNewtonFindDelta(float dS[6], float JS[6][6], float delta[6]);
 *形    参: 传感器采样数据（6组） 零偏误差指针 比例误差指针 数据向量长度 最大迭代次数
 *返 回 值: 无
 **********************************************************************************************************/
-void GaussNewtonCalibrate(Vector3f_t inputData[6],Vector3f_t* offset, Vector3f_t* scale, 
+void GaussNewtonCalibrate(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t* scale, 
      float length, int16_t maxIteration)
 {
     int16_t i;
@@ -36,7 +37,7 @@ void GaussNewtonCalibrate(Vector3f_t inputData[6],Vector3f_t* offset, Vector3f_t
 
     // reset
     beta[0] = beta[1] = beta[2] = 0;
-    beta[3] = beta[4] = beta[5] = length;
+    beta[3] = beta[4] = beta[5] = 1 / length;
     
     while(num_iterations < maxIteration && change > eps) 
     {

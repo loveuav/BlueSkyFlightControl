@@ -17,7 +17,6 @@
 
 #define EARTH_RADIUS         6371.004f      //km
 #define GRAVITY_ACCEL        0.98f          //重力加速度 单位：m/s^2
-#define EARTH_MAGNETIC       0.5f           //地磁场强度0.5-0.6 单位：gauss
 
 #define HALF_SQRT_2          0.70710678118654757f	//根号2的值
 

@@ -13,8 +13,10 @@
 
 #include "gyroscope.h"
 #include "accelerometer.h"
+#include "magnetometer.h"
 
 xTaskHandle imuDataPreTreatTask;
+xTaskHandle otherSensorTask;
 
 /**********************************************************************************************************
 *函 数 名: vImuDataPreTreatTask
@@ -69,6 +71,46 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 }
 
 /**********************************************************************************************************
+*函 数 名: vOtherSensorTask
+*功能说明: 其它传感器数据预处理任务
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+portTASK_FUNCTION(vOtherSensorTask, pvParameters) 
+{
+	portTickType xLastWakeTime;
+	static uint16_t count = 0;
+	
+	//挂起调度器
+	vTaskSuspendAll();
+    
+    //磁力计校准参数初始化
+    MagCaliDataInit();
+    
+	//唤醒调度器
+	xTaskResumeAll();
+	
+	xLastWakeTime = xTaskGetTickCount();
+	for(;;)
+	{		
+        //100Hz
+        if(count % 2 == 0)	
+		{
+            //磁力计校准
+            MagCalibration();
+            
+            //磁力计数据预处理
+            MagDataPreTreat();
+		}
+        
+		count++;
+        
+        //睡眠5ms
+		vTaskDelayUntil(&xLastWakeTime, (5 / portTICK_RATE_MS));
+	}
+}
+
+/**********************************************************************************************************
 *函 数 名: SensorTaskCreate
 *功能说明: 传感器数据预处理相关任务创建
 *形    参: 无
@@ -76,7 +118,8 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 **********************************************************************************************************/
 void SensorTaskCreate(void)
 {
-	xTaskCreate(vImuDataPreTreatTask, "imuDataPreTreatTask", IMU_DATA_PRETREAT_TASK_STACK, NULL, IMU_DATA_PRETREAT_TASK_PRIORITY, &imuDataPreTreatTask); 
+	xTaskCreate(vImuDataPreTreatTask, "imuDataPreTreat", IMU_DATA_PRETREAT_TASK_STACK, NULL, IMU_DATA_PRETREAT_TASK_PRIORITY, &imuDataPreTreatTask); 
+	xTaskCreate(vOtherSensorTask, "otherSensor", OTHER_SENSOR_TASK_STACK, NULL, OTHER_SENSOR_TASK_PRIORITY, &otherSensorTask); 
 }
 
 /**********************************************************************************************************
@@ -89,5 +132,18 @@ int16_t	GetImuDataPreTreatTaskStackUse(void)
 {
 	return uxTaskGetStackHighWaterMark(imuDataPreTreatTask);
 }
+
+/**********************************************************************************************************
+*函 数 名: GetOtherSensorTaskStackUse
+*功能说明: 获取任务堆栈使用情况
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+int16_t	GetOtherSensorTaskStackUse(void)
+{
+	return uxTaskGetStackHighWaterMark(otherSensorTask);	
+}
+
+
 
 

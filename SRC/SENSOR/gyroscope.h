@@ -12,6 +12,7 @@ void GyroCaliDataInit(void);
 void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData);
 void GyroCalibration(Vector3f_t gyroRaw);
 void GyroCalibrateEnable(void);
+Vector3f_t GyroGetData(void);
 
 #endif
 
