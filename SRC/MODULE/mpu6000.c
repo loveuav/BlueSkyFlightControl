@@ -190,36 +190,46 @@ void MPU6000_Init(void)
 
 /**********************************************************************************************************
 *函 数 名: MPU6000_ReadAcc
-*功能说明: MPU6000读取加速度传感器
+*功能说明: MPU6000读取加速度传感器，并转化为标准单位
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void MPU6000_ReadAcc(Vector3i_t* acc)
+void MPU6000_ReadAcc(Vector3f_t* acc)
 {
 	uint8_t buffer[6];
-
+    Vector3i_t accRaw;
+    
 	Spi_GyroMultiRead(MPU_RA_ACCEL_XOUT_H, buffer, 6);	
-	acc->x = ((((int16_t)buffer[0]) << 8) | buffer[1]); 
-	acc->y = ((((int16_t)buffer[2]) << 8) | buffer[3]);  
-	acc->z = ((((int16_t)buffer[4]) << 8) | buffer[5]); 
+	accRaw.x = ((((int16_t)buffer[0]) << 8) | buffer[1]); 
+	accRaw.y = ((((int16_t)buffer[2]) << 8) | buffer[3]);  
+	accRaw.z = ((((int16_t)buffer[4]) << 8) | buffer[5]); 
+    
+    acc->x = (float)accRaw.x * MPU_A_8mg;
+    acc->y = (float)accRaw.y * MPU_A_8mg;
+    acc->z = (float)accRaw.z * MPU_A_8mg;
     
     SoftDelayUs(1);
 }
 
 /**********************************************************************************************************
 *函 数 名: MPU6000_ReadGyro
-*功能说明: MPU6000读取陀螺仪传感器
+*功能说明: MPU6000读取陀螺仪传感器，并转化为标准单位
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void MPU6000_ReadGyro(Vector3i_t* gyro)
+void MPU6000_ReadGyro(Vector3f_t* gyro)
 {
 	uint8_t buffer[6];
+    Vector3i_t gyroRaw;
 	
 	Spi_GyroMultiRead(MPU_RA_GYRO_XOUT_H, buffer, 6);	
-	gyro->x = ((((int16_t)buffer[0]) << 8) | buffer[1]);	
-	gyro->y = ((((int16_t)buffer[2]) << 8) | buffer[3]);
-	gyro->z = ((((int16_t)buffer[4]) << 8) | buffer[5]);
+	gyroRaw.x = ((((int16_t)buffer[0]) << 8) | buffer[1]);	
+	gyroRaw.y = ((((int16_t)buffer[2]) << 8) | buffer[3]);
+	gyroRaw.z = ((((int16_t)buffer[4]) << 8) | buffer[5]);
+    
+    gyro->x = gyroRaw.x * MPU_G_s2000dps;
+    gyro->y = gyroRaw.y * MPU_G_s2000dps;
+    gyro->z = gyroRaw.z * MPU_G_s2000dps;
     
     SoftDelayUs(1);
 }
@@ -240,39 +250,5 @@ void MPU6000_ReadTemp(float* temp)
 	*temp = 36.53f + (float)temperature_temp / 340;
     
     SoftDelayUs(1);
-}
-
-/**********************************************************************************************************
-*函 数 名: MPU6000_GyroNormalize
-*功能说明: 陀螺仪数据单位化
-*形    参: 原始数据
-*返 回 值: 单位化后的数据
-**********************************************************************************************************/
-Vector3f_t MPU6000_GyroNormalize(Vector3i_t raw)
-{
-    Vector3f_t temp;
-    
-    temp.x = raw.x * MPU_G_s2000dps;
-    temp.y = raw.y * MPU_G_s2000dps;
-    temp.z = raw.z * MPU_G_s2000dps;
-    
-    return temp;
-}
-
-/**********************************************************************************************************
-*函 数 名: MPU6000_AccNormalize
-*功能说明: 加速度数据单位化
-*形    参: 原始数据
-*返 回 值: 单位化后的数据
-**********************************************************************************************************/
-Vector3f_t MPU6000_AccNormalize(Vector3i_t raw)
-{
-    Vector3f_t temp;
-    
-    temp.x = raw.x * MPU_A_8mg;
-    temp.y = raw.y * MPU_A_8mg;
-    temp.z = raw.z * MPU_A_8mg;
-    
-    return temp;    
 }
 

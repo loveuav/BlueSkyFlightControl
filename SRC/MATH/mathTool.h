@@ -11,13 +11,15 @@
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define abs(x) ((x) > 0 ? (x) : -(x))
 
-#define M_PI 3.141592653f				//圆周率
-#define DEG_TO_RAD 0.01745329f	//角度转弧度
-#define RAD_TO_DEG 57.29577951f	//弧度转角度
+#define M_PI                 3.141592653f	//圆周率
+#define DEG_TO_RAD           0.01745329f	//角度转弧度
+#define RAD_TO_DEG           57.29577951f	//弧度转角度
 
-#define EARTH_RADIUS  6371.004f //km
+#define EARTH_RADIUS         6371.004f      //km
+#define GRAVITY_ACCEL        0.98f          //重力加速度 单位：m/s^2
+#define EARTH_MAGNETIC       0.5f           //地磁场强度0.5-0.6 单位：gauss
 
-#define HALF_SQRT_2 0.70710678118654757f	//根号2的值
+#define HALF_SQRT_2          0.70710678118654757f	//根号2的值
 
 float ConstrainFloat(float amt, float low, float high);
 int16_t ConstrainInt16(int16_t amt, int16_t low, int16_t high);
@@ -36,7 +38,6 @@ float Pythagorous3(float a, float b, float c);
 float Pythagorous4(float a, float b, float c, float d);
 
 float WrapDegree360(float angle);
-
 
 
 #endif

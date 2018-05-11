@@ -28,6 +28,12 @@ typedef struct{
 	float r[9];	
 }Kalman_t;
 
+void KalmanUpdate(Kalman_t* kalman, Vector3f_t input, Vector3f_t observe, bool flag);
 
+void KalmanStateTransMatSet(Kalman_t* kalman, float* f);
+void KalmanObserveMapMatSet(Kalman_t* kalman, float* h);
+void KalmanCovarianceMatSet(Kalman_t* kalman, float* p);
+void KalmanQMatSet(Kalman_t* kalman, float* q);
+void KalmanRMatSet(Kalman_t* kalman, float* r);
 
 #endif

@@ -22,8 +22,8 @@ QueueHandle_t messageQueue[QUEUE_NUM];
 **********************************************************************************************************/
 void MessageQueueCreate(void)
 {
-	messageQueue[ACC_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3i_t *));
-	messageQueue[GYRO_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3i_t *));
+	messageQueue[ACC_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3f_t *));
+	messageQueue[GYRO_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3f_t *));
 	messageQueue[TEMP_SENSOR_READ] =  xQueueCreate(2, sizeof(float *));
 
 	messageQueue[GYRO_DATA_PRETREAT] =  xQueueCreate(2, sizeof(Vector3f_t *));

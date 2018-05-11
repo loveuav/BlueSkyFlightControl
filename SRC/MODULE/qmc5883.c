@@ -95,33 +95,15 @@ void QMC5883_Update(void)
 
 /**********************************************************************************************************
 *函 数 名: QMC5883_Read
-*功能说明: 读取地磁传感器数据
+*功能说明: 读取地磁传感器数据,并转换为标准单位
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void QMC5883_Read(Vector3i_t* mag)
+void QMC5883_Read(Vector3f_t* mag)
 {
-	mag->x = magRaw.x;
-	mag->y = magRaw.y;
-	mag->z = magRaw.z;
+	mag->x = magRaw.x * QMC5883_MAG_TO_GAUSS;
+	mag->y = magRaw.y * QMC5883_MAG_TO_GAUSS;
+	mag->z = magRaw.z * QMC5883_MAG_TO_GAUSS;
 }
-
-/**********************************************************************************************************
-*函 数 名: QMC5883_MagNormalize
-*功能说明: 磁场强度数据单位化
-*形    参: 原始数据
-*返 回 值: 单位化后的数据
-**********************************************************************************************************/
-Vector3f_t QMC5883_MagNormalize(Vector3i_t raw)
-{
-    Vector3f_t temp;
-    
-    temp.x = raw.x * QMC5883_MAG_TO_GAUSS;
-    temp.y = raw.y * QMC5883_MAG_TO_GAUSS;
-    temp.z = raw.z * QMC5883_MAG_TO_GAUSS;
-    
-    return temp;    
-}
-
 
 

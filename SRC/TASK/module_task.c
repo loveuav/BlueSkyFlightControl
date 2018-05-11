@@ -27,8 +27,8 @@ portTASK_FUNCTION(vImuSensorReadTask, pvParameters)
 {
 	portTickType xLastWakeTime;
 
-	Vector3i_t* accRawData = pvPortMalloc(sizeof(Vector3i_t));
-	Vector3i_t* gyroRawData = pvPortMalloc(sizeof(Vector3i_t));
+	Vector3f_t* accRawData = pvPortMalloc(sizeof(Vector3f_t));
+	Vector3f_t* gyroRawData = pvPortMalloc(sizeof(Vector3f_t));
 	float* tempRawData = pvPortMalloc(sizeof(float));
 
 	//挂起调度器
@@ -87,11 +87,15 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
 	{
         //地磁传感器数据更新 100Hz
 		if(count % 2 == 0)	
+        {
             MagSensorUpdate();
- 
+        }
+        
         //气压传感器数据更新 50Hz
         if(count % 4 == 0)
+        {
             BaroSensorUpdate();	
+        }
         
         count++;
         

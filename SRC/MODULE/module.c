@@ -84,7 +84,7 @@ bool BaroSensorInit(void)
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void GyroSensorRead(Vector3i_t* gyro)
+void GyroSensorRead(Vector3f_t* gyro)
 {
     #if (GYRO_TYPE == MPU6000)
     MPU6000_ReadGyro(gyro);
@@ -97,7 +97,7 @@ void GyroSensorRead(Vector3i_t* gyro)
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void AccSensorRead(Vector3i_t* acc)
+void AccSensorRead(Vector3f_t* acc)
 {
     #if (GYRO_TYPE == MPU6000)
     MPU6000_ReadAcc(acc);
@@ -136,7 +136,7 @@ void MagSensorUpdate(void)
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void MagSensorRead(Vector3i_t* mag)
+void MagSensorRead(Vector3f_t* mag)
 {
     #if (MAG_TYPE == QMC5883)
     QMC5883_Read(mag);
@@ -168,39 +168,6 @@ void BaroSensorRead(int32_t* baroAlt)
     MS5611_Read(baroAlt);  
     #endif     
 }
-
-/**********************************************************************************************************
-*函 数 名: GyroDataNormalize
-*功能说明: 陀螺仪数据单位化
-*形    参: 原始数据
-*返 回 值: 单位化后的数据
-**********************************************************************************************************/
-Vector3f_t GyroDataNormalize(Vector3i_t raw)
-{
-    #if (GYRO_TYPE == MPU6000)
-    return MPU6000_GyroNormalize(raw);
-    #endif     
-}
-
-/**********************************************************************************************************
-*函 数 名: AccDataNormalize
-*功能说明: 加速度数据单位化
-*形    参: 原始数据
-*返 回 值: 单位化后的数据
-**********************************************************************************************************/
-Vector3f_t AccDataNormalize(Vector3i_t raw)
-{
-    #if (GYRO_TYPE == MPU6000)
-    return MPU6000_AccNormalize(raw);
-    #endif     
-}
-
-
-
-
-
-
-
 
 
 
