@@ -7,7 +7,7 @@
  * @作者：   BlueSky
  * @QQ:      352707983
  * @论坛:    爱无人机 bbs.loveuav.com
- * @编译：   Keil ARM MDK 5.24@Win10 64位  
+ * @编译：   Keil ARM MDK 5.24 @ Win10 64位  
  
  * 1缩进等于4空格!
  
@@ -42,8 +42,9 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     //消息队列创建
     MessageQueueCreate();
         
-    //创建用户任务
+    //用户任务创建
     ModuleTaskCreate();
+    SensorTaskCreate();
     
     for(;;)
     {

@@ -115,13 +115,14 @@
 #define MPU_LPF_10HZ        5
 #define MPU_LPF_5HZ         6
 
-#define MPU_A_2mg                ((float)0.00006103f)  // 0.00006250 g/LSB
-#define MPU_A_4mg                ((float)0.00012207f)  // 0.00012500 g/LSB
-#define MPU_A_8mg                ((float)0.00024414f)  // 0.00025000 g/LSB
+#define MPU_A_2mg                ((float)0.00006103f)  //g/LSB
+#define MPU_A_4mg                ((float)0.00012207f)  //g/LSB
+#define MPU_A_8mg                ((float)0.00024414f)  //g/LSB
 
-#define MPU_G_s250dps            ((float)0.0076335f)  // 0.0087500 dps/LSB
-#define MPU_G_s500dps            ((float)0.0152671f)  // 0.0175000 dps/LSB
-#define MPU_G_s2000dps           ((float)0.0609756f)  // 0.0700000 dps/LSB
+#define MPU_G_s250dps            ((float)0.0076296f)  //dps/LSB
+#define MPU_G_s500dps            ((float)0.0152592f)  //dps/LSB
+#define MPU_G_s1000dps           ((float)0.0305185f)  //dps/LSB
+#define MPU_G_s2000dps           ((float)0.0610370f)  //dps/LSB
 
 
 /**********************************************************************************************************
@@ -178,8 +179,8 @@ void MPU6000_Init(void)
 	Spi_GyroSingleWrite(MPU_RA_CONFIG, MPU_LPF_42HZ);		
 	SoftDelayUs(5);		
 	
-	//陀螺仪自检及测量范围，典型值0x18(不自检，2000deg/s)
-	Spi_GyroSingleWrite(MPU_RA_GYRO_CONFIG, 0x18);		
+	//陀螺仪自检及测量范围，典型值0x18(不自检，2000deg/s) (0x10 1000deg/s) (0x10 1000deg/s) (0x08 500deg/s)
+	Spi_GyroSingleWrite(MPU_RA_GYRO_CONFIG, 0x10);		
 	SoftDelayUs(5);		
 	
 	//加速度自检、测量范围(不自检，+-8G)			
@@ -227,11 +228,16 @@ void MPU6000_ReadGyro(Vector3f_t* gyro)
 	gyroRaw.y = ((((int16_t)buffer[2]) << 8) | buffer[3]);
 	gyroRaw.z = ((((int16_t)buffer[4]) << 8) | buffer[5]);
     
-    gyro->x = gyroRaw.x * MPU_G_s2000dps;
-    gyro->y = gyroRaw.y * MPU_G_s2000dps;
-    gyro->z = gyroRaw.z * MPU_G_s2000dps;
+    gyro->x = gyroRaw.x * MPU_G_s1000dps;
+    gyro->y = gyroRaw.y * MPU_G_s1000dps;
+    gyro->z = gyroRaw.z * MPU_G_s1000dps;
     
     SoftDelayUs(1);
+    
+    if(abs(gyroRaw.x) > 32000 || abs(gyroRaw.y) > 32000 || abs(gyroRaw.z) > 32000)
+    {
+        SoftDelayUs(1);
+    }
 }
 
 /**********************************************************************************************************
@@ -251,4 +257,6 @@ void MPU6000_ReadTemp(float* temp)
     
     SoftDelayUs(1);
 }
+
+
 

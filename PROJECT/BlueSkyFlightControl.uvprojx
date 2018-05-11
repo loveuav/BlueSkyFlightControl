@@ -405,6 +405,16 @@
               <FilePath>..\SRC\TASK\TaskConfig.h</FilePath>
             </File>
             <File>
+              <FileName>messageQueue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\TASK\messageQueue.c</FilePath>
+            </File>
+            <File>
+              <FileName>messageQueue.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\TASK\messageQueue.h</FilePath>
+            </File>
+            <File>
               <FileName>module_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\TASK\module_task.c</FilePath>
@@ -415,14 +425,14 @@
               <FilePath>..\SRC\TASK\module_task.h</FilePath>
             </File>
             <File>
-              <FileName>messageQueue.c</FileName>
+              <FileName>sensor_task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\SRC\TASK\messageQueue.c</FilePath>
+              <FilePath>..\SRC\TASK\sensor_task.c</FilePath>
             </File>
             <File>
-              <FileName>messageQueue.h</FileName>
+              <FileName>sensor_task.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\SRC\TASK\messageQueue.h</FilePath>
+              <FilePath>..\SRC\TASK\sensor_task.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -489,6 +499,28 @@
         </Group>
         <Group>
           <GroupName>SENSOR</GroupName>
+          <Files>
+            <File>
+              <FileName>sensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\SENSOR\sensor.c</FilePath>
+            </File>
+            <File>
+              <FileName>sensor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SENSOR\sensor.h</FilePath>
+            </File>
+            <File>
+              <FileName>gyroscope.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\SENSOR\gyroscope.c</FilePath>
+            </File>
+            <File>
+              <FileName>gyroscope.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SENSOR\gyroscope.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>MODULE</GroupName>
