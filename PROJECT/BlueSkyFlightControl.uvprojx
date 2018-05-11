@@ -573,6 +573,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\DRIVER\drv_i2c_soft.h</FilePath>
             </File>
+            <File>
+              <FileName>drv_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\DRIVER\drv_flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_flash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\DRIVER\drv_flash.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
