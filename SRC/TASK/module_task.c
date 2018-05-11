@@ -12,6 +12,7 @@
 #include "TaskConfig.h"
 
 #include "module.h"
+#include "parameter.h"
 
 //声明任务句柄
 xTaskHandle imuSensorReadTask;
@@ -95,6 +96,12 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
         if(count % 4 == 0)
         {
             BaroSensorUpdate();	
+        }
+        
+        //飞控参数保存(参数有更新才会执行）20Hz
+        if(count % 10 == 0)
+        {       
+            ParamSaveToFlash();
         }
         
         count++;

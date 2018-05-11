@@ -377,12 +377,22 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>USER</GroupName>
+          <GroupName>SYSTEM</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>parameter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\SYSTEM\parameter.c</FilePath>
+            </File>
+            <File>
+              <FileName>parameter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SYSTEM\parameter.h</FilePath>
             </File>
           </Files>
         </Group>
