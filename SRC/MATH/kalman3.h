@@ -35,5 +35,6 @@ void KalmanObserveMapMatSet(Kalman_t* kalman, float* h);
 void KalmanCovarianceMatSet(Kalman_t* kalman, float* p);
 void KalmanQMatSet(Kalman_t* kalman, float* q);
 void KalmanRMatSet(Kalman_t* kalman, float* r);
-
+void KalmanBMatSet(Kalman_t* kalman, float* b);
+    
 #endif

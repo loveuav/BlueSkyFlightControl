@@ -434,10 +434,32 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\TASK\sensor_task.h</FilePath>
             </File>
+            <File>
+              <FileName>navigation_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\TASK\navigation_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>navigation_task.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\TASK\navigation_task.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>NAVIGATION</GroupName>
+          <Files>
+            <File>
+              <FileName>ahrs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\NAVIGATION\ahrs.c</FilePath>
+            </File>
+            <File>
+              <FileName>ahrs.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\NAVIGATION\ahrs.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>CONTROL</GroupName>

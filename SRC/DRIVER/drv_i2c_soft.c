@@ -47,9 +47,9 @@ void Soft_I2c_Open(uint8_t deviceNum)
 void Soft_I2c_Delay(uint8_t deviceNum)
 {
     uint8_t i;
-//	__nop();__nop();__nop();
-//	__nop();__nop();__nop();
-//	__nop();__nop();__nop();
+	__nop();__nop();__nop();
+	__nop();__nop();__nop();
+	__nop();__nop();__nop();
 
     if(deviceNum == 1)
     {
