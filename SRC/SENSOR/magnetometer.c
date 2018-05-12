@@ -59,7 +59,19 @@ void MagCaliDataInit(void)
 	ParamGetData(PARAM_MAG_SCALE_X, &mag.cali.scale.x, 4);
 	ParamGetData(PARAM_MAG_SCALE_Y, &mag.cali.scale.y, 4);
 	ParamGetData(PARAM_MAG_SCALE_Z, &mag.cali.scale.z, 4);   
-	ParamGetData(PARAM_MAG_EARTH_MAG , &mag.earthMag, 4);     
+	ParamGetData(PARAM_MAG_EARTH_MAG , &mag.earthMag, 4);  
+
+    if(isnan(mag.cali.offset.x) || isnan(mag.cali.offset.y) || isnan(mag.cali.offset.z) || \
+       isnan(mag.cali.scale.x) || isnan(mag.cali.scale.y) || isnan(mag.cali.scale.z) )
+    {
+        mag.cali.offset.x = 0;
+        mag.cali.offset.y = 0;
+        mag.cali.offset.z = 0;
+        mag.cali.scale.x = 1;
+        mag.cali.scale.y = 1;
+        mag.cali.scale.z = 1;
+        mag.earthMag = 0.4;
+    }    
 }
 
 /**********************************************************************************************************
@@ -103,6 +115,7 @@ void MagCalibration(void)
     static Vector3f_t new_scale;
 	Vector3f_t magRaw;
     bool success = true;
+    float earthMag;
     
     //计算时间间隔，用于积分
 	static uint32_t previousT;
@@ -184,19 +197,19 @@ void MagCalibration(void)
                 //计算当地地磁场强度模值均值
                 for(u8 i=0;i<6;i++)
                 {
-                    mag.earthMag += Pythagorous3(samples[i].x, samples[i].y, samples[i].z);
+                    earthMag += Pythagorous3(samples[i].x, samples[i].y, samples[i].z);
                 }
-                mag.earthMag /= 6;
+                earthMag /= 6;
                 
                 //高斯牛顿法求解误差方程
-                GaussNewtonCalibrate(samples, &new_offset, &new_scale, mag.earthMag, 20);
+                GaussNewtonCalibrate(samples, &new_offset, &new_scale, earthMag, 20);
                 
                 //判断校准参数是否正常
                 if(fabsf(new_scale.x-1.0f) > 0.35f || fabsf(new_scale.y-1.0f) > 0.35f || fabsf(new_scale.z-1.0f) > 0.35f) 
                 {
                     success = false;
                 }
-                if(fabsf(new_offset.x) > (mag.earthMag * 0.5f) || fabsf(new_offset.y) > (mag.earthMag * 0.5f) || fabsf(new_offset.z) > (mag.earthMag * 0.5f)) 
+                if(fabsf(new_offset.x) > (earthMag * 0.8f) || fabsf(new_offset.y) > (earthMag * 0.8f) || fabsf(new_offset.z) > (earthMag * 0.8f)) 
                 {
                     success = false;
                 }
@@ -205,6 +218,7 @@ void MagCalibration(void)
                 {
                     mag.cali.offset = new_offset;
                     mag.cali.scale = new_scale;
+                    mag.earthMag = earthMag;
                     
                     //保存校准参数
                     ParamUpdateData(PARAM_MAG_OFFSET_X, &mag.cali.offset.x);

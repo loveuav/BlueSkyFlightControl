@@ -29,6 +29,28 @@ void AccCaliDataInit(void)
 	ParamGetData(PARAM_ACC_SCALE_X, &acc.cali.scale.x, 4);
 	ParamGetData(PARAM_ACC_SCALE_Y, &acc.cali.scale.y, 4);
 	ParamGetData(PARAM_ACC_SCALE_Z, &acc.cali.scale.z, 4);
+
+	ParamGetData(PARAM_IMU_LEVEL_X, &acc.levelCali.scale.x, 4);
+	ParamGetData(PARAM_IMU_LEVEL_Y, &acc.levelCali.scale.y, 4);
+	ParamGetData(PARAM_IMU_LEVEL_Z, &acc.levelCali.scale.z, 4);
+    
+    if(isnan(acc.cali.offset.x) || isnan(acc.cali.offset.y) || isnan(acc.cali.offset.z) || \
+       isnan(acc.cali.scale.x) || isnan(acc.cali.scale.y) || isnan(acc.cali.scale.z) )
+    {
+        acc.cali.offset.x = 0;
+        acc.cali.offset.y = 0;
+        acc.cali.offset.z = 0;
+        acc.cali.scale.x = 1;
+        acc.cali.scale.y = 1;
+        acc.cali.scale.z = 1;
+    } 
+    
+    if(isnan(acc.levelCali.scale.x) || isnan(acc.levelCali.scale.y) || isnan(acc.levelCali.scale.z))
+    {
+        acc.levelCali.scale.x = 0;
+        acc.levelCali.scale.y = 0;
+        acc.levelCali.scale.z = 0;
+    } 
 }
 
 /**********************************************************************************************************
@@ -69,7 +91,7 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 	acc.data.z = (acc.data.z - acc.cali.offset.z) * acc.cali.scale.z;	
 	
 	//水平误差校准
-	//······
+	acc.data = VectorRotate(acc.data, acc.levelCali.scale);
 	
 	//计算加速度模值
 	acc.mag = acc.mag * 0.99f + Pythagorous3(acc.data.x, acc.data.y, acc.data.z) / GRAVITY_ACCEL * 0.01f;
@@ -162,5 +184,75 @@ void AccCalibration(Vector3f_t accRaw)
             
         }
 	}       
+}
+
+/**********************************************************************************************************
+*函 数 名: ImuLevelCalibration
+*功能说明: IMU传感器的水平校准（安装误差），主要读取静止时的加速度数据并求平均值，得到校准角度值
+*形    参: 无 
+*返 回 值: 无
+**********************************************************************************************************/
+void ImuLevelCalibration(void)
+{
+	const int16_t CALIBRATING_ACC_LEVEL_CYCLES = 500;	
+	static float acc_sum[3] = {0, 0, 0};
+	Vector3f_t accAverage;
+	Vector3f_t caliTemp;
+	static int16_t count = 0;
+	
+	if(!acc.levelCali.should_cali)
+		return;
+		
+	if(count == 0)
+	{
+		acc.levelCali.scale.x = 0;
+		acc.levelCali.scale.y = 0;
+		acc.levelCali.scale.z = 0;
+	}
+	else
+	{
+		acc_sum[0] += acc.data.x;
+		acc_sum[1] += acc.data.y;
+		acc_sum[2] += acc.data.z;
+	}
+	count++;
+	
+	if(count == CALIBRATING_ACC_LEVEL_CYCLES)
+	{
+		accAverage.x = acc_sum[0] / (CALIBRATING_ACC_LEVEL_CYCLES-1);
+		accAverage.y = acc_sum[1] / (CALIBRATING_ACC_LEVEL_CYCLES-1);
+		accAverage.z = acc_sum[2] / (CALIBRATING_ACC_LEVEL_CYCLES-1);
+		acc_sum[0] = 0;
+		acc_sum[1] = 0;
+		acc_sum[2] = 0;
+		count = 0;
+		acc.levelCali.should_cali = 0;
+		
+		caliTemp.x = atan2f(accAverage.y, Pythagorous2(accAverage.x, accAverage.z));
+		caliTemp.y = atan2f(-accAverage.x, Pythagorous2(accAverage.y, accAverage.z));
+		
+		if(abs(Degrees(caliTemp.x)) < 10 && abs(Degrees(caliTemp.y)) < 10)
+		{
+			acc.levelCali.scale.x = -caliTemp.x;
+			acc.levelCali.scale.y = -caliTemp.y;
+			acc.levelCali.scale.z = 0;
+			
+            //保存IMU安装误差校准参数
+			ParamUpdateData(PARAM_IMU_LEVEL_X, &acc.levelCali.scale.x);
+			ParamUpdateData(PARAM_IMU_LEVEL_Y, &acc.levelCali.scale.y);
+			ParamUpdateData(PARAM_IMU_LEVEL_Z, &acc.levelCali.scale.z);
+		}
+	}    
+}
+
+/**********************************************************************************************************
+*函 数 名: GetLevelCalibraData
+*功能说明: 获取IMU安装误差校准参数
+*形    参: 无 
+*返 回 值: 校准参数
+**********************************************************************************************************/
+Vector3f_t GetLevelCalibraData(void)
+{
+    return acc.levelCali.scale;
 }
 

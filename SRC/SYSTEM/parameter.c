@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "parameter.h"
 #include "drv_flash.h"
+#include "mathTool.h"
 
 static void ParamReadFromFlash(void);
 
@@ -55,18 +56,22 @@ static void ParamDataReset(void)
 static void ParamReadFromFlash(void)
 {
 	uint32_t i = 0;
-    uint32_t dataSum = 0, checkSum = 0;
+    uint32_t dataSum = 0, checkNum = 0, checkSum = 0;
     
 	for (i=0;i<PARAM_NUM*4;i++)
 		param_data[i] = Flash_ReadByte(FLASH_USER_PARA_START_ADDR, i);
+
+    ParamGetData(PARAM_CHECK_NUM, &checkNum, 4);  
+    checkNum = ConstrainInt32(checkNum, 0, PARAM_NUM);    
+    ParamGetData(PARAM_CHECK_SUM, &checkSum, 4);
     
     //计算参数和
-    for(i=4;i<PARAM_NUM*4;i++)
+    for(i=8;i<checkNum*4;i++)
     {
         dataSum += param_data[i];
     }
     
-    ParamGetData(PARAM_CHECK_SUM, &checkSum, 4);
+    
     
     //和保存的校验和进行对比，如果不符合则重置所有参数
     if(checkSum != dataSum)
@@ -85,16 +90,21 @@ void ParamSaveToFlash(void)
 {
     uint32_t i = 0;
     uint32_t dataSum = 0;
-      
+    uint32_t dataNum = 0;
+    
     if(param_save_cnt == 1)
     {
-        //计算参数和
-        for(i=4;i<PARAM_NUM*4;i++)
+        //保存参数数量
+        dataNum = PARAM_NUM;
+        memcpy(param_data+PARAM_CHECK_NUM*4, &dataNum, 4);
+        
+        //计算参数和并保存
+        for(i=8;i<PARAM_NUM*4;i++)
         {
             dataSum += param_data[i];
         }              
         memcpy(param_data+PARAM_CHECK_SUM*4, &dataSum, 4);
-            
+    
         Flash_WriteByte(FLASH_USER_PARA_START_ADDR, param_data, PARAM_NUM*4);
     }
 	
@@ -111,8 +121,8 @@ void ParamSaveToFlash(void)
 void ParamUpdateData(uint16_t dataNum, const void *data)
 {
 	memcpy(param_data+dataNum*4, data, 4);
-	//参数更新的5秒后刷新一次Flash
-	param_save_cnt = 100;
+	//参数更新的3秒后刷新一次Flash
+	param_save_cnt = 60;
 }
 
 /**********************************************************************************************************

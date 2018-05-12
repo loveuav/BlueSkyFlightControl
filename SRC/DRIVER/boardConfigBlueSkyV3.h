@@ -211,7 +211,7 @@
 #define SOFT_I2C1_GPIO              GPIOB
 #define SOFT_I2C1_PIN_SCL           GPIO_Pin_8
 #define SOFT_I2C1_PIN_SDA           GPIO_Pin_9
-#define SOFT_I2C1_DELAY             0
+#define SOFT_I2C1_DELAY             1
 
 #define SOFT_I2C2_GPIO              GPIOA
 #define SOFT_I2C2_PIN_SCL           GPIO_Pin_7

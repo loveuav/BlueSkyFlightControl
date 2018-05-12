@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "gyroscope.h"
 #include "parameter.h"
+#include "accelerometer.h"
 
 GYROSCOPE_t gyro;
 
@@ -69,7 +70,7 @@ void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData)
 	gyro.data.z -= gyro.cali.offset.z;	
 	
 	//安装误差校准
-    //gyro.data = VectorRotate(gyro.data, Vector3f_t deltaAngle);
+    gyro.data = VectorRotate(gyro.data, GetLevelCalibraData());
     
     gyroData->x = gyro.data.x;
     gyroData->y = gyro.data.y;

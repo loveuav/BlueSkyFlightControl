@@ -4,6 +4,7 @@
 #include "board.h"
 
 enum {
+    PARAM_CHECK_NUM,    
     PARAM_CHECK_SUM,
     PARAM_GYRO_OFFSET_X,
     PARAM_GYRO_OFFSET_Y,
@@ -26,7 +27,7 @@ enum {
     PARAM_MAG_EARTH_MAG,
     PARAM_IMU_LEVEL_X,
     PARAM_IMU_LEVEL_Y,
-    PARAM_IMU_LEVEL_Z,		
+    PARAM_IMU_LEVEL_Z,	
     PARAM_NUM
 };
 

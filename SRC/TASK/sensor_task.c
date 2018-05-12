@@ -61,7 +61,7 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
         AccDataPreTreat(*accRawData, accData);
         
 		//IMU安装误差校准
-        //······
+        ImuLevelCalibration();
         
 		//往下一级消息队列中填充数据
 		xQueueSendToBack(messageQueue[ACC_DATA_PRETREAT], (void *)&accData, 0); 		
