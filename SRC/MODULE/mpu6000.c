@@ -233,11 +233,6 @@ void MPU6000_ReadGyro(Vector3f_t* gyro)
     gyro->z = gyroRaw.z * MPU_G_s1000dps;
     
     SoftDelayUs(1);
-    
-    if(abs(gyroRaw.x) > 32000 || abs(gyroRaw.y) > 32000 || abs(gyroRaw.z) > 32000)
-    {
-        SoftDelayUs(1);
-    }
 }
 
 /**********************************************************************************************************

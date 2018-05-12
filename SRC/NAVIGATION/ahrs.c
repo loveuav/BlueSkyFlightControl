@@ -241,7 +241,8 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
     {
         fuseFlag = false;
     }
-
+    count++;
+    
     //用向量叉积误差积分来补偿陀螺仪零偏噪声
 	deltaAngle.x += ahrs.vectorYawErrorInt.x * ahrs.vectorYawKI;
 	deltaAngle.y += ahrs.vectorYawErrorInt.y * ahrs.vectorYawKI;	

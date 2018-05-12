@@ -71,8 +71,6 @@ static void ParamReadFromFlash(void)
         dataSum += param_data[i];
     }
     
-    
-    
     //和保存的校验和进行对比，如果不符合则重置所有参数
     if(checkSum != dataSum)
     {

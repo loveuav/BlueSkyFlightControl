@@ -35,7 +35,8 @@ void AccCaliDataInit(void)
 	ParamGetData(PARAM_IMU_LEVEL_Z, &acc.levelCali.scale.z, 4);
     
     if(isnan(acc.cali.offset.x) || isnan(acc.cali.offset.y) || isnan(acc.cali.offset.z) || \
-       isnan(acc.cali.scale.x) || isnan(acc.cali.scale.y) || isnan(acc.cali.scale.z) )
+       isnan(acc.cali.scale.x) || isnan(acc.cali.scale.y) || isnan(acc.cali.scale.z) ||    \
+       acc.cali.scale.x == 0 || acc.cali.scale.y == 0 || acc.cali.scale.z == 0)
     {
         acc.cali.offset.x = 0;
         acc.cali.offset.y = 0;

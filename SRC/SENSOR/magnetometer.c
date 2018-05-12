@@ -62,7 +62,8 @@ void MagCaliDataInit(void)
 	ParamGetData(PARAM_MAG_EARTH_MAG , &mag.earthMag, 4);  
 
     if(isnan(mag.cali.offset.x) || isnan(mag.cali.offset.y) || isnan(mag.cali.offset.z) || \
-       isnan(mag.cali.scale.x) || isnan(mag.cali.scale.y) || isnan(mag.cali.scale.z) )
+       isnan(mag.cali.scale.x) || isnan(mag.cali.scale.y) || isnan(mag.cali.scale.z) ||    \
+       mag.cali.scale.x == 0 || mag.cali.scale.y == 0 || mag.cali.scale.z == 0)
     {
         mag.cali.offset.x = 0;
         mag.cali.offset.y = 0;
