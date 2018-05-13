@@ -17,6 +17,7 @@
 #include "drv_spi.h"
 #include "drv_usart.h"
 #include "drv_i2c_soft.h"
+#include "drv_pwm.h"
 
 static void SysPeriphClockInit(void);
 
@@ -69,7 +70,10 @@ void BoardInit(void)
 	#endif    
     #if (configUSE_SOFT_I2C2 == 1)
 		Soft_I2c_Open(2);
-	#endif      
+	#endif 
+
+    //定时器PWM输出初始化
+    PWM_Init();
 }
 
 /**********************************************************************************************************

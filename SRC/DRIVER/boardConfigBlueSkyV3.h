@@ -113,11 +113,11 @@
 #define configUSE_SOFT_I2C1  1
 #define configUSE_SOFT_I2C2  0
 
-#define configUSE_TIM1       0
-#define configUSE_TIM1_CH1   0
-#define configUSE_TIM1_CH2   0
-#define configUSE_TIM1_CH3   0
-#define configUSE_TIM1_CH4   0
+#define configUSE_TIM1       1
+#define configUSE_TIM1_CH1   1
+#define configUSE_TIM1_CH2   1
+#define configUSE_TIM1_CH3   1
+#define configUSE_TIM1_CH4   1
 #define configUSE_TIM2       0
 #define configUSE_TIM2_CH1   0
 #define configUSE_TIM2_CH2   0
@@ -221,9 +221,10 @@
 /**********************************************************************************************************
 *定时器引脚及参数配置
 **********************************************************************************************************/
-#define TIM1_CLOCK                    84
-#define TIM1_PWM_OUT                  0
-#define TIM1_PWM_IN                   0		
+#define TIM1_CLOCK                    PWM_TIM_FREQ
+#define TIM1_PERIOD                   PWM_TIM_PERIOD
+#define TIM1_PWM_OUT                  1
+#define TIM1_PPM_IN                   0		
 #if(configUSE_TIM1_CH1 == 1)
 	#define TIM1_CH1_GPIO             GPIOA
 	#define TIM1_CH1_PIN              GPIO_Pin_7
@@ -232,7 +233,7 @@
 #if(configUSE_TIM1_CH2 == 1)
 	#define TIM1_CH2_GPIO             GPIOA
 	#define TIM1_CH2_PIN              GPIO_Pin_7
-	#define TIM1_CH3_PINSOURCE        GPIO_PinSource5
+	#define TIM1_CH2_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM1_CH3 == 1)
 	#define TIM1_CH3_GPIO             GPIOA
@@ -245,9 +246,10 @@
 	#define TIM1_CH4_PINSOURCE        GPIO_PinSource5
 #endif
 
-#define TIM2_CLOCK                    84
-#define TIM2_PWM_OUT                  0
-#define TIM2_PWM_IN                   0		
+#define TIM2_CLOCK                    PWM_TIM_FREQ
+#define TIM2_PERIOD                   PWM_TIM_PERIOD
+#define TIM2_PWM_OUT                  1
+#define TIM2_PPM_IN                   0		
 #if(configUSE_TIM2_CH1 == 1)
 	#define TIM2_CH1_GPIO             GPIOA
 	#define TIM2_CH1_PIN              GPIO_Pin_7
@@ -269,9 +271,10 @@
 	#define TIM2_CH4_PINSOURCE        GPIO_PinSource5
 #endif	
 
-#define TIM3_CLOCK                    84
-#define TIM3_PWM_OUT                  0
-#define TIM3_PWM_IN                   0		
+#define TIM3_CLOCK                    PWM_TIM_FREQ
+#define TIM3_PERIOD                   PWM_TIM_PERIOD
+#define TIM3_PWM_OUT                  1
+#define TIM3_PPM_IN                   0		
 #if(configUSE_TIM3_CH1 == 1)
 	#define TIM3_CH1_GPIO             GPIOA
 	#define TIM3_CH1_PIN              GPIO_Pin_7
@@ -293,9 +296,10 @@
 	#define TIM3_CH4_PINSOURCE        GPIO_PinSource5
 #endif	
 
-#define TIM4_CLOCK                    84
+#define TIM4_CLOCK                    PPM_TIM_FREQ
+#define TIM4_PERIOD                   PPM_TIM_PERIOD
 #define TIM4_PWM_OUT                  0
-#define TIM4_PWM_IN                   0		
+#define TIM4_PPM_IN                   1		
 #if(configUSE_TIM4_CH1 == 1)
 	#define TIM4_CH1_GPIO             GPIOA
 	#define TIM4_CH1_PIN              GPIO_Pin_7

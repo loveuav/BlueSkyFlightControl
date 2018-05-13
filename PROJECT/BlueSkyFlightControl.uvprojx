@@ -712,6 +712,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\DRIVER\drv_flash.h</FilePath>
             </File>
+            <File>
+              <FileName>drv_pwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\DRIVER\drv_pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_pwm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\DRIVER\drv_pwm.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
