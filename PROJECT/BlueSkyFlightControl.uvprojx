@@ -552,6 +552,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\MATH\gaussNewton.h</FilePath>
             </File>
+            <File>
+              <FileName>lowPassFilter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MATH\lowPassFilter.c</FilePath>
+            </File>
+            <File>
+              <FileName>lowPassFilter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MATH\lowPassFilter.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
