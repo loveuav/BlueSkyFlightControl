@@ -11,7 +11,7 @@ typedef struct{
 	SENSOR_CALI_t levelCali;
 }ACCELEROMETER_t;
 
-void AccCaliDataInit(void);
+void AccPreTreatInit(void);
 void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData);
 void AccCalibration(Vector3f_t accRaw);
 void ImuLevelCalibration(void);

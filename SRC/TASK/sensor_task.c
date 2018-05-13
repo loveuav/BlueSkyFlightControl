@@ -31,14 +31,15 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 	float*      tempRawData;
 	Vector3f_t* accData  = pvPortMalloc(sizeof(Vector3f_t));
 	Vector3f_t* gyroData = pvPortMalloc(sizeof(Vector3f_t));
+	Vector3f_t* gyroLpfData = pvPortMalloc(sizeof(Vector3f_t));
 	
 	//挂起调度器
 	vTaskSuspendAll();
 	
-    //陀螺仪校准参数初始化
-	GyroCaliDataInit();
-    //加速度校准参数初始化
-    AccCaliDataInit();
+    //陀螺仪预处理初始化
+	GyroPreTreatInit();
+    //加速度预处理初始化
+    AccPreTreatInit();
     
 	//唤醒调度器
 	xTaskResumeAll();
@@ -56,7 +57,7 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
         AccCalibration(*accRawData);
         
 		//陀螺仪数据预处理
-		GyroDataPreTreat(*gyroRawData, gyroData);
+		GyroDataPreTreat(*gyroRawData, gyroData, gyroLpfData);
         //加速度数据预处理
         AccDataPreTreat(*accRawData, accData);
         
@@ -66,7 +67,7 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 		//往下一级消息队列中填充数据
 		xQueueSendToBack(messageQueue[ACC_DATA_PRETREAT], (void *)&accData, 0); 		
 		xQueueSendToBack(messageQueue[GYRO_DATA_PRETREAT], (void *)&gyroData, 0); 
-		xQueueSendToBack(messageQueue[GYRO_FOR_CONTROL], (void *)&gyroData, 0); 			
+		xQueueSendToBack(messageQueue[GYRO_FOR_CONTROL], (void *)&gyroLpfData, 0); 			
 	}
 }
 

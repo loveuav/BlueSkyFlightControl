@@ -16,12 +16,12 @@
 ACCELEROMETER_t acc;
 
 /**********************************************************************************************************
-*函 数 名: AccCaliDataInit
-*功能说明: 加速度校准参数初始化
+*函 数 名: AccPreTreatInit
+*功能说明: 加速度预处理初始化
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void AccCaliDataInit(void)
+void AccPreTreatInit(void)
 {
 	ParamGetData(PARAM_ACC_OFFSET_X, &acc.cali.offset.x, 4);
 	ParamGetData(PARAM_ACC_OFFSET_Y, &acc.cali.offset.y, 4);
@@ -102,9 +102,7 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 	lastAccMag = acc.mag;	
 	acc.vibraCoef = acc.vibraCoef * 0.9995f + abs(accMagderi) * 0.0005f;
     
-    accData->x = acc.data.x;
-    accData->y = acc.data.y;
-    accData->z = acc.data.z;
+    *accData = acc.data;
 }
 
 /**********************************************************************************************************

@@ -32,12 +32,12 @@ static void GyroRotate(Vector3f_t* gyro)
 }
 
 /**********************************************************************************************************
-*函 数 名: GyroCaliDataInit
-*功能说明: 陀螺仪校准参数初始化
+*函 数 名: GyroPreTreatInit
+*功能说明: 陀螺仪预处理初始化
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void GyroCaliDataInit(void)
+void GyroPreTreatInit(void)
 {
 	ParamGetData(PARAM_GYRO_OFFSET_X, &gyro.cali.offset.x, 4);
 	ParamGetData(PARAM_GYRO_OFFSET_Y, &gyro.cali.offset.y, 4);
@@ -49,6 +49,9 @@ void GyroCaliDataInit(void)
         gyro.cali.offset.y = 0;
         gyro.cali.offset.z = 0;
     }
+    
+	//陀螺仪低通滤波系数计算
+	LowPassFilter2ndFactorCal(0.001, GYRO_LPF_CUT, &gyro.lpf_2nd);	
 }
 
 /**********************************************************************************************************
@@ -57,7 +60,7 @@ void GyroCaliDataInit(void)
 *形    参: 陀螺仪原始数据 陀螺仪预处理数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData)
+void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData, Vector3f_t* gyroLpfData)
 {	
 	gyro.data = gyroRaw;
     
@@ -71,10 +74,12 @@ void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData)
 	
 	//安装误差校准
     gyro.data = VectorRotate(gyro.data, GetLevelCalibraData());
+ 
+	//低通滤波
+	gyro.dataLpf = LowPassFilter2nd(&gyro.lpf_2nd, gyro.data);
     
-    gyroData->x = gyro.data.x;
-    gyroData->y = gyro.data.y;
-    gyroData->z = gyro.data.z;
+    *gyroData = gyro.data;
+    *gyroLpfData = gyro.dataLpf;
 }
 
 /**********************************************************************************************************

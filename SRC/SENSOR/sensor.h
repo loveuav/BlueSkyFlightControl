@@ -2,6 +2,9 @@
 #define	__SENSOR_H
 
 #include "mathTool.h"
+#include "lowPassFilter.h"
+
+#define GYRO_LPF_CUT 250
 
 typedef struct{
 	Vector3f_t offset;	    //零偏误差
