@@ -637,6 +637,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\MODULE\qmc5883.h</FilePath>
             </File>
+            <File>
+              <FileName>ublox.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\ublox.c</FilePath>
+            </File>
+            <File>
+              <FileName>ublox.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MODULE\ublox.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
