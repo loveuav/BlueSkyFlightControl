@@ -24,7 +24,6 @@ void PWM_Init(void)
     GPIO_InitTypeDef GPIO_InitStructure;
     uint16_t PrescalerValue = 0;
 
-
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
@@ -112,7 +111,7 @@ void PWM_Init(void)
             TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable);
         #endif
         TIM_Cmd(TIM2, ENABLE);
-        TIM_CtrlPWMOutputs(TIM2, ENABLE);
+        TIM_ARRPreloadConfig(TIM2, ENABLE);
     #endif
     
     #if(TIM3_PWM_OUT == 1)
@@ -150,7 +149,7 @@ void PWM_Init(void)
             TIM_OC4PreloadConfig(TIM3, TIM_OCPreload_Enable);
         #endif
         TIM_Cmd(TIM3, ENABLE);
-        TIM_CtrlPWMOutputs(TIM3, ENABLE);
+        TIM_ARRPreloadConfig(TIM3, ENABLE);
     #endif
     
     #if(TIM4_PWM_OUT == 1)
@@ -188,7 +187,7 @@ void PWM_Init(void)
             TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
         #endif
         TIM_Cmd(TIM4, ENABLE);
-        TIM_CtrlPWMOutputs(TIM4, ENABLE);
+        TIM_ARRPreloadConfig(TIM4, ENABLE);
     #endif
 }
 

@@ -41,14 +41,14 @@
 
 #define PWM_TIM_FREQ         21000000
 #define PWM_TIM_PERIOD       52499
-#define PWM1_TIM             0
-#define PWM1_CH              0
-#define PWM2_TIM             0
-#define PWM2_CH              0
-#define PWM3_TIM             0
-#define PWM3_CH              0
-#define PWM4_TIM             0
-#define PWM4_CH              0
+#define PWM1_TIM             3
+#define PWM1_CH              1
+#define PWM2_TIM             3
+#define PWM2_CH              2
+#define PWM3_TIM             3
+#define PWM3_CH              3
+#define PWM4_TIM             3
+#define PWM4_CH              4
 
 #define PPM_TIM_FREQ         21000000
 #define PPM_TIM_PERIOD       52499
@@ -113,21 +113,21 @@
 #define configUSE_SOFT_I2C1  1
 #define configUSE_SOFT_I2C2  0
 
-#define configUSE_TIM1       1
-#define configUSE_TIM1_CH1   1
-#define configUSE_TIM1_CH2   1
-#define configUSE_TIM1_CH3   1
-#define configUSE_TIM1_CH4   1
+#define configUSE_TIM1       0
+#define configUSE_TIM1_CH1   0
+#define configUSE_TIM1_CH2   0
+#define configUSE_TIM1_CH3   0
+#define configUSE_TIM1_CH4   0
 #define configUSE_TIM2       0
 #define configUSE_TIM2_CH1   0
 #define configUSE_TIM2_CH2   0
 #define configUSE_TIM2_CH3   0
 #define configUSE_TIM2_CH4   0
-#define configUSE_TIM3       0
-#define configUSE_TIM3_CH1   0
-#define configUSE_TIM3_CH2   0
-#define configUSE_TIM3_CH3   0
-#define configUSE_TIM3_CH4   0
+#define configUSE_TIM3       1
+#define configUSE_TIM3_CH1   1
+#define configUSE_TIM3_CH2   1
+#define configUSE_TIM3_CH3   1
+#define configUSE_TIM3_CH4   1
 #define configUSE_TIM4       0
 #define configUSE_TIM4_CH1   0
 #define configUSE_TIM4_CH2   0
@@ -276,23 +276,23 @@
 #define TIM3_PWM_OUT                  1
 #define TIM3_PPM_IN                   0		
 #if(configUSE_TIM3_CH1 == 1)
-	#define TIM3_CH1_GPIO             GPIOA
-	#define TIM3_CH1_PIN              GPIO_Pin_7
-	#define TIM3_CH1_PINSOURCE        GPIO_PinSource5
+	#define TIM3_CH1_GPIO             GPIOB
+	#define TIM3_CH1_PIN              GPIO_Pin_0
+	#define TIM3_CH1_PINSOURCE        GPIO_PinSource0
 #endif
 #if(configUSE_TIM3_CH2 == 1)
-	#define TIM3_CH2_GPIO             GPIOA
-	#define TIM3_CH2_PIN              GPIO_Pin_7
-	#define TIM3_CH2_PINSOURCE        GPIO_PinSource5
+	#define TIM3_CH2_GPIO             GPIOB
+	#define TIM3_CH2_PIN              GPIO_Pin_1
+	#define TIM3_CH2_PINSOURCE        GPIO_PinSource1
 #endif
 #if(configUSE_TIM3_CH3 == 1)
-	#define TIM3_CH3_GPIO             GPIOA
-	#define TIM3_CH3_PIN              GPIO_Pin_7
-	#define TIM3_CH3_PINSOURCE        GPIO_PinSource5
+	#define TIM3_CH3_GPIO             GPIOB
+	#define TIM3_CH3_PIN              GPIO_Pin_4
+	#define TIM3_CH3_PINSOURCE        GPIO_PinSource4
 #endif
 #if(configUSE_TIM3_CH4 == 1)
-	#define TIM3_CH4_GPIO             GPIOA
-	#define TIM3_CH4_PIN              GPIO_Pin_7
+	#define TIM3_CH4_GPIO             GPIOB
+	#define TIM3_CH4_PIN              GPIO_Pin_5
 	#define TIM3_CH4_PINSOURCE        GPIO_PinSource5
 #endif	
 
