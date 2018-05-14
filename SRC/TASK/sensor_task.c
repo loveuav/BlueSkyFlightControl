@@ -14,6 +14,7 @@
 #include "gyroscope.h"
 #include "accelerometer.h"
 #include "magnetometer.h"
+#include "barometer.h"
 
 xTaskHandle imuDataPreTreatTask;
 xTaskHandle otherSensorTask;
@@ -108,6 +109,13 @@ portTASK_FUNCTION(vOtherSensorTask, pvParameters)
             //磁力计数据预处理
             MagDataPreTreat();
 		}
+        
+        //25Hz
+        if(count % 8 == 0)	
+		{ 
+            //气压高度数据预处理
+            BaroDataPreTreat();
+		}        
         
 		count++;
         

@@ -582,6 +582,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\SENSOR\magnetometer.h</FilePath>
             </File>
+            <File>
+              <FileName>barometer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\SENSOR\barometer.c</FilePath>
+            </File>
+            <File>
+              <FileName>barometer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SENSOR\barometer.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
