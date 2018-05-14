@@ -36,6 +36,9 @@ void PWM_Init(void)
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_Pulse = 0;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
+	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
+	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset;
     
     #if(TIM1_PWM_OUT == 1)
         PrescalerValue =  (uint16_t) ((SystemCoreClock) / TIM1_CLOCK) - 1;
@@ -190,5 +193,77 @@ void PWM_Init(void)
         TIM_ARRPreloadConfig(TIM4, ENABLE);
     #endif
 }
+
+/**********************************************************************************************************
+*函 数 名: TempControlPWMSet
+*功能说明: 温控PWM输出值设置
+*形    参: PWM值（0-1000）
+*返 回 值: 无
+**********************************************************************************************************/
+void TempControlPWMSet(int32_t pwmValue)
+{
+    pwmValue = pwmValue * ((int32_t)TEMP_TIM_PERIOD / 1000);
+    
+    #if(TEMP_TIM == 1)
+        #if(TEMP_CH == 1)
+            TIM1->CCR1 = pwmValue;
+        #endif
+        #if(TEMP_CH == 2)
+            TIM1->CCR2 = pwmValue;
+        #endif
+        #if(TEMP_CH == 3)
+            TIM1->CCR3 = pwmValue;
+        #endif
+        #if(TEMP_CH == 4)
+            TIM1->CCR4 = pwmValue;
+        #endif    
+    #endif
+
+        #if(TEMP_TIM == 2)
+        #if(TEMP_CH == 1)
+            TIM2->CCR1 = pwmValue;
+        #endif
+        #if(TEMP_CH == 2)
+            TIM2->CCR2 = pwmValue;
+        #endif
+        #if(TEMP_CH == 3)
+            TIM2->CCR3 = pwmValue;
+        #endif
+        #if(TEMP_CH == 4)
+            TIM2->CCR4 = pwmValue;
+        #endif    
+    #endif
+    
+    #if(TEMP_TIM == 3)
+        #if(TEMP_CH == 1)
+            TIM3->CCR1 = pwmValue;
+        #endif
+        #if(TEMP_CH == 2)
+            TIM3->CCR2 = pwmValue;
+        #endif
+        #if(TEMP_CH == 3)
+            TIM3->CCR3 = pwmValue;
+        #endif
+        #if(TEMP_CH == 4)
+            TIM3->CCR4 = pwmValue;
+        #endif    
+    #endif
+    
+    #if(TEMP_TIM == 4)
+        #if(TEMP_CH == 1)
+            TIM4->CCR1 = pwmValue;
+        #endif
+        #if(TEMP_CH == 2)
+            TIM4->CCR2 = pwmValue;
+        #endif
+        #if(TEMP_CH == 3)
+            TIM4->CCR3 = pwmValue;
+        #endif
+        #if(TEMP_CH == 4)
+            TIM4->CCR4 = pwmValue;
+        #endif    
+    #endif
+}
+
 
 

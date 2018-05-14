@@ -16,6 +16,7 @@ void MagSensorRead(Vector3f_t* mag);
 void BaroSensorRead(int32_t* baroAlt);
 void BaroSensorUpdate(void);
 
+void TempControlSet(int16_t value);
 
 #endif
 

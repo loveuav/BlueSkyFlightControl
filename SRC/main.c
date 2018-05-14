@@ -50,7 +50,7 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     //用户任务创建
     ModuleTaskCreate();
     SensorTaskCreate();
-    NavgationTaskCreate();
+    NavigationTaskCreate();
     
     //删除本任务
     vTaskDelete(NULL);

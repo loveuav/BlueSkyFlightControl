@@ -40,7 +40,9 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 	GyroPreTreatInit();
     //加速度预处理初始化
     AccPreTreatInit();
-    
+    //IMU传感器恒温参数初始化
+    ImuTempControlInit();
+
 	//唤醒调度器
 	xTaskResumeAll();
 
@@ -63,6 +65,9 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
         
 		//IMU安装误差校准
         ImuLevelCalibration();
+        
+        //IMU传感器恒温控制
+        ImuTempControl(*tempRawData);
         
 		//往下一级消息队列中填充数据
 		xQueueSendToBack(messageQueue[ACC_DATA_PRETREAT], (void *)&accData, 0); 		

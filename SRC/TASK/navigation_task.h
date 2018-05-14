@@ -2,9 +2,9 @@
 #define __NAVIGATION_TASK_H__
 
 
-void NavgationTaskCreate(void);
+void NavigationTaskCreate(void);
 
-int16_t	GetNavgationTaskStackUse(void);
+int16_t	GetNavigationTaskStackUse(void);
 
 #endif
 

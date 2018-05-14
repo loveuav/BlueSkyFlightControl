@@ -10,6 +10,80 @@
  * @日期     2018.05 
 **********************************************************************************************************/
 #include "sensor.h"
+#include "module.h"
+#include "board.h"
+#include "pid.h"
+
+PID_t tempPID;
+
+/**********************************************************************************************************
+*函 数 名: ImuTempControlInit
+*功能说明: IMU传感器恒温参数初始化
+*形    参: 无 
+*返 回 值: 无
+**********************************************************************************************************/
+void ImuTempControlInit(void)
+{
+    PID_SetParam(&tempPID, 3, 0.1, 2, 500, 30);	
+}
+
+/**********************************************************************************************************
+*函 数 名: ImuTempControl
+*功能说明: IMU传感器恒温控制
+*形    参: 温度测量值
+*返 回 值: 无
+**********************************************************************************************************/
+void ImuTempControl(float tempMeasure)
+{
+	static uint32_t lastTime = 0;   
+	int32_t tempError = 0;	//误差变量，使用整型并保留原始数据小数点后两位，避免引入噪声    
+    static int32_t tempPIDTerm = 0;
+    float	deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
+	lastTime = GetSysTimeUs();
+    
+    //计算温度误差
+	tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;	  
+
+	if(tempMeasure < SENSOR_TEMP_KEPT - 8)
+	{
+        //全速加热
+		TempControlSet(1000);
+	}
+	else
+	{
+        //计算PID输出
+		tempPIDTerm = PID_GetPID(&tempPID, tempError, deltaT);
+        //PID输出限幅
+		tempPIDTerm = ConstrainInt32(tempPIDTerm, 0, 1000);
+
+		TempControlSet(tempPIDTerm);
+	}   
+
+	if(GetSysTimeMs() < 8000)
+		PID_ResetI(&tempPID);  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

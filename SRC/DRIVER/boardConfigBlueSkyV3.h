@@ -113,8 +113,8 @@
 #define configUSE_SOFT_I2C1  1
 #define configUSE_SOFT_I2C2  0
 
-#define configUSE_TIM1       0
-#define configUSE_TIM1_CH1   0
+#define configUSE_TIM1       1
+#define configUSE_TIM1_CH1   1
 #define configUSE_TIM1_CH2   0
 #define configUSE_TIM1_CH3   0
 #define configUSE_TIM1_CH4   0
@@ -221,14 +221,14 @@
 /**********************************************************************************************************
 *定时器引脚及参数配置
 **********************************************************************************************************/
-#define TIM1_CLOCK                    PWM_TIM_FREQ
-#define TIM1_PERIOD                   PWM_TIM_PERIOD
+#define TIM1_CLOCK                    TEMP_TIM_FREQ
+#define TIM1_PERIOD                   TEMP_TIM_PERIOD
 #define TIM1_PWM_OUT                  1
 #define TIM1_PPM_IN                   0		
 #if(configUSE_TIM1_CH1 == 1)
 	#define TIM1_CH1_GPIO             GPIOA
-	#define TIM1_CH1_PIN              GPIO_Pin_7
-	#define TIM1_CH1_PINSOURCE        GPIO_PinSource5
+	#define TIM1_CH1_PIN              GPIO_Pin_8
+	#define TIM1_CH1_PINSOURCE        GPIO_PinSource8
 #endif
 #if(configUSE_TIM1_CH2 == 1)
 	#define TIM1_CH2_GPIO             GPIOA

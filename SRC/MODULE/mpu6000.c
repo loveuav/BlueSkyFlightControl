@@ -254,4 +254,3 @@ void MPU6000_ReadTemp(float* temp)
 }
 
 
-
