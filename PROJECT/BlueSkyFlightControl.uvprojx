@@ -537,6 +537,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\MATH\lowPassFilter.h</FilePath>
             </File>
+            <File>
+              <FileName>declination.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MATH\declination.c</FilePath>
+            </File>
+            <File>
+              <FileName>declination.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MATH\declination.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

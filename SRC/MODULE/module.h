@@ -6,6 +6,7 @@
 bool GyroSensorInit(void);
 bool MagSensorInit(void);
 bool BaroSensorInit(void);
+void GPSModuleInit(void);
 
 void GyroSensorRead(Vector3f_t* gyro);
 void AccSensorRead(Vector3f_t* acc);

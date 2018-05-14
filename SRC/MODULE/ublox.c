@@ -101,6 +101,7 @@ static void Ublox_ProtocolParsing(uint8_t data);
 **********************************************************************************************************/
 void Ublox_Init(void)
 {
+    //设置GPS串口接收中断回调函数（即数据协议解析函数）
     Usart_SetIRQCallback(GPS_UART, Ublox_ProtocolParsing);
 }
 
