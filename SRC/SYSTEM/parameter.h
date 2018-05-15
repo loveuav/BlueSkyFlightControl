@@ -3,7 +3,8 @@
 
 #include "board.h"
 
-enum {
+enum PARAM_TYPE
+{
     PARAM_CHECK_NUM,    
     PARAM_CHECK_SUM,
     PARAM_GYRO_OFFSET_X,

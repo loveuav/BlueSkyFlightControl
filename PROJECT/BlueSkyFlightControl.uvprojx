@@ -394,6 +394,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\SYSTEM\parameter.h</FilePath>
             </File>
+            <File>
+              <FileName>faultDetect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\SYSTEM\faultDetect.c</FilePath>
+            </File>
+            <File>
+              <FileName>faultDetect.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SYSTEM\faultDetect.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

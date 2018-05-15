@@ -264,7 +264,7 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	//转换成欧拉角
 	ahrs.angle.z = Degrees(atan2f(vectorYawEf.y, vectorYawEf.x));    
     
-	//加速度观测值与姿态估计值进行叉积运算得到旋转误差矢量
+	//磁强观测值与航向估计值进行叉积运算得到旋转误差矢量
 	vectorError = VectorCrossProduct(mag, ahrs.vectorYaw);
     
 	//旋转误差矢量积分

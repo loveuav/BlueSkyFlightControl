@@ -25,6 +25,7 @@
 #include "board.h"
 #include "messageQueue.h"
 #include "parameter.h"
+#include "faultDetect.h"
 
 xTaskHandle startTask;
 
@@ -43,7 +44,9 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     BoardInit();
     //飞控参数初始化
     ParamInit();
-    
+	//系统故障检测初始化
+    FaultDetectInit();
+	
     //消息队列创建
     MessageQueueCreate();
         
