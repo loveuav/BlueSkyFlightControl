@@ -3,9 +3,9 @@
 
 #include "mathTool.h"
 
-bool GyroSensorInit(void);
-bool MagSensorInit(void);
-bool BaroSensorInit(void);
+void GyroSensorInit(void);
+void MagSensorInit(void);
+void BaroSensorInit(void);
 void GPSModuleInit(void);
 
 void GyroSensorRead(Vector3f_t* gyro);

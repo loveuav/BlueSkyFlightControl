@@ -9,13 +9,13 @@
  * @网站     bbs.loveuav.com
  * @日期     2018.05 
 **********************************************************************************************************/
-
 #include "module.h"
 #include "mpu6000.h"
 #include "ms5611.h"
 #include "qmc5883.h"
 #include "ublox.h"
 #include "drv_pwm.h"
+#include "faultDetect.h"
 
 /**********************************************************************************************************
 *函 数 名: GyroSensorInit
@@ -23,19 +23,21 @@
 *形    参: 无
 *返 回 值: 陀螺仪存在状态 
 **********************************************************************************************************/
-bool GyroSensorInit(void)
+void GyroSensorInit(void)
 {
     #if (GYRO_TYPE == MPU6000)
     if(MPU6000_Detect())
     {
         MPU6000_Init();
-        return true;
     }
     else
     {
-        return false;
+        //未检测到陀螺仪
+        FaultDetectSetError(GYRO_UNDETECTED);
     }        
     #endif
+    
+    
 }
 
 /**********************************************************************************************************
@@ -44,17 +46,17 @@ bool GyroSensorInit(void)
 *形    参: 无
 *返 回 值: 磁力计存在状态 
 **********************************************************************************************************/
-bool MagSensorInit(void)
+void MagSensorInit(void)
 {
     #if (MAG_TYPE == QMC5883)
     if(QMC5883_Detect())
     {
         QMC5883_Init();
-        return true;
     }
     else
     {
-        return false;
+        //未检测到磁力计
+        FaultDetectSetError(MAG_UNDETECTED);
     }        
     #endif   
 }
@@ -65,17 +67,17 @@ bool MagSensorInit(void)
 *形    参: 无
 *返 回 值: 气压计存在状态
 **********************************************************************************************************/
-bool BaroSensorInit(void)
+void BaroSensorInit(void)
 {
     #if (BARO_TYPE == MS5611)
     if(MS5611_Detect())
     {
         MS5611_Init();
-        return true;
     }
     else
     {
-        return false;
+        //未检测到磁力计
+        FaultDetectSetError(BARO_UNDETECTED);
     }        
     #endif
 }
