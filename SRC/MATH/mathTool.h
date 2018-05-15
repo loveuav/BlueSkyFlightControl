@@ -38,7 +38,6 @@ float Pythagorous4(float a, float b, float c, float d);
 
 float WrapDegree360(float angle);
 
-
 #endif
 
 

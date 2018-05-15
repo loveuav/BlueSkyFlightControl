@@ -48,7 +48,7 @@ enum WARNNING_TYPE
     MAG_DISTURBING,             //地磁传感器受干扰
 	WARNNING_RESERVE6,
     LOW_BATTERY,                //低电量/电压
-    LOW_BATTERY_FOR_RETRUN,     //电量/电压低于返航所需
+    LOW_BATTERY_FOR_RETURN,     //电量/电压低于返航所需
 	WARNNING_NUM
 };
 

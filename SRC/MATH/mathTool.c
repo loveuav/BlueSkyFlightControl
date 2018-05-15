@@ -185,6 +185,5 @@ float WrapDegree360(float angle)
         angle += 360;
     return angle;
 }
-    
 
 

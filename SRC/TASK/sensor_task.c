@@ -15,6 +15,7 @@
 #include "accelerometer.h"
 #include "magnetometer.h"
 #include "barometer.h"
+#include "gps.h"
 
 xTaskHandle imuDataPreTreatTask;
 xTaskHandle otherSensorTask;
@@ -115,7 +116,14 @@ portTASK_FUNCTION(vOtherSensorTask, pvParameters)
 		{ 
             //气压高度数据预处理
             BaroDataPreTreat();
-		}        
+		}    
+        
+        //10Hz
+        if(count % 20 == 0)	
+		{   
+            //GPS数据预处理            
+            GpsDataPreTreat();
+        }
         
 		count++;
         
