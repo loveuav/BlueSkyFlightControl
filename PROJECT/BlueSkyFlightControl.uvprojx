@@ -404,6 +404,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\SYSTEM\faultDetect.h</FilePath>
             </File>
+            <File>
+              <FileName>flightStatus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\SYSTEM\flightStatus.c</FilePath>
+            </File>
+            <File>
+              <FileName>flightStatus.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SYSTEM\flightStatus.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

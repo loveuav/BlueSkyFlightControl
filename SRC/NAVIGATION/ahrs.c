@@ -12,6 +12,7 @@
 #include "ahrs.h"
 #include "board.h"
 #include "kalman3.h"
+#include "gps.h"
 
 AHRS_t ahrs;
 Kalman_t kalmanRollPitch, kalmanYaw;
@@ -261,8 +262,11 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	//转换磁场向量估计量到地理坐标系
 	BodyFrameToEarthFrame(ahrs.angle, ahrs.vectorYaw, &vectorYawEf);
     
-	//转换成欧拉角
-	ahrs.angle.z = Degrees(atan2f(vectorYawEf.y, vectorYawEf.x));    
+	//转换成欧拉角，并减去磁偏角误差
+	ahrs.angle.z = Degrees(atan2f(vectorYawEf.y, vectorYawEf.x)) - GetMagDeclination();    
+    
+    //将航向角限制为0-360°
+    ahrs.angle.z = WrapDegree360(ahrs.angle.z);
     
 	//磁强观测值与航向估计值进行叉积运算得到旋转误差矢量
 	vectorError = VectorCrossProduct(mag, ahrs.vectorYaw);
