@@ -13,6 +13,7 @@
 #include "module.h"
 #include "board.h"
 #include "pid.h"
+#include "flightStatus.h"
 
 PID_t tempPID;
 
@@ -60,7 +61,15 @@ void ImuTempControl(float tempMeasure)
 	}   
 
 	if(GetSysTimeMs() < 8000)
-		PID_ResetI(&tempPID);  
+		PID_ResetI(&tempPID); 
+
+    if(GetInitStatus() < HEAT_FINISH)
+    {
+        if(tempError < 200)
+            SetInitStatus(HEAT_FINISH);
+        else
+            SetInitStatus(HEATING);
+    }
 }
 
 

@@ -13,18 +13,27 @@ enum
 	FINISH_LANDING	        //降落完成
 };
 
+//初始化状态
+enum
+{
+	HEATING,		        //加热中
+	HEAT_FINISH,		    //加热完成
+    ATT_FINISH,             //姿态估计收敛完成
+    INIT_FINISH             //初始化完成  
+};
+
 //放置状态
 enum
 {
 	STATIC,		            //静止
-	MOTIONAL,			    //运动
+	MOTIONAL			    //运动
 };
 
 //电机锁定状态
 enum
 {
 	DISARMED,	            //上锁
-	ARMED,				    //解锁
+	ARMED				    //解锁
 };
 
 //水平方向控制状态
@@ -33,7 +42,7 @@ enum
     POS_HOLD,			    //悬停
     POS_CHANGED,			//飞行
     POS_BRAKE,				//刹车
-    POS_BRAKE_FINISH,	    //刹车完成
+    POS_BRAKE_FINISH	    //刹车完成
 };
 
 //垂直方向控制状态
@@ -59,6 +68,8 @@ enum
 void PlaceStausCheck(Vector3f_t gyro);
 
 uint8_t GetPlaceStatus(void);
+void SetInitStatus(uint8_t status);
+uint8_t GetInitStatus(void);
 
 #endif
 

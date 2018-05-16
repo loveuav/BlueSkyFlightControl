@@ -12,12 +12,13 @@
 #include "flightStatus.h"
 
 typedef struct{
-    uint8_t failsafe;
-	uint8_t armed;
-	uint8_t flight;
-	uint8_t placement;
-	uint8_t altControl;
-	uint8_t posControl;
+    uint8_t init;           //初始化状态
+    uint8_t failsafe;       //失控保护状态
+	uint8_t armed;          //电机锁定状态
+	uint8_t flight;         //飞行状态
+	uint8_t placement;      //放置状态
+	uint8_t altControl;     //高度控制状态
+	uint8_t posControl;     //位置控制状态
 	uint8_t mode;
 }FLIGHT_STATUS_t;
 
@@ -71,6 +72,7 @@ void PlaceStausCheck(Vector3f_t gyro)
     }
     else
     {
+        //陀螺仪数据抖动次数大于一定值时认为飞机不处于静止状态
         if(checkNum > 30)
             flyStatus.placement = MOTIONAL;
         else
@@ -85,14 +87,34 @@ void PlaceStausCheck(Vector3f_t gyro)
 *函 数 名: GetPlaceStatus
 *功能说明: 获取飞行器放置状态
 *形    参: 无
-*返 回 值: 放置状态
+*返 回 值: 状态
 **********************************************************************************************************/
 uint8_t GetPlaceStatus(void)
 {
     return flyStatus.placement;    
 }
 
+/**********************************************************************************************************
+*函 数 名: SetInitStatus
+*功能说明: 设置飞控初始化状态
+*形    参: 无
+*返 回 值: 状态
+**********************************************************************************************************/
+void SetInitStatus(uint8_t status)
+{
+    flyStatus.init = status;    
+}
 
+/**********************************************************************************************************
+*函 数 名: GetInitStatus
+*功能说明: 获取飞控初始化状态
+*形    参: 无
+*返 回 值: 状态
+**********************************************************************************************************/
+uint8_t GetInitStatus(void)
+{
+    return flyStatus.init;    
+}
 
 
 

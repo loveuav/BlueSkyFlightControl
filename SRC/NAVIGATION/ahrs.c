@@ -13,6 +13,7 @@
 #include "board.h"
 #include "kalman3.h"
 #include "gps.h"
+#include "flightStatus.h"
 
 AHRS_t ahrs;
 Kalman_t kalmanRollPitch, kalmanYaw;
@@ -284,10 +285,26 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	ahrs.vectorYawErrorInt.y = ConstrainFloat(ahrs.vectorYawErrorInt.y, -0.3f, 0.3f);
 	ahrs.vectorYawErrorInt.z = ConstrainFloat(ahrs.vectorYawErrorInt.z, -0.3f, 0.3f);    
 	
-    //用于调试观察
+    //表示姿态误差
 	ahrs.vectorYawError.x = ahrs.vectorYawError.x * 0.999f + (mag.x - ahrs.vectorYaw.x) * 0.001f;
 	ahrs.vectorYawError.y = ahrs.vectorYawError.y * 0.999f + (mag.y - ahrs.vectorYaw.y) * 0.001f;
 	ahrs.vectorYawError.z = ahrs.vectorYawError.z * 0.999f + (mag.z - ahrs.vectorYaw.z) * 0.001f;	 
+    
+	//初始化时判断姿态误差是否已收敛
+	static uint16_t initStatusCnt = 0;
+	if(GetSysTimeMs() > 3000 && GetInitStatus() == HEAT_FINISH)
+	{
+		if(abs(ahrs.vectorRollPitchError.x) < 0.005f && abs(ahrs.vectorRollPitchError.y) < 0.005f)
+		{
+			initStatusCnt++;
+			if(initStatusCnt > 2000)
+				SetInitStatus(ATT_FINISH);
+		}
+		else
+		{
+			initStatusCnt = 0;
+		}
+	}
 }
 
 /**********************************************************************************************************
@@ -337,14 +354,40 @@ static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_
 **********************************************************************************************************/
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf)
 {
-    //后续更新还需要在飞控初始化时计算加速度零偏
+    static Vector3f_t accEfOffset;
+	static uint16_t offset_cnt = 10000;	//计算零偏的次数
+    
     //即使经过校准并对传感器做了恒温处理，加速度的零偏误差还是存在不稳定性，即相隔一定时间后再上电加速度零偏会发生变化
     //由于加速度零偏对导航积分计算影响较大，因此每次上电工作都需要计算零偏并补偿
     
+    //转化加速度到地理坐标系
 	BodyFrameToEarthFrame(angle, acc, accEf);
 	
-	ahrs.accEf.y = -ahrs.accEf.y;	//转换坐标系（西北天）到东北天
-	ahrs.accEf.z = ahrs.accEf.z - GRAVITY_ACCEL;    //减去重力加速度(0,0,g)    
+    //转换坐标系（西北天）到东北天
+	ahrs.accEf.y = -ahrs.accEf.y;	
+    //减去重力加速度(0,0,g)    
+	ahrs.accEf.z = ahrs.accEf.z - GRAVITY_ACCEL;   
+    
+	//计算零偏
+	if(GetSysTimeMs() > 5000 && GetInitStatus() == ATT_FINISH)
+	{
+        //飞机静止时才进行零偏计算
+		if(GetPlaceStatus() == STATIC)
+		{
+			accEfOffset.x = accEfOffset.x * 0.998f + ahrs.accEf.x * 0.002f;
+			accEfOffset.y = accEfOffset.y * 0.998f + ahrs.accEf.y * 0.002f; 
+			accEfOffset.z = accEfOffset.z * 0.998f + ahrs.accEf.z * 0.002f; 
+			offset_cnt--;
+		}
+        //完成零偏计算，系统初始化结束
+        if(offset_cnt == 0)
+            SetInitStatus(INIT_FINISH);
+	}
+    
+    //零偏补偿
+    ahrs.accEf.x -= accEfOffset.x;
+    ahrs.accEf.y -= accEfOffset.y;
+    ahrs.accEf.z -= accEfOffset.z;
 }
 
 /**********************************************************************************************************
