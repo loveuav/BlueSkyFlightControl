@@ -214,11 +214,26 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	ahrs.vectorRollPitchErrorInt.y = ConstrainFloat(ahrs.vectorRollPitchErrorInt.y, -0.5f, 0.5f);
 	ahrs.vectorRollPitchErrorInt.z = ConstrainFloat(ahrs.vectorRollPitchErrorInt.z, -0.3f, 0.3f);    
 	
-    //用于调试观察
+    //表示姿态误差
 	ahrs.vectorRollPitchError.x = ahrs.vectorRollPitchError.x * 0.999f + (acc.x - ahrs.vectorRollPitch.x) * 0.001f;
 	ahrs.vectorRollPitchError.y = ahrs.vectorRollPitchError.y * 0.999f + (acc.y - ahrs.vectorRollPitch.y) * 0.001f;
 	ahrs.vectorRollPitchError.z = ahrs.vectorRollPitchError.z * 0.999f + (acc.z - ahrs.vectorRollPitch.z) * 0.001f;	    
-    
+ 
+	//初始化时判断姿态误差是否已收敛
+	static uint16_t initStatusCnt = 0;
+	if(GetSysTimeMs() > 3000 && GetInitStatus() == HEAT_FINISH)
+	{
+		if(abs(ahrs.vectorRollPitchError.x) < 0.005f && abs(ahrs.vectorRollPitchError.y) < 0.005f)
+		{
+			initStatusCnt++;
+			if(initStatusCnt > 2000)
+				SetInitStatus(ATT_FINISH);
+		}
+		else
+		{
+			initStatusCnt = 0;
+		}
+	} 
 }
 
 /**********************************************************************************************************
@@ -285,26 +300,10 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	ahrs.vectorYawErrorInt.y = ConstrainFloat(ahrs.vectorYawErrorInt.y, -0.3f, 0.3f);
 	ahrs.vectorYawErrorInt.z = ConstrainFloat(ahrs.vectorYawErrorInt.z, -0.3f, 0.3f);    
 	
-    //表示姿态误差
+    //表示航向误差
 	ahrs.vectorYawError.x = ahrs.vectorYawError.x * 0.999f + (mag.x - ahrs.vectorYaw.x) * 0.001f;
 	ahrs.vectorYawError.y = ahrs.vectorYawError.y * 0.999f + (mag.y - ahrs.vectorYaw.y) * 0.001f;
 	ahrs.vectorYawError.z = ahrs.vectorYawError.z * 0.999f + (mag.z - ahrs.vectorYaw.z) * 0.001f;	 
-    
-	//初始化时判断姿态误差是否已收敛
-	static uint16_t initStatusCnt = 0;
-	if(GetSysTimeMs() > 3000 && GetInitStatus() == HEAT_FINISH)
-	{
-		if(abs(ahrs.vectorRollPitchError.x) < 0.005f && abs(ahrs.vectorRollPitchError.y) < 0.005f)
-		{
-			initStatusCnt++;
-			if(initStatusCnt > 2000)
-				SetInitStatus(ATT_FINISH);
-		}
-		else
-		{
-			initStatusCnt = 0;
-		}
-	}
 }
 
 /**********************************************************************************************************
