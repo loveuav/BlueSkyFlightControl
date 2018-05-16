@@ -16,22 +16,6 @@
 GYROSCOPE_t gyro;
 
 /**********************************************************************************************************
-*函 数 名: GyroRotate
-*功能说明: 陀螺仪数据坐标变换
-*形    参: 陀螺仪数据指针
-*返 回 值: 无
-**********************************************************************************************************/
-static void GyroRotate(Vector3f_t* gyro)
-{
-	Vector3f_t temp;
-	
-	temp = *gyro;
-	(*gyro).x = temp.y;
-	(*gyro).y = temp.x;
-	(*gyro).z = -temp.z;
-}
-
-/**********************************************************************************************************
 *函 数 名: GyroPreTreatInit
 *功能说明: 陀螺仪预处理初始化
 *形    参: 无
@@ -63,9 +47,6 @@ void GyroPreTreatInit(void)
 void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData, Vector3f_t* gyroLpfData)
 {	
 	gyro.data = gyroRaw;
-    
-    //根据传感器的实际安装方向对陀螺仪数据进行坐标变换
-	GyroRotate(&gyro.data);
 	
 	//零偏误差校准
 	gyro.data.x -= gyro.cali.offset.x;
@@ -99,7 +80,7 @@ void GyroCalibration(Vector3f_t gyroRaw)
 		return;
 	
 	gyro_raw_temp = gyroRaw;
-	GyroRotate(&gyro_raw_temp);
+
 	gyro_sum[0] += gyro_raw_temp.x;
 	gyro_sum[1] += gyro_raw_temp.y;
 	gyro_sum[2] += gyro_raw_temp.z;

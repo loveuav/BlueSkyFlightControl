@@ -30,22 +30,6 @@ enum{
 MAGNETOMETER_t mag;
 
 /**********************************************************************************************************
-*函 数 名: MagRotate
-*功能说明: 磁力计数据坐标变换
-*形    参: 磁力计数据指针
-*返 回 值: 无
-**********************************************************************************************************/
-static void MagRotate(Vector3f_t *mag)
-{
-	Vector3f_t temp;
-	
-	temp = *mag;
-	(*mag).x = temp.y;
-	(*mag).y = temp.x;
-	(*mag).z = -temp.z;
-}
-
-/**********************************************************************************************************
 *函 数 名: MagCaliDataInit
 *功能说明: 磁力计校准参数初始化
 *形    参: 无
@@ -87,9 +71,6 @@ void MagDataPreTreat(void)
     
 	//获取磁力计传感器采样值	
     MagSensorRead(&magRaw);
-
-	//根据传感器的实际安装方向对磁力计数据进行坐标系变换
-	MagRotate(&magRaw);
 	
 	//磁力计数据校准
 	mag.data.x = (magRaw.x - mag.cali.offset.x) * mag.cali.scale.x;
@@ -127,7 +108,6 @@ void MagCalibration(void)
 	{
         //读取罗盘数据
         MagSensorRead(&magRaw);
-        MagRotate(&magRaw);
 
         //校准分两个阶段：1.水平旋转 2.机头朝上或朝下然后水平旋转
         //两个阶段分别对飞机的z轴和x轴陀螺仪数据进行积分，记录旋转过的角度

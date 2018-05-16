@@ -55,22 +55,6 @@ void AccPreTreatInit(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: AccRotate
-*功能说明: 加速度数据坐标变换
-*形    参: 加速度数据指针
-*返 回 值: 无
-**********************************************************************************************************/
-static void AccRotate(Vector3f_t *acc)
-{
-	Vector3f_t temp;
-	
-	temp = *acc;
-	(*acc).x = temp.y;
-	(*acc).y = temp.x;
-	(*acc).z = -temp.z;
-}
-
-/**********************************************************************************************************
 *函 数 名: AccDataPreTreat
 *功能说明: 加速度数据预处理
 *形    参: 加速度原始数据 加速度预处理数据指针
@@ -82,9 +66,6 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 	const float deltaT = 0.001f;
 
 	acc.data = accRaw;
-	
-	//根据传感器的实际安装方向对加速度数据进行坐标系变换
-	AccRotate(&acc.data);
 	
 	//加速度数据校准
 	acc.data.x = (acc.data.x - acc.cali.offset.x) * acc.cali.scale.x;
@@ -131,7 +112,6 @@ void AccCalibration(Vector3f_t accRaw)
 	{
 		if(samples_count < 100)
 		{
-			AccRotate(&accRaw);
 			samples[acc.cali.step - 1].x += accRaw.x;
 			samples[acc.cali.step - 1].y += accRaw.y;
 			samples[acc.cali.step - 1].z += accRaw.z;
