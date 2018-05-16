@@ -15,6 +15,7 @@ typedef struct{
     uint8_t failsafe;
 	uint8_t armed;
 	uint8_t flight;
+	uint8_t placement;
 	uint8_t altControl;
 	uint8_t posControl;
 	uint8_t mode;
@@ -35,7 +36,61 @@ void SetArmedStatus(uint8_t status)
 	}
 }
 
+uint8_t GetArmedStatus(void)
+{
+    return flyStatus.armed;
+}
 
+/**********************************************************************************************************
+*函 数 名: PlaceStausCheck
+*功能说明: 飞行器放置状态检测：静止或运动
+*形    参: 角速度
+*返 回 值: 无
+**********************************************************************************************************/
+void PlaceStausCheck(Vector3f_t gyro)
+{
+    Vector3f_t gyroDiff;
+    static Vector3f_t lastGyro;
+    static float threshold = 1.0f;
+    static uint16_t checkNum = 0;
+    static int16_t count = 0;
+    
+    gyroDiff.x = gyro.x - lastGyro.x;
+    gyroDiff.y = gyro.y - lastGyro.y;    
+    gyroDiff.z = gyro.z - lastGyro.z;
+    lastGyro = gyro;
+    
+    if(count < 100)
+    {
+        count++;
+        //陀螺仪数值变化大于阈值
+        if(abs(gyroDiff.x) > threshold || abs(gyroDiff.y) > threshold || abs(gyroDiff.z) > threshold)
+        {
+            checkNum++;
+        }
+    }
+    else
+    {
+        if(checkNum > 30)
+            flyStatus.placement = MOTIONAL;
+        else
+            flyStatus.placement = STATIC;
+        
+        checkNum = 0;
+        count = 0;
+    }  
+}
+
+/**********************************************************************************************************
+*函 数 名: GetPlaceStatus
+*功能说明: 获取飞行器放置状态
+*形    参: 无
+*返 回 值: 放置状态
+**********************************************************************************************************/
+uint8_t GetPlaceStatus(void)
+{
+    return flyStatus.placement;    
+}
 
 
 

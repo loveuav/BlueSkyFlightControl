@@ -13,6 +13,7 @@
 
 #include "module.h"
 #include "parameter.h"
+#include "flightStatus.h"
 
 //声明任务句柄
 xTaskHandle imuSensorReadTask;

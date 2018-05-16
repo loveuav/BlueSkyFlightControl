@@ -56,6 +56,10 @@ enum
 	FOLLOWME				//自动跟随
 };
 
+void PlaceStausCheck(Vector3f_t gyro);
+
+uint8_t GetPlaceStatus(void);
+
 #endif
 
 
