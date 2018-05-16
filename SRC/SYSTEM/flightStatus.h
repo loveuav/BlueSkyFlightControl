@@ -42,6 +42,20 @@ enum
     ALT_HOLD			    //悬停
 };
 
+//飞行模式
+enum
+{
+	MANUAL = 0,			    //手动		(不带定高不带定点)
+	SEMIAUTO,				//半自动 	(带定高不带定点)
+	AUTO,					//自动		(带定高带定点)
+	AUTOTAKEOFF,		    //自动起飞
+	AUTOLAND,				//自动降落
+	RETURNTOHOME,		    //自动返航
+	AUTOCIRCLE,			    //自动绕圈
+	AUTOPILOT,			    //自动航线
+	FOLLOWME				//自动跟随
+};
+
 #endif
 
 

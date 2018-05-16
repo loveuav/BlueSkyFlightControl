@@ -23,6 +23,7 @@ static void kalmanRollPitchInit(void);
 static void kalmanYawInit(void);
 static void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf);
 static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorBf);
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf);
 
 /**********************************************************************************************************
 *函 数 名: AHRSInit
@@ -109,6 +110,9 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     
     //偏航角估计
     AttitudeEstimateYaw(deltaAngle, mag);
+    
+    //计算飞行器在地理坐标系下的运动加速度
+    TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf);
 }
 
 /**********************************************************************************************************
@@ -286,7 +290,6 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	ahrs.vectorYawError.z = ahrs.vectorYawError.z * 0.999f + (mag.z - ahrs.vectorYaw.z) * 0.001f;	 
 }
 
-
 /**********************************************************************************************************
 *函 数 名: BodyFrameToEarthFrame
 *功能说明: 转换向量到地理坐标系
@@ -326,8 +329,34 @@ static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_
     *vectorBf = vector;
 }
 
+/**********************************************************************************************************
+*函 数 名: TransAccToEarthFrame
+*功能说明: 转换加速度到地理坐标系，并去除重力加速度
+*形    参: 当前飞机姿态 加速度 地理坐标系下的加速度
+*返 回 值: 无
+**********************************************************************************************************/
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf)
+{
+    //后续更新还需要在飞控初始化时计算加速度零偏
+    //即使经过校准并对传感器做了恒温处理，加速度的零偏误差还是存在不稳定性，即相隔一定时间后再上电加速度零偏会发生变化
+    //由于加速度零偏对导航积分计算影响较大，因此每次上电工作都需要计算零偏并补偿
+    
+	BodyFrameToEarthFrame(angle, acc, accEf);
+	
+	ahrs.accEf.y = -ahrs.accEf.y;	//转换坐标系（西北天）到东北天
+	ahrs.accEf.z = ahrs.accEf.z - GRAVITY_ACCEL;    //减去重力加速度(0,0,g)    
+}
 
-
+/**********************************************************************************************************
+*函 数 名: GetAccEf
+*功能说明: 获取地理坐标系下的运动加速度
+*形    参: 无
+*返 回 值: 加速度
+**********************************************************************************************************/
+Vector3f_t GetMotionAccEf(void)
+{
+    return ahrs.accEf;
+}
 
 
 

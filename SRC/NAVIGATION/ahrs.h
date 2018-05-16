@@ -14,6 +14,8 @@ typedef struct{
 	Vector3f_t vectorYawError; 	
 	Vector3f_t vectorYawErrorInt;
     float      vectorYawKI;	
+    
+    Vector3f_t accEf;
 }AHRS_t;
 
 void AHRSInit(void);
