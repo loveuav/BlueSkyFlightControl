@@ -52,6 +52,8 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 		{
 			//飞行速度估计
 			VelocityEstimate();
+            //位置估计
+            PositionEstimate();
 		}
 	}
 }

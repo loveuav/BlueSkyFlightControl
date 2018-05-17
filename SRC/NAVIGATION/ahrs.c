@@ -95,6 +95,7 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     Vector3f_t deltaAngle;	
 	static uint32_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
+    deltaT = ConstrainFloat(deltaT, 0.0005, 0.002);	
 	previousT = GetSysTimeUs();		  
 
     //姿态初始对准

@@ -13,6 +13,7 @@ typedef struct{
 
 void NavigationInit(void);
 void VelocityEstimate(void);
+void PositionEstimate(void);
 
 #endif
 

@@ -20,8 +20,10 @@
 
 NAVGATION_t nav;
 Kalman_t kalmanVel;
+Kalman_t kalmanPos;
 
 static void KalmanVelInit(void);
+static void KalmanPosInit(void);
 
 /**********************************************************************************************************
 *函 数 名: NavigationInit
@@ -32,11 +34,13 @@ static void KalmanVelInit(void);
 void NavigationInit(void)
 {
     KalmanVelInit();
+    KalmanPosInit();
 }
 
 /**********************************************************************************************************
 *函 数 名: VelocityEstimate
 *功能说明: 飞行速度估计 目前只融合了GPS与气压，以后还会有光流、TOF等模块数据的参与
+*          速度的计算均在机体坐标系下进行，所以GPS速度在参与融合时需要先转换到机体坐标系
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
@@ -105,6 +109,64 @@ void VelocityEstimate(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: PositionEstimate
+*功能说明: 位置估计 目前只融合了GPS与气压，以后还会有光流、TOF等模块数据的参与
+*          位置的计算均在地理坐标系（东北天）下进行
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void PositionEstimate(void)
+{
+	static uint32_t previousT;	
+	float deltaT;
+	Vector3f_t velocityEf, posMeasure;
+    Vector3f_t input;
+    static uint32_t count;
+    static bool fuseFlag;
+    
+    //计算时间间隔，用于积分
+    deltaT = (GetSysTimeUs() - previousT) * 1e-6;
+    deltaT = ConstrainFloat(deltaT, 0.0005, 0.002);	
+	previousT = GetSysTimeUs();		
+	
+    //速度数据更新频率1KHz，而气压数据更新频率只有50Hz，GPS数据只有10Hz
+    //这里将气压与GPS参与融合的频率强制统一为50Hz
+    if(count++ % 40 == 0)
+    {
+        if(GetGpsFixStatus())
+        {
+            //获取GPS位置
+            posMeasure = GetGpsPosition();
+        }
+        else
+        {
+            posMeasure.x = 0;
+            posMeasure.y = 0;
+        }
+        //获取气压高度测量值
+        posMeasure.z = BaroGetAlt();	
+        
+        fuseFlag = true;
+    }
+    else
+    {
+        fuseFlag = false;
+    }
+
+    //转换速度值到地理坐标系（东北天）
+    TransVelToEarthFrame(nav.velocity, &velocityEf, GetCopterAngle().z);
+    
+    //速度积分
+    input.x = velocityEf.x * deltaT;
+    input.y = velocityEf.y * deltaT;   
+    input.z = velocityEf.z * deltaT;    
+    
+    //卡尔曼滤波器更新
+    KalmanUpdate(&kalmanPos, input, posMeasure, fuseFlag);
+    nav.position = kalmanPos.status;    
+}
+
+/**********************************************************************************************************
 *函 数 名: KalmanVelInit
 *功能说明: 飞行速度估计的卡尔曼结构体初始化
 *形    参: 无
@@ -128,37 +190,29 @@ static void KalmanVelInit(void)
     KalmanObserveMapMatSet(&kalmanVel, hMatInit);
 }
 
+/**********************************************************************************************************
+*函 数 名: KalmanPosInit
+*功能说明: 位置估计的卡尔曼结构体初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void KalmanPosInit(void)
+{
+    float qMatInit[9] = {0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.03};
+    float rMatInit[9] = {250, 0,  0, 0, 250, 0, 0, 0, 1500};
+    float pMatInit[9] = {0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5};
+    float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    float bMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //初始化卡尔曼滤波器的相关矩阵
+    KalmanQMatSet(&kalmanPos, qMatInit);
+    KalmanRMatSet(&kalmanPos, rMatInit);  
+    KalmanBMatSet(&kalmanPos, bMatInit);  
+    KalmanCovarianceMatSet(&kalmanPos, pMatInit);    
+    KalmanStateTransMatSet(&kalmanPos, fMatInit);
+    KalmanObserveMapMatSet(&kalmanPos, hMatInit);
+}
 
 
 
