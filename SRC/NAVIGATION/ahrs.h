@@ -20,6 +20,8 @@ typedef struct{
 
 void AHRSInit(void);
 void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag);
+Vector3f_t GetCopterAngle(void);
+Vector3f_t GetCopterAccEf(void);
 
 #endif
 

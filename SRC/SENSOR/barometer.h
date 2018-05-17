@@ -5,7 +5,7 @@
 
 void BaroDataPreTreat(void);
 int32_t BaroGetAlt(void);
-int32_t BaroGetVelocity(void);
+float BaroGetVelocity(void);
 
 #endif
 

@@ -12,6 +12,7 @@
 #include "TaskConfig.h"
 
 #include "ahrs.h"
+#include "navigation.h"
 #include "gyroscope.h"
 #include "magnetometer.h"
 #include "flightStatus.h"
@@ -34,6 +35,8 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 	
     //姿态估计参数初始化
     AHRSInit();
+	//导航参数初始化
+	NavigationInit();
     
 	for(;;)
 	{
@@ -43,6 +46,13 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 
 		//姿态估计
 		AttitudeEstimate(*gyro, *acc, MagGetData());
+		
+		//等待系统初始化完成
+		if(GetInitStatus() == INIT_FINISH)
+		{
+			//飞行速度估计
+			VelocityEstimate();
+		}
 	}
 }
 

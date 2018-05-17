@@ -20,8 +20,8 @@ Kalman_t kalmanRollPitch, kalmanYaw;
 
 static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc);
 static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag);
-static void kalmanRollPitchInit(void);
-static void kalmanYawInit(void);
+static void KalmanRollPitchInit(void);
+static void KalmanYawInit(void);
 static void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf);
 static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorBf);
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf);
@@ -34,8 +34,8 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 **********************************************************************************************************/
 void AHRSInit(void)
 {
-    kalmanRollPitchInit();
-    kalmanYawInit();
+    KalmanRollPitchInit();
+    KalmanYawInit();
 }
 
 /**********************************************************************************************************
@@ -117,12 +117,12 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
 }
 
 /**********************************************************************************************************
-*函 数 名: kalmanRollPitchInit
+*函 数 名: KalmanRollPitchInit
 *功能说明: 俯仰横滚估计的卡尔曼结构体初始化
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-static void kalmanRollPitchInit(void)
+static void KalmanRollPitchInit(void)
 {
     float qMatInit[9] = {0.0001, 0, 0, 0, 0.0001, 0, 0, 0, 0.0001};
     float rMatInit[9] = {3500, 0,  0, 0, 3500, 0, 0, 0, 3500};
@@ -144,12 +144,12 @@ static void kalmanRollPitchInit(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: kalmanYawInit
+*函 数 名: KalmanYawInit
 *功能说明: 航向估计的卡尔曼结构体初始化
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-static void kalmanYawInit(void)
+static void KalmanYawInit(void)
 {
     float qMatInit[9] = {0.0001, 0, 0, 0, 0.0001, 0, 0, 0, 0.0001};
     float rMatInit[9] = {3000, 0,  0, 0, 3000, 0, 0, 0, 3000};
@@ -223,10 +223,10 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	static uint16_t initStatusCnt = 0;
 	if(GetSysTimeMs() > 3000 && GetInitStatus() == HEAT_FINISH)
 	{
-		if(abs(ahrs.vectorRollPitchError.x) < 0.005f && abs(ahrs.vectorRollPitchError.y) < 0.005f)
+		if(abs(ahrs.vectorRollPitchError.x) < 0.003f && abs(ahrs.vectorRollPitchError.y) < 0.003f)
 		{
 			initStatusCnt++;
-			if(initStatusCnt > 2000)
+			if(initStatusCnt > 3000)
 				SetInitStatus(ATT_FINISH);
 		}
 		else
@@ -395,9 +395,20 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 *形    参: 无
 *返 回 值: 加速度
 **********************************************************************************************************/
-Vector3f_t GetMotionAccEf(void)
+Vector3f_t GetCopterAccEf(void)
 {
     return ahrs.accEf;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetEulerAngle
+*功能说明: 获取表示飞行器姿态的欧拉角
+*形    参: 无
+*返 回 值: 角度值
+**********************************************************************************************************/
+Vector3f_t GetCopterAngle(void)
+{
+    return ahrs.angle;
 }
 
 

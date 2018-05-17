@@ -16,7 +16,7 @@
 typedef struct{
 	int32_t alt;
 	int32_t lastAlt;
-	int32_t velocity;
+	float velocity;
 	int32_t alt_offset;
 }BAROMETER_t;
 
@@ -52,7 +52,7 @@ void BaroDataPreTreat(void)
 	//读取气压高度
 	baro.alt -= baro.alt_offset;
 	//计算气压变化速度
-	baro.velocity = (baro.alt - baro.lastAlt) / deltaT;
+	baro.velocity = baro.velocity * 0.5f + ((baro.alt - baro.lastAlt) / deltaT) * 0.5f;
 	baro.lastAlt = baro.alt;	
 }
 
@@ -73,7 +73,7 @@ int32_t BaroGetAlt(void)
 *形    参: 无 
 *返 回 值: 气压高度变化速度
 **********************************************************************************************************/
-int32_t BaroGetVelocity(void)
+float BaroGetVelocity(void)
 {
     return baro.velocity;
 }

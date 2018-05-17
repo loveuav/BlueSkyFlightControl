@@ -27,7 +27,7 @@ void KalmanUpdate(Kalman_t* kalman, Vector3f_t input, Vector3f_t observe, bool f
 	float S[9], m1[9], m2[9], m3[9], m4[9], m5[9];	
     
 	//1:状态预估计 Xk = Fk*Xk-1 + Bk*Uk
-    kalman->status = Vector3f_Sub(Matrix3MulVector3(kalman->f, kalman->status), Matrix3MulVector3(kalman->b, input));
+    kalman->status = Vector3f_Add(Matrix3MulVector3(kalman->f, kalman->status), Matrix3MulVector3(kalman->b, input));
     
     //当观测值未更新时不进行融合，退出本函数
     if(flag == false)
