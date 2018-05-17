@@ -63,8 +63,8 @@ void VelocityEstimate(void)
 	//获取运动加速度
 	nav.accel = GetCopterAccEf();
 	
-    //加速度数据更新频率1KHz，而气压数据更新频率只有50Hz，GPS数据只有10Hz
-    //这里将气压与GPS参与融合的频率强制统一为50Hz
+    //加速度数据更新频率1KHz，而气压数据更新频率只有25Hz，GPS数据只有10Hz
+    //这里将气压与GPS参与融合的频率强制统一为25Hz
     if(count++ % 40 == 0)
     {
         if(GetGpsFixStatus())
@@ -129,8 +129,8 @@ void PositionEstimate(void)
     deltaT = ConstrainFloat(deltaT, 0.0005, 0.002);	
 	previousT = GetSysTimeUs();		
 	
-    //速度数据更新频率1KHz，而气压数据更新频率只有50Hz，GPS数据只有10Hz
-    //这里将气压与GPS参与融合的频率强制统一为50Hz
+    //速度数据更新频率1KHz，而气压数据更新频率只有25Hz，GPS数据只有10Hz
+    //这里将气压与GPS参与融合的频率强制统一为25Hz
     if(count++ % 40 == 0)
     {
         if(GetGpsFixStatus())
