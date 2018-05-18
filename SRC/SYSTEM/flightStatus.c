@@ -11,7 +11,8 @@
 **********************************************************************************************************/
 #include "flightStatus.h"
 
-typedef struct{
+typedef struct
+{
     uint8_t init;           //初始化状态
     uint8_t failsafe;       //失控保护状态
 	uint8_t armed;          //电机锁定状态

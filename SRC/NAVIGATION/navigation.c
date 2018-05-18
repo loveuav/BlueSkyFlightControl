@@ -67,10 +67,10 @@ void VelocityEstimate(void)
     //这里将气压与GPS参与融合的频率强制统一为25Hz
     if(count++ % 40 == 0)
     {
-        if(GetGpsFixStatus())
+        if(GpsGetFixStatus())
         {
             //获取GPS速度测量值，转换速度值到机体坐标系
-            TransVelToBodyFrame(GetGpsVelocity(), &velMeasure, GetCopterAngle().z);
+            TransVelToBodyFrame(GpsGetVelocity(), &velMeasure, GetCopterAngle().z);
         }
         else
         {
@@ -96,7 +96,7 @@ void VelocityEstimate(void)
     input.x += velErrorInt.x * 0.0001f;
     input.y += velErrorInt.y * 0.0001f;
     input.z += velErrorInt.z * 0.0001f;
-    
+
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanVel, input, velMeasure, fuseFlag);
     nav.velocity = kalmanVel.status;
@@ -133,10 +133,10 @@ void PositionEstimate(void)
     //这里将气压与GPS参与融合的频率强制统一为25Hz
     if(count++ % 40 == 0)
     {
-        if(GetGpsFixStatus())
+        if(GpsGetFixStatus())
         {
             //获取GPS位置
-            posMeasure = GetGpsPosition();
+            posMeasure = GpsGetPosition();
         }
         else
         {

@@ -157,7 +157,7 @@ static void GpsCalcVelocity(double lat, double lon)
 	double gpsLngDownScale;	
 	
 	static uint32_t previousT;
-	float	deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
+	float  deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();		
 
     if(init){
@@ -219,34 +219,34 @@ float GetMagDeclination(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: GetGpsFixStatus
+*函 数 名: GpsGetFixStatus
 *功能说明: 获取GPS定位状态，为真表示GPS已定位并且定位精度达到要求
 *形    参: 无 
 *返 回 值: 状态
 **********************************************************************************************************/
-bool GetGpsFixStatus(void)
+bool GpsGetFixStatus(void)
 {
     return gps.status;
 }
 
 /**********************************************************************************************************
-*函 数 名: GetGpsVelocity
+*函 数 名: GpsGetVelocity
 *功能说明: 获取GPS的测量速度
 *形    参: 无 
 *返 回 值: 速度值 单位cm/s
 **********************************************************************************************************/
-Vector3f_t GetGpsVelocity(void)
+Vector3f_t GpsGetVelocity(void)
 {
     return gps.velocity;
 }
 
 /**********************************************************************************************************
-*函 数 名: GetGpsPosition
+*函 数 名: GpsGetPosition
 *功能说明: 获取GPS的以Home点为坐标原点的测量位置
 *形    参: 无 
 *返 回 值: 位置值 单位cm
 **********************************************************************************************************/
-Vector3f_t GetGpsPosition(void)
+Vector3f_t GpsGetPosition(void)
 {
     return gps.position;   
 }
