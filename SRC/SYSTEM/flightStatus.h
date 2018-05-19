@@ -18,8 +18,7 @@ enum
 {
 	HEATING,		        //加热中
 	HEAT_FINISH,		    //加热完成
-    ATT_FINISH,             //姿态估计收敛完成
-    INIT_FINISH             //初始化完成  
+    INIT_FINISH             //初始化完成 （完成加速度零偏计算）
 };
 
 //放置状态

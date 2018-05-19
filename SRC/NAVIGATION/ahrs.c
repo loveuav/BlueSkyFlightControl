@@ -219,22 +219,6 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	ahrs.vectorRollPitchError.x = ahrs.vectorRollPitchError.x * 0.999f + (acc.x - ahrs.vectorRollPitch.x) * 0.001f;
 	ahrs.vectorRollPitchError.y = ahrs.vectorRollPitchError.y * 0.999f + (acc.y - ahrs.vectorRollPitch.y) * 0.001f;
 	ahrs.vectorRollPitchError.z = ahrs.vectorRollPitchError.z * 0.999f + (acc.z - ahrs.vectorRollPitch.z) * 0.001f;	    
- 
-	//初始化时判断姿态误差是否已收敛
-	static uint16_t initStatusCnt = 0;
-	if(GetSysTimeMs() > 5000 && GetInitStatus() == HEAT_FINISH)
-	{
-		if(abs(ahrs.vectorRollPitchError.x) < 0.005f && abs(ahrs.vectorRollPitchError.y) < 0.005f)
-		{
-			initStatusCnt++;
-			if(initStatusCnt > 5000)
-				SetInitStatus(ATT_FINISH);
-		}
-		else
-		{
-			initStatusCnt = 0;
-		}
-	} 
 }
 
 /**********************************************************************************************************
@@ -356,38 +340,59 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 {
     static Vector3f_t accEfOffset;
 	static uint16_t offset_cnt = 5000;	//计算零偏的次数
+    static Vector3f_t accLpf, accEfLpf, accAngle;   //用于计算初始零偏
     
     //即使经过校准并对传感器做了恒温处理，加速度的零偏误差还是存在不稳定性，即相隔一定时间后再上电加速度零偏会发生变化
     //由于加速度零偏对导航积分计算影响较大，因此每次上电工作都需要计算零偏并补偿
+    //计算初始零偏时，直接使用加速度值计算角度，因为飞控初始化时角度估计值存在误差，导致计算出来的零偏有误差
     
     //转化加速度到地理坐标系
 	BodyFrameToEarthFrame(angle, acc, accEf);
-	
+
     //转换坐标系（西北天）到东北天
-	ahrs.accEf.y = -ahrs.accEf.y;	
+	accEf->y = -accEf->y;	
     //减去重力加速度(0,0,g)    
-	ahrs.accEf.z = ahrs.accEf.z - GRAVITY_ACCEL;   
+	accEf->z = accEf->z - GRAVITY_ACCEL;   
+
+    //零偏补偿
+    accEf->x -= accEfOffset.x;
+    accEf->y -= accEfOffset.y;
+    accEf->z -= accEfOffset.z;
     
-	//计算零偏
-	if(GetSysTimeMs() > 5000 && GetInitStatus() == ATT_FINISH)
+	//系统初始化时，计算加速度零偏
+	if(GetSysTimeMs() > 5000 && GetInitStatus() == HEAT_FINISH)
 	{
         //飞机静止时才进行零偏计算
 		if(GetPlaceStatus() == STATIC)
 		{
-			accEfOffset.x = accEfOffset.x * 0.997f + ahrs.accEf.x * 0.003f;
-			accEfOffset.y = accEfOffset.y * 0.997f + ahrs.accEf.y * 0.003f; 
-			accEfOffset.z = accEfOffset.z * 0.997f + ahrs.accEf.z * 0.003f; 
+            //加速度数据低通滤波，然后直接用滤波后的加速度值计算出姿态角
+            if(accLpf.x == 0 && accLpf.y == 0 && accLpf.z == 0)
+            {
+                accLpf = acc;
+            }
+            else
+            {
+                accLpf.x = accLpf.x * 0.999f + acc.x * 0.001f;
+                accLpf.y = accLpf.y * 0.999f + acc.y * 0.001f;
+                accLpf.z = accLpf.z * 0.999f + acc.z * 0.001f;                
+            }
+            //计算姿态角
+            accAngle.x = Degrees(atan2f(accLpf.y, Pythagorous2(accLpf.x, accLpf.z)));
+            accAngle.y = Degrees(atan2f(-accLpf.x, accLpf.z));
+            
+            BodyFrameToEarthFrame(accAngle, acc, &accEfLpf);
+            accEfLpf.y = -accEfLpf.y;	
+            accEfLpf.z = accEfLpf.z - GRAVITY_ACCEL; 
+            
+			accEfOffset.x = accEfOffset.x * 0.997f + accEfLpf.x * 0.003f;
+			accEfOffset.y = accEfOffset.y * 0.997f + accEfLpf.y * 0.003f; 
+			accEfOffset.z = accEfOffset.z * 0.997f + accEfLpf.z * 0.003f; 
 			offset_cnt--;
 		}
         //完成零偏计算，系统初始化结束
         if(offset_cnt == 0)
             SetInitStatus(INIT_FINISH);
 	}
-    
-    //零偏补偿
-    ahrs.accEf.x -= accEfOffset.x;
-    ahrs.accEf.y -= accEfOffset.y;
-    ahrs.accEf.z -= accEfOffset.z;
 }
 
 /**********************************************************************************************************
