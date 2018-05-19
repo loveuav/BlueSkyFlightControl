@@ -222,12 +222,12 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
  
 	//初始化时判断姿态误差是否已收敛
 	static uint16_t initStatusCnt = 0;
-	if(GetSysTimeMs() > 3000 && GetInitStatus() == HEAT_FINISH)
+	if(GetSysTimeMs() > 5000 && GetInitStatus() == HEAT_FINISH)
 	{
-		if(abs(ahrs.vectorRollPitchError.x) < 0.003f && abs(ahrs.vectorRollPitchError.y) < 0.003f)
+		if(abs(ahrs.vectorRollPitchError.x) < 0.005f && abs(ahrs.vectorRollPitchError.y) < 0.005f)
 		{
 			initStatusCnt++;
-			if(initStatusCnt > 3000)
+			if(initStatusCnt > 5000)
 				SetInitStatus(ATT_FINISH);
 		}
 		else
@@ -355,7 +355,7 @@ static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf)
 {
     static Vector3f_t accEfOffset;
-	static uint16_t offset_cnt = 10000;	//计算零偏的次数
+	static uint16_t offset_cnt = 5000;	//计算零偏的次数
     
     //即使经过校准并对传感器做了恒温处理，加速度的零偏误差还是存在不稳定性，即相隔一定时间后再上电加速度零偏会发生变化
     //由于加速度零偏对导航积分计算影响较大，因此每次上电工作都需要计算零偏并补偿
@@ -374,9 +374,9 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         //飞机静止时才进行零偏计算
 		if(GetPlaceStatus() == STATIC)
 		{
-			accEfOffset.x = accEfOffset.x * 0.998f + ahrs.accEf.x * 0.002f;
-			accEfOffset.y = accEfOffset.y * 0.998f + ahrs.accEf.y * 0.002f; 
-			accEfOffset.z = accEfOffset.z * 0.998f + ahrs.accEf.z * 0.002f; 
+			accEfOffset.x = accEfOffset.x * 0.997f + ahrs.accEf.x * 0.003f;
+			accEfOffset.y = accEfOffset.y * 0.997f + ahrs.accEf.y * 0.003f; 
+			accEfOffset.z = accEfOffset.z * 0.997f + ahrs.accEf.z * 0.003f; 
 			offset_cnt--;
 		}
         //完成零偏计算，系统初始化结束

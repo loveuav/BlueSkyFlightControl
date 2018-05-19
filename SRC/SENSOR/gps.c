@@ -13,6 +13,7 @@
 #include "declination.h"
 #include "ublox.h"
 #include "board.h"
+#include "faultDetect.h"
 
 #define LAT  0 //纬度 latitude
 #define LON  1 //经度 longitude
@@ -39,6 +40,7 @@ static void GpsCalcPositionChanged(Vector3f_t* deltaDis, double lat1, double lon
 static void GpsCalcVelocity(double lat, double lon);
 void TransVelToBodyFrame(Vector3f_t velEf, Vector3f_t* velBf, float yaw);
 void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw);
+static void GpsDetectCheck(float gpsTime);
 
 GPS_t gps;
 
@@ -73,6 +75,9 @@ void GpsDataPreTreat(void)
         gps.velocity.x = gpsRaw.velN;
         gps.velocity.y = gpsRaw.velE;        
     }
+	
+	//判断GPS模块连接状况
+	GpsDetectCheck(gpsRaw.time);
     
 }
 
@@ -249,6 +254,36 @@ Vector3f_t GpsGetVelocity(void)
 Vector3f_t GpsGetPosition(void)
 {
     return gps.position;   
+}
+
+/**********************************************************************************************************
+*函 数 名: GpsDetectCheck
+*功能说明: 检测GPS模块连接是否正常，通过检测GPS时间变化来判断
+*形    参: GPS时间 
+*返 回 值: 无
+**********************************************************************************************************/
+static void GpsDetectCheck(float gpsTime)
+{
+	static uint32_t cnt;
+	static float lastGpsTime = 0;
+	
+	if(gpsTime == lastGpsTime)
+	{
+		cnt++;
+		
+		if(cnt > 10)
+		{
+			//未检测到GPS模块
+			FaultDetectSetError(GPS_UNDETECTED);
+		}
+	}
+	else
+	{
+		cnt = 0;
+		FaultDetectResetError(GPS_UNDETECTED);
+	}
+	
+	lastGpsTime = gpsTime;	
 }
 
 

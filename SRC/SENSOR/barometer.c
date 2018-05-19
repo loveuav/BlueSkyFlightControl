@@ -12,6 +12,7 @@
 #include "barometer.h"
 #include "module.h"
 #include "board.h"
+#include "faultDetect.h"
 
 typedef struct{
 	int32_t alt;
@@ -21,6 +22,8 @@ typedef struct{
 }BAROMETER_t;
 
 BAROMETER_t baro;
+
+static void BaroDetectCheck(int32_t baroAlt);
 
 /**********************************************************************************************************
 *函 数 名: BaroDataPreTreat
@@ -53,7 +56,10 @@ void BaroDataPreTreat(void)
 	baro.alt -= baro.alt_offset;
 	//计算气压变化速度
 	baro.velocity = baro.velocity * 0.5f + ((baro.alt - baro.lastAlt) / deltaT) * 0.5f;
-	baro.lastAlt = baro.alt;	
+	baro.lastAlt = baro.alt;
+
+    //检测气压传感器是否工作正常
+    BaroDetectCheck(baro.alt);	
 }
 
 /**********************************************************************************************************
@@ -76,6 +82,37 @@ int32_t BaroGetAlt(void)
 float BaroGetVelocity(void)
 {
     return baro.velocity;
+}
+
+
+/**********************************************************************************************************
+*函 数 名: BaroDetectCheck
+*功能说明: 检测气压传感器工作是否正常，通过检测气压高度数据变化来判断
+*形    参: 气压高度值 
+*返 回 值: 无
+**********************************************************************************************************/
+static void BaroDetectCheck(int32_t baroAlt)
+{
+	static uint32_t cnt;
+	static int32_t lastBaroAlt = 0;
+	
+	if(baroAlt == lastBaroAlt)
+	{
+		cnt++;
+		
+		if(cnt > 20)
+		{
+			//未检测到气压传感器
+			FaultDetectSetError(BARO_UNDETECTED);
+		}
+	}
+	else
+	{
+		cnt = 0;
+		FaultDetectResetError(BARO_UNDETECTED);
+	}
+	
+	lastBaroAlt = baroAlt;	
 }
 
 

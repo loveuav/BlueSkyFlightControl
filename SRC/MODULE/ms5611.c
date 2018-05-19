@@ -155,12 +155,15 @@ void MS5611_Update(void)
 {
 	static int state = 0;
 	
-	if (state) {
+	if (state) 
+    {
 			MS5611_Read_Adc_P();
 			MS5611_Start_T();
 			MS5611_BaroAltCalculate();
 			state = 0;
-	} else {
+	}
+    else 
+    {
 			MS5611_Read_Adc_T();
 			MS5611_Start_P();
 			state = 1;
@@ -185,12 +188,14 @@ static void MS5611_BaroAltCalculate(void)
 	int64_t sens = ((uint32_t)ms5611.prom[1] << 15) + (((int64_t)dT * ms5611.prom[3]) >> 8);
 	ms5611.temperature = 2000 + (((int64_t)dT * ms5611.prom[6]) >> 23);
 
-	if (ms5611.temperature < 2000) { // temperature lower than 20degC 
+	if (ms5611.temperature < 2000)
+    { // temperature lower than 20degC 
 			delt = ms5611.temperature - 2000;
 			delt = delt * delt;
 			off2 = (5 * delt) >> 1;
 			sens2 = (5 * delt) >> 2;
-			if (ms5611.temperature < -1500) { // temperature lower than -15degC
+			if (ms5611.temperature < -1500)
+            { // temperature lower than -15degC
 					delt = ms5611.temperature + 1500;
 					delt = delt * delt;
 					off2  += 7 * delt;

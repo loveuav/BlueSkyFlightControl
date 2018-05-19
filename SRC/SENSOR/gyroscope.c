@@ -12,8 +12,11 @@
 #include "gyroscope.h"
 #include "parameter.h"
 #include "accelerometer.h"
+#include "faultDetect.h"
 
 GYROSCOPE_t gyro;
+
+static void GyroDetectCheck(Vector3f_t gyroRaw);
 
 /**********************************************************************************************************
 *函 数 名: GyroPreTreatInit
@@ -47,6 +50,9 @@ void GyroPreTreatInit(void)
 void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData, Vector3f_t* gyroLpfData)
 {	
 	gyro.data = gyroRaw;
+
+    //检测陀螺仪是否工作正常
+    GyroDetectCheck(gyroRaw);
 	
 	//零偏误差校准
 	gyro.data.x -= gyro.cali.offset.x;
@@ -147,5 +153,33 @@ Vector3f_t GyroLpfGetData(void)
     return gyro.dataLpf;
 }
 
-
+/**********************************************************************************************************
+*函 数 名: GyroDetectCheck
+*功能说明: 检测陀螺仪工作是否正常，通过检测传感器原始数据变化来判断
+*形    参: 陀螺仪原始数据 
+*返 回 值: 无
+**********************************************************************************************************/
+static void GyroDetectCheck(Vector3f_t gyroRaw)
+{
+	static uint32_t cnt;
+	static Vector3f_t lastGyroRaw;
+	
+	if((gyroRaw.x == lastGyroRaw.x) && (gyroRaw.y == lastGyroRaw.y) && (gyroRaw.z == lastGyroRaw.z))
+	{
+		cnt++;
+		
+		if(cnt > 300)
+		{
+			//未检测到陀螺仪
+			FaultDetectSetError(GYRO_UNDETECTED);
+		}
+	}
+	else
+	{
+		cnt = 0;
+		FaultDetectResetError(GYRO_UNDETECTED);
+	}
+	
+	lastGyroRaw = gyroRaw;	
+}
 

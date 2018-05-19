@@ -14,6 +14,7 @@
 #include "gyroscope.h"
 #include "parameter.h"
 #include "gaussNewton.h"
+#include "faultDetect.h"
 
 enum{
     MaxX,
@@ -28,6 +29,8 @@ enum{
 //不同地方磁场强度有所区别，所以每次校准磁力计时要把当地磁场强度的大概值保存下来
 
 MAGNETOMETER_t mag;
+
+static void MagDetectCheck(Vector3f_t magRaw);
 
 /**********************************************************************************************************
 *函 数 名: MagCaliDataInit
@@ -71,6 +74,9 @@ void MagDataPreTreat(void)
     
 	//获取磁力计传感器采样值	
     MagSensorRead(&magRaw);
+
+	//检测磁力计是否工作正常
+	MagDetectCheck(magRaw);
 	
 	//磁力计数据校准
 	mag.data.x = (magRaw.x - mag.cali.offset.x) * mag.cali.scale.x;
@@ -78,7 +84,7 @@ void MagDataPreTreat(void)
 	mag.data.z = (magRaw.z - mag.cali.offset.z) * mag.cali.scale.z;	
 
 	//计算磁场强度模值，用于判断周边是否存在磁场干扰（正常值为1）
-	mag.mag = mag.mag * 0.99f + Pythagorous3(mag.data.x, mag.data.y, mag.data.z) / mag.earthMag * 0.01f;
+	mag.mag = mag.mag * 0.99f + Pythagorous3(mag.data.x, mag.data.y, mag.data.z) / mag.earthMag * 0.01f;		
 }
 
 
@@ -227,6 +233,37 @@ void MagCalibration(void)
 Vector3f_t MagGetData(void)
 {
     return mag.data;
+}
+
+
+/**********************************************************************************************************
+*函 数 名: MagDetectCheck
+*功能说明: 检测磁力计工作是否正常，通过检测传感器原始数据变化来判断
+*形    参: 磁力计原始数据 
+*返 回 值: 无
+**********************************************************************************************************/
+static void MagDetectCheck(Vector3f_t magRaw)
+{
+	static uint32_t cnt;
+	static Vector3f_t lastMagRaw;
+	
+	if((magRaw.x == lastMagRaw.x) && (magRaw.y == lastMagRaw.y) && (magRaw.z == lastMagRaw.z))
+	{
+		cnt++;
+		
+		if(cnt > 50)
+		{
+			//未检测到磁力计
+			FaultDetectSetError(MAG_UNDETECTED);
+		}
+	}
+	else
+	{
+		cnt = 0;
+		FaultDetectResetError(MAG_UNDETECTED);
+	}
+	
+	lastMagRaw = magRaw;	
 }
 
 
