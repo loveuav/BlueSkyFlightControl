@@ -41,6 +41,7 @@ void ImuTempControl(float tempMeasure)
     static int32_t tempPIDTerm = 0;
     float	deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
 	lastTime = GetSysTimeUs();
+    static uint16_t cnt = 0;
     
     //计算温度误差
 	tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;	  
@@ -65,8 +66,13 @@ void ImuTempControl(float tempMeasure)
 
     if(GetInitStatus() < HEAT_FINISH)
     {
+        //温度接近预定温度
         if(tempError < 200)
-            SetInitStatus(HEAT_FINISH);
+        {
+            cnt++;
+            if(cnt > 5000)
+                SetInitStatus(HEAT_FINISH);
+        }          
         else
             SetInitStatus(HEATING);
     }
