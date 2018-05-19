@@ -41,6 +41,10 @@ GPS：u-blox M8N
 
 硬件电路还在设计中，敬请期待···
 
+![天穹V3](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/%E5%A4%A9%E7%A9%B9V3-%E6%AD%A3%E9%9D%A2.png)
+
+![天穹V3](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/%E5%A4%A9%E7%A9%B9V3-%E8%83%8C%E9%9D%A2.png)
+
 # 【深入浅出多旋翼飞控开发】
 本人以个人的一些浅陋经验，结合本飞控项目，编写的一系列教程，持续更新中。
 
