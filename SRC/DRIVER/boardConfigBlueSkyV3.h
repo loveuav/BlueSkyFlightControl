@@ -39,6 +39,9 @@
 #define TOF_UART             0
 #define SBUS_UART            0
 
+#define ESC_PROTOCOL         PWM
+//#define ESC_PROTOCOL         DSHOT600
+
 #define PWM_TIM_FREQ         21000000
 #define PWM_TIM_PERIOD       52499
 #define PWM1_TIM             3

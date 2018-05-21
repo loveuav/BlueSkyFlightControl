@@ -14,11 +14,13 @@
 #include "flightStatus.h"
 
 //油门行程为[0:2000]
-#define MINTHROTTLE	    200           //最小油门值           
-#define MAXTHROTTLE 	1800           //最大油门值
+#define MINTHROTTLE	    200                     //最小油门值           
+#define MAXTHROTTLE 	1800                    //最大油门值
+
+#define motorType quadX 
 
 static const MOTOR_TYPE_t quadX = {             //四轴X型
-    .motorNum = 4,                              //电机数量
+    .motorNum   = 4,                            //电机数量
     .motorMixer = 
     {
         { 1.0f, -1.0f,  1.0f, -1.0f },          //后右
@@ -29,7 +31,7 @@ static const MOTOR_TYPE_t quadX = {             //四轴X型
 };
 
 static const MOTOR_TYPE_t hex6X = {             //六轴X型
-    .motorNum = 6,                              //电机数量
+    .motorNum   = 6,                            //电机数量
     .motorMixer = 
     {    
         { 1.0f, -0.5f,  0.866025f,  1.0f },     //后右
@@ -41,7 +43,7 @@ static const MOTOR_TYPE_t hex6X = {             //六轴X型
     }   
 };
 
-#define motorType quadX 
+
 
 /**********************************************************************************************************
 *函 数 名: motorControl
@@ -51,7 +53,7 @@ static const MOTOR_TYPE_t hex6X = {             //六轴X型
 **********************************************************************************************************/
 void motorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
 {
-    int16_t motorPWM[motorType.motorNum];
+    int16_t motorPWM[8];
     int16_t maxMotorValue;
     
     //电机动力分配
@@ -68,7 +70,7 @@ void motorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
 	for (u8 i=1; i<motorType.motorNum; i++)
 	{
 		if(motorPWM[i] > maxMotorValue)
-				maxMotorValue = motorPWM[i];				
+            maxMotorValue = motorPWM[i];				
 	} 	
 	for (u8 i=0; i<motorType.motorNum; i++) 
 	{
@@ -78,7 +80,7 @@ void motorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
         motorPWM[i] = ConstrainInt16(motorPWM[i], MINTHROTTLE, MAXTHROTTLE);
 	}
     
-    //判断飞机锁定状态，并输出电机控制量
+    //判断飞控锁定状态，并输出电机控制量
     if(GetArmedStatus() == ARMED)
     {
         for (u8 i=0; i<motorType.motorNum; i++)
@@ -94,35 +96,6 @@ void motorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
         }           
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
