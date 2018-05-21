@@ -13,11 +13,11 @@ typedef struct
 
 typedef struct
 {
-    int8_t motorNum;
+    int8_t        motorNum;
     MOTOR_MIXER_t motorMixer[8];
 } MOTOR_TYPE_t;
 
-void motorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle);
+void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle);
 
 #endif
 

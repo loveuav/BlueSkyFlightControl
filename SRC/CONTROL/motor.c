@@ -46,12 +46,12 @@ static const MOTOR_TYPE_t hex6X = {             //六轴X型
 
 
 /**********************************************************************************************************
-*函 数 名: motorControl
+*函 数 名: MotorControl
 *功能说明: 电机控制
 *形    参: 横滚控制量 俯仰控制量 偏航控制量 油门控制量
 *返 回 值: 无
 **********************************************************************************************************/
-void motorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
+void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
 {
     int16_t motorPWM[8];
     int16_t maxMotorValue;

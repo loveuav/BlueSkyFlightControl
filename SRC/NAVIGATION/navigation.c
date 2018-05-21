@@ -214,6 +214,15 @@ static void KalmanPosInit(void)
     KalmanObserveMapMatSet(&kalmanPos, hMatInit);
 }
 
-
+/**********************************************************************************************************
+*函 数 名: GetCopterVelocity
+*功能说明: 获取飞行速度
+*形    参: 无
+*返 回 值: 角度值
+**********************************************************************************************************/
+Vector3f_t GetCopterVelocity(void)
+{
+    return nav.velocity;
+}
 
 

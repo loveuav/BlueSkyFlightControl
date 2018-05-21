@@ -15,6 +15,8 @@ void NavigationInit(void);
 void VelocityEstimate(void);
 void PositionEstimate(void);
 
+Vector3f_t GetCopterVelocity(void);
+
 #endif
 
 
