@@ -66,6 +66,7 @@ enum
 
 void PlaceStausCheck(Vector3f_t gyro);
 
+uint8_t GetArmedStatus(void);
 uint8_t GetPlaceStatus(void);
 void SetInitStatus(uint8_t status);
 uint8_t GetInitStatus(void);

@@ -5,6 +5,7 @@
 
 void PWM_Init(void);
 void TempControlPWMSet(int32_t pwmValue);
+void MotorPWMSet(uint8_t motor, int16_t pwmValue);
 
 #endif
 

@@ -202,68 +202,94 @@ void PWM_Init(void)
 **********************************************************************************************************/
 void TempControlPWMSet(int32_t pwmValue)
 {
+    TIM_TypeDef* timer[] = {TIM1, TIM2, TIM3, TIM4};
+    
     pwmValue = pwmValue * ((int32_t)TEMP_TIM_PERIOD / 1000);
     
-    #if(TEMP_TIM == 1)
-        #if(TEMP_CH == 1)
-            TIM1->CCR1 = pwmValue;
-        #endif
-        #if(TEMP_CH == 2)
-            TIM1->CCR2 = pwmValue;
-        #endif
-        #if(TEMP_CH == 3)
-            TIM1->CCR3 = pwmValue;
-        #endif
-        #if(TEMP_CH == 4)
-            TIM1->CCR4 = pwmValue;
-        #endif    
+    #if(TEMP_CH == 1)
+        timer[TEMP_TIM-1]->CCR1 = pwmValue;
     #endif
-
-        #if(TEMP_TIM == 2)
-        #if(TEMP_CH == 1)
-            TIM2->CCR1 = pwmValue;
-        #endif
-        #if(TEMP_CH == 2)
-            TIM2->CCR2 = pwmValue;
-        #endif
-        #if(TEMP_CH == 3)
-            TIM2->CCR3 = pwmValue;
-        #endif
-        #if(TEMP_CH == 4)
-            TIM2->CCR4 = pwmValue;
-        #endif    
+    #if(TEMP_CH == 2)
+        timer[TEMP_TIM-1]->CCR2 = pwmValue;
     #endif
-    
-    #if(TEMP_TIM == 3)
-        #if(TEMP_CH == 1)
-            TIM3->CCR1 = pwmValue;
-        #endif
-        #if(TEMP_CH == 2)
-            TIM3->CCR2 = pwmValue;
-        #endif
-        #if(TEMP_CH == 3)
-            TIM3->CCR3 = pwmValue;
-        #endif
-        #if(TEMP_CH == 4)
-            TIM3->CCR4 = pwmValue;
-        #endif    
+    #if(TEMP_CH == 3)
+        timer[TEMP_TIM-1]->CCR3 = pwmValue;
     #endif
-    
-    #if(TEMP_TIM == 4)
-        #if(TEMP_CH == 1)
-            TIM4->CCR1 = pwmValue;
-        #endif
-        #if(TEMP_CH == 2)
-            TIM4->CCR2 = pwmValue;
-        #endif
-        #if(TEMP_CH == 3)
-            TIM4->CCR3 = pwmValue;
-        #endif
-        #if(TEMP_CH == 4)
-            TIM4->CCR4 = pwmValue;
-        #endif    
-    #endif
+    #if(TEMP_CH == 4)
+        timer[TEMP_TIM-1]->CCR4 = pwmValue;
+    #endif    
 }
 
 
+/**********************************************************************************************************
+*函 数 名: MotorPWMSet
+*功能说明: 电机PWM输出值设置
+*形    参: 电机号 PWM值（0-2000）
+*返 回 值: 无
+**********************************************************************************************************/
+void MotorPWMSet(uint8_t motor, int16_t pwmValue)
+{
+    TIM_TypeDef* timer[] = {TIM1, TIM2, TIM3, TIM4};
+    
+    if(motor == 1)
+    {
+        #if(PWM1_CH == 1)
+            timer[PWM1_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM1_CH == 2)
+            timer[PWM1_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM1_CH == 3)
+            timer[PWM1_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM1_CH == 4)
+            timer[PWM1_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    }
+    else if(motor == 2)
+    {
+        #if(PWM2_CH == 1)
+            timer[PWM2_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM2_CH == 2)
+            timer[PWM2_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM2_CH == 3)
+            timer[PWM2_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM2_CH == 4)
+            timer[PWM2_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    } 
+    else if(motor == 3)
+    {
+        #if(PWM3_CH == 1)
+            timer[PWM3_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM3_CH == 2)
+            timer[PWM3_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM3_CH == 3)
+            timer[PWM3_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM3_CH == 4)
+            timer[PWM3_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    } 
+    else if(motor == 4)
+    {
+        #if(PWM4_CH == 1)
+            timer[PWM4_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM4_CH == 2)
+            timer[PWM4_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM4_CH == 3)
+            timer[PWM4_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM4_CH == 4)
+            timer[PWM4_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    }      
+}
 

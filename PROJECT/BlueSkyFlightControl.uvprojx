@@ -493,6 +493,18 @@
         </Group>
         <Group>
           <GroupName>CONTROL</GroupName>
+          <Files>
+            <File>
+              <FileName>motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\CONTROL\motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\CONTROL\motor.h</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>MATH</GroupName>
