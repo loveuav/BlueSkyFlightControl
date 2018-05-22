@@ -14,6 +14,7 @@
 #include "board.h"
 #include "ahrs.h"
 #include "navigation.h"
+#include "gps.h"
 #include "motor.h"
 
 FLIGHTCONTROL_t fc;
@@ -342,11 +343,45 @@ void SetPosInnerCtlTarget(Vector3f_t target)
 void PositionOuterControl(void)
 {
 	Vector3f_t posError, posLpf;
-    Vector3f_t posOuterCtlOutput; 
+    Vector3f_t posOuterCtlValue; 
 
     //若当前位置控制被禁用则退出函数
     if(fc.posCtlFlag == DISABLE)
         return;	
+    
+	//获取当前飞机位置，并低通滤波，减少数据噪声对控制的干扰
+	posLpf.x = posLpf.x * 0.99f + GetCopterPosition().x * 0.01f;
+	posLpf.y = posLpf.y * 0.99f + GetCopterPosition().y * 0.01f;
+	
+	//计算位置外环控制误差：目标位置 - 实际位置
+	posError.x = fc.posOuterTarget.x - posLpf.x;
+	posError.y = fc.posOuterTarget.y - posLpf.y;
+    
+    //PID算法，计算出高度外环的控制量
+	posOuterCtlValue.x = PID_GetP(&fc.pid[POS_X], posError.x);
+	posOuterCtlValue.y = PID_GetP(&fc.pid[POS_Y], posError.y);
+	
+    //将控制量转换到机体坐标系
+    TransVelToBodyFrame(posOuterCtlValue, &posOuterCtlValue, GetCopterAngle().z);
+    
+	//PID控制输出限幅
+	posOuterCtlValue.x = ConstrainFloat(posOuterCtlValue.x, -150, 150);
+	posOuterCtlValue.y = ConstrainFloat(posOuterCtlValue.y, -150, 150);
+    
+	//将位置外环控制量作为位置内环的控制目标
+	SetPosInnerCtlTarget(posOuterCtlValue);
+}
+
+/**********************************************************************************************************
+*函 数 名: SetPosOuterCtlTarget
+*功能说明: 设置位置外环控制目标量
+*形    参: 控制目标值
+*返 回 值: 无
+**********************************************************************************************************/
+void SetPosOuterCtlTarget(Vector3f_t target)
+{
+    fc.posOuterTarget.x = target.x;
+    fc.posOuterTarget.y = target.y;
 }
 
 /**********************************************************************************************************

@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     userControl.c
- * @说明     用户操控逻辑处理
+ * @说明     用户操控逻辑处理，目前分为手动档、半自动档、自动档
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -138,7 +138,7 @@ static void YawControl(RCDATA_t rcData, RCTARGET_t* rcTarget)
     static int16_t rcDeadband = 50;
     static float yawHold;
     
-    //偏航控制逻辑一致，摇杆回中时锁定航向，摇杆量超过死区时，将摇杆量转换为目标控制角速度
+    //摇杆回中时锁定航向，摇杆量超过死区时，将摇杆量转换为目标控制角速度
     if(abs(rcData.yaw) > rcDeadband)
     {
         rcTarget->yaw = ApplyDeadbandInt(rcData.yaw, rcDeadband);

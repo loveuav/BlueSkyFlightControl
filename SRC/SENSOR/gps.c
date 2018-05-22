@@ -207,8 +207,8 @@ void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw)
 	float sinYaw = sinf(Radians(yaw));
 	float cosYaw = cosf(Radians(yaw));	
 	
-	velEf->x = velBf.x * cosYaw + velBf.y * sinYaw;
-	velEf->y = -velBf.x * sinYaw + velBf.y * cosYaw;		
+	velEf->x = velBf.x * cosYaw - velBf.y * sinYaw;
+	velEf->y = velBf.x * sinYaw + velBf.y * cosYaw;			
 	velEf->z = velBf.z;
 }
 
