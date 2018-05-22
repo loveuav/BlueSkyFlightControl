@@ -47,7 +47,9 @@ enum
 //垂直方向控制状态
 enum 
 {
-    ALT_HOLD			    //悬停
+    ALT_HOLD,			    //悬停
+    ALT_CHANGED,            //高度改变
+	ALT_CHANGED_FINISH      //高度改变完成
 };
 
 //飞行模式
@@ -65,6 +67,8 @@ enum
 };
 
 void PlaceStausCheck(Vector3f_t gyro);
+
+void SetAltControlStatus(uint8_t status);
 
 uint8_t GetArmedStatus(void);
 uint8_t GetPlaceStatus(void);
