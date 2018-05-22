@@ -184,8 +184,8 @@ void AttitudeOuterControl(void)
 	flightMode = GetFlightMode();
 	
 	//计算姿态外环控制误差：目标角度 - 实际角度
-    //手动和半自动模式下，摇杆量直接作为横滚和俯仰的目标量
-	if(flightMode == MANUAL || flightMode == SEMIAUTO)	
+    //手动和半自动模式以及GPS失效下，摇杆量直接作为横滚和俯仰的目标量
+	if(flightMode == MANUAL || flightMode == SEMIAUTO || GpsGetFixStatus() == false)	
 	{
         angleError.x = fc.rcTarget.roll  - angle.x;
         angleError.y = fc.rcTarget.pitch - angle.y;
@@ -196,25 +196,27 @@ void AttitudeOuterControl(void)
         angleError.y = fc.attOuterTarget.y - angle.y;
 	}	
 
-	//手动、半自动及自动模式下，摇杆量直接作为航向控制量（摇杆直接控制角速度）
-	if(flightMode == MANUAL || flightMode == SEMIAUTO || flightMode == AUTO)	
-	{
-		angleError.z = fc.rcTarget.yaw * yawRate;
-	}
-	else
-	{
-		angleError.z = fc.attOuterTarget.z - angle.z;
-	}	
-	
     //PID算法，计算出姿态外环的控制量，并以一定比例缩放来控制PID参数的数值范围
 	attOuterCtlValue.x = PID_GetP(&fc.pid[ROLL_OUTER],  angleError.x) * 10;
 	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], angleError.y) * 10;
-	attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER],   angleError.z) * 10;
-	
+
 	//PID控制输出限幅，目的是限制飞行中最大的运动角速度
 	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -300, 300);
 	attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -300, 300);
-	attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -150, 150);
+    
+	//若航向锁定被失能则直接将摇杆数值作为目标角速度
+    if(fc.yawHoldFlag == ENABLE)
+    {
+        angleError.z = fc.attOuterTarget.z - angle.z;
+        //计算偏航轴PID控制量
+        attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER],   angleError.z) * 10;	
+        //限幅
+        attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -150, 150);
+	}
+	else
+	{
+		attOuterCtlValue.z = fc.rcTarget.yaw * yawRate;
+	}	
 	
 	//将姿态外环控制量作为姿态内环的控制目标
 	SetAttInnerCtlTarget(attOuterCtlValue);
@@ -357,7 +359,7 @@ void PositionOuterControl(void)
 	posError.x = fc.posOuterTarget.x - posLpf.x;
 	posError.y = fc.posOuterTarget.y - posLpf.y;
     
-    //PID算法，计算出高度外环的控制量
+    //PID算法，计算出位置外环的控制量
 	posOuterCtlValue.x = PID_GetP(&fc.pid[POS_X], posError.x);
 	posOuterCtlValue.y = PID_GetP(&fc.pid[POS_Y], posError.y);
 	
@@ -406,6 +408,16 @@ void SetPosCtlStatus(uint8_t status)
     fc.posCtlFlag = status;
 }
 
+/**********************************************************************************************************
+*函 数 名: SetYawHoldStatus
+*功能说明: 设置航向锁定状态
+*形    参: 状态量（ENABLE或DISABLE）
+*返 回 值: 无
+**********************************************************************************************************/
+void SetYawHoldStatus(uint8_t status)
+{
+    fc.yawHoldFlag = status;
+}
 
 
 

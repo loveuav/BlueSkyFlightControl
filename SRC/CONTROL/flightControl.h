@@ -42,6 +42,7 @@ typedef struct
 
     uint8_t    altCtlFlag;
     uint8_t    posCtlFlag;
+    uint8_t    yawHoldFlag;
 }FLIGHTCONTROL_t;
 
 void SetRcTarget(RCTARGET_t rcTarget);
@@ -54,9 +55,12 @@ void SetYawCtlTarget(float target);
 
 void SetAltInnerCtlTarget(float target);
 void SetAltOuterCtlTarget(float target);
+void SetPosInnerCtlTarget(Vector3f_t target);
+void SetPosOuterCtlTarget(Vector3f_t target);
 
 void SetAltCtlStatus(uint8_t status);
 void SetPosCtlStatus(uint8_t status);
+void SetYawHoldStatus(uint8_t status);
 
 #endif
 

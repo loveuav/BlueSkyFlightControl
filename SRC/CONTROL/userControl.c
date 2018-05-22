@@ -26,6 +26,7 @@ static void SemiAutoControl(RCDATA_t rcData, RCTARGET_t* rcTarget);
 static void AutoControl(RCDATA_t rcData, RCTARGET_t* rcTarget);
 static void YawControl(RCDATA_t rcData, RCTARGET_t* rcTarget);
 static void AltControl(RCDATA_t rcData);
+
 /**********************************************************************************************************
 *函 数 名: UserControl
 *功能说明: 用户控制模式下的操控逻辑处理
@@ -116,6 +117,14 @@ static void SemiAutoControl(RCDATA_t rcData, RCTARGET_t* rcTarget)
 **********************************************************************************************************/
 static void AutoControl(RCDATA_t rcData, RCTARGET_t* rcTarget)
 {
+    static int32_t lastTimePosChanged = 0;
+    static int32_t lastTimePosBrake   = 0;
+    static int16_t rcDeadband     = 50;
+	static float velRate          = (float)500 / MAXRCDATA;
+    static uint8_t posHoldChanged = 0;
+    static Vector3f_t velCtlTarget;
+    static Vector3f_t posCtlTarget;    
+    
     //航向控制
     YawControl(rcData, rcTarget);
     
@@ -125,6 +134,85 @@ static void AutoControl(RCDATA_t rcData, RCTARGET_t* rcTarget)
     /**********************************************************************************************************
     位置控制：该模式下油门摇杆量控制飞行速度，回中时飞机自动悬停
     **********************************************************************************************************/    
+    if(abs(rcData.roll) > rcDeadband || abs(rcData.pitch) > rcDeadband)
+    {
+        rcData.roll  = ApplyDeadbandInt(rcData.roll, rcDeadband);
+        rcData.pitch = ApplyDeadbandInt(rcData.pitch, rcDeadband);
+        
+        //摇杆量转为目标速度，低通滤波改变操控手感
+        velCtlTarget.x = velCtlTarget.x * 0.98f + (rcData.pitch * velRate) * 0.02f;
+        velCtlTarget.y = velCtlTarget.y * 0.98f + (rcData.roll * velRate) * 0.02f;
+        
+        //直接控制速度，禁用位置控制
+        SetPosCtlStatus(DISABLE);
+ 
+        //更新位置控制目标
+        posCtlTarget.x = GetCopterPosition().x;
+        posCtlTarget.y = GetCopterPosition().y;
+
+        //更新位置控制状态
+        SetPosControlStatus(POS_CHANGED);
+        
+        posHoldChanged = 1;
+        lastTimePosChanged = GetSysTimeMs();	
+        
+    }
+    else if(posHoldChanged)
+    {
+        //进入刹车状态时先初始化目标速度
+        if(GetPosControlStatus() == POS_CHANGED)
+        {
+            velCtlTarget.x = GetCopterVelocity().x;
+            velCtlTarget.y = GetCopterVelocity().y;
+            //更新位置控制状态为刹车
+            SetPosControlStatus(POS_BRAKE);
+        }
+        else if(GetPosControlStatus() == POS_BRAKE)
+        {
+            //减速刹车
+            velCtlTarget.x -= velCtlTarget.x * 0.06f;
+            velCtlTarget.y -= velCtlTarget.y * 0.06f;
+	        
+            //飞机速度小于一定值或超出一定时间则认为刹车完成
+            if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged < 3000)
+            {   
+                //更新位置控制状态为刹车完成
+                SetPosControlStatus(POS_BRAKE_FINISH);
+            }   
+
+            lastTimePosBrake = GetSysTimeMs();	             
+        }
+        else if(GetPosControlStatus() == POS_BRAKE_FINISH)
+        {
+            //刹车完成后再缓冲一小段时间便切换为自动悬停
+            if(GetSysTimeMs() - lastTimePosBrake < 1000)
+            {
+                velCtlTarget.x = 0;
+                velCtlTarget.y = 0;
+            }
+            else
+            {
+                posHoldChanged = 0;
+            }
+        }
+        
+        //更新位置控制目标
+        posCtlTarget.x = GetCopterPosition().x;
+        posCtlTarget.y = GetCopterPosition().y;        
+    }
+    else
+    {       
+        //使能位置控制
+        SetPosCtlStatus(ENABLE);
+        
+        //更新位置控制状态
+        SetPosControlStatus(POS_HOLD);     
+    }     
+
+    //更新位置内环控制目标    
+    SetPosInnerCtlTarget(velCtlTarget);   
+    //更新位置外环控制目标
+    SetPosOuterCtlTarget(posCtlTarget);
 }
 
 /**********************************************************************************************************
@@ -145,11 +233,17 @@ static void YawControl(RCDATA_t rcData, RCTARGET_t* rcTarget)
         
         //记录当前飞机航向角
         yawHold = GetCopterAngle().z;
+        
+        //失能航向锁定
+        SetYawHoldStatus(DISABLE);
     }
     else
     {
         //设置航向锁定目标角度
         SetYawCtlTarget(yawHold);
+        
+        //使能航向锁定
+        SetYawHoldStatus(ENABLE);
     }       
 }
 
