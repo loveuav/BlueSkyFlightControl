@@ -120,7 +120,11 @@ static void AutoControl(RCDATA_t rcData, RCTARGET_t* rcTarget)
     YawControl(rcData, rcTarget);
     
     //高度控制
-    AltControl(rcData);   
+    AltControl(rcData);  
+
+    /**********************************************************************************************************
+    位置控制：该模式下油门摇杆量控制飞行速度，回中时飞机自动悬停
+    **********************************************************************************************************/    
 }
 
 /**********************************************************************************************************
@@ -195,7 +199,7 @@ static void AltControl(RCDATA_t rcData)
     else if(altHoldChanged)
     {	
         //油门回中后先缓冲一段时间再进入定高
-        if(GetSysTimeMs() - lastTimeAltChanged > 800)
+        if(GetSysTimeMs() - lastTimeAltChanged < 800)
         {
             velCtlTarget -= velCtlTarget * 0.08f;
         }
