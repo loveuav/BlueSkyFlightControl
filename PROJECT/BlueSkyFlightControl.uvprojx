@@ -524,6 +524,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\CONTROL\flightControl.h</FilePath>
             </File>
+            <File>
+              <FileName>userControl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\CONTROL\userControl.c</FilePath>
+            </File>
+            <File>
+              <FileName>userControl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\CONTROL\userControl.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

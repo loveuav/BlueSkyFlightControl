@@ -12,6 +12,7 @@
 #include "TaskConfig.h"
 
 #include "flightControl.h"
+#include "userControl.h"
 
 xTaskHandle flightControlTask;
 
@@ -25,6 +26,9 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 		//从消息队列中获取数据
 		xQueueReceive(messageQueue[GYRO_FOR_CONTROL], &gyro, (3 / portTICK_RATE_MS)); 		
 
+        //用户控制模式下的操控逻辑处理
+        UserControl();
+        
         //500Hz
         if(count % 2 == 0)	
 		{

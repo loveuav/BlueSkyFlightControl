@@ -36,22 +36,17 @@ void FlightControl_Init(void)
 	PID_SetParam(&fc.pid[POS_X],       1.5, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Z],       2.5, 0, 0, 0, 0);		
-
-	fc.heightLimit = 10000;     //限高100米
 }
 
 /**********************************************************************************************************
 *函 数 名: SetRcTarget
 *功能说明: 设置摇杆控制量
-*形    参: 横滚控制量 俯仰控制量 偏航控制量 油门控制量
+*形    参: 摇杆控制量
 *返 回 值: 无
 **********************************************************************************************************/
-void SetRcTarget(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
+void SetRcTarget(RCTARGET_t rcTarget)
 {
-    fc.rcTarget.roll     = roll;
-    fc.rcTarget.pitch    = pitch;
-    fc.rcTarget.yaw      = yaw;
-    fc.rcTarget.throttle = throttle;
+    fc.rcTarget = rcTarget;
 }
 
 /**********************************************************************************************************
@@ -247,7 +242,6 @@ void SetYawCtlTarget(float target)
     fc.attOuterTarget.z = target;
 }
 
-
 /**********************************************************************************************************
 *函 数 名: AltitudeOuterControl
 *功能说明: 高度外环控制
@@ -259,7 +253,11 @@ void AltitudeOuterControl(void)
 	float altLpf;
 	float altError;
 	float altOuterCtlValue;
-	
+    
+    //若当前高度控制被禁用则退出函数
+    if(fc.altCtlFlag == DISABLE)
+        return;
+    
 	//获取当前飞机高度，并低通滤波，减少数据噪声对控制的干扰
 	altLpf = altLpf * 0.99f + GetCopterPosition().z * 0.01f;
 	
@@ -334,5 +332,34 @@ void SetPosInnerCtlTarget(Vector3f_t target)
     fc.posInnerTarget.x = target.x;
     fc.posInnerTarget.y = target.y;
 }
+
+/**********************************************************************************************************
+*函 数 名: SetAltCtlStatus
+*功能说明: 设置高度控制状态
+*形    参: 状态量（ENABLE或DISABLE）
+*返 回 值: 无
+**********************************************************************************************************/
+void SetAltCtlStatus(uint8_t status)
+{
+    fc.altCtlFlag = status;
+}
+
+/**********************************************************************************************************
+*函 数 名: SetPosCtlStatus
+*功能说明: 设置高度控制状态
+*形    参: 状态量（ENABLE或DISABLE）
+*返 回 值: 无
+**********************************************************************************************************/
+void SetPosCtlStatus(uint8_t status)
+{
+    fc.posCtlFlag = status;
+}
+
+
+
+
+
+
+
 
 

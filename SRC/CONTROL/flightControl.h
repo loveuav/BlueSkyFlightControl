@@ -39,16 +39,24 @@ typedef struct
     Vector3f_t attOuterTarget;
  	Vector3f_t posInnerTarget;   
  	Vector3f_t posOuterTarget;  
-	
-	int32_t    heightLimit;
-	
+
+    uint8_t    altCtlFlag;
+    uint8_t    posCtlFlag;
 }FLIGHTCONTROL_t;
 
-void SetRcTarget(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle);
+void SetRcTarget(RCTARGET_t rcTarget);
 void FlightControlInnerLoop(Vector3f_t gyro);
 void AttitudeOuterControl(void);
 void AltitudeOuterControl(void);
 void PositionInnerControl(void);
+
+void SetYawCtlTarget(float target);
+
+void SetAltInnerCtlTarget(float target);
+void SetAltOuterCtlTarget(float target);
+
+void SetAltCtlStatus(uint8_t status);
+void SetPosCtlStatus(uint8_t status);
 
 #endif
 
