@@ -23,22 +23,33 @@ enum
 
 typedef struct
 {
-	PID_t       pid[PIDNUM];
+    int16_t roll;   
+    int16_t pitch;   
+    int16_t yaw;      
+    int16_t throttle;  
+}RCTARGET_t;
+
+typedef struct
+{
+	PID_t      pid[PIDNUM];
 	
-	Vector3f_t  attInnerTarget;
- 	Vector3f_t  velInnerTarget;   
-	Vector3f_t  attOuterTarget;
+    RCTARGET_t rcTarget;
+    
+	Vector3f_t attInnerTarget;
+    Vector3f_t attOuterTarget;
+ 	Vector3f_t posInnerTarget;   
+ 	Vector3f_t posOuterTarget;  
 	
-	Vector3f_t  posTarget;
-	Vector3f_t  posInnerOutput;	
-	Vector3f_t  posOuterOutput;
-	
-	int32_t     heightLimit;
+	int32_t    heightLimit;
 	
 }FLIGHTCONTROL_t;
 
+void SetRcTarget(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle);
 void FlightControlInnerLoop(Vector3f_t gyro);
-    
+void AttitudeOuterControl(void);
+void AltitudeOuterControl(void);
+void PositionInnerControl(void);
+
 #endif
 
 

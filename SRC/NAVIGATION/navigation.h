@@ -16,6 +16,7 @@ void VelocityEstimate(void);
 void PositionEstimate(void);
 
 Vector3f_t GetCopterVelocity(void);
+Vector3f_t GetCopterPosition(void);
 
 #endif
 

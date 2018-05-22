@@ -24,10 +24,23 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 	{
 		//从消息队列中获取数据
 		xQueueReceive(messageQueue[GYRO_FOR_CONTROL], &gyro, (3 / portTICK_RATE_MS)); 		
-		
+
+        //500Hz
+        if(count % 2 == 0)	
+		{
+            //位置内环控制
+            PositionInnerControl();   
+            
+            //姿态外环控制
+            AttitudeOuterControl();
+            
+            //高度外环控制
+            AltitudeOuterControl();
+        }
+        
 		//飞行内环控制，包括姿态内环和高度内环
 		FlightControlInnerLoop(*gyro);
-                
+              
 		count++;
 	}
 }

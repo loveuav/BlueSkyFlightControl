@@ -21,9 +21,9 @@ FLIGHTCONTROL_t fc;
 void FlightControl_Init(void)
 {
 	//PID参数初始化
-	PID_SetParam(&fc.pid[ROLL_INNER],  0.2, 0.5, 0.018, 250, 50);
-	PID_SetParam(&fc.pid[PITCH_INNER], 0.2, 0.5, 0.02, 300, 50);
-	PID_SetParam(&fc.pid[YAW_INNER],   1.5, 1.5, 0, 150, 50);
+	PID_SetParam(&fc.pid[ROLL_INNER],  2.0, 0.5, 0.2, 300, 50);
+	PID_SetParam(&fc.pid[PITCH_INNER], 2.0, 0.5, 0.2, 300, 50);
+	PID_SetParam(&fc.pid[YAW_INNER],   2.0, 2, 0, 150, 50);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  3.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 3.0, 0, 0, 0, 0);
@@ -37,7 +37,21 @@ void FlightControl_Init(void)
 	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Z],       2.5, 0, 0, 0, 0);		
 
-	fc.heightLimit = 10000;
+	fc.heightLimit = 10000;     //限高100米
+}
+
+/**********************************************************************************************************
+*函 数 名: SetRcTarget
+*功能说明: 设置摇杆控制量
+*形    参: 横滚控制量 俯仰控制量 偏航控制量 油门控制量
+*返 回 值: 无
+**********************************************************************************************************/
+void SetRcTarget(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
+{
+    fc.rcTarget.roll     = roll;
+    fc.rcTarget.pitch    = pitch;
+    fc.rcTarget.yaw      = yaw;
+    fc.rcTarget.throttle = throttle;
 }
 
 /**********************************************************************************************************
@@ -95,7 +109,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
     velLpf = velLpf * 0.992f + velZ * 0.008f;
     
     //计算控制误差
-	velError = fc.velInnerTarget.z - velLpf;
+	velError = fc.posInnerTarget.z - velLpf;
 
     //PID算法，计算出高度内环（Z轴速度）的控制量
 	altInnerControlOutput =  PID_GetP(&fc.pid[VEL_Z],  velError);
@@ -115,7 +129,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
 **********************************************************************************************************/
 void SetAltInnerCtlTarget(float target)
 {
-    fc.velInnerTarget.z = target;
+    fc.posInnerTarget.z = target;
 }
 
 /**********************************************************************************************************
@@ -143,7 +157,7 @@ void FlightControlInnerLoop(Vector3f_t gyro)
     //在手动模式下（MANUAL），油门直接由摇杆数据控制
     if(GetFlightMode() == MANUAL)
     {
-        //altInnerCtlValue = rcData;
+        altInnerCtlValue = fc.rcTarget.throttle;
     }
     else
     {
@@ -174,13 +188,22 @@ void AttitudeOuterControl(void)
 	flightMode = GetFlightMode();
 	
 	//计算姿态外环控制误差：目标角度 - 实际角度
-	angleError.x = fc.attOuterTarget.x - angle.x;
-	angleError.y = fc.attOuterTarget.y - angle.y;
+    //手动和半自动模式下，摇杆量直接作为横滚和俯仰的目标量
+	if(flightMode == MANUAL || flightMode == SEMIAUTO)	
+	{
+        angleError.x = fc.rcTarget.roll  - angle.x;
+        angleError.y = fc.rcTarget.pitch - angle.y;
+	}
+	else
+	{
+        angleError.x = fc.attOuterTarget.x - angle.x;
+        angleError.y = fc.attOuterTarget.y - angle.y;
+	}	
 
-	//手动、半自动及自动模式下，摇杆量直接作为航向控制量
+	//手动、半自动及自动模式下，摇杆量直接作为航向控制量（摇杆直接控制角速度）
 	if(flightMode == MANUAL || flightMode == SEMIAUTO || flightMode == AUTO)	
 	{
-		//angleError.z = rcData * yawRate;
+		angleError.z = fc.rcTarget.yaw * yawRate;
 	}
 	else
 	{
@@ -192,7 +215,7 @@ void AttitudeOuterControl(void)
 	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], angleError.y) * 10;
 	attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER],   angleError.z) * 10;
 	
-	//PID控制输出限幅，目的是调整飞行中最大的运动角速度
+	//PID控制输出限幅，目的是限制飞行中最大的运动角速度
 	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -300, 300);
 	attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -300, 300);
 	attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -150, 150);
@@ -209,6 +232,107 @@ void AttitudeOuterControl(void)
 **********************************************************************************************************/
 void SetAttOuterCtlTarget(Vector3f_t target)
 {
-    fc.attOuterTarget = target;
+    fc.attOuterTarget.x = target.x;
+    fc.attOuterTarget.y = target.y;
 }
+
+/**********************************************************************************************************
+*函 数 名: SetYawCtlTarget
+*功能说明: 设置偏航轴控制目标量
+*形    参: 控制目标值
+*返 回 值: 无
+**********************************************************************************************************/
+void SetYawCtlTarget(float target)
+{
+    fc.attOuterTarget.z = target;
+}
+
+
+/**********************************************************************************************************
+*函 数 名: AltitudeOuterControl
+*功能说明: 高度外环控制
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void AltitudeOuterControl(void)
+{
+	float altLpf;
+	float altError;
+	float altOuterCtlValue;
+	
+	//获取当前飞机高度，并低通滤波，减少数据噪声对控制的干扰
+	altLpf = altLpf * 0.99f + GetCopterPosition().z * 0.01f;
+	
+	//计算高度外环控制误差：目标高度 - 实际高度
+	altError = fc.posOuterTarget.z - altLpf;
+
+    //PID算法，计算出高度外环的控制量
+	altOuterCtlValue = PID_GetP(&fc.pid[POS_Z], altError);
+	
+	//PID控制输出限幅
+	altOuterCtlValue = ConstrainFloat(altOuterCtlValue, -200, 200);
+
+	//将高度外环控制量作为高度内环的控制目标
+	SetAltInnerCtlTarget(altOuterCtlValue);
+}
+
+/**********************************************************************************************************
+*函 数 名: SetAltOuterCtlTarget
+*功能说明: 设置高度外环控制目标量
+*形    参: 控制目标值
+*返 回 值: 无
+**********************************************************************************************************/
+void SetAltOuterCtlTarget(float target)
+{
+    fc.posOuterTarget.z = target;
+}
+
+/**********************************************************************************************************
+*函 数 名: PositionInnerControl
+*功能说明: 位置内环控制
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void PositionInnerControl(void)
+{
+	Vector3f_t velError, velLpf;
+    Vector3f_t posInnerCtlOutput;
+
+    //计算函数运行时间间隔
+	static uint32_t previousT;
+	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
+	previousT = GetSysTimeUs();	    
+	
+    //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
+    velLpf.x = velLpf.x * 0.99f + GetCopterVelocity().x * 0.01f;
+    velLpf.y = velLpf.y * 0.99f + GetCopterVelocity().y * 0.01f;
+    
+    //计算控制误差
+	velError.x = fc.posInnerTarget.x - velLpf.x;
+	velError.y = fc.posInnerTarget.y - velLpf.y;
+    
+    //PID算法，计算出位置内环（X、Y轴速度）的控制量
+	posInnerCtlOutput.x = PID_GetPID(&fc.pid[VEL_X], velError.x, deltaT);
+	posInnerCtlOutput.y = PID_GetPID(&fc.pid[VEL_Y], velError.y, deltaT);
+
+	//PID控制输出限幅
+	posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -200, 200);
+	posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -200, 200);
+    
+    //将位置内环控制量作为姿态外环的控制目标
+	SetAttOuterCtlTarget(posInnerCtlOutput);
+}	
+
+/**********************************************************************************************************
+*函 数 名: SetPosInnerCtlTarget
+*功能说明: 设置高度内环控制目标量
+*形    参: 控制目标值
+*返 回 值: 无
+**********************************************************************************************************/
+void SetPosInnerCtlTarget(Vector3f_t target)
+{
+    fc.posInnerTarget.x = target.x;
+    fc.posInnerTarget.y = target.y;
+}
+
 
