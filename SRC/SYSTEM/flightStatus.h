@@ -70,6 +70,7 @@ uint8_t GetArmedStatus(void);
 uint8_t GetPlaceStatus(void);
 void SetInitStatus(uint8_t status);
 uint8_t GetInitStatus(void);
+uint8_t GetFlightMode(void);
 
 #endif
 

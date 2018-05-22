@@ -18,6 +18,28 @@
 
 FLIGHTCONTROL_t fc;
 
+void FlightControl_Init(void)
+{
+	//PID参数初始化
+	PID_SetParam(&fc.pid[ROLL_INNER],  0.2, 0.5, 0.018, 250, 50);
+	PID_SetParam(&fc.pid[PITCH_INNER], 0.2, 0.5, 0.02, 300, 50);
+	PID_SetParam(&fc.pid[YAW_INNER],   1.5, 1.5, 0, 150, 50);
+	
+	PID_SetParam(&fc.pid[ROLL_OUTER],  3.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[PITCH_OUTER], 3.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[YAW_OUTER],   1.5, 0, 0, 0, 0);	
+	
+	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
+	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       2.0, 0.8, 0.01, 250, 30);	
+
+	PID_SetParam(&fc.pid[POS_X],       1.5, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[POS_Z],       2.5, 0, 0, 0, 0);		
+
+	fc.heightLimit = 10000;
+}
+
 /**********************************************************************************************************
 *函 数 名: AttitudeInnerControl
 *功能说明: 姿态内环控制
@@ -35,9 +57,9 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 	rateError.z = fc.attInnerTarget.z - gyro.z;		
 		
     //PID算法，计算出角速度环的控制量
-	rateControlOutput.x = PID_GetPID(&fc.pid[ROLL_INNER], rateError.x, deltaT);
+	rateControlOutput.x = PID_GetPID(&fc.pid[ROLL_INNER],  rateError.x, deltaT);
 	rateControlOutput.y = PID_GetPID(&fc.pid[PITCH_INNER], rateError.y, deltaT);
-	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER], rateError.z, deltaT);
+	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER],   rateError.z, deltaT);
 	
     //限制偏航轴控制输出量
 	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -500, +500);	
@@ -76,7 +98,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
 	velError = fc.velInnerTarget.z - velLpf;
 
     //PID算法，计算出高度内环（Z轴速度）的控制量
-	altInnerControlOutput = PID_GetP(&fc.pid[VEL_Z], velError);
+	altInnerControlOutput =  PID_GetP(&fc.pid[VEL_Z],  velError);
 	altInnerControlOutput += PID_GetI(&fc.pid[VEL_Z], velError, deltaT);
 	altInnerControlOutput += ConstrainInt32(PID_GetD(&fc.pid[VEL_Z], velError, deltaT), -300, 300);
 	
@@ -99,7 +121,6 @@ void SetAltInnerCtlTarget(float target)
 /**********************************************************************************************************
 *函 数 名: FlightControlInnerLoop
 *功能说明: 飞行内环控制，包括姿态内环和高度内环控制
-*          该环节是所有上层控制的基础，因此把该模块独立出来，以1KHz的固定频率运行
 *形    参: 角速度测量值
 *返 回 值: 无
 **********************************************************************************************************/
@@ -120,7 +141,7 @@ void FlightControlInnerLoop(Vector3f_t gyro)
     
     //高度内环控制
     //在手动模式下（MANUAL），油门直接由摇杆数据控制
-    if(0)
+    if(GetFlightMode() == MANUAL)
     {
         //altInnerCtlValue = rcData;
     }
@@ -133,6 +154,61 @@ void FlightControlInnerLoop(Vector3f_t gyro)
     MotorControl(attInnerCtlValue.x, attInnerCtlValue.y, attInnerCtlValue.z, altInnerCtlValue);
 }
 
+/**********************************************************************************************************
+*函 数 名: AttitudeOuterControl
+*功能说明: 姿态外环控制
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void AttitudeOuterControl(void)
+{
+	uint8_t    flightMode;
+	Vector3f_t angle;
+	Vector3f_t angleError;
+	Vector3f_t attOuterCtlValue;
+	float 	   yawRate = 1.0;
+	
+	//获取当前飞机的姿态角
+	angle = GetCopterAngle();
+	//获取当前飞行模式
+	flightMode = GetFlightMode();
+	
+	//计算姿态外环控制误差：目标角度 - 实际角度
+	angleError.x = fc.attOuterTarget.x - angle.x;
+	angleError.y = fc.attOuterTarget.y - angle.y;
 
+	//手动、半自动及自动模式下，摇杆量直接作为航向控制量
+	if(flightMode == MANUAL || flightMode == SEMIAUTO || flightMode == AUTO)	
+	{
+		//angleError.z = rcData * yawRate;
+	}
+	else
+	{
+		angleError.z = fc.attOuterTarget.z - angle.z;
+	}	
+	
+    //PID算法，计算出姿态外环的控制量，并以一定比例缩放来控制PID参数的数值范围
+	attOuterCtlValue.x = PID_GetP(&fc.pid[ROLL_OUTER],  angleError.x) * 10;
+	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], angleError.y) * 10;
+	attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER],   angleError.z) * 10;
+	
+	//PID控制输出限幅，目的是调整飞行中最大的运动角速度
+	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -300, 300);
+	attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -300, 300);
+	attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -150, 150);
+	
+	//将姿态外环控制量作为姿态内环的控制目标
+	SetAttInnerCtlTarget(attOuterCtlValue);
+}
 
+/**********************************************************************************************************
+*函 数 名: SetAttOuterCtlTarget
+*功能说明: 设置姿态外环控制目标量
+*形    参: 控制目标值
+*返 回 值: 无
+**********************************************************************************************************/
+void SetAttOuterCtlTarget(Vector3f_t target)
+{
+    fc.attOuterTarget = target;
+}
 

@@ -22,6 +22,7 @@
 #include "module_task.h"
 #include "sensor_task.h"
 #include "navigation_task.h"
+#include "control_task.h"
 
 //任务堆栈大小
 #define IMU_SENSOR_READ_TASK_STACK            256
@@ -30,10 +31,12 @@
 #define OTHER_SENSOR_TASK_STACK               256
 #define NAVIGATION_TASK_STACK                 512
 #define FLIGHT_STATUS_TASK_STACK              256
+#define FLIGHTCONTROL_TASK_STACK              256
 
 //任务优先级
 #define IMU_SENSOR_READ_TASK_PRIORITY         13
 #define IMU_DATA_PRETREAT_TASK_PRIORITY       12
+#define FLIGHTCONTROL_TASK_PRIORITY           11
 #define NAVIGATION_TASK_PRIORITY              10
 #define SENSOR_UPDATE_TASK_PRIORITY           8
 #define OTHER_SENSOR_TASK_PRIORITY            7

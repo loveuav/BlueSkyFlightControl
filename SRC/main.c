@@ -50,10 +50,19 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     //消息队列创建
     MessageQueueCreate();
         
-    //用户任务创建
+    /*****************************用户任务创建********************************/
+    //传感器及模块数据读取任务创建
     ModuleTaskCreate();
+    
+    //传感器数据预处理任务创建
     SensorTaskCreate();
+    
+    //导航计算任务创建
     NavigationTaskCreate();
+    
+    //飞行控制任务创建
+    ControlTaskCreate();
+    /*************************************************************************/
     
     //删除本任务
     vTaskDelete(NULL);

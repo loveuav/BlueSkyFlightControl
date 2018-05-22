@@ -24,13 +24,10 @@ enum
 typedef struct
 {
 	PID_t       pid[PIDNUM];
-
-	int16_t     yawHold;
 	
 	Vector3f_t  attInnerTarget;
  	Vector3f_t  velInnerTarget;   
-    
-	Vector3f_t  attInnerOutput;
+	Vector3f_t  attOuterTarget;
 	
 	Vector3f_t  posTarget;
 	Vector3f_t  posInnerOutput;	
@@ -40,6 +37,8 @@ typedef struct
 	
 }FLIGHTCONTROL_t;
 
+void FlightControlInnerLoop(Vector3f_t gyro);
+    
 #endif
 
 
