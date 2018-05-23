@@ -45,11 +45,14 @@ typedef struct
     uint8_t    yawHoldFlag;
 }FLIGHTCONTROL_t;
 
+void FlightControlInit(void);
+
 void SetRcTarget(RCTARGET_t rcTarget);
 void FlightControlInnerLoop(Vector3f_t gyro);
 void AttitudeOuterControl(void);
 void AltitudeOuterControl(void);
 void PositionInnerControl(void);
+void PositionOuterControl(void);
 
 void SetYawCtlTarget(float target);
 

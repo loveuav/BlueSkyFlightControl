@@ -19,7 +19,7 @@
 
 FLIGHTCONTROL_t fc;
 
-void FlightControl_Init(void)
+void FlightControlInit(void)
 {
 	//PID参数初始化
 	PID_SetParam(&fc.pid[ROLL_INNER],  2.0, 0.5, 0.2, 300, 50);

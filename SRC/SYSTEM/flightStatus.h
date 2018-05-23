@@ -74,6 +74,7 @@ void SetPosControlStatus(uint8_t status);
 uint8_t GetPosControlStatus(void);
 
 uint8_t GetArmedStatus(void);
+uint8_t GetFlightStatus(void);
 uint8_t GetPlaceStatus(void);
 void SetInitStatus(uint8_t status);
 uint8_t GetInitStatus(void);

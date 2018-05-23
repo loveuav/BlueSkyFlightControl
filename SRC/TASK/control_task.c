@@ -21,6 +21,9 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 	Vector3f_t* gyro;
 	static uint32_t count = 0;
 	
+    //控制参数初始化
+    FlightControlInit();
+    
 	for(;;)
 	{
 		//从消息队列中获取数据
@@ -28,6 +31,13 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 
         //用户控制模式下的操控逻辑处理
         UserControl();
+        
+        //200Hz
+        if(count % 5 == 0)	
+		{
+            //位置外环控制
+            PositionOuterControl();
+        }
         
         //500Hz
         if(count % 2 == 0)	
