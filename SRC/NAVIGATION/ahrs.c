@@ -22,9 +22,8 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc);
 static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag);
 static void KalmanRollPitchInit(void);
 static void KalmanYawInit(void);
-static void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf);
 static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorBf);
-static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf);
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfOffset);
 
 /**********************************************************************************************************
 *函 数 名: AHRSInit
@@ -114,7 +113,7 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     AttitudeEstimateYaw(deltaAngle, mag);
     
     //计算飞行器在地理坐标系下的运动加速度
-    TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf);
+    TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accEfOffset);
 }
 
 /**********************************************************************************************************
@@ -297,7 +296,7 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 *形    参: 转动角度 转动向量 转动后的向量指针
 *返 回 值: 无
 **********************************************************************************************************/
-static void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf)
+void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf)
 {
 	Vector3f_t anglerad;
 	
@@ -336,9 +335,8 @@ static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_
 *形    参: 当前飞机姿态 加速度 地理坐标系下的加速度
 *返 回 值: 无
 **********************************************************************************************************/
-static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf)
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfOffset)
 {
-    static Vector3f_t accEfOffset;
 	static uint16_t offset_cnt = 10000;	//计算零偏的次数
     static Vector3f_t accLpf, accEfLpf, accAngle;   //用于计算初始零偏
     
@@ -355,9 +353,9 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 	accEf->z = accEf->z - GRAVITY_ACCEL;   
 
     //零偏补偿
-    accEf->x -= accEfOffset.x;
-    accEf->y -= accEfOffset.y;
-    accEf->z -= accEfOffset.z;
+    accEf->x -= accEfOffset->x;
+    accEf->y -= accEfOffset->y;
+    accEf->z -= accEfOffset->z;
     
 	//系统初始化时，计算加速度零偏
 	if(GetSysTimeMs() > 5000 && GetInitStatus() == HEAT_FINISH)
@@ -384,9 +382,9 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
             accEfLpf.y = -accEfLpf.y;	
             accEfLpf.z = accEfLpf.z - GRAVITY_ACCEL; 
             
-			accEfOffset.x = accEfOffset.x * 0.998f + accEfLpf.x * 0.002f;
-			accEfOffset.y = accEfOffset.y * 0.998f + accEfLpf.y * 0.002f; 
-			accEfOffset.z = accEfOffset.z * 0.998f + accEfLpf.z * 0.002f; 
+			accEfOffset->x = accEfOffset->x * 0.998f + accEfLpf.x * 0.002f;
+			accEfOffset->y = accEfOffset->y * 0.998f + accEfLpf.y * 0.002f; 
+			accEfOffset->z = accEfOffset->z * 0.998f + accEfLpf.z * 0.002f; 
 			offset_cnt--;
 		}
         //完成零偏计算，系统初始化结束

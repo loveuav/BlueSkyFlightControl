@@ -12,6 +12,7 @@
 #include "TaskConfig.h"
 
 #include "ahrs.h"
+#include "ahrsAux.h"
 #include "navigation.h"
 #include "gyroscope.h"
 #include "magnetometer.h"
@@ -35,6 +36,8 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 	
     //姿态估计参数初始化
     AHRSInit();
+    //辅助姿态估计参数初始化
+    AHRSAuxInit();
 	//导航参数初始化
 	NavigationInit();
     
@@ -44,9 +47,12 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 		xQueueReceive(messageQueue[GYRO_DATA_PRETREAT], &gyro, (3 / portTICK_RATE_MS)); 
 		xQueueReceive(messageQueue[ACC_DATA_PRETREAT], &acc, (3 / portTICK_RATE_MS)); 	
 
+        //辅助姿态估计
+        AttitudeAuxEstimate(*gyro, *acc);
+        
 		//姿态估计
 		AttitudeEstimate(*gyro, *acc, MagGetData());
-		
+        
 		//等待系统初始化完成
 		if(GetInitStatus() == INIT_FINISH)
 		{

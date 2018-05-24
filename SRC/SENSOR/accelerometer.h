@@ -16,6 +16,7 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData);
 void AccCalibration(Vector3f_t accRaw);
 void ImuLevelCalibration(void);
 Vector3f_t GetLevelCalibraData(void);
+float GetAccMag(void);
 #endif
 
 

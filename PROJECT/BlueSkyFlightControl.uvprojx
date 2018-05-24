@@ -775,6 +775,11 @@
           <GroupName>DRIVER</GroupName>
           <Files>
             <File>
+              <FileName>boardConfigBlueSkyV2.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\DRIVER\boardConfigBlueSkyV2.h</FilePath>
+            </File>
+            <File>
               <FileName>boardConfigBlueSkyV3.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\SRC\DRIVER\boardConfigBlueSkyV3.h</FilePath>

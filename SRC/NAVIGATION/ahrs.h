@@ -16,10 +16,13 @@ typedef struct{
     float      vectorYawKI;	
     
     Vector3f_t accEf;
+    Vector3f_t accEfOffset;
 }AHRS_t;
 
 void AHRSInit(void);
 void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag);
+void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf);
+
 Vector3f_t GetCopterAngle(void);
 Vector3f_t GetCopterAccEf(void);
 
