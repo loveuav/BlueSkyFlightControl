@@ -18,12 +18,29 @@ enum{
 #define BOARD_TYPE	BLUESKY_V2
 //#define BOARD_TYPE	BLUESKY_V3
 
-#if (BOARD_TYPE == BLUESKY_V2)
+#if   (BOARD_TYPE == BLUESKY_V2)
 	#include "boardConfigBlueSkyV2.h"
-#endif
-#if (BOARD_TYPE == BLUESKY_V3)
+#elif (BOARD_TYPE == BLUESKY_V3)
 	#include "boardConfigBlueSkyV3.h"
 #endif
+
+typedef struct
+{
+    int16_t roll;   
+    int16_t pitch;   
+    int16_t yaw;      
+    int16_t throttle;  
+    int16_t aux1;  
+    int16_t aux2;  
+    int16_t aux3;  
+    int16_t aux4;  
+    int16_t aux5;  
+    int16_t aux6;   
+    int16_t aux7;  
+    int16_t aux8;  
+    int16_t aux9;  
+    int16_t aux10;     
+}RCDATA_t;
 
 void BoardInit(void);
 void SoftDelayMs(uint32_t ms);

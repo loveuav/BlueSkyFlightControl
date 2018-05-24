@@ -32,7 +32,6 @@ void AHRSAuxInit(void)
     KalmanAuxInit();   
 }
 
-
 /**********************************************************************************************************
 *函 数 名: AttitudeAuxInitAlignment
 *功能说明: 辅助姿态初始对准
@@ -169,4 +168,14 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	ahrsAux.accEf.z = ahrsAux.accEf.z - GRAVITY_ACCEL;   
 }
 
+/**********************************************************************************************************
+*函 数 名: GetSportAccEf
+*功能说明: 获取运动加速度
+*形    参: 无
+*返 回 值: 加速度
+**********************************************************************************************************/
+Vector3f_t GetSportAccEf(void)
+{
+    return ahrsAux.accEf;
+}
 

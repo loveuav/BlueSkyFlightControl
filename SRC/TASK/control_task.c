@@ -13,6 +13,8 @@
 
 #include "flightControl.h"
 #include "userControl.h"
+#include "missionControl.h"
+#include "rc.h"
 
 xTaskHandle flightControlTask;
 
@@ -20,6 +22,9 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 {
 	Vector3f_t* gyro;
 	static uint32_t count = 0;
+	
+	//遥控相关功能初始化
+	RcInit();
 	
     //控制参数初始化
     FlightControlInit();
@@ -29,9 +34,13 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 		//从消息队列中获取数据
 		xQueueReceive(messageQueue[GYRO_FOR_CONTROL], &gyro, (3 / portTICK_RATE_MS)); 		
 
-        //用户控制模式下的操控逻辑处理
-        UserControl();
-        
+        //100Hz
+        if(count % 10 == 0)	
+		{
+            //遥控器各通道数据及失控检测
+            RcCheck();
+        }
+			
         //200Hz
         if(count % 5 == 0)	
 		{
@@ -42,6 +51,12 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
         //500Hz
         if(count % 2 == 0)	
 		{
+			//用户控制模式下的操控逻辑处理
+			UserControl();
+
+			//自主控制任务实现（自动起飞、自动降落、自动返航、自动航线等）
+			MissionControl();
+			
             //位置内环控制
             PositionInnerControl();   
             

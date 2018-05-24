@@ -91,7 +91,7 @@ union
 
 UBLOX_t ublox;
 
-static void Ublox_ProtocolParsing(uint8_t data);
+static void Ublox_Decode(uint8_t data);
 
 /**********************************************************************************************************
 *函 数 名: Ublox_Init
@@ -102,16 +102,16 @@ static void Ublox_ProtocolParsing(uint8_t data);
 void Ublox_Init(void)
 {
     //设置GPS串口接收中断回调函数（即数据协议解析函数）
-    Usart_SetIRQCallback(GPS_UART, Ublox_ProtocolParsing);
+    Usart_SetIRQCallback(GPS_UART, Ublox_Decode);
 }
 
 /**********************************************************************************************************
-*函 数 名: Ublox_ProtocolParsing
+*函 数 名: Ublox_Decode
 *功能说明: ublox协议解析
 *形    参: 输入数据
 *返 回 值: 无
 **********************************************************************************************************/
-static void Ublox_ProtocolParsing(uint8_t data)
+static void Ublox_Decode(uint8_t data)
 {
     static uint8_t gps_data_status = 0;
     static uint8_t gps_data_temp_cnt = 0;

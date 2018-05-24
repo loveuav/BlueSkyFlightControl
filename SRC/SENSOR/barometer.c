@@ -34,7 +34,7 @@ static void BaroDetectCheck(int32_t baroAlt);
 void BaroDataPreTreat(void)
 {
 	static uint32_t lastTime = 0;
-	static uint8_t offset_cnt = 50;
+	static uint16_t offset_cnt = 300;
 
 	float deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
 	lastTime = GetSysTimeUs();

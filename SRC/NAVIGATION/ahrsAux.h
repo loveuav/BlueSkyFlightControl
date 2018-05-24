@@ -12,6 +12,7 @@ typedef struct{
 
 void AHRSAuxInit(void);
 void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc);
+Vector3f_t GetSportAccEf(void);
 
 #endif
 

@@ -31,16 +31,19 @@
 #define TEMP_CH              1
 
 #define BARO_SPI             1
-#define BARO_CS_GPIO         GPIOD
-#define BARO_CS_PIN          GPIO_Pin_7
+#define BARO_CS_GPIO         GPIOC
+#define BARO_CS_PIN          GPIO_Pin_3
 
 #define MAG_I2C              1
 #define GPS_UART             4
 #define TOF_UART             0
-#define SBUS_UART            0
+#define SBUS_UART            6
 
 #define ESC_PROTOCOL         PWM
 //#define ESC_PROTOCOL         DSHOT600
+
+#define RC_PROTOCOL		     SBUS
+//#define RC_PROTOCOL		     PPM
 
 #define PWM_TIM_FREQ         21000000
 #define PWM_TIM_PERIOD       52499
@@ -108,7 +111,7 @@
 #define configUSE_USART3     0
 #define configUSE_UART4      1
 #define configUSE_UART5      0
-#define configUSE_USART6     0
+#define configUSE_USART6     1
 
 #define configUSE_SPI1       1
 #define configUSE_SPI2       0
@@ -185,7 +188,7 @@
 #define USART6_PINSOURCE_RX     GPIO_PinSource1
 #define USART6_PIN_TX           GPIO_Pin_6
 #define USART6_PIN_RX           GPIO_Pin_7
-#define USART6_BAUDRATE         115200
+#define USART6_BAUDRATE         100000
 #define USART6_IRQ_PRIORITY     3
 /**********************************************************************************************************
 *SPI引脚及参数配置

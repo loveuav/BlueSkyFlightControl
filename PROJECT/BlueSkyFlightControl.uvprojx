@@ -844,6 +844,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\DRIVER\drv_pwm.h</FilePath>
             </File>
+            <File>
+              <FileName>drv_sbus.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\DRIVER\drv_sbus.c</FilePath>
+            </File>
+            <File>
+              <FileName>drv_sbus.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\DRIVER\drv_sbus.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

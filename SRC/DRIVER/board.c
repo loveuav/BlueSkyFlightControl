@@ -18,6 +18,7 @@
 #include "drv_usart.h"
 #include "drv_i2c_soft.h"
 #include "drv_pwm.h"
+#include "drv_sbus.h"
 
 static void SysPeriphClockInit(void);
 
@@ -74,6 +75,11 @@ void BoardInit(void)
 
     //定时器PWM输出初始化
     PWM_Init();
+	
+	//遥控器接收机数据协议解析初始化
+	#if (RC_PROTOCOL == SBUS)
+		Sbus_Init();
+	#endif 
 }
 
 /**********************************************************************************************************

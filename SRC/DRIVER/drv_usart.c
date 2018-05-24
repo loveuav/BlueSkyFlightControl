@@ -34,12 +34,22 @@ void Usart_Open(uint8_t deviceNum)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;
-	USART_InitStructure.USART_Parity = USART_Parity_No;   
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None; 
-	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx; 
-
+    if(deviceNum == SBUS_UART)
+    {
+        USART_InitStructure.USART_WordLength = USART_WordLength_9b;
+        USART_InitStructure.USART_StopBits = USART_StopBits_2;
+        USART_InitStructure.USART_Parity = USART_Parity_Even;   
+        USART_InitStructure.USART_Mode = USART_Mode_Rx; 
+    }
+    else
+    {
+        USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+        USART_InitStructure.USART_StopBits = USART_StopBits_1;
+        USART_InitStructure.USART_Parity = USART_Parity_No;   
+        USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx; 
+    }
+    
 	USART_ClockInitStruct.USART_Clock = USART_Clock_Disable; 
 	USART_ClockInitStruct.USART_CPOL = USART_CPOL_Low;  
 	USART_ClockInitStruct.USART_CPHA = USART_CPHA_2Edge; 

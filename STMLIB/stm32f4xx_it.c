@@ -29,7 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
- 
+#include "motor.h" 
 
 /** @addtogroup Template_Project
   * @{
@@ -65,6 +65,8 @@ void HardFault_Handler(void)
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {
+      //出现错误时停转所有电机，防止意外伤人
+      MotorStop();
   }
 }
 
@@ -78,6 +80,8 @@ void MemManage_Handler(void)
   /* Go to infinite loop when Memory Manage exception occurs */
   while (1)
   {
+      //出现错误时停转所有电机，防止意外伤人
+      MotorStop();
   }
 }
 

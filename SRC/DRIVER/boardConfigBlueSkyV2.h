@@ -42,6 +42,9 @@
 #define ESC_PROTOCOL         PWM
 //#define ESC_PROTOCOL         DSHOT600
 
+#define RC_PROTOCOL		     SBUS
+//#define RC_PROTOCOL		     PPM
+
 #define PWM_TIM_FREQ         21000000
 #define PWM_TIM_PERIOD       52499
 #define PWM1_TIM             3
