@@ -15,12 +15,13 @@ enum{
 /**********************************************************************************************************
 *定义硬件类型
 **********************************************************************************************************/
-#define BOARD_TYPE	BLUESKY_V2
-//#define BOARD_TYPE	BLUESKY_V3
+#define BLUESKY_V2
+//#define BLUESKY_V3
 
-#if   (BOARD_TYPE == BLUESKY_V2)
+#ifdef BLUESKY_V2
 	#include "boardConfigBlueSkyV2.h"
-#elif (BOARD_TYPE == BLUESKY_V3)
+#endif
+#ifdef BLUESKY_V3
 	#include "boardConfigBlueSkyV3.h"
 #endif
 

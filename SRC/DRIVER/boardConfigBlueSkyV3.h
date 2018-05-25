@@ -183,9 +183,9 @@
 #define UART5_BAUDRATE          115200
 #define UART5_IRQ_PRIORITY      3
 
-#define USART6_GPIO             GPIOA
-#define USART6_PINSOURCE_TX     GPIO_PinSource1
-#define USART6_PINSOURCE_RX     GPIO_PinSource1
+#define USART6_GPIO             GPIOC
+#define USART6_PINSOURCE_TX     GPIO_PinSource6
+#define USART6_PINSOURCE_RX     GPIO_PinSource7
 #define USART6_PIN_TX           GPIO_Pin_6
 #define USART6_PIN_RX           GPIO_Pin_7
 #define USART6_BAUDRATE         100000
