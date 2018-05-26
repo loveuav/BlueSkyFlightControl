@@ -16,8 +16,8 @@
 /**********************************************************************************************************
 *传感器配置
 **********************************************************************************************************/
-#define GYRO_TYPE            MPU6000
-//#define GYRO_TYPE            MPU6500
+//#define GYRO_TYPE            MPU6000
+#define GYRO_TYPE            MPU6500
 #define BARO_TYPE            MS5611    
 #define MAG_TYPE             QMC5883
 
@@ -27,8 +27,8 @@
 
 #define TEMP_TIM_FREQ        21000000
 #define TEMP_TIM_PERIOD      52499
-#define TEMP_TIM             1
-#define TEMP_CH              1
+#define TEMP_TIM             2
+#define TEMP_CH              2
 
 #define BARO_SPI             1
 #define BARO_CS_GPIO         GPIOC
@@ -119,14 +119,14 @@
 #define configUSE_SOFT_I2C1  1
 #define configUSE_SOFT_I2C2  0
 
-#define configUSE_TIM1       1
-#define configUSE_TIM1_CH1   1
+#define configUSE_TIM1       0
+#define configUSE_TIM1_CH1   0
 #define configUSE_TIM1_CH2   0
 #define configUSE_TIM1_CH3   0
 #define configUSE_TIM1_CH4   0
-#define configUSE_TIM2       0
+#define configUSE_TIM2       1
 #define configUSE_TIM2_CH1   0
-#define configUSE_TIM2_CH2   0
+#define configUSE_TIM2_CH2   1
 #define configUSE_TIM2_CH3   0
 #define configUSE_TIM2_CH4   0
 #define configUSE_TIM3       1
@@ -252,8 +252,8 @@
 	#define TIM1_CH4_PINSOURCE        GPIO_PinSource5
 #endif
 
-#define TIM2_CLOCK                    PWM_TIM_FREQ
-#define TIM2_PERIOD                   PWM_TIM_PERIOD
+#define TIM2_CLOCK                    TEMP_TIM_FREQ
+#define TIM2_PERIOD                   TEMP_TIM_PERIOD
 #define TIM2_PWM_OUT                  1
 #define TIM2_PPM_IN                   0		
 #if(configUSE_TIM2_CH1 == 1)
@@ -263,8 +263,8 @@
 #endif
 #if(configUSE_TIM2_CH2 == 1)
 	#define TIM2_CH2_GPIO             GPIOA
-	#define TIM2_CH2_PIN              GPIO_Pin_7
-	#define TIM2_CH2_PINSOURCE        GPIO_PinSource5
+	#define TIM2_CH2_PIN              GPIO_Pin_1
+	#define TIM2_CH2_PINSOURCE        GPIO_PinSource1
 #endif
 #if(configUSE_TIM2_CH3 == 1)
 	#define TIM2_CH3_GPIO             GPIOA

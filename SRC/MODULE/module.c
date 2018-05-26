@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "module.h"
 #include "mpu6000.h"
+#include "mpu6500.h"
 #include "ms5611.h"
 #include "qmc5883.h"
 #include "ublox.h"
@@ -77,6 +78,18 @@ void GyroSensorInit(void)
     if(MPU6000_Detect())
     {
         MPU6000_Init();
+    }
+    else
+    {
+        //未检测到陀螺仪
+        FaultDetectSetError(GYRO_UNDETECTED);
+    }        
+    #endif
+
+    #if (GYRO_TYPE == MPU6500)
+    if(MPU6500_Detect())
+    {
+        MPU6500_Init();
     }
     else
     {
@@ -151,6 +164,9 @@ void GyroSensorRead(Vector3f_t* gyro)
 {
     #if (GYRO_TYPE == MPU6000)
     MPU6000_ReadGyro(gyro);
+    #endif     
+    #if (GYRO_TYPE == MPU6500)
+    MPU6500_ReadGyro(gyro);
     #endif    
     
     //传感器方向转换
@@ -168,7 +184,10 @@ void AccSensorRead(Vector3f_t* acc)
     #if (GYRO_TYPE == MPU6000)
     MPU6000_ReadAcc(acc);
     #endif 
-
+    #if (GYRO_TYPE == MPU6500)
+    MPU6500_ReadAcc(acc);
+    #endif 
+    
     //传感器方向转换
     AccSensorRotate(acc);    
 }
@@ -184,6 +203,9 @@ void TempSensorRead(float* temp)
     #if (GYRO_TYPE == MPU6000)
     MPU6000_ReadTemp(temp);
     #endif    
+    #if (GYRO_TYPE == MPU6500)
+    MPU6500_ReadTemp(temp);
+    #endif   
 }
 
 /**********************************************************************************************************
@@ -224,7 +246,7 @@ void MagSensorRead(Vector3f_t* mag)
 void BaroSensorUpdate(void)
 {
     #if (BARO_TYPE == MS5611)
-    MS5611_Update();  
+    //MS5611_Update();  
     #endif    
 }
 
@@ -237,7 +259,7 @@ void BaroSensorUpdate(void)
 void BaroSensorRead(int32_t* baroAlt)
 {
     #if (BARO_TYPE == MS5611)
-    MS5611_Read(baroAlt);  
+    //MS5611_Read(baroAlt);  
     #endif     
 }
 
