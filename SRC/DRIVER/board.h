@@ -41,6 +41,8 @@ typedef struct
     int16_t aux8;  
     int16_t aux9;  
     int16_t aux10;     
+    int16_t aux11;  
+    int16_t aux12;  
 }RCDATA_t;
 
 void BoardInit(void);

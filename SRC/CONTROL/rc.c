@@ -118,7 +118,7 @@ static void RcCheckSticks(void)
     //摇杆外八字解锁
 	if((rcData.roll > MAXCHECK) && (rcData.pitch < MINCHECK) &&
        (rcData.yaw < MINCHECK) && (rcData.throttle < MINCHECK))
-    {
+    {   
         if(GetArmedStatus() == DISARMED)
         {
             //持续1.5秒后解锁

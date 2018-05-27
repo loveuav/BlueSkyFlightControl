@@ -246,7 +246,7 @@ void MagSensorRead(Vector3f_t* mag)
 void BaroSensorUpdate(void)
 {
     #if (BARO_TYPE == MS5611)
-    //MS5611_Update();  
+    MS5611_Update();  
     #endif    
 }
 
@@ -259,7 +259,7 @@ void BaroSensorUpdate(void)
 void BaroSensorRead(int32_t* baroAlt)
 {
     #if (BARO_TYPE == MS5611)
-    //MS5611_Read(baroAlt);  
+    MS5611_Read(baroAlt);  
     #endif     
 }
 
