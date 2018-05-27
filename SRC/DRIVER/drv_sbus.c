@@ -89,23 +89,23 @@ static void Sbus_Decode(uint8_t data)
             return;
         
         //每个通道数据占据11个字节，这里使用了字节对齐的方式来进行解析
-        //转换摇杆数据量程为[0:1000]
-        sbusData.roll     = sbus.msg.chan1 * 0.625f + 880 - 1000;  
-        sbusData.pitch    = sbus.msg.chan2 * 0.625f + 880 - 1000;
-        sbusData.throttle = sbus.msg.chan3 * 0.625f + 880 - 1000;  
-        sbusData.yaw      = sbus.msg.chan4 * 0.625f + 880 - 1000;  
-        sbusData.aux1     = sbus.msg.chan5 * 0.625f + 880 - 1000;  
-        sbusData.aux2     = sbus.msg.chan6 * 0.625f + 880 - 1000;  
-        sbusData.aux3     = sbus.msg.chan7 * 0.625f + 880 - 1000;  
-        sbusData.aux4     = sbus.msg.chan8 * 0.625f + 880 - 1000;  
-        sbusData.aux5     = sbus.msg.chan9 * 0.625f + 880 - 1000;  
-        sbusData.aux6     = sbus.msg.chan10 * 0.625f + 880 - 1000;  
-        sbusData.aux7     = sbus.msg.chan11 * 0.625f + 880 - 1000;  
-        sbusData.aux8     = sbus.msg.chan12 * 0.625f + 880 - 1000;  
-        sbusData.aux8     = sbus.msg.chan13 * 0.625f + 880 - 1000;  
-        sbusData.aux10    = sbus.msg.chan14 * 0.625f + 880 - 1000;  
-        sbusData.aux11    = sbus.msg.chan15 * 0.625f + 880 - 1000;  
-        sbusData.aux12    = sbus.msg.chan16 * 0.625f + 880 - 1000;        
+        //转换摇杆数据量程为[1000:2000]
+        sbusData.roll     = sbus.msg.chan1 * 0.625f + 880;  
+        sbusData.pitch    = sbus.msg.chan2 * 0.625f + 880;
+        sbusData.throttle = sbus.msg.chan3 * 0.625f + 880;  
+        sbusData.yaw      = sbus.msg.chan4 * 0.625f + 880;  
+        sbusData.aux1     = sbus.msg.chan5 * 0.625f + 880;  
+        sbusData.aux2     = sbus.msg.chan6 * 0.625f + 880;  
+        sbusData.aux3     = sbus.msg.chan7 * 0.625f + 880;  
+        sbusData.aux4     = sbus.msg.chan8 * 0.625f + 880;  
+        sbusData.aux5     = sbus.msg.chan9 * 0.625f + 880;  
+        sbusData.aux6     = sbus.msg.chan10 * 0.625f + 880;  
+        sbusData.aux7     = sbus.msg.chan11 * 0.625f + 880;  
+        sbusData.aux8     = sbus.msg.chan12 * 0.625f + 880;  
+        sbusData.aux8     = sbus.msg.chan13 * 0.625f + 880;  
+        sbusData.aux10    = sbus.msg.chan14 * 0.625f + 880;  
+        sbusData.aux11    = sbus.msg.chan15 * 0.625f + 880;  
+        sbusData.aux12    = sbus.msg.chan16 * 0.625f + 880;        
         
         //一帧数据解析完成
         if(rcDataCallbackFunc != 0)

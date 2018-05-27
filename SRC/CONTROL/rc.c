@@ -14,11 +14,12 @@
 #include "board.h"
 #include "drv_sbus.h"
 
-#define MINCHECK    200
-#define MAXCHECK    800
+#define MINCHECK    1200
+#define MAXCHECK    1800
 
 RCDATA_t rcData;
 RCCOMMAND_t rcCommand;
+uint32_t failsafeTime = 0;
 
 static void RcDataUpdate(RCDATA_t data);
 static void RcCommandUpdate(void);
@@ -67,6 +68,9 @@ static void RcDataUpdate(RCDATA_t data)
 	
 	//更新摇杆控制命令
 	RcCommandUpdate();
+    
+    //更新时间，用于失控保护检测
+    failsafeTime = GetSysTimeMs();
 }
 
 /**********************************************************************************************************
@@ -80,17 +84,17 @@ static void RcCommandUpdate(void)
     //飞机未离地时，不计算除了油门之外的摇杆命令
     if(GetFlightStatus() >= IN_AIR)
     {
-        rcCommand.roll     = rcData.roll - 500;
-        rcCommand.pitch    = rcData.pitch - 500;
-        rcCommand.yaw      = rcData.yaw - 500;
-        rcCommand.throttle = rcData.throttle - 500;  
+        rcCommand.roll     = rcData.roll - 1500;
+        rcCommand.pitch    = rcData.pitch - 1500;
+        rcCommand.yaw      = rcData.yaw - 1500;
+        rcCommand.throttle = rcData.throttle - 1500;  
     }   
     else
     {
         rcCommand.roll     = 0;
         rcCommand.pitch    = 0;
         rcCommand.yaw      = 0;
-        rcCommand.throttle = rcData.throttle - 500;         
+        rcCommand.throttle = rcData.throttle - 1500;         
     }
 }
 
@@ -151,13 +155,57 @@ static void RcCheckAux(void)
 
 /**********************************************************************************************************
 *函 数 名: RcCheckFailsafe
-*功能说明: 失控保护检测
+*功能说明: 失控保护检测，主要分两种方式，一是接收不到遥控数据，二是遥控数据出现特定数值（遥控器上一般可设的失控保护）
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
 static void RcCheckFailsafe(void)
 {
-	
+    static uint16_t failsafeCnt = 0;
+    uint8_t failsafeStatus[2];
+    
+	if(GetSysTimeMs() < 3000)
+        return;
+    
+    //如果一定时间内接收不到遥控数据，则进入失控保护状态
+    if(GetSysTimeMs() - failsafeTime > 1500)
+    {
+        SetFailSafeStatus(true);
+        failsafeStatus[0] = 1;
+    }
+    else
+    {
+        failsafeStatus[0] = 0;
+    }
+    
+    //设置遥控器的失控保护为：设置辅助通道1的输出为950
+    if(rcData.aux1 > 920 && rcData.aux1 < 980)
+    {
+        if(failsafeCnt > 150)
+        {
+            SetFailSafeStatus(true);
+        }
+        else
+        {
+           failsafeCnt++; 
+        }
+        failsafeStatus[1] = 1;
+    }
+    else
+    {
+        failsafeStatus[1] = 0;
+    }
+    
+    //上锁状态下，失控条件均不成立时自动解除失控保护状态
+    //若已经解锁，只能靠改变飞行模式档位来解除
+    if(GetArmedStatus() == DISARMED)
+    {
+        if(failsafeStatus[0] == 0 && failsafeStatus[1] == 0)
+        {
+            SetFailSafeStatus(false);
+        }
+    }
 }
+
 
 

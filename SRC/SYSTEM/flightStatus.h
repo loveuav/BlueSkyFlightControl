@@ -80,6 +80,9 @@ void SetInitStatus(uint8_t status);
 uint8_t GetInitStatus(void);
 uint8_t GetFlightMode(void);
 
+void SetFailSafeStatus(bool status);
+bool GetFailSafeStatus(void);
+
 #endif
 
 
