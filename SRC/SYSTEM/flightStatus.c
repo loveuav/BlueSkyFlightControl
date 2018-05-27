@@ -30,11 +30,13 @@ void SetArmedStatus(uint8_t status)
 {
 	if(status == DISARMED)	//上锁
 	{	
-		
+		flyStatus.armed = DISARMED;
 	}
 	else if(status == ARMED)	//解锁
 	{	
-		
+        //解锁检查
+        //···········
+		flyStatus.armed = ARMED;
 	}
 }
 

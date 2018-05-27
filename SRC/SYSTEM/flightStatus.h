@@ -66,18 +66,21 @@ enum
 	FOLLOWME				//自动跟随
 };
 
-void PlaceStausCheck(Vector3f_t gyro);
-
 void SetAltControlStatus(uint8_t status);
 uint8_t GetAltControlStatus(void);
 void SetPosControlStatus(uint8_t status);
 uint8_t GetPosControlStatus(void);
 
+void SetArmedStatus(uint8_t status);
 uint8_t GetArmedStatus(void);
-uint8_t GetFlightStatus(void);
+
+void PlaceStausCheck(Vector3f_t gyro);
 uint8_t GetPlaceStatus(void);
+
 void SetInitStatus(uint8_t status);
 uint8_t GetInitStatus(void);
+
+uint8_t GetFlightStatus(void);
 uint8_t GetFlightMode(void);
 
 void SetFailSafeStatus(bool status);

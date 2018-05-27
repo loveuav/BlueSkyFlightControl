@@ -13,6 +13,7 @@
 #include "flightStatus.h"
 #include "board.h"
 #include "drv_sbus.h"
+#include "magnetometer.h"
 
 #define MINCHECK    1200
 #define MAXCHECK    1800
@@ -118,27 +119,67 @@ RCCOMMAND_t GetRcCommad(void)
 static void RcCheckSticks(void)
 {
     static uint32_t armedCheckTime = 0;
+    static uint32_t armedDisarmedTime = 0;
+    static uint32_t caliCheckTime = 0;
+    static uint8_t  armedCheckFlag = 0;    
     
-    //摇杆外八字解锁
+    //摇杆外八字解锁,同时也可上锁，即使在飞行中，也可通过外八强制上锁
 	if((rcData.roll > MAXCHECK) && (rcData.pitch < MINCHECK) &&
        (rcData.yaw < MINCHECK) && (rcData.throttle < MINCHECK))
     {   
-        if(GetArmedStatus() == DISARMED)
+        //上锁3秒后才可再次解锁
+        if(GetArmedStatus() == DISARMED && (GetSysTimeMs() - armedDisarmedTime) > 3000)
         {
             //持续1.5秒后解锁
             if(GetSysTimeMs() - armedCheckTime > 1500)
             {
+                SetArmedStatus(ARMED);
                 
+                //解锁检查标志置1，用于判断摇杆是否已回中，防止解锁后因为摇杆位置没变化导致自动上锁
+                armedCheckFlag = 1;   
             }
         }
         else
         {
-            
+            if(armedCheckFlag == 0)
+            {
+                //持续3秒后强制上锁
+                if(GetSysTimeMs() - armedCheckTime > 3000)
+                {
+                    SetArmedStatus(DISARMED);
+                    
+                    //记录上锁时间
+                    armedDisarmedTime = GetSysTimeMs();
+                }                
+            }
         }
     }        
     else
     {
         armedCheckTime = GetSysTimeMs();
+    }
+    
+    //摇杆若回中，则重置解锁标志位，此时可以再次通过外八操作将飞机上锁 
+    if(rcData.throttle > 1400)
+        armedCheckFlag = 0; 
+    
+    //摇杆内八字持续5s，进入罗盘校准
+	if((rcData.roll < MINCHECK) && (rcData.pitch < MINCHECK) &&
+       (rcData.yaw > MAXCHECK) && (rcData.throttle < MINCHECK))
+    {  
+        //只在上锁状态下进行
+        if(GetArmedStatus() == DISARMED)
+        {
+            if(GetSysTimeMs() - caliCheckTime > 5000)
+            {
+                //罗盘校准使能
+                MagCalibrateEnable();
+            }
+        }
+    }
+    else
+    {
+        caliCheckTime = GetSysTimeMs();
     }
 }
 
@@ -178,7 +219,7 @@ static void RcCheckFailsafe(void)
         failsafeStatus[0] = 0;
     }
     
-    //设置遥控器的失控保护为：设置辅助通道1的输出为950
+    //遥控器的失控保护设置为：将辅助通道1的输出变为950
     if(rcData.aux1 > 920 && rcData.aux1 < 980)
     {
         if(failsafeCnt > 150)
