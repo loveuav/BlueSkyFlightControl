@@ -196,14 +196,10 @@ static void RcCheckFailsafe(void)
         failsafeStatus[1] = 0;
     }
     
-    //上锁状态下，失控条件均不成立时自动解除失控保护状态
-    //若已经解锁，只能靠改变飞行模式档位来解除
-    if(GetArmedStatus() == DISARMED)
+    //失控条件均不成立时自动解除失控保护状态
+    if(failsafeStatus[0] == 0 && failsafeStatus[1] == 0)
     {
-        if(failsafeStatus[0] == 0 && failsafeStatus[1] == 0)
-        {
-            SetFailSafeStatus(false);
-        }
+        SetFailSafeStatus(false);
     }
 }
 

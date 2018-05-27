@@ -35,8 +35,9 @@
 #define BARO_CS_PIN          GPIO_Pin_3
 
 #define MAG_I2C              1
-#define GPS_UART             4
-#define TOF_UART             0
+#define GPS_UART             3
+#define DATA_UART            1
+#define TOF_UART             2
 #define SBUS_UART            6
 
 #define ESC_PROTOCOL         PWM
@@ -58,8 +59,8 @@
 
 #define PPM_TIM_FREQ         21000000
 #define PPM_TIM_PERIOD       52499
-#define PPM_TIM              0
-#define PPM_CH               0
+#define PPM_TIM              1
+#define PPM_CH               1
 
 /**********************************************************************************************************
 *单片机Flash存储区域分配
@@ -106,10 +107,10 @@
 #define configUSE_GPIOF      0
 #define configUSE_GPIOG      0
 
-#define configUSE_USART1     0
-#define configUSE_USART2     0
-#define configUSE_USART3     0
-#define configUSE_UART4      1
+#define configUSE_USART1     1
+#define configUSE_USART2     1
+#define configUSE_USART3     1
+#define configUSE_UART4      0
 #define configUSE_UART5      0
 #define configUSE_USART6     1
 
@@ -119,8 +120,8 @@
 #define configUSE_SOFT_I2C1  1
 #define configUSE_SOFT_I2C2  0
 
-#define configUSE_TIM1       0
-#define configUSE_TIM1_CH1   0
+#define configUSE_TIM1       1
+#define configUSE_TIM1_CH1   1
 #define configUSE_TIM1_CH2   0
 #define configUSE_TIM1_CH3   0
 #define configUSE_TIM1_CH4   0
@@ -144,26 +145,26 @@
 *串口引脚及参数配置
 **********************************************************************************************************/
 #define USART1_GPIO             GPIOA
-#define USART1_PINSOURCE_TX     GPIO_PinSource1
-#define USART1_PINSOURCE_RX     GPIO_PinSource1
-#define USART1_PIN_TX           GPIO_Pin_6
-#define USART1_PIN_RX           GPIO_Pin_7
+#define USART1_PINSOURCE_TX     GPIO_PinSource9
+#define USART1_PINSOURCE_RX     GPIO_PinSource10
+#define USART1_PIN_TX           GPIO_Pin_9
+#define USART1_PIN_RX           GPIO_Pin_10
 #define USART1_BAUDRATE         115200
 #define USART1_IRQ_PRIORITY     3
 
 #define USART2_GPIO             GPIOA
-#define USART2_PINSOURCE_TX     GPIO_PinSource1
-#define USART2_PINSOURCE_RX     GPIO_PinSource1
-#define USART2_PIN_TX           GPIO_Pin_6
-#define USART2_PIN_RX           GPIO_Pin_7
+#define USART2_PINSOURCE_TX     GPIO_PinSource2
+#define USART2_PINSOURCE_RX     GPIO_PinSource3
+#define USART2_PIN_TX           GPIO_Pin_2
+#define USART2_PIN_RX           GPIO_Pin_3
 #define USART2_BAUDRATE         115200
 #define USART2_IRQ_PRIORITY     3
 
-#define USART3_GPIO             GPIOA
-#define USART3_PINSOURCE_TX     GPIO_PinSource1
-#define USART3_PINSOURCE_RX     GPIO_PinSource1
-#define USART3_PIN_TX           GPIO_Pin_6
-#define USART3_PIN_RX           GPIO_Pin_7
+#define USART3_GPIO             GPIOB
+#define USART3_PINSOURCE_TX     GPIO_PinSource10
+#define USART3_PINSOURCE_RX     GPIO_PinSource11
+#define USART3_PIN_TX           GPIO_Pin_10
+#define USART3_PIN_RX           GPIO_Pin_11
 #define USART3_BAUDRATE         115200
 #define USART3_IRQ_PRIORITY     3
 
@@ -215,8 +216,8 @@
 *软件I2C引脚及参数配置
 **********************************************************************************************************/
 #define SOFT_I2C1_GPIO              GPIOB
-#define SOFT_I2C1_PIN_SCL           GPIO_Pin_8
-#define SOFT_I2C1_PIN_SDA           GPIO_Pin_9
+#define SOFT_I2C1_PIN_SCL           GPIO_Pin_6
+#define SOFT_I2C1_PIN_SDA           GPIO_Pin_7
 #define SOFT_I2C1_DELAY             0
 
 #define SOFT_I2C2_GPIO              GPIOA
@@ -227,10 +228,10 @@
 /**********************************************************************************************************
 *定时器引脚及参数配置
 **********************************************************************************************************/
-#define TIM1_CLOCK                    TEMP_TIM_FREQ
-#define TIM1_PERIOD                   TEMP_TIM_PERIOD
-#define TIM1_PWM_OUT                  1
-#define TIM1_PPM_IN                   0		
+#define TIM1_CLOCK                    PPM_TIM_FREQ
+#define TIM1_PERIOD                   PPM_TIM_PERIOD
+#define TIM1_PWM_OUT                  0
+#define TIM1_PPM_IN                   1		
 #if(configUSE_TIM1_CH1 == 1)
 	#define TIM1_CH1_GPIO             GPIOA
 	#define TIM1_CH1_PIN              GPIO_Pin_8
