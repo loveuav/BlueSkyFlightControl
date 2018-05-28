@@ -80,6 +80,7 @@ uint8_t GetPlaceStatus(void);
 void SetInitStatus(uint8_t status);
 uint8_t GetInitStatus(void);
 
+void SetFlightStatus(uint8_t status);
 uint8_t GetFlightStatus(void);
 
 void SetFlightMode(uint8_t mode);

@@ -40,6 +40,11 @@ typedef struct
  	Vector3f_t posInnerTarget;   
  	Vector3f_t posOuterTarget;  
 
+    Vector3f_t attInnerError;
+    Vector3f_t attOuterError;
+    Vector3f_t posInnerError;
+ 	Vector3f_t posOuterError;  
+    
     uint8_t    altCtlFlag;
     uint8_t    posCtlFlag;
     uint8_t    yawHoldFlag;
@@ -64,6 +69,11 @@ void SetPosOuterCtlTarget(Vector3f_t target);
 void SetAltCtlStatus(uint8_t status);
 void SetPosCtlStatus(uint8_t status);
 void SetYawHoldStatus(uint8_t status);
+
+Vector3f_t GetAttInnerCtlError(void);
+Vector3f_t GetAttOuterCtlError(void);
+Vector3f_t GetPosInnerCtlError(void);
+Vector3f_t GetPosOuterCtlError(void);
 
 #endif
 

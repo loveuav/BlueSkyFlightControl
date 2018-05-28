@@ -26,6 +26,14 @@ enum
     HIGH
 };
 
+enum 
+{
+    ROLL,
+    PITCH,
+    YAW,
+    THROTTLE
+};
+
 typedef struct
 {
     int16_t roll;   
@@ -37,6 +45,8 @@ typedef struct
 void RcInit(void);
 void RcCheck(void);
 RCCOMMAND_t GetRcCommad(void);
+
+void FlightStatusUpdate(void);
 
 #endif
 

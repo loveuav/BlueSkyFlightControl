@@ -13,9 +13,13 @@
 #include "flightStatus.h"
 #include "board.h"
 #include "drv_sbus.h"
+#include "accelerometer.h"
 #include "magnetometer.h"
+#include "navigation.h"
+#include "flightControl.h"
 
 #define MINCHECK        1200
+#define MIDCHECK        1500
 #define MAXCHECK        1800
 
 #define RC_LEGAL_MIN    980
@@ -388,5 +392,129 @@ static void RcCheckFailsafe(void)
     }
 }
 
+/**********************************************************************************************************
+*函 数 名: FlightStatusUpdate
+*功能说明: 飞行状态更新
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void FlightStatusUpdate(void)
+{
+    static uint8_t landVibraFlag;
+    static uint32_t landCheckTime[10];
+    
+    //待机
+    if(GetFlightStatus() == STANDBY)
+    {
+        //解锁状态下通过摇杆位置判断是否进入起飞状态
+        if(GetArmedStatus() == ARMED)
+        {
+            //手动模式时油门位置低于中点时也会起飞，所以分开判断
+            if(GetFlightMode() == MANUAL)
+            {
+                if(rcData.throttle > MINCHECK)
+                    SetFlightStatus(TAKE_OFF);
+            }
+            else
+            {
+                if(rcData.throttle > MIDCHECK && GetAltControlStatus() == ALT_CHANGED)
+                    SetFlightStatus(TAKE_OFF);
+            }
+        }
+        
+        //进入待机模式且油门杆位最低则锁定电机，自动降落模式下立即锁定
+        if(GetArmedStatus() == ARMED)
+        {
+            if(GetFlightMode() == AUTOLAND)
+            {
+                SetArmedStatus(DISARMED);
+            }
+            else
+            {
+                if(rcData.throttle < MINCHECK && abs(rcData.yaw - MIDCHECK) < 50)
+                    SetArmedStatus(DISARMED);
+            }
+        }
+        
+    }
+    //起飞
+    else if(GetFlightStatus() == TAKE_OFF)
+    {
+        //判断垂直速度大于一定值则进入空中状态
+        //后面有时间再慢慢优化起飞步骤，把起飞操作变成一个半自动过程，改善飞行体验
+        //因为对于一个完全没有接触过飞机的人来说，手动起飞可能会出现各种意外（比如摇杆往上拨了一点点就立马收油）
+        if(GetCopterVelocity().z > 5)
+            SetFlightStatus(IN_AIR);
+    }
+    //在空中
+    else if(GetFlightStatus() == IN_AIR)
+    {
+        if(GetFlightMode() == AUTOLAND)
+        {
+            SetFlightStatus(LANDING);
+        }
+        else if(rcData.throttle < MIDCHECK && GetAltControlStatus() == ALT_CHANGED)
+        {
+            SetFlightStatus(LANDING);
+        }
+        
+        //重置落地震动检测标志位
+        landVibraFlag = 0;
+    }
+    //降落
+    else if(GetFlightStatus() == LANDING)
+    {
+        //返回IN_AIR状态
+        if(GetFlightMode() != AUTOLAND)
+        {
+           if(GetAltControlStatus() == ALT_HOLD || rcData.throttle > MIDCHECK)
+               SetFlightStatus(IN_AIR);
+        } 
+        //降落检测实现比较麻烦，因为要保证安全（不出现误检测）的同时要提升检测的速度（落地后能够立即完成检测）
+        //目前的检测方式为检测垂直方向的控制误差超过一定值以及一定时间便认为已落地
+        //通过检测落地时产生的震动来加快检测
+        //在有TOF或超声波等对地测距方式时，再额外添加检测方式
+        
+        //加速度模值微分值大小超过一定值时认为检测到震动
+//        if()
+//            landVibraFlag = 1;
+        
+        if(landVibraFlag && abs(GetPosInnerCtlError().z) > 35 && abs(GetCopterVelocity().z) < 100 && abs(GetAccMag() - 1) < 0.1f)
+        {           
+            if(GetSysTimeMs() - landCheckTime[0] > 1000)
+                SetFlightStatus(FINISH_LANDING);
+        }   
+        else
+            landCheckTime[0] = GetSysTimeMs();
+        
+        //自动降落模式和其它模式分开检测
+        if(GetFlightMode() == AUTOLAND)
+        {
+            if(abs(GetPosInnerCtlError().z) > 50 && abs(GetCopterVelocity().z) < 50)
+            {
+                if(GetSysTimeMs() - landCheckTime[1] > 2000)
+                    SetFlightStatus(FINISH_LANDING);                
+            }
+            else
+               landCheckTime[1] = GetSysTimeMs(); 
+        }
+        else
+        {
+            if(abs(GetPosInnerCtlError().z) > 200 && abs(GetCopterVelocity().z) < 50)
+            {
+                if(GetSysTimeMs() - landCheckTime[2] > 2000)
+                    SetFlightStatus(FINISH_LANDING);                
+            }
+            else
+               landCheckTime[2] = GetSysTimeMs();          
+        }    
+    }
+    //降落完成
+    else if(GetFlightStatus() == FINISH_LANDING)
+    {
+        //这一步目前没什么用
+        SetFlightStatus(STANDBY);
+    }
+}
 
 

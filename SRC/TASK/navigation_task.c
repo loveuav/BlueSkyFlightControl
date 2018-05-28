@@ -17,6 +17,7 @@
 #include "gyroscope.h"
 #include "magnetometer.h"
 #include "flightStatus.h"
+#include "rc.h"
 
 xTaskHandle navigationTask;
 xTaskHandle flightStatusTask;
@@ -82,6 +83,9 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
 	{
         //飞行器放置状态检测
         PlaceStausCheck(GyroLpfGetData());
+        
+        //飞行状态更新
+        FlightStatusUpdate();
         
         count++;
         

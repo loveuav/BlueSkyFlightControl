@@ -58,18 +58,17 @@ void SetRcTarget(RCTARGET_t rcTarget)
 **********************************************************************************************************/
 static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 {
-	Vector3f_t rateError;
 	Vector3f_t rateControlOutput;
     
     //计算角速度环控制误差：目标角速度 - 实际角速度（低通滤波后的陀螺仪测量值）
-	rateError.x = fc.attInnerTarget.x - gyro.x;	
-	rateError.y = fc.attInnerTarget.y - gyro.y;	
-	rateError.z = fc.attInnerTarget.z - gyro.z;		
+	fc.attInnerError.x = fc.attInnerTarget.x - gyro.x;	
+	fc.attInnerError.y = fc.attInnerTarget.y - gyro.y;	
+	fc.attInnerError.z = fc.attInnerTarget.z - gyro.z;		
 		
     //PID算法，计算出角速度环的控制量
-	rateControlOutput.x = PID_GetPID(&fc.pid[ROLL_INNER],  rateError.x, deltaT);
-	rateControlOutput.y = PID_GetPID(&fc.pid[PITCH_INNER], rateError.y, deltaT);
-	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER],   rateError.z, deltaT);
+	rateControlOutput.x = PID_GetPID(&fc.pid[ROLL_INNER],  fc.attInnerError.x, deltaT);
+	rateControlOutput.y = PID_GetPID(&fc.pid[PITCH_INNER], fc.attInnerError.y, deltaT);
+	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER],   fc.attInnerError.z, deltaT);
 	
     //限制偏航轴控制输出量
 	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -500, +500);	
@@ -96,7 +95,7 @@ void SetAttInnerCtlTarget(Vector3f_t target)
 **********************************************************************************************************/
 static float AltitudeInnerControl(float velZ, float deltaT)
 {
-	float velError, velLpf;
+	float velLpf;
     float altInnerControlOutput;
     //悬停油门中点
 	int16_t throttleMid = 1000;
@@ -105,12 +104,12 @@ static float AltitudeInnerControl(float velZ, float deltaT)
     velLpf = velLpf * 0.992f + velZ * 0.008f;
     
     //计算控制误差
-	velError = fc.posInnerTarget.z - velLpf;
-
+	fc.posInnerError.z = fc.posInnerTarget.z - velLpf;
+    
     //PID算法，计算出高度内环（Z轴速度）的控制量
-	altInnerControlOutput =  PID_GetP(&fc.pid[VEL_Z],  velError);
-	altInnerControlOutput += PID_GetI(&fc.pid[VEL_Z], velError, deltaT);
-	altInnerControlOutput += ConstrainInt32(PID_GetD(&fc.pid[VEL_Z], velError, deltaT), -300, 300);
+	altInnerControlOutput =  PID_GetP(&fc.pid[VEL_Z], fc.posInnerError.z);
+	altInnerControlOutput += PID_GetI(&fc.pid[VEL_Z], fc.posInnerError.z, deltaT);
+	altInnerControlOutput += ConstrainInt32(PID_GetD(&fc.pid[VEL_Z], fc.posInnerError.z, deltaT), -300, 300);
 	
 	altInnerControlOutput += throttleMid;
 
@@ -174,7 +173,6 @@ void AttitudeOuterControl(void)
 {
 	uint8_t    flightMode;
 	Vector3f_t angle;
-	Vector3f_t angleError;
 	Vector3f_t attOuterCtlValue;
 	float 	   yawRate = 1.0;
 	
@@ -187,18 +185,18 @@ void AttitudeOuterControl(void)
     //手动和半自动模式以及GPS失效下，摇杆量直接作为横滚和俯仰的目标量
 	if(flightMode == MANUAL || flightMode == SEMIAUTO || GpsGetFixStatus() == false)	
 	{
-        angleError.x = fc.rcTarget.roll  - angle.x;
-        angleError.y = fc.rcTarget.pitch - angle.y;
+        fc.attOuterError.x = fc.rcTarget.roll  - angle.x;
+        fc.attOuterError.y = fc.rcTarget.pitch - angle.y;
 	}
 	else
 	{
-        angleError.x = fc.attOuterTarget.x - angle.x;
-        angleError.y = fc.attOuterTarget.y - angle.y;
+        fc.attOuterError.x = fc.attOuterTarget.x - angle.x;
+        fc.attOuterError.y = fc.attOuterTarget.y - angle.y;
 	}	
 
     //PID算法，计算出姿态外环的控制量，并以一定比例缩放来控制PID参数的数值范围
-	attOuterCtlValue.x = PID_GetP(&fc.pid[ROLL_OUTER],  angleError.x) * 10;
-	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], angleError.y) * 10;
+	attOuterCtlValue.x = PID_GetP(&fc.pid[ROLL_OUTER],  fc.attOuterError.x) * 10;
+	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], fc.attOuterError.y) * 10;
 
 	//PID控制输出限幅，目的是限制飞行中最大的运动角速度
 	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -300, 300);
@@ -207,9 +205,9 @@ void AttitudeOuterControl(void)
 	//若航向锁定被失能则直接将摇杆数值作为目标角速度
     if(fc.yawHoldFlag == ENABLE)
     {
-        angleError.z = fc.attOuterTarget.z - angle.z;
+        fc.attOuterError.z = fc.attOuterTarget.z - angle.z;
         //计算偏航轴PID控制量
-        attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER],   angleError.z) * 10;	
+        attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 10;	
         //限幅
         attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -150, 150);
 	}
@@ -254,7 +252,6 @@ void SetYawCtlTarget(float target)
 void AltitudeOuterControl(void)
 {
 	float altLpf;
-	float altError;
 	float altOuterCtlValue;
     
     //若当前高度控制被禁用则退出函数
@@ -265,10 +262,10 @@ void AltitudeOuterControl(void)
 	altLpf = altLpf * 0.99f + GetCopterPosition().z * 0.01f;
 	
 	//计算高度外环控制误差：目标高度 - 实际高度
-	altError = fc.posOuterTarget.z - altLpf;
+	fc.posOuterError.z = fc.posOuterTarget.z - altLpf;
 
     //PID算法，计算出高度外环的控制量
-	altOuterCtlValue = PID_GetP(&fc.pid[POS_Z], altError);
+	altOuterCtlValue = PID_GetP(&fc.pid[POS_Z], fc.posOuterError.z);
 	
 	//PID控制输出限幅
 	altOuterCtlValue = ConstrainFloat(altOuterCtlValue, -200, 200);
@@ -296,7 +293,7 @@ void SetAltOuterCtlTarget(float target)
 **********************************************************************************************************/
 void PositionInnerControl(void)
 {
-	Vector3f_t velError, velLpf;
+	Vector3f_t velLpf;
     Vector3f_t posInnerCtlOutput;
 
     //计算函数运行时间间隔
@@ -309,12 +306,12 @@ void PositionInnerControl(void)
     velLpf.y = velLpf.y * 0.99f + GetCopterVelocity().y * 0.01f;
     
     //计算控制误差
-	velError.x = fc.posInnerTarget.x - velLpf.x;
-	velError.y = fc.posInnerTarget.y - velLpf.y;
+	fc.posInnerError.x = fc.posInnerTarget.x - velLpf.x;
+	fc.posInnerError.y = fc.posInnerTarget.y - velLpf.y;
     
     //PID算法，计算出位置内环（X、Y轴速度）的控制量
-	posInnerCtlOutput.x = PID_GetPID(&fc.pid[VEL_X], velError.x, deltaT);
-	posInnerCtlOutput.y = PID_GetPID(&fc.pid[VEL_Y], velError.y, deltaT);
+	posInnerCtlOutput.x = PID_GetPID(&fc.pid[VEL_X], fc.posInnerError.x, deltaT);
+	posInnerCtlOutput.y = PID_GetPID(&fc.pid[VEL_Y], fc.posInnerError.y, deltaT);
 
 	//PID控制输出限幅
 	posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -200, 200);
@@ -344,7 +341,7 @@ void SetPosInnerCtlTarget(Vector3f_t target)
 **********************************************************************************************************/
 void PositionOuterControl(void)
 {
-	Vector3f_t posError, posLpf;
+	Vector3f_t posLpf;
     Vector3f_t posOuterCtlValue; 
 
     //若当前位置控制被禁用则退出函数
@@ -356,12 +353,12 @@ void PositionOuterControl(void)
 	posLpf.y = posLpf.y * 0.99f + GetCopterPosition().y * 0.01f;
 	
 	//计算位置外环控制误差：目标位置 - 实际位置
-	posError.x = fc.posOuterTarget.x - posLpf.x;
-	posError.y = fc.posOuterTarget.y - posLpf.y;
+	fc.posOuterError.x = fc.posOuterTarget.x - posLpf.x;
+	fc.posOuterError.y = fc.posOuterTarget.y - posLpf.y;
     
     //PID算法，计算出位置外环的控制量
-	posOuterCtlValue.x = PID_GetP(&fc.pid[POS_X], posError.x);
-	posOuterCtlValue.y = PID_GetP(&fc.pid[POS_Y], posError.y);
+	posOuterCtlValue.x = PID_GetP(&fc.pid[POS_X], fc.posOuterError.x);
+	posOuterCtlValue.y = PID_GetP(&fc.pid[POS_Y], fc.posOuterError.y);
 	
     //将控制量转换到机体坐标系
     TransVelToBodyFrame(posOuterCtlValue, &posOuterCtlValue, GetCopterAngle().z);
@@ -419,9 +416,49 @@ void SetYawHoldStatus(uint8_t status)
     fc.yawHoldFlag = status;
 }
 
+/**********************************************************************************************************
+*函 数 名: GetAttInnerCtlError
+*功能说明: 获取姿态内环控制误差
+*形    参: 无
+*返 回 值: 误差
+**********************************************************************************************************/
+Vector3f_t GetAttInnerCtlError(void)
+{
+    return fc.attInnerError;
+}
 
+/**********************************************************************************************************
+*函 数 名: GetAttOuterCtlError
+*功能说明: 获取姿态内环控制误差
+*形    参: 无
+*返 回 值: 误差
+**********************************************************************************************************/
+Vector3f_t GetAttOuterCtlError(void)
+{
+    return fc.attOuterError;
+}
 
+/**********************************************************************************************************
+*函 数 名: GetPosInnerCtlError
+*功能说明: 获取位置内环控制误差
+*形    参: 无
+*返 回 值: 误差
+**********************************************************************************************************/
+Vector3f_t GetPosInnerCtlError(void)
+{
+    return fc.posInnerError;
+}
 
+/**********************************************************************************************************
+*函 数 名: GetPosOuterCtlError
+*功能说明: 获取位置内环控制误差
+*形    参: 无
+*返 回 值: 误差
+**********************************************************************************************************/
+Vector3f_t GetPosOuterCtlError(void)
+{
+    return fc.posOuterError;
+}
 
 
 
