@@ -81,32 +81,3 @@ void ImuTempControl(float tempMeasure)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

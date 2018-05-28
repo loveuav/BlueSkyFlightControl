@@ -75,7 +75,6 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 portTASK_FUNCTION(vFlightStatusTask, pvParameters) 
 {	
 	portTickType xLastWakeTime;
-	static uint16_t count = 0;
 	
 	xLastWakeTime = xTaskGetTickCount();
     
@@ -86,8 +85,6 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
         
         //飞行状态更新
         FlightStatusUpdate();
-        
-        count++;
         
         //睡眠10ms
 		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));

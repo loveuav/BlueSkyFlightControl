@@ -165,27 +165,3 @@ static void GaussNewtonFindDelta(float dS[6], float JS[6][6], float delta[6])
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

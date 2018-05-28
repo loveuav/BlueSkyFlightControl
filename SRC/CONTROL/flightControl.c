@@ -22,9 +22,11 @@ FLIGHTCONTROL_t fc;
 void FlightControlInit(void)
 {
 	//PID参数初始化
-	PID_SetParam(&fc.pid[ROLL_INNER],  2.0, 0.5, 0.2, 300, 50);
-	PID_SetParam(&fc.pid[PITCH_INNER], 2.0, 0.5, 0.2, 300, 50);
-	PID_SetParam(&fc.pid[YAW_INNER],   2.0, 2, 0, 150, 50);
+    //对于不同机型，PID参数需要进行调整
+    //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
+	PID_SetParam(&fc.pid[ROLL_INNER],  4.0, 0.5, 0.4, 300, 50);
+	PID_SetParam(&fc.pid[PITCH_INNER], 4.0, 0.5, 0.4, 300, 50);
+	PID_SetParam(&fc.pid[YAW_INNER],   4.0, 2, 0, 150, 50);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  3.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 3.0, 0, 0, 0, 0);
@@ -195,8 +197,8 @@ void AttitudeOuterControl(void)
 	}	
 
     //PID算法，计算出姿态外环的控制量，并以一定比例缩放来控制PID参数的数值范围
-	attOuterCtlValue.x = PID_GetP(&fc.pid[ROLL_OUTER],  fc.attOuterError.x) * 10;
-	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], fc.attOuterError.y) * 10;
+	attOuterCtlValue.x = PID_GetP(&fc.pid[ROLL_OUTER],  fc.attOuterError.x) * 1.0f;
+	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], fc.attOuterError.y) * 1.0f;
 
 	//PID控制输出限幅，目的是限制飞行中最大的运动角速度
 	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -300, 300);
@@ -207,7 +209,7 @@ void AttitudeOuterControl(void)
     {
         fc.attOuterError.z = fc.attOuterTarget.z - angle.z;
         //计算偏航轴PID控制量
-        attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 10;	
+        attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 1.0f;	
         //限幅
         attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -150, 150);
 	}
@@ -460,6 +462,28 @@ Vector3f_t GetPosOuterCtlError(void)
     return fc.posOuterError;
 }
 
-
+/**********************************************************************************************************
+*函 数 名: FlightControlReset
+*功能说明: 控制复位
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void FlightControlReset(void)
+{
+    //PID积分项清零
+    PID_ResetI(&fc.pid[ROLL_INNER]);
+    PID_ResetI(&fc.pid[PITCH_INNER]);
+    PID_ResetI(&fc.pid[YAW_INNER]);
+    PID_ResetI(&fc.pid[VEL_X]);
+    PID_ResetI(&fc.pid[VEL_Y]);
+    PID_ResetI(&fc.pid[VEL_Z]);
+    
+    //高度控制目标复位为当前高度
+    SetAltOuterCtlTarget(GetCopterPosition().z);
+    //位置控制目标复位为当前位置
+    SetPosOuterCtlTarget(GetCopterPosition());
+	//航向控制目标复位为当前航向
+	SetYawCtlTarget(GetCopterAngle().z);
+}
 
 

@@ -215,6 +215,31 @@ static void KalmanPosInit(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: NavigationReset
+*功能说明: 导航相关数据复位
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void NavigationReset(void)
+{
+    kalmanVel.status.x = 0;
+    kalmanVel.status.y = 0;    
+    kalmanVel.status.z = 0;    
+
+    if(GpsGetFixStatus())
+    {
+        kalmanPos.status.x = GpsGetPosition().x;
+        kalmanPos.status.y = GpsGetPosition().y;  
+    }
+    else
+    {
+        kalmanPos.status.x = 0;
+        kalmanPos.status.y = 0;  
+    }    
+    kalmanPos.status.z = BaroGetAlt();    
+}
+
+/**********************************************************************************************************
 *函 数 名: GetCopterVelocity
 *功能说明: 获取飞行速度
 *形    参: 无

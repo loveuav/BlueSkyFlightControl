@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "flightStatus.h"
 #include "rc.h"
+#include "navigation.h"
 
 typedef struct
 {
@@ -42,6 +43,10 @@ void SetArmedStatus(uint8_t status)
 	{	
         //解锁检查
         //···········
+        
+        //导航数据复位
+        NavigationReset();
+        
 		flyStatus.armed = ARMED;
 	}
 }
@@ -217,22 +222,22 @@ void SetFlightMode(uint8_t mode)
             flyStatus.mode = AUTO;
             break;
         case    AUTOTAKEOFF:
-            flyStatus.mode = AUTOTAKEOFF;
+            //flyStatus.mode = AUTOTAKEOFF;
             break;
         case    AUTOLAND:
-            flyStatus.mode = AUTOLAND;
+            //flyStatus.mode = AUTOLAND;
             break;
         case    RETURNTOHOME:
-            flyStatus.mode = RETURNTOHOME;
+            //flyStatus.mode = RETURNTOHOME;
             break;
         case    AUTOCIRCLE:
-            flyStatus.mode = AUTOCIRCLE;
+            //flyStatus.mode = AUTOCIRCLE;
             break;
         case    AUTOPILOT:
-            flyStatus.mode = AUTOPILOT;
+            //flyStatus.mode = AUTOPILOT;
             break;
         case    FOLLOWME:
-            flyStatus.mode = FOLLOWME;
+            //flyStatus.mode = FOLLOWME;
             break;
 		case    0xFF:
             break;
