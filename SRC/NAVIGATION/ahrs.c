@@ -10,6 +10,7 @@
  * @日期     2018.05 
 **********************************************************************************************************/
 #include "ahrs.h"
+#include "ahrsAux.h"
 #include "board.h"
 #include "kalman3.h"
 #include "gps.h"
@@ -22,8 +23,8 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc);
 static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag);
 static void KalmanRollPitchInit(void);
 static void KalmanYawInit(void);
-static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorBf);
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfOffset);
+static Vector3f_t AccSportCompensate(Vector3f_t acc);
 
 /**********************************************************************************************************
 *函 数 名: AHRSInit
@@ -92,6 +93,7 @@ int8_t AttitudeInitAlignment(Kalman_t* rollPitch, Kalman_t* yaw, Vector3f_t acc,
 void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
 {
     Vector3f_t deltaAngle;	
+    Vector3f_t accCompensate;
 	static uint32_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
     deltaT = ConstrainFloat(deltaT, 0.0005, 0.002);	
@@ -106,8 +108,12 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
 	deltaAngle.y = Radians(gyro.y * deltaT); 
 	deltaAngle.z = Radians(gyro.z * deltaT);	    
     
+    //运动加速度补偿
+    accCompensate = AccSportCompensate(acc);
+    
     //俯仰横滚角估计
-    AttitudeEstimateRollPitch(deltaAngle, acc);
+    //AttitudeEstimateRollPitch(deltaAngle, acc);
+    AttitudeEstimateRollPitch(deltaAngle, accCompensate);
     
     //偏航角估计
     AttitudeEstimateYaw(deltaAngle, mag);
@@ -318,7 +324,7 @@ void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 *形    参: 转动角度 转动向量 转动后的向量指针
 *返 回 值: 无
 **********************************************************************************************************/
-static void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorBf)
+void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorBf)
 {
 	Vector3f_t anglerad;
 	
@@ -391,6 +397,35 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         if(offset_cnt == 0)
             SetInitStatus(INIT_FINISH);
 	}
+}
+
+/**********************************************************************************************************
+*函 数 名: AccSportCompensate
+*功能说明: 运动加速度补偿
+*形    参: 加速度
+*返 回 值: 经过补偿的加速度
+**********************************************************************************************************/
+static Vector3f_t AccSportCompensate(Vector3f_t acc)
+{
+    Vector3f_t sportAccEf, sportAccBf;
+    
+    //获取运动加速度并减去零偏误差
+    sportAccEf    = GetSportAccEf();
+    sportAccEf.x -= ahrs.accEfOffset.x;
+    sportAccEf.y -= -ahrs.accEfOffset.y;    
+    sportAccEf.z -= ahrs.accEfOffset.z;
+    //转换到机体坐标系
+    EarthFrameToBodyFrame(GetAuxAngle(), sportAccEf, &sportAccBf);
+    //应用死区
+    sportAccBf.x = ApplyDeadbandFloat(sportAccBf.x, 0.03f);
+    sportAccBf.y = ApplyDeadbandFloat(sportAccBf.y, 0.03f);
+    sportAccBf.z = ApplyDeadbandFloat(sportAccBf.z, 0.03f);
+    //补偿到姿态估计主回路中的加速度
+    acc.x = acc.x - sportAccBf.x * 0.95f;
+    acc.y = acc.y - sportAccBf.y * 0.95f;
+    acc.z = acc.z - sportAccBf.z * 0.95f;   
+
+    return acc;
 }
 
 /**********************************************************************************************************

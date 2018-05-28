@@ -22,6 +22,7 @@ typedef struct{
 void AHRSInit(void);
 void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag);
 void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf);
+void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorBf);
 
 Vector3f_t GetCopterAngle(void);
 Vector3f_t GetCopterAccEf(void);

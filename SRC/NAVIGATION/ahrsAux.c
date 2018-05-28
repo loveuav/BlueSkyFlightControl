@@ -169,7 +169,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 }
 
 /**********************************************************************************************************
-*函 数 名: GetSportAccEf
+*函 数 名: GetSportAccBf
 *功能说明: 获取运动加速度
 *形    参: 无
 *返 回 值: 加速度
@@ -177,5 +177,16 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 Vector3f_t GetSportAccEf(void)
 {
     return ahrsAux.accEf;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetAuxAngle
+*功能说明: 获取表示飞行器姿态的欧拉角
+*形    参: 无
+*返 回 值: 角度值
+**********************************************************************************************************/
+Vector3f_t GetAuxAngle(void)
+{
+    return ahrsAux.angle;
 }
 
