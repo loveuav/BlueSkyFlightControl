@@ -23,10 +23,10 @@ enum
 
 typedef struct
 {
-    int16_t roll;   
-    int16_t pitch;   
-    int16_t yaw;      
-    int16_t throttle;  
+    float roll;   
+    float pitch;   
+    float yaw;      
+    float throttle;  
 }RCTARGET_t;
 
 typedef struct

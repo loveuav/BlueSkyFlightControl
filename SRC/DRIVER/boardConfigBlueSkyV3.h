@@ -47,7 +47,7 @@
 //#define RC_PROTOCOL		     PPM
 
 #define PWM_TIM_FREQ         21000000
-#define PWM_TIM_PERIOD       52499
+#define PWM_TIM_PERIOD       43000  //488Hz
 #define PWM1_TIM             3
 #define PWM1_CH              1
 #define PWM2_TIM             3
@@ -165,7 +165,7 @@
 #define USART3_PINSOURCE_RX     GPIO_PinSource11
 #define USART3_PIN_TX           GPIO_Pin_10
 #define USART3_PIN_RX           GPIO_Pin_11
-#define USART3_BAUDRATE         115200
+#define USART3_BAUDRATE         230400
 #define USART3_IRQ_PRIORITY     3
 
 #define UART4_GPIO              GPIOA

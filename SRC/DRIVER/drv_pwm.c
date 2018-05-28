@@ -231,7 +231,7 @@ void MotorPWMSet(uint8_t motor, int16_t pwmValue)
 {
     TIM_TypeDef* timer[] = {TIM1, TIM2, TIM3, TIM4};
     
-    //使用PWM协议输出信号给电调 400Hz
+    //使用PWM协议输出信号给电调 488Hz
     #if(ESC_PROTOCOL == PWM)
     pwmValue = 21 * (pwmValue * 0.5f) + 21000;
     #endif

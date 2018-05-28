@@ -24,13 +24,13 @@ void FlightControlInit(void)
 	//PID参数初始化
     //对于不同机型，PID参数需要进行调整
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
-	PID_SetParam(&fc.pid[ROLL_INNER],  4.0, 0.5, 0.4, 300, 50);
-	PID_SetParam(&fc.pid[PITCH_INNER], 4.0, 0.5, 0.4, 300, 50);
-	PID_SetParam(&fc.pid[YAW_INNER],   4.0, 2, 0, 150, 50);
+	PID_SetParam(&fc.pid[ROLL_INNER],  3.0, 0.1, 0.1, 300, 50);
+	PID_SetParam(&fc.pid[PITCH_INNER], 3.0, 0.1, 0.1, 300, 50);
+	PID_SetParam(&fc.pid[YAW_INNER],   3.0, 0.5, 0, 150, 50);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  3.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 3.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[YAW_OUTER],   1.5, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[YAW_OUTER],   3.0, 0, 0, 0, 0);	
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
@@ -60,7 +60,7 @@ void SetRcTarget(RCTARGET_t rcTarget)
 **********************************************************************************************************/
 static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 {
-	Vector3f_t rateControlOutput;
+	static Vector3f_t rateControlOutput;
     
     //计算角速度环控制误差：目标角速度 - 实际角速度（低通滤波后的陀螺仪测量值）
 	fc.attInnerError.x = fc.attInnerTarget.x - gyro.x;	
@@ -71,7 +71,9 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 	rateControlOutput.x = PID_GetPID(&fc.pid[ROLL_INNER],  fc.attInnerError.x, deltaT);
 	rateControlOutput.y = PID_GetPID(&fc.pid[PITCH_INNER], fc.attInnerError.y, deltaT);
 	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER],   fc.attInnerError.z, deltaT);
-	
+
+	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -1200, +1200);	
+	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -1200, +1200);		
     //限制偏航轴控制输出量
 	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -500, +500);	
 
@@ -201,8 +203,8 @@ void AttitudeOuterControl(void)
 	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], fc.attOuterError.y) * 1.0f;
 
 	//PID控制输出限幅，目的是限制飞行中最大的运动角速度
-	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -300, 300);
-	attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -300, 300);
+	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -50, 50);
+	attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -50, 50);
     
 	//若航向锁定被失能则直接将摇杆数值作为目标角速度
     if(fc.yawHoldFlag == ENABLE)
@@ -211,7 +213,7 @@ void AttitudeOuterControl(void)
         //计算偏航轴PID控制量
         attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 1.0f;	
         //限幅
-        attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -150, 150);
+        attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -50, 50);
 	}
 	else
 	{

@@ -18,9 +18,9 @@
 #include "navigation.h"
 #include "flightControl.h"
 
-#define MINCHECK        1200
+#define MINCHECK        1150
 #define MIDCHECK        1500
-#define MAXCHECK        1800
+#define MAXCHECK        1850
 
 #define RC_LEGAL_MIN    980
 #define RC_LEGAL_MAX    2020
@@ -119,15 +119,15 @@ static void RcCommandUpdate(void)
     {
         rcCommand.roll     = rcData.roll - 1500;
         rcCommand.pitch    = rcData.pitch - 1500;
-        rcCommand.yaw      = rcData.yaw - 1500;
-        rcCommand.throttle = rcData.throttle - 1500;  
+        rcCommand.yaw      = -(rcData.yaw - 1500);
+        rcCommand.throttle = (rcData.throttle - 1000) * 2;  
     }   
     else
     {
         rcCommand.roll     = 0;
         rcCommand.pitch    = 0;
         rcCommand.yaw      = 0;
-        rcCommand.throttle = rcData.throttle - 1500;         
+        rcCommand.throttle = (rcData.throttle - 1000) * 2;         
     }
 }
 
@@ -454,6 +454,11 @@ void FlightStatusUpdate(void)
         if(GetFlightMode() == AUTOLAND)
         {
             SetFlightStatus(LANDING);
+        }
+        else if(GetFlightMode() == MANUAL)
+        {
+            if(rcData.throttle < MIDCHECK)
+                SetFlightStatus(LANDING);
         }
         else if(rcData.throttle < MIDCHECK && GetAltControlStatus() == ALT_CHANGED)
         {

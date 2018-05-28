@@ -176,7 +176,7 @@ void MPU6500_Init(void)
 	SoftDelayUs(5);	
 	
 	//低通滤波频率
-	Spi_GyroSingleWrite(MPU_RA_CONFIG, MPU_LPF_256HZ);		
+	Spi_GyroSingleWrite(MPU_RA_CONFIG, MPU_LPF_42HZ);		
 	SoftDelayUs(5);		
 	
 	//陀螺仪自检及测量范围，典型值0x18(不自检，2000deg/s) (0x10 1000deg/s) (0x10 1000deg/s) (0x08 500deg/s)

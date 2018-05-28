@@ -5,7 +5,7 @@
 #include "lowPassFilter.h"
 
 //陀螺仪低通滤波截止频率
-#define GYRO_LPF_CUT 150
+#define GYRO_LPF_CUT 300
 
 //传感器恒温目标值
 #define SENSOR_TEMP_KEPT 55

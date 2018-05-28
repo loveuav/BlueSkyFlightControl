@@ -30,8 +30,8 @@ static void GyroSensorRotate(Vector3f_t* gyro)
 	
 	temp = *gyro;
 	(*gyro).x = temp.y;
-	(*gyro).y = temp.x;
-	(*gyro).z = -temp.z;
+	(*gyro).y = -temp.x;
+	(*gyro).z = temp.z;
 }
 
 /**********************************************************************************************************
@@ -46,8 +46,8 @@ static void AccSensorRotate(Vector3f_t *acc)
 	
 	temp = *acc;
 	(*acc).x = temp.y;
-	(*acc).y = temp.x;
-	(*acc).z = -temp.z;
+	(*acc).y = -temp.x;
+	(*acc).z = temp.z;
 }
 
 /**********************************************************************************************************

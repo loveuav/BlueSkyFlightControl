@@ -97,6 +97,9 @@ void PID_SetParam(PID_t* pid, float p, float i, float d, float imaxval, float dC
 	pid->kI = i; 
 	pid->kD = d; 
 	pid->imax = imaxval;
-	pid->dFilter = 1 / (2 * M_PI * dCutFreq);
+    if(dCutFreq != 0)
+        pid->dFilter = 1 / (2 * M_PI * dCutFreq);
+    else
+        pid->dFilter = 0;
 }
 

@@ -17,7 +17,7 @@
 #include "navigation.h"
 #include "board.h"
 
-#define MAXANGLE  350
+#define MAXANGLE  35
 #define MAXRCDATA 450
 #define ALT_SPEED_UP_MAX	500	//5m/s
 #define ALT_SPEED_DOWN_MAX	300
@@ -232,6 +232,8 @@ static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     }
     else
     {
+        rcTarget->yaw = 0;
+        
         //设置航向锁定目标角度
         SetYawCtlTarget(yawHold);
         

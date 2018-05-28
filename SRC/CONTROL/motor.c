@@ -14,7 +14,7 @@
 #include "flightStatus.h"
 
 //油门行程为[0:2000]
-#define MINTHROTTLE	    200                     //最小油门值           
+#define MINTHROTTLE	    0                     //最小油门值           
 #define MAXTHROTTLE 	1800                    //最大油门值
 
 #define motorType quadX 
@@ -51,8 +51,9 @@ static const MOTOR_TYPE_t hex6X = {             //六轴X型
 **********************************************************************************************************/
 void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
 {
-    int16_t motorPWM[8];
+    static int16_t motorPWM[8];
     int16_t maxMotorValue;
+    uint8_t escCaliFlag = 0;
     
     //电机动力分配
     for(u8 i=0; i<motorType.motorNum; i++)
@@ -78,8 +79,24 @@ void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
         motorPWM[i] = ConstrainInt16(motorPWM[i], MINTHROTTLE, MAXTHROTTLE);
 	}
     
+    //电调校准
+    if(escCaliFlag)
+    {
+        if(GetSysTimeMs() < 5000)
+        {
+            for (u8 i=0; i<motorType.motorNum; i++)
+            {
+                motorPWM[i] = 2000;				
+            } 	
+        }
+        else
+        {
+            escCaliFlag = 0;
+        }
+    }
+    
     //判断飞控锁定状态，并输出电机控制量
-    if(GetArmedStatus() == ARMED)
+    if(GetArmedStatus() == ARMED || escCaliFlag)
     {
         for (u8 i=0; i<motorType.motorNum; i++)
         {

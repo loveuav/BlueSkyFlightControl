@@ -76,6 +76,9 @@ void ImuTempControl(float tempMeasure)
         else
             SetInitStatus(HEATING);
     }
+    
+    if(GetSysTimeMs() > 5000 && GetInitStatus() < HEAT_FINISH)
+        SetInitStatus(HEAT_FINISH);
 }
 
 
