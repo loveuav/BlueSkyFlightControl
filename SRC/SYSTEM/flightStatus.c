@@ -180,6 +180,50 @@ uint8_t GetInitStatus(void)
     return flyStatus.init;    
 }
 
+/**********************************************************************************************************
+*函 数 名: SetFlightMode
+*功能说明: 设置飞行模式
+*形    参: 模式
+*返 回 值: 无
+**********************************************************************************************************/
+void SetFlightMode(uint8_t mode)
+{
+    switch(mode)
+    {
+        case    MANUAL:
+            flyStatus.mode = MANUAL;
+            break;
+        case    SEMIAUTO:
+            flyStatus.mode = SEMIAUTO;
+            break;
+        case    AUTO:
+            flyStatus.mode = AUTO;
+            break;
+        case    AUTOTAKEOFF:
+            flyStatus.mode = AUTOTAKEOFF;
+            break;
+        case    AUTOLAND:
+            flyStatus.mode = AUTOLAND;
+            break;
+        case    RETURNTOHOME:
+            flyStatus.mode = RETURNTOHOME;
+            break;
+        case    AUTOCIRCLE:
+            flyStatus.mode = AUTOCIRCLE;
+            break;
+        case    AUTOPILOT:
+            flyStatus.mode = AUTOPILOT;
+            break;
+        case    FOLLOWME:
+            flyStatus.mode = FOLLOWME;
+            break;
+		case    0xFF:
+            break;
+        default:
+            flyStatus.mode = AUTO;
+            break;
+    }
+}
 
 /**********************************************************************************************************
 *函 数 名: GetFlightMode

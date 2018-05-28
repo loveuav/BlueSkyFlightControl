@@ -15,12 +15,20 @@
 #include "drv_sbus.h"
 #include "magnetometer.h"
 
-#define MINCHECK    1200
-#define MAXCHECK    1800
+#define MINCHECK        1200
+#define MAXCHECK        1800
+
+#define RC_LEGAL_MIN    980
+#define RC_LEGAL_MAX    2020
+
+#define AUX_CHECK_LOW   1100
+#define AUX_CHECK_MID   1500    
+#define AUX_CHECK_HIGH  1900
 
 RCDATA_t rcData;
 RCCOMMAND_t rcCommand;
 uint32_t failsafeTime = 0;
+uint8_t rcAuxMode[12][3];
 
 static void RcDataUpdate(RCDATA_t data);
 static void RcCommandUpdate(void);
@@ -41,6 +49,26 @@ void RcInit(void)
 	#elif ( RC_PROTOCOL == PPM )
 	//·········
 	#endif
+    
+    //设置各辅助通道对应的飞行模式
+    rcAuxMode[AUX1][LOW]  = MANUAL;
+    rcAuxMode[AUX1][MID]  = SEMIAUTO;
+    rcAuxMode[AUX1][HIGH] = AUTO;	
+    
+    rcAuxMode[AUX2][LOW]  = 0xFF;
+    rcAuxMode[AUX2][MID]  = 0xFF;
+    rcAuxMode[AUX2][HIGH] = RETURNTOHOME;	
+
+    rcAuxMode[AUX3][LOW]  = 0xFF;
+    rcAuxMode[AUX3][MID]  = 0xFF;
+    rcAuxMode[AUX3][HIGH] = 0xFF;
+
+    rcAuxMode[AUX4][LOW]  = 0xFF;
+    rcAuxMode[AUX4][MID]  = 0xFF;
+    rcAuxMode[AUX4][HIGH] = 0xFF;	
+    
+    //初始化飞行模式为自动模式
+    SetFlightMode(AUTO);
 }
 
 /**********************************************************************************************************
@@ -191,7 +219,123 @@ static void RcCheckSticks(void)
 **********************************************************************************************************/
 static void RcCheckAux(void)
 {
-	
+	uint8_t auxStatus[12];
+    
+    //辅助通道1检测
+    if(rcData.aux1 > RC_LEGAL_MIN && rcData.aux1 < RC_LEGAL_MAX)
+    {
+        if(abs(rcData.aux1 - AUX_CHECK_LOW) < 200)
+        {
+            if(auxStatus[AUX1] != LOW)
+            {
+               auxStatus[AUX1] = LOW;
+               SetFlightMode(rcAuxMode[AUX1][LOW]);
+            }
+        }
+        else if(abs(rcData.aux1 - AUX_CHECK_MID) < 200)
+        {
+            if(auxStatus[AUX1] != MID)
+            {
+               auxStatus[AUX1] = MID;
+               SetFlightMode(rcAuxMode[AUX1][MID]);
+            }            
+        }
+        else if(abs(rcData.aux1 - AUX_CHECK_HIGH) < 200)
+        {
+            if(auxStatus[AUX1] != HIGH)
+            {
+               auxStatus[AUX1] = HIGH;
+               SetFlightMode(rcAuxMode[AUX1][HIGH]);
+            }            
+        }
+    }
+    
+    //辅助通道2检测
+    if(rcData.aux2 > RC_LEGAL_MIN && rcData.aux2 < RC_LEGAL_MAX)
+    {
+        if(abs(rcData.aux2 - AUX_CHECK_LOW) < 200)
+        {
+            if(auxStatus[AUX2] != LOW)
+            {
+               auxStatus[AUX2] = LOW;
+               SetFlightMode(rcAuxMode[AUX2][LOW]);
+            }
+        }
+        else if(abs(rcData.aux2 - AUX_CHECK_MID) < 200)
+        {
+            if(auxStatus[AUX2] != MID)
+            {
+               auxStatus[AUX2] = MID;
+               SetFlightMode(rcAuxMode[AUX2][MID]);
+            }            
+        }
+        else if(abs(rcData.aux2 - AUX_CHECK_HIGH) < 200)
+        {
+            if(auxStatus[AUX2] != HIGH)
+            {
+               auxStatus[AUX2] = HIGH;
+               SetFlightMode(rcAuxMode[AUX2][HIGH]);                
+            }            
+        }
+    }  
+
+    //辅助通道3检测
+    if(rcData.aux3 > RC_LEGAL_MIN && rcData.aux3 < RC_LEGAL_MAX)
+    {
+        if(abs(rcData.aux3 - AUX_CHECK_LOW) < 200)
+        {
+            if(auxStatus[AUX3] != LOW)
+            {
+               auxStatus[AUX3] = LOW;
+               SetFlightMode(rcAuxMode[AUX3][LOW]);
+            }
+        }
+        else if(abs(rcData.aux3 - AUX_CHECK_MID) < 200)
+        {
+            if(auxStatus[AUX3] != MID)
+            {
+               auxStatus[AUX3] = MID;
+               SetFlightMode(rcAuxMode[AUX3][MID]);
+            }            
+        }
+        else if(abs(rcData.aux3 - AUX_CHECK_HIGH) < 200)
+        {
+            if(auxStatus[AUX3] != HIGH)
+            {
+               auxStatus[AUX3] = HIGH;
+               SetFlightMode(rcAuxMode[AUX3][HIGH]);                
+            }            
+        }
+    } 
+
+    //辅助通道4检测
+    if(rcData.aux4 > RC_LEGAL_MIN && rcData.aux4 < RC_LEGAL_MAX)
+    {
+        if(abs(rcData.aux4 - AUX_CHECK_LOW) < 200)
+        {
+            if(auxStatus[AUX4] != LOW)
+            {
+               auxStatus[AUX4] = LOW;
+               SetFlightMode(rcAuxMode[AUX4][LOW]);
+            }
+        }
+        else if(abs(rcData.aux4 - AUX_CHECK_MID) < 200)
+        {
+            if(auxStatus[AUX4] != MID)
+            {
+               auxStatus[AUX4] = MID;
+               SetFlightMode(rcAuxMode[AUX4][MID]);
+            }            
+        }
+        else if(abs(rcData.aux4 - AUX_CHECK_HIGH) < 200)
+        {
+            if(auxStatus[AUX4] != HIGH)
+            {
+               auxStatus[AUX4] = HIGH;
+               SetFlightMode(rcAuxMode[AUX4][HIGH]);                
+            }            
+        }
+    }     
 }
 
 /**********************************************************************************************************

@@ -3,6 +3,29 @@
 
 #include "mathTool.h"
 
+enum 
+{
+    AUX1,
+    AUX2,
+    AUX3,
+    AUX4,
+    AUX5,
+    AUX6,
+    AUX7,
+    AUX8,
+    AUX9,
+    AUX10,
+    AUX11,
+    AUX12
+};
+
+enum 
+{
+    LOW,
+    MID,
+    HIGH
+};
+
 typedef struct
 {
     int16_t roll;   
