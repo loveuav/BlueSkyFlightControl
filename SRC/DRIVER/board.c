@@ -19,6 +19,7 @@
 #include "drv_i2c_soft.h"
 #include "drv_pwm.h"
 #include "drv_sbus.h"
+#include "drv_usbhid.h"
 
 static void SysPeriphClockInit(void);
 
@@ -80,6 +81,9 @@ void BoardInit(void)
 	#if (RC_PROTOCOL == SBUS)
 		Sbus_Init();
 	#endif 
+	
+	//USB HID初始化
+	UsbHid_Init();
 }
 
 /**********************************************************************************************************
