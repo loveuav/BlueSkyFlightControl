@@ -166,6 +166,3 @@ int16_t	GetOtherSensorTaskStackUse(void)
 	return uxTaskGetStackHighWaterMark(otherSensorTask);	
 }
 
-
-
-

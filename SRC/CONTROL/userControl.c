@@ -17,7 +17,7 @@
 #include "navigation.h"
 #include "board.h"
 
-#define MAXANGLE  350
+#define MAXANGLE  400
 #define MAXRCDATA 450
 #define ALT_SPEED_UP_MAX	500	//5m/s
 #define ALT_SPEED_DOWN_MAX	300
@@ -218,6 +218,11 @@ static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 {
     static int16_t rcDeadband = 50;
     static float yawHold;
+    
+    if(GetFlightStatus() < IN_AIR)
+    {
+        yawHold = GetCopterAngle().z;        
+    }
     
     //摇杆回中时锁定航向，摇杆量超过死区时，将摇杆量转换为目标控制角速度
     if(abs(rcCommand.yaw) > rcDeadband)

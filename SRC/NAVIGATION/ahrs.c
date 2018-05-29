@@ -174,7 +174,7 @@ static void KalmanYawInit(void)
     KalmanObserveMapMatSet(&kalmanYaw, hMatInit);
     
     //陀螺仪积分补偿系数
-    ahrs.vectorYawKI = 0.00001f;
+    ahrs.vectorYawKI = 0.00002f;
 }
 
 /**********************************************************************************************************
@@ -188,7 +188,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     static Vector3f_t input = {0, 0, 0};
     float dcMat[9];
  	static Vector3f_t vectorError;	
-	static float vectorErrorIntRate = 0.0002f;
+	static float vectorErrorIntRate = 0.0005f;
 
     //测量噪声协方差矩阵自适应
 	kalmanRollPitch.r[0] = 3500 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2));
@@ -246,7 +246,7 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
     static uint32_t count = 0;
     Vector3f_t vectorYawEf;
  	static Vector3f_t vectorError;	
-	static float vectorErrorIntRate = 0.0002f;
+	static float vectorErrorIntRate = 0.0003f;
     
     //磁强数据更新频率要低于陀螺仪，因此磁强数据未更新时只进行状态预估计
     //陀螺仪更新频率1KHz，磁力计更新频率100Hz
@@ -421,15 +421,15 @@ static Vector3f_t AccSportCompensate(Vector3f_t acc)
     sportAccEf.y -= -ahrs.accEfOffset.y;    
     sportAccEf.z -= ahrs.accEfOffset.z;
     //转换到机体坐标系
-    EarthFrameToBodyFrame(GetAuxAngle(), sportAccEf, &sportAccBf);
+    EarthFrameToBodyFrame(ahrs.angle, sportAccEf, &sportAccBf);
     //应用死区
     sportAccBf.x = ApplyDeadbandFloat(sportAccBf.x, 0.03f);
     sportAccBf.y = ApplyDeadbandFloat(sportAccBf.y, 0.03f);
     sportAccBf.z = ApplyDeadbandFloat(sportAccBf.z, 0.03f);
     //补偿到姿态估计主回路中的加速度
-    acc.x = acc.x - sportAccBf.x * 0.95f;
-    acc.y = acc.y - sportAccBf.y * 0.95f;
-    acc.z = acc.z - sportAccBf.z * 0.95f;   
+    acc.x = acc.x - sportAccBf.x * 0.9f;
+    acc.y = acc.y - sportAccBf.y * 0.9f;
+    acc.z = acc.z - sportAccBf.z * 0.9f;   
 
     return acc;
 }
@@ -455,6 +455,5 @@ Vector3f_t GetCopterAngle(void)
 {
     return ahrs.angle;
 }
-
 
 

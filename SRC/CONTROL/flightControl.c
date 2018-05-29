@@ -24,13 +24,13 @@ void FlightControlInit(void)
 	//PID参数初始化
     //对于不同机型，PID参数需要进行调整
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
-	PID_SetParam(&fc.pid[ROLL_INNER],  3.0, 0.1, 0.1, 300, 50);
-	PID_SetParam(&fc.pid[PITCH_INNER], 3.0, 0.1, 0.1, 300, 50);
-	PID_SetParam(&fc.pid[YAW_INNER],   3.0, 0.5, 0, 150, 50);
+	PID_SetParam(&fc.pid[ROLL_INNER],  1.5, 2.5, 0.1, 50, 30);
+	PID_SetParam(&fc.pid[PITCH_INNER], 1.5, 2.5, 0.1, 50, 30);
+	PID_SetParam(&fc.pid[YAW_INNER],   3.5, 5.0, 0, 50, 30);
 	
-	PID_SetParam(&fc.pid[ROLL_OUTER],  3.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[PITCH_OUTER], 3.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[YAW_OUTER],   3.0, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[PITCH_OUTER], 10.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[YAW_OUTER],   5.0, 0, 0, 0, 0);	
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
@@ -61,6 +61,11 @@ void SetRcTarget(RCTARGET_t rcTarget)
 static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 {
 	static Vector3f_t rateControlOutput;
+    
+    //保留小数点后两位，减小数据误差对控制器的干扰（貌似没什么用）
+    gyro.x = (float)((int32_t)(gyro.x * 100)) * 0.01f;
+    gyro.y = (float)((int32_t)(gyro.y * 100)) * 0.01f;    
+    gyro.z = (float)((int32_t)(gyro.z * 100)) * 0.01f;
     
     //计算角速度环控制误差：目标角速度 - 实际角速度（低通滤波后的陀螺仪测量值）
 	fc.attInnerError.x = fc.attInnerTarget.x - gyro.x;	
@@ -178,13 +183,18 @@ void AttitudeOuterControl(void)
 	uint8_t    flightMode;
 	Vector3f_t angle;
 	Vector3f_t attOuterCtlValue;
-	float 	   yawRate = 0.3f;
+	float 	   yawRate = 0.5f;
 	
 	//获取当前飞机的姿态角
 	angle = GetCopterAngle();
 	//获取当前飞行模式
 	flightMode = GetFlightMode();
-	
+
+    //保留小数点后两位，减小数据误差对控制器的干扰（貌似没什么用）	
+    angle.x = (float)((int16_t)(angle.x * 100)) * 0.01f;
+    angle.y = (float)((int16_t)(angle.y * 100)) * 0.01f;    
+    angle.z = (float)((int16_t)(angle.z * 100)) * 0.01f;
+    
 	//计算姿态外环控制误差：目标角度 - 实际角度
     //手动和半自动模式以及GPS失效下，摇杆量直接作为横滚和俯仰的目标量
 	if(flightMode == MANUAL || flightMode == SEMIAUTO || GpsGetFixStatus() == false)	
@@ -203,17 +213,30 @@ void AttitudeOuterControl(void)
 	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], fc.attOuterError.y) * 1.0f;
 
 	//PID控制输出限幅，目的是限制飞行中最大的运动角速度，单位为°/s
-	attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -50, 50);
-	attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -50, 50);
+    if(flightMode == MANUAL || flightMode == SEMIAUTO || GpsGetFixStatus() == false)	
+	{
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -300, 300);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -300, 300);
+    }
+    else
+    {
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -80, 80);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -80, 80);        
+    }
     
 	//若航向锁定被失能则直接将摇杆数值作为目标角速度
     if(fc.yawHoldFlag == ENABLE)
     {
         fc.attOuterError.z = fc.attOuterTarget.z - angle.z;
+        if(fc.attOuterError.z <= -180)
+            fc.attOuterError.z += 360;
+        if (fc.attOuterError.z>= +180)
+            fc.attOuterError.z -= 360;
+        
         //计算偏航轴PID控制量
-        attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 1.0f;	
+        attOuterCtlValue.z = -PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 1.0f;	
         //限幅，单位为°/s
-        attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -50, 50);
+        attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -100, 100);
 	}
 	else
 	{
@@ -484,8 +507,6 @@ void FlightControlReset(void)
     SetAltOuterCtlTarget(GetCopterPosition().z);
     //位置控制目标复位为当前位置
     SetPosOuterCtlTarget(GetCopterPosition());
-	//航向控制目标复位为当前航向
-	SetYawCtlTarget(GetCopterAngle().z);
 }
 
 

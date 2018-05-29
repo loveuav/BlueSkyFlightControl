@@ -26,7 +26,7 @@ void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 
 Vector3f_t GetCopterAngle(void);
 Vector3f_t GetCopterAccEf(void);
-
+void Data_Send_Test(void);
 #endif
 
 

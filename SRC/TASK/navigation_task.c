@@ -85,7 +85,7 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
         
         //飞行状态更新
         FlightStatusUpdate();
-        
+
         //睡眠10ms
 		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
 	}

@@ -133,7 +133,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     float dcMat[9];
     static bool fuseFlag = true;
     
-    if(abs(GetAccMag() - 1) > 0.15f)
+    if(abs(GetAccMag() - 1) > 0.25f)
     {
         fuseFlag = false;
     }

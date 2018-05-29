@@ -12,6 +12,7 @@
 #include "parameter.h"
 #include "drv_flash.h"
 #include "mathTool.h"
+#include "flightStatus.h"
 
 static void ParamReadFromFlash(void);
 
@@ -89,6 +90,10 @@ void ParamSaveToFlash(void)
     uint32_t i = 0;
     uint32_t dataSum = 0;
     uint32_t dataNum = 0;
+    
+    //解锁后不得保存参数
+    if(GetArmedStatus() == ARMED)
+        return;
     
     if(param_save_cnt == 1)
     {

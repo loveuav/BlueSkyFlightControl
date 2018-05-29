@@ -14,7 +14,7 @@
 #include "flightStatus.h"
 
 //油门行程为[0:2000]
-#define MINTHROTTLE	    0                     //最小油门值           
+#define MINTHROTTLE	    200                     //最小油门值           
 #define MAXTHROTTLE 	1800                    //最大油门值
 
 #define motorType quadX 
