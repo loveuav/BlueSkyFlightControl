@@ -17,7 +17,7 @@
 #include "navigation.h"
 #include "board.h"
 
-#define MAXANGLE  35
+#define MAXANGLE  350
 #define MAXRCDATA 450
 #define ALT_SPEED_UP_MAX	500	//5m/s
 #define ALT_SPEED_DOWN_MAX	300
@@ -251,7 +251,7 @@ static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 static void AltControl(RCCOMMAND_t rcCommand)
 {
     static int32_t lastTimeAltChanged = 0;
-    static int16_t rcDeadband  = 50;
+    static int16_t rcDeadband  = 100;
 	static float speedUpRate   = (float)ALT_SPEED_UP_MAX / MAXRCDATA;
 	static float speedDownRate = (float)ALT_SPEED_DOWN_MAX / MAXRCDATA;
     static uint8_t altHoldChanged = 0;
@@ -261,9 +261,11 @@ static void AltControl(RCCOMMAND_t rcCommand)
     /**********************************************************************************************************
     高度控制：该模式下油门摇杆量控制上升下降速度，回中时飞机自动定高
     **********************************************************************************************************/
+    rcCommand.throttle = (rcCommand.throttle - 1000) * 0.5f;
+    
     if (abs(rcCommand.throttle) > rcDeadband)
     {	
-        rcCommand.throttle = ApplyDeadbandInt(rcCommand.throttle, rcDeadband);
+        rcCommand.throttle = ApplyDeadbandInt((rcCommand.throttle), rcDeadband);
         
         //摇杆量转为目标速度，低通滤波改变操控手感
         if(rcCommand.throttle > 0)

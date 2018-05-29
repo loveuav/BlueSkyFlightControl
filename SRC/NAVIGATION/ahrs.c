@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     ahrs.c
- * @说明     姿态估计，使用卡尔曼滤波。后续更新中将对运动加速度进行补偿，并使用自适应融合，提升姿态动态精度
+ * @说明     姿态估计
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -325,7 +325,7 @@ void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 }
 
 /**********************************************************************************************************
-*函 数 名: BodyFrameToEarthFrame
+*函 数 名: EarthFrameToBodyFrame
 *功能说明: 转换向量到机体坐标系
 *形    参: 转动角度 转动向量 转动后的向量指针
 *返 回 值: 无
