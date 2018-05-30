@@ -133,14 +133,14 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     float dcMat[9];
     static bool fuseFlag = true;
     
-//    if(abs(GetAccMag() - 1) > 0.25f)
-//    {
-//        fuseFlag = false;
-//    }
-//    else
-//    {
-//        fuseFlag = true;
-//    }
+    if(abs(GetAccMag() - 1) > 0.2f)
+    {
+        fuseFlag = false;
+    }
+    else
+    {
+        fuseFlag = true;
+    }
     
     //角度变化量转换为方向余弦矩阵
     EulerAngleToDCM(deltaAngle, dcMat);

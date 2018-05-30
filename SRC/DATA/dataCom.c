@@ -62,13 +62,13 @@ static void DataSendDebug(void)
 	dataTemp.i16 = GetAccMag() * 100;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = AccGetData().x * 1000;
+	dataTemp.i16 = AccLpfGetData().x * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = AccGetData().y * 1000;
+	dataTemp.i16 = AccLpfGetData().y * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = AccGetData().z * 1000;
+	dataTemp.i16 = AccLpfGetData().z * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 

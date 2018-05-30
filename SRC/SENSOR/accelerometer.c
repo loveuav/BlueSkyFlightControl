@@ -52,6 +52,9 @@ void AccPreTreatInit(void)
         acc.levelCali.scale.y = 0;
         acc.levelCali.scale.z = 0;
     } 
+    
+	//加速度低通滤波系数计算
+	LowPassFilter2ndFactorCal(0.001, ACC_LPF_CUT, &acc.lpf_2nd);	
 }
 
 /**********************************************************************************************************
@@ -75,9 +78,12 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 	//水平误差校准
 	acc.data = VectorRotate(acc.data, acc.levelCali.scale);
 	
+	//低通滤波
+	acc.dataLpf = LowPassFilter2nd(&acc.lpf_2nd, acc.data);
+    
 	//计算加速度模值
-	acc.mag = acc.mag * 0.95f + Pythagorous3(acc.data.x, acc.data.y, acc.data.z) / GRAVITY_ACCEL * 0.05f;
-	
+	acc.mag = Pythagorous3(acc.dataLpf.x, acc.dataLpf.y, acc.dataLpf.z) / GRAVITY_ACCEL;
+    
 	//震动系数计算
 	accMagderi = (acc.mag - lastAccMag) / deltaT;
 	lastAccMag = acc.mag;	
@@ -255,5 +261,16 @@ float GetAccMag(void)
 Vector3f_t AccGetData(void)
 {
     return acc.data;
+}
+
+/**********************************************************************************************************
+*函 数 名: AccLpfGetData
+*功能说明: 获取经过滤波后的加速度数据
+*形    参: 无 
+*返 回 值: 加速度
+**********************************************************************************************************/
+Vector3f_t AccLpfGetData(void)
+{
+    return acc.dataLpf;
 }
 

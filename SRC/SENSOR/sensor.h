@@ -7,6 +7,9 @@
 //陀螺仪低通滤波截止频率
 #define GYRO_LPF_CUT 88
 
+//加速度低通滤波截止频率
+#define ACC_LPF_CUT 8
+
 //传感器恒温目标值
 #define SENSOR_TEMP_KEPT 50
 
