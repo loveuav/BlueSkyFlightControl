@@ -13,6 +13,10 @@
 #include "drv_usart.h"
 #include "drv_usbhid.h"
 
+#include "gyroscope.h"
+#include "navigation.h"
+#include "accelerometer.h"
+
 DATA_TYPE_t dataTemp;  
 uint8_t dataToSend[50];
 
@@ -40,31 +44,31 @@ static void DataSendDebug(void)
 	dataToSend[_cnt++] = 0x02;
 	dataToSend[_cnt++] = 0;
 	
-	dataTemp.i16 = 1;
+	dataTemp.i16 = GyroGetData().x * 200;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 2;
+	dataTemp.i16 = GyroGetData().y * 200;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 3;
+	dataTemp.i16 = GyroGetData().z * 200;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 4;
+	dataTemp.i16 = GetCopterVelocity().z;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 5;
+	dataTemp.i16 = GetCopterPosition().z;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 6;
+	dataTemp.i16 = GetAccMag() * 100;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 7;
+	dataTemp.i16 = AccGetData().x * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 8;
+	dataTemp.i16 = AccGetData().y * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = 9;
+	dataTemp.i16 = AccGetData().z * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 

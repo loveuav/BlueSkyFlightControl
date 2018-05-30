@@ -36,6 +36,7 @@
 
 #define MAG_I2C              1
 #define GPS_UART             4
+#define DATA_UART            1
 #define TOF_UART             0
 #define SBUS_UART            0
 

@@ -113,7 +113,6 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     accCompensate = AccSportCompensate(acc);
     
     //俯仰横滚角估计
-    //AttitudeEstimateRollPitch(deltaAngle, acc);
     AttitudeEstimateRollPitch(deltaAngle, accCompensate);
     
     //偏航角估计

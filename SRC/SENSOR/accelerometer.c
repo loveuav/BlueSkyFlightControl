@@ -76,7 +76,7 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 	acc.data = VectorRotate(acc.data, acc.levelCali.scale);
 	
 	//计算加速度模值
-	acc.mag = acc.mag * 0.99f + Pythagorous3(acc.data.x, acc.data.y, acc.data.z) / GRAVITY_ACCEL * 0.01f;
+	acc.mag = acc.mag * 0.95f + Pythagorous3(acc.data.x, acc.data.y, acc.data.z) / GRAVITY_ACCEL * 0.05f;
 	
 	//震动系数计算
 	accMagderi = (acc.mag - lastAccMag) / deltaT;
@@ -244,5 +244,16 @@ Vector3f_t GetLevelCalibraData(void)
 float GetAccMag(void)
 {
     return acc.mag;
+}
+
+/**********************************************************************************************************
+*函 数 名: AccGetData
+*功能说明: 获取经过处理后的加速度数据
+*形    参: 无 
+*返 回 值: 加速度
+**********************************************************************************************************/
+Vector3f_t AccGetData(void)
+{
+    return acc.data;
 }
 

@@ -25,7 +25,7 @@ PID_t tempPID;
 **********************************************************************************************************/
 void ImuTempControlInit(void)
 {
-    PID_SetParam(&tempPID, 3, 0.2, 2, 1000, 30);	
+    PID_SetParam(&tempPID, 3, 0.2, 1, 1000, 30);	
 }
 
 /**********************************************************************************************************
@@ -76,9 +76,6 @@ void ImuTempControl(float tempMeasure)
         else
             SetInitStatus(HEATING);
     }
-    
-    if(GetSysTimeMs() > 5000 && GetInitStatus() < HEAT_FINISH)
-        SetInitStatus(HEAT_FINISH);
 }
 
 

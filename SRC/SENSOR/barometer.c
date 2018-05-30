@@ -55,7 +55,7 @@ void BaroDataPreTreat(void)
 	//读取气压高度
 	baro.alt -= baro.alt_offset;
 	//计算气压变化速度
-	baro.velocity = baro.velocity * 0.5f + ((baro.alt - baro.lastAlt) / deltaT) * 0.5f;
+	baro.velocity = baro.velocity * 0.9f + ((baro.alt - baro.lastAlt) / deltaT) * 0.1f;
 	baro.lastAlt = baro.alt;
 
     //检测气压传感器是否工作正常

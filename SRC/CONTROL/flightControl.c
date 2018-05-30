@@ -24,21 +24,21 @@ void FlightControlInit(void)
 	//PID参数初始化
     //对于不同机型，PID参数需要进行调整
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
-	PID_SetParam(&fc.pid[ROLL_INNER],  1.5, 2.5, 0.1, 50, 30);
-	PID_SetParam(&fc.pid[PITCH_INNER], 1.5, 2.5, 0.1, 50, 30);
-	PID_SetParam(&fc.pid[YAW_INNER],   3.5, 5.0, 0, 50, 30);
+	PID_SetParam(&fc.pid[ROLL_INNER],  1.8, 3.5, 0.1, 50, 30);
+	PID_SetParam(&fc.pid[PITCH_INNER], 1.8, 3.5, 0.1, 50, 30);
+	PID_SetParam(&fc.pid[YAW_INNER],   4.5, 5.0, 0, 50, 30);
 	
-	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[PITCH_OUTER], 10.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[ROLL_OUTER],  8.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[YAW_OUTER],   5.0, 0, 0, 0, 0);	
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       2.0, 0.8, 0.01, 250, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       1.5, 1.0, 0.01, 250, 30);	
 
 	PID_SetParam(&fc.pid[POS_X],       1.5, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[POS_Z],       2.5, 0, 0, 0, 0);		
+	PID_SetParam(&fc.pid[POS_Z],       1.5, 0, 0, 0, 0);		
 }
 
 /**********************************************************************************************************
@@ -104,13 +104,13 @@ void SetAttInnerCtlTarget(Vector3f_t target)
 **********************************************************************************************************/
 static float AltitudeInnerControl(float velZ, float deltaT)
 {
-	float velLpf;
+	static float velLpf;
     float altInnerControlOutput;
     //悬停油门中点
-	int16_t throttleMid = 1000;
+	int16_t throttleMid = 850;
 	
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
-    velLpf = velLpf * 0.992f + velZ * 0.008f;
+    velLpf = velLpf * 0.98f + velZ * 0.02f;
     
     //计算控制误差
 	fc.posInnerError.z = fc.posInnerTarget.z - velLpf;
@@ -152,7 +152,7 @@ void FlightControlInnerLoop(Vector3f_t gyro)
     //姿态内环控制量
     Vector3f_t attInnerCtlValue;
     //高度内环控制量
-    float      altInnerCtlValue;
+    static float      altInnerCtlValue;
     
     //姿态内环控制
     attInnerCtlValue = AttitudeInnerControl(gyro, deltaT);
@@ -278,7 +278,7 @@ void SetYawCtlTarget(float target)
 **********************************************************************************************************/
 void AltitudeOuterControl(void)
 {
-	float altLpf;
+	static float altLpf;
 	float altOuterCtlValue;
     
     //若当前高度控制被禁用则退出函数
@@ -286,7 +286,7 @@ void AltitudeOuterControl(void)
         return;
     
 	//获取当前飞机高度，并低通滤波，减少数据噪声对控制的干扰
-	altLpf = altLpf * 0.99f + GetCopterPosition().z * 0.01f;
+	altLpf = altLpf * 0.95f + GetCopterPosition().z * 0.05f;
 	
 	//计算高度外环控制误差：目标高度 - 实际高度
 	fc.posOuterError.z = fc.posOuterTarget.z - altLpf;
@@ -320,7 +320,7 @@ void SetAltOuterCtlTarget(float target)
 **********************************************************************************************************/
 void PositionInnerControl(void)
 {
-	Vector3f_t velLpf;
+	static Vector3f_t velLpf;
     Vector3f_t posInnerCtlOutput;
 
     //计算函数运行时间间隔
@@ -368,7 +368,7 @@ void SetPosInnerCtlTarget(Vector3f_t target)
 **********************************************************************************************************/
 void PositionOuterControl(void)
 {
-	Vector3f_t posLpf;
+	static Vector3f_t posLpf;
     Vector3f_t posOuterCtlValue; 
 
     //若当前位置控制被禁用则退出函数
