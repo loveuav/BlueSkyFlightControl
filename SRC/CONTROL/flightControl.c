@@ -191,9 +191,9 @@ void AttitudeOuterControl(void)
 	flightMode = GetFlightMode();
 
     //保留小数点后两位，减小数据误差对控制器的干扰（貌似没什么用）	
-    angle.x = (float)((int16_t)(angle.x * 100)) * 0.01f;
-    angle.y = (float)((int16_t)(angle.y * 100)) * 0.01f;    
-    angle.z = (float)((int16_t)(angle.z * 100)) * 0.01f;
+    angle.x = (float)((int32_t)(angle.x * 100)) * 0.01f;
+    angle.y = (float)((int32_t)(angle.y * 100)) * 0.01f;    
+    angle.z = (float)((int32_t)(angle.z * 100)) * 0.01f;
     
 	//计算姿态外环控制误差：目标角度 - 实际角度
     //手动和半自动模式以及GPS失效下，摇杆量直接作为横滚和俯仰的目标量

@@ -15,9 +15,6 @@
 #define __NO_USB_LIB_C
 #include "usb_config.c"
 
-uint8_t data2send[64];
-uint8_t datacnt = 0;
-
 static UsbHidCallback usbHidCallbackFunc;
 
 /**********************************************************************************************************
@@ -40,6 +37,9 @@ void UsbHid_Init(void)
 **********************************************************************************************************/
 void UsbHid_Send(uint8_t *dataToSend, uint8_t length)
 {
+    static uint8_t data2send[64];
+    static uint8_t datacnt = 0;
+    
 	if(length <= 64)
 	{
 		for(;datacnt<length;datacnt++)
@@ -92,3 +92,5 @@ void usbd_hid_set_report (U8 rtype, U8 rid, U8 *buf, int len, U8 req)
             break;
     }
 }
+
+

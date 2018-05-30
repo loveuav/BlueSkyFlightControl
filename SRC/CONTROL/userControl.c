@@ -219,7 +219,8 @@ static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     static int16_t rcDeadband = 50;
     static float yawHold;
     
-    if(GetFlightStatus() < IN_AIR)
+    //起飞前初始化航向锁定目标
+    if(GetFlightStatus() < TAKE_OFF)
     {
         yawHold = GetCopterAngle().z;        
     }

@@ -18,6 +18,7 @@
 #include "magnetometer.h"
 #include "flightStatus.h"
 #include "rc.h"
+#include "dataCom.h"
 
 xTaskHandle navigationTask;
 xTaskHandle flightStatusTask;
@@ -86,6 +87,9 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
         //飞行状态更新
         FlightStatusUpdate();
 
+        //发送飞控数据
+        DataSendLoop();
+        
         //睡眠10ms
 		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
 	}

@@ -58,6 +58,8 @@ enum
 	MANUAL = 0,			    //手动		(不带定高不带定点)
 	SEMIAUTO,				//半自动 	(带定高不带定点)
 	AUTO,					//自动		(带定高带定点)
+    SPORT,                  //运动模式  
+    COMMAND,                //命令模式  (用于第三方控制)
 	AUTOTAKEOFF,		    //自动起飞
 	AUTOLAND,				//自动降落
 	RETURNTOHOME,		    //自动返航
