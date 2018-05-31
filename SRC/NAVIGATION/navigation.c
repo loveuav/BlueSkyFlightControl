@@ -3,8 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     navigation.c
- * @说明     组合导航，暂时先写个基本功能，后续还需要上机测试，以及性能优化。
- *           导航精度的提升，重点在于提高姿态估计的精度，并找到比较合理的误差模型，实现自适应融合
+ * @说明     组合导航
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -102,7 +101,6 @@ void VelocityEstimate(void)
     nav.velocity = kalmanVel.status;
     
     //计算误差积分
-    //为了提高效果，最好只在飞行器悬停的时候计算误差积分
     velErrorInt.x += (velMeasure.x - nav.velocity.x) * velErrorIntRate;
     velErrorInt.y += (velMeasure.y - nav.velocity.y) * velErrorIntRate;
     velErrorInt.z += (velMeasure.z - nav.velocity.z) * velErrorIntRate;

@@ -22,11 +22,11 @@ FLIGHTCONTROL_t fc;
 void FlightControlInit(void)
 {
 	//PID参数初始化
-    //对于不同机型，PID参数需要进行调整
+    //对于不同机型，姿态PID参数需要进行调整，高度和位置相关参数无需太大改动
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
 	PID_SetParam(&fc.pid[ROLL_INNER],  1.8, 3.5, 0.1, 50, 30);
 	PID_SetParam(&fc.pid[PITCH_INNER], 1.8, 3.5, 0.1, 50, 30);
-	PID_SetParam(&fc.pid[YAW_INNER],   4.5, 5.0, 0, 50, 30);
+	PID_SetParam(&fc.pid[YAW_INNER],   5.0, 5.0, 0, 50, 30);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
@@ -108,7 +108,11 @@ static float AltitudeInnerControl(float velZ, float deltaT)
     float altInnerControlOutput;
     //悬停油门中点
 	int16_t throttleMid = 850;
-	
+
+    //防止解锁后在待机状态下油门输出过高
+    if(GetFlightStatus() == STANDBY)
+        fc.posInnerTarget.z = -150;
+    
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
     velLpf = velLpf * 0.98f + velZ * 0.02f;
     
@@ -281,10 +285,6 @@ void AltitudeOuterControl(void)
 	static float altLpf;
 	float altOuterCtlValue;
     
-    //若当前高度控制被禁用则退出函数
-    if(fc.altCtlFlag == DISABLE)
-        return;
-    
 	//获取当前飞机高度，并低通滤波，减少数据噪声对控制的干扰
 	altLpf = altLpf * 0.95f + GetCopterPosition().z * 0.05f;
 	
@@ -297,8 +297,10 @@ void AltitudeOuterControl(void)
 	//PID控制输出限幅
 	altOuterCtlValue = ConstrainFloat(altOuterCtlValue, -200, 200);
 
-	//将高度外环控制量作为高度内环的控制目标
-	SetAltInnerCtlTarget(altOuterCtlValue);
+    //将高度外环控制量作为高度内环的控制目标
+    //若当前高度控制被禁用则不输出
+    if(fc.altCtlFlag == ENABLE)
+        SetAltInnerCtlTarget(altOuterCtlValue);
 }
 
 /**********************************************************************************************************
@@ -370,10 +372,6 @@ void PositionOuterControl(void)
 {
 	static Vector3f_t posLpf;
     Vector3f_t posOuterCtlValue; 
-
-    //若当前位置控制被禁用则退出函数
-    if(fc.posCtlFlag == DISABLE)
-        return;	
     
 	//获取当前飞机位置，并低通滤波，减少数据噪声对控制的干扰
 	posLpf.x = posLpf.x * 0.99f + GetCopterPosition().x * 0.01f;
@@ -393,9 +391,11 @@ void PositionOuterControl(void)
 	//PID控制输出限幅
 	posOuterCtlValue.x = ConstrainFloat(posOuterCtlValue.x, -150, 150);
 	posOuterCtlValue.y = ConstrainFloat(posOuterCtlValue.y, -150, 150);
-    
-	//将位置外环控制量作为位置内环的控制目标
-	SetPosInnerCtlTarget(posOuterCtlValue);
+
+    //将位置外环控制量作为位置内环的控制目标
+    //若当前位置控制被禁用则不输出
+    if(fc.posCtlFlag == ENABLE)
+        SetPosInnerCtlTarget(posOuterCtlValue);
 }
 
 /**********************************************************************************************************
@@ -507,6 +507,9 @@ void FlightControlReset(void)
     SetAltOuterCtlTarget(GetCopterPosition().z);
     //位置控制目标复位为当前位置
     SetPosOuterCtlTarget(GetCopterPosition());
+    
+    //高度控制失能
+    SetAltCtlStatus(DISABLE);
 }
 
 

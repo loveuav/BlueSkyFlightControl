@@ -295,21 +295,28 @@ static void AltControl(RCCOMMAND_t rcCommand)
     }
     else if(altHoldChanged)
     {	
-        //油门回中后先缓冲一段时间再进入定高
-        if(GetSysTimeMs() - lastTimeAltChanged < 800)
+        if(GetAltControlStatus() == ALT_CHANGED)
         {
-            velCtlTarget -= velCtlTarget * 0.08f;
+            velCtlTarget = GetCopterVelocity().z;
+            
+            //更新高度控制状态
+            SetAltControlStatus(ALT_CHANGED_FINISH);    
         }
         else
         {
-            altHoldChanged = 0;
-        }	
+            //油门回中后先缓冲一段时间再进入定高
+            if(GetSysTimeMs() - lastTimeAltChanged < 1000)
+            {
+                velCtlTarget -= velCtlTarget * 0.08f;
+            }
+            else
+            {
+                altHoldChanged = 0;
+            }	
 
-        //更新高度控制目标
-        altCtlTarget = GetCopterPosition().z;       
-
-        //更新高度控制状态
-        SetAltControlStatus(ALT_CHANGED_FINISH);        
+            //更新高度控制目标
+            altCtlTarget = GetCopterPosition().z;       
+        }        
     }
     else
     {       

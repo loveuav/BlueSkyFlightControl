@@ -57,8 +57,8 @@
 #define PWM4_TIM             3
 #define PWM4_CH              4
 
-#define PPM_TIM_FREQ         21000000
-#define PPM_TIM_PERIOD       52499
+#define PPM_TIM_FREQ         1000000
+#define PPM_TIM_PERIOD       0xFFFF
 #define PPM_TIM              1
 #define PPM_CH               1
 
@@ -230,6 +230,7 @@
 **********************************************************************************************************/
 #define TIM1_CLOCK                    PPM_TIM_FREQ
 #define TIM1_PERIOD                   PPM_TIM_PERIOD
+#define TIM1_IRQ_PRIORITY 			  3
 #define TIM1_PWM_OUT                  0
 #define TIM1_PPM_IN                   1		
 #if(configUSE_TIM1_CH1 == 1)
@@ -255,6 +256,7 @@
 
 #define TIM2_CLOCK                    TEMP_TIM_FREQ
 #define TIM2_PERIOD                   TEMP_TIM_PERIOD
+#define TIM2_IRQ_PRIORITY 			  3
 #define TIM2_PWM_OUT                  1
 #define TIM2_PPM_IN                   0		
 #if(configUSE_TIM2_CH1 == 1)
@@ -280,6 +282,7 @@
 
 #define TIM3_CLOCK                    PWM_TIM_FREQ
 #define TIM3_PERIOD                   PWM_TIM_PERIOD
+#define TIM3_IRQ_PRIORITY 			  3
 #define TIM3_PWM_OUT                  1
 #define TIM3_PPM_IN                   0		
 #if(configUSE_TIM3_CH1 == 1)
@@ -305,6 +308,7 @@
 
 #define TIM4_CLOCK                    PPM_TIM_FREQ
 #define TIM4_PERIOD                   PPM_TIM_PERIOD
+#define TIM4_IRQ_PRIORITY 			  3
 #define TIM4_PWM_OUT                  0
 #define TIM4_PPM_IN                   1		
 #if(configUSE_TIM4_CH1 == 1)

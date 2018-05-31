@@ -418,7 +418,7 @@ void FlightStatusUpdate(void)
             }
             else
             {
-                if(rcData.throttle > MIDCHECK)
+                if(rcData.throttle > MIDCHECK && GetAltControlStatus() == ALT_CHANGED)
                     SetFlightStatus(TAKE_OFF);
             }
         }
