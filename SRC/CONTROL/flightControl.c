@@ -24,13 +24,13 @@ void FlightControlInit(void)
 	//PID参数初始化
     //对于不同机型，姿态PID参数需要进行调整，高度和位置相关参数无需太大改动
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
-	PID_SetParam(&fc.pid[ROLL_INNER],  1.8, 3.5, 0.1, 50, 30);
-	PID_SetParam(&fc.pid[PITCH_INNER], 1.8, 3.5, 0.1, 50, 30);
-	PID_SetParam(&fc.pid[YAW_INNER],   5.0, 5.0, 0, 50, 30);
+	PID_SetParam(&fc.pid[ROLL_INNER],  1.5, 3.5, 0.15, 50, 30);
+	PID_SetParam(&fc.pid[PITCH_INNER], 1.5, 3.5, 0.15, 50, 30);
+	PID_SetParam(&fc.pid[YAW_INNER],   15.0, 15.0, 0, 50, 30);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[YAW_OUTER],   5.0, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[YAW_OUTER],   8.0, 0, 0, 0, 0);	
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
@@ -80,7 +80,7 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -1200, +1200);	
 	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -1200, +1200);		
     //限制偏航轴控制输出量
-	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -600, +600);	
+	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -800, +800);	
 
     return rateControlOutput;
 }

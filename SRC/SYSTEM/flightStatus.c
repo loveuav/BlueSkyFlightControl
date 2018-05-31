@@ -50,13 +50,17 @@ bool ArmedCheck(void)
 void SetArmedStatus(uint8_t status)
 {
 	if(status == DISARMED)	//上锁
-	{	
+	{
+        //导航数据复位
+        NavigationReset();
+        
 		flyStatus.armed = DISARMED;
 	}
 	else if(status == ARMED)	//解锁
 	{	
         //解锁检查
-        ArmedCheck();
+        if(!ArmedCheck())
+            return;
         
         //导航数据复位
         NavigationReset();

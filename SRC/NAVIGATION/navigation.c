@@ -51,7 +51,6 @@ void VelocityEstimate(void)
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static Vector3f_t velErrorInt;
     static float velErrorIntRate = 0.0001f;
     
     //计算时间间隔，用于积分
@@ -87,26 +86,49 @@ void VelocityEstimate(void)
     }
 
     //加速度积分，并转换单位为cm
-    input.x = nav.accel.x * deltaT * 1000;
-    input.y = nav.accel.y * deltaT * 1000;   
-    input.z = nav.accel.z * deltaT * 1000;    
+    input.x = (float)((int32_t)(nav.accel.x * (deltaT * 1000) * 4000)) * 0.00025f;
+    input.y = (float)((int32_t)(nav.accel.y * (deltaT * 1000) * 4000)) * 0.00025f;  
+    input.z = (float)((int32_t)(nav.accel.z * (deltaT * 1000) * 4000)) * 0.00025f;  
+    
+    //测试用
+    if(GetArmedStatus() == ARMED)
+    {
+        nav.velocity2.z += input.z;
+    }
+    else
+    {
+        nav.velocity2.z = 0;
+    }
     
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
-    input.x += velErrorInt.x * 0.0001f;
-    input.y += velErrorInt.y * 0.0001f;
-    input.z += velErrorInt.z * 0.0001f;
+//    input.x += nav.velErrorInt.x * 0.0003f;
+//    input.y += nav.velErrorInt.y * 0.0003f;
+//    input.z += nav.velErrorInt.z * 0.0003f;
 
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanVel, input, velMeasure, fuseFlag);
     nav.velocity = kalmanVel.status;
     
     //计算误差积分
-    velErrorInt.x += (velMeasure.x - nav.velocity.x) * velErrorIntRate;
-    velErrorInt.y += (velMeasure.y - nav.velocity.y) * velErrorIntRate;
-    velErrorInt.z += (velMeasure.z - nav.velocity.z) * velErrorIntRate;
-    velErrorInt.x  = ConstrainFloat(velErrorInt.x, -100, 100);
-    velErrorInt.y  = ConstrainFloat(velErrorInt.y, -100, 100);
-    velErrorInt.z  = ConstrainFloat(velErrorInt.z, -100, 100);
+    nav.velErrorInt.x += (velMeasure.x - nav.velocity.x) * velErrorIntRate;
+    nav.velErrorInt.y += (velMeasure.y - nav.velocity.y) * velErrorIntRate;
+    nav.velErrorInt.z += (velMeasure.z - nav.velocity.z) * velErrorIntRate;
+    nav.velErrorInt.x  = ConstrainFloat(nav.velErrorInt.x, -30, 30);
+    nav.velErrorInt.y  = ConstrainFloat(nav.velErrorInt.y, -30, 30);
+    nav.velErrorInt.z  = ConstrainFloat(nav.velErrorInt.z, -30, 30);
+    
+    static uint8_t  testFlag = 1;
+    static Vector3f_t deltaTGroup[100];
+    static uint16_t deltaTCnt = 0;
+    if(testFlag){
+        if(deltaTCnt < 100){
+            deltaTGroup[deltaTCnt].x = input.z;
+            deltaTGroup[deltaTCnt].y = nav.velocity2.z;
+            deltaTGroup[deltaTCnt++].z = deltaT;
+        }
+        else
+            deltaTCnt = 0;
+    }
 }
 
 /**********************************************************************************************************
@@ -238,13 +260,28 @@ void NavigationReset(void)
         kalmanPos.status.y = 0;  
     }    
     kalmanPos.status.z = BaroGetAlt();    
+    
+    nav.velErrorInt.x = 0;
+    nav.velErrorInt.y = 0;
+    nav.velErrorInt.z = 0;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetCopterAccel
+*功能说明: 获取飞行加速度
+*形    参: 无
+*返 回 值: 加速度值
+**********************************************************************************************************/
+Vector3f_t GetCopterAccel(void)
+{
+    return nav.accel;
 }
 
 /**********************************************************************************************************
 *函 数 名: GetCopterVelocity
 *功能说明: 获取飞行速度
 *形    参: 无
-*返 回 值: 角度值
+*返 回 值: 速度值
 **********************************************************************************************************/
 Vector3f_t GetCopterVelocity(void)
 {

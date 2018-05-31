@@ -13,9 +13,12 @@
 #include "drv_usart.h"
 #include "drv_usbhid.h"
 
+#include "ahrs.h"
+#include "flightControl.h"
 #include "gyroscope.h"
 #include "navigation.h"
 #include "accelerometer.h"
+#include "barometer.h"
 
 DATA_TYPE_t dataTemp;  
 uint8_t dataToSend[50];
@@ -44,13 +47,13 @@ static void DataSendDebug(void)
 	dataToSend[_cnt++] = 0x02;
 	dataToSend[_cnt++] = 0;
 	
-	dataTemp.i16 = GyroGetData().x * 200;
+	dataTemp.i16 = GetAttOuterCtlError().x * 100;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = GyroGetData().y * 200;
+	dataTemp.i16 = GetAttOuterCtlError().y * 100;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = GyroGetData().z * 200;
+	dataTemp.i16 = GetAttOuterCtlError().z * 100;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 	dataTemp.i16 = GetCopterVelocity().z;
@@ -59,16 +62,16 @@ static void DataSendDebug(void)
 	dataTemp.i16 = GetCopterPosition().z;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = GetAccMag() * 100;
+	dataTemp.i16 = BaroGetAlt();
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = AccLpfGetData().x * 1000;
+	dataTemp.i16 = GetCopterAccel().z * 4000;//ahrs.vectorRollPitchError.x * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = AccLpfGetData().y * 1000;
+	dataTemp.i16 = nav.velocity2.z;//ahrs.vectorRollPitchError.y * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = AccLpfGetData().z * 1000;
+	dataTemp.i16 = nav.velErrorInt.z;//ahrs.vectorRollPitchError.z * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 

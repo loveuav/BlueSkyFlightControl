@@ -5,7 +5,7 @@
 #include "lowPassFilter.h"
 
 //陀螺仪低通滤波截止频率
-#define GYRO_LPF_CUT 150
+#define GYRO_LPF_CUT 88
 
 //加速度低通滤波截止频率
 #define ACC_LPF_CUT 8

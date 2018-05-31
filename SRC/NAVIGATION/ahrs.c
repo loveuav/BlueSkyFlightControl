@@ -368,6 +368,8 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
     accEf->y -= accEfOffset->y;
     accEf->z -= accEfOffset->z;
     
+    accEf->z = ApplyDeadbandFloat(accEf->z, 0.003);
+    
 	//系统初始化时，计算加速度零偏
 	if(GetSysTimeMs() > 5000 && GetInitStatus() == HEAT_FINISH)
 	{
