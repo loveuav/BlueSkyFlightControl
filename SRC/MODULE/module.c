@@ -17,6 +17,7 @@
 #include "ublox.h"
 #include "drv_pwm.h"
 #include "faultDetect.h"
+#include "rotation.h"
 
 /**********************************************************************************************************
 *函 数 名: GyroSensorRotate
@@ -26,12 +27,7 @@
 **********************************************************************************************************/
 static void GyroSensorRotate(Vector3f_t* gyro)
 {
-	Vector3f_t temp;
-	
-	temp = *gyro;
-	(*gyro).x = temp.y;
-	(*gyro).y = -temp.x;
-	(*gyro).z = temp.z;
+    RotateVector3f(GYRO_ROTATION, gyro);
 }
 
 /**********************************************************************************************************
@@ -42,12 +38,7 @@ static void GyroSensorRotate(Vector3f_t* gyro)
 **********************************************************************************************************/
 static void AccSensorRotate(Vector3f_t *acc)
 {
-	Vector3f_t temp;
-	
-	temp = *acc;
-	(*acc).x = temp.y;
-	(*acc).y = -temp.x;
-	(*acc).z = temp.z;
+    RotateVector3f(ACC_ROTATION, acc);
 }
 
 /**********************************************************************************************************
@@ -57,13 +48,8 @@ static void AccSensorRotate(Vector3f_t *acc)
 *返 回 值: 无
 **********************************************************************************************************/
 static void MagSensorRotate(Vector3f_t *mag)
-{
-	Vector3f_t temp;
-	
-	temp = *mag;
-	(*mag).x = temp.y;
-	(*mag).y = temp.x;
-	(*mag).z = -temp.z;
+{  
+    RotateVector3f(MAG_ROTATION, mag);
 }
 
 /**********************************************************************************************************

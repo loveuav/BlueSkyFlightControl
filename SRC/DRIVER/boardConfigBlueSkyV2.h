@@ -14,6 +14,13 @@
 #define __BOARDCONFIGBLUESKYV2_H__
 
 /**********************************************************************************************************
+*传感器安装方向
+**********************************************************************************************************/
+#define GYRO_ROTATION       ROTATION_ROLL_180_YAW_90
+#define ACC_ROTATION        ROTATION_ROLL_180_YAW_90
+#define MAG_ROTATION        ROTATION_ROLL_180_YAW_90
+
+/**********************************************************************************************************
 *传感器配置
 **********************************************************************************************************/
 #define GYRO_TYPE            MPU6000
@@ -59,8 +66,11 @@
 
 #define PPM_TIM_FREQ         21000000
 #define PPM_TIM_PERIOD       52499
-#define PPM_TIM              0
-#define PPM_CH               0
+#define PPM_TIM              4
+#define PPM_CH               1
+#define PPM_GPIO             GPIOA
+#define PPM_PIN              GPIO_Pin_8
+#define PPM_PINSOURCE        GPIO_PinSource8
 
 /**********************************************************************************************************
 *单片机Flash存储区域分配
@@ -135,8 +145,8 @@
 #define configUSE_TIM3_CH2   1
 #define configUSE_TIM3_CH3   1
 #define configUSE_TIM3_CH4   1
-#define configUSE_TIM4       0
-#define configUSE_TIM4_CH1   0
+#define configUSE_TIM4       1
+#define configUSE_TIM4_CH1   1
 #define configUSE_TIM4_CH2   0
 #define configUSE_TIM4_CH3   0
 #define configUSE_TIM4_CH4   0
