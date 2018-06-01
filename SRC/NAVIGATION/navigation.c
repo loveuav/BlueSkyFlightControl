@@ -51,7 +51,7 @@ void VelocityEstimate(void)
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static float velErrorIntRate = 0.0001f;
+    static float velErrorIntRate = 0.00003f;
     
     //计算时间间隔，用于积分
     deltaT = (GetSysTimeUs() - previousT) * 1e-6;
@@ -85,25 +85,23 @@ void VelocityEstimate(void)
         fuseFlag = false;
     }
 
+	if(nav.accel.z > 0)
+		nav.accel.z *= 1.002f;
+		
     //加速度积分，并转换单位为cm
-    input.x = (float)((int32_t)(nav.accel.x * (deltaT * 1000) * 4000)) * 0.00025f;
-    input.y = (float)((int32_t)(nav.accel.y * (deltaT * 1000) * 4000)) * 0.00025f;  
-    input.z = (float)((int32_t)(nav.accel.z * (deltaT * 1000) * 4000)) * 0.00025f;  
+    input.x = nav.accel.x * (deltaT * 1000);
+    input.y = nav.accel.y * (deltaT * 1000);  
+    input.z = nav.accel.z * (deltaT * 1000);  
     
     //测试用
-    if(GetArmedStatus() == ARMED)
-    {
-        nav.velocity2.z += input.z;
-    }
-    else
-    {
-        nav.velocity2.z = 0;
-    }
+    nav.velocity2.x += input.x;
+    nav.velocity2.y += input.y;	
+    nav.velocity2.z += input.z;
     
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
-//    input.x += nav.velErrorInt.x * 0.0003f;
-//    input.y += nav.velErrorInt.y * 0.0003f;
-//    input.z += nav.velErrorInt.z * 0.0003f;
+    input.x += nav.velErrorInt.x * 0.0001f;
+    input.y += nav.velErrorInt.y * 0.0001f;
+    input.z += nav.velErrorInt.z * 0.0001f;
 
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanVel, input, velMeasure, fuseFlag);
@@ -113,22 +111,9 @@ void VelocityEstimate(void)
     nav.velErrorInt.x += (velMeasure.x - nav.velocity.x) * velErrorIntRate;
     nav.velErrorInt.y += (velMeasure.y - nav.velocity.y) * velErrorIntRate;
     nav.velErrorInt.z += (velMeasure.z - nav.velocity.z) * velErrorIntRate;
-    nav.velErrorInt.x  = ConstrainFloat(nav.velErrorInt.x, -30, 30);
-    nav.velErrorInt.y  = ConstrainFloat(nav.velErrorInt.y, -30, 30);
-    nav.velErrorInt.z  = ConstrainFloat(nav.velErrorInt.z, -30, 30);
-    
-    static uint8_t  testFlag = 1;
-    static Vector3f_t deltaTGroup[100];
-    static uint16_t deltaTCnt = 0;
-    if(testFlag){
-        if(deltaTCnt < 100){
-            deltaTGroup[deltaTCnt].x = input.z;
-            deltaTGroup[deltaTCnt].y = nav.velocity2.z;
-            deltaTGroup[deltaTCnt++].z = deltaT;
-        }
-        else
-            deltaTCnt = 0;
-    }
+    nav.velErrorInt.x  = ConstrainFloat(nav.velErrorInt.x, -50, 50);
+    nav.velErrorInt.y  = ConstrainFloat(nav.velErrorInt.y, -50, 50);
+    nav.velErrorInt.z  = ConstrainFloat(nav.velErrorInt.z, -50, 50);
 }
 
 /**********************************************************************************************************
@@ -198,7 +183,7 @@ void PositionEstimate(void)
 static void KalmanVelInit(void)
 {
     float qMatInit[9] = {0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.03};
-    float rMatInit[9] = {500, 0,  0, 0, 500, 0, 0, 0, 2000};
+    float rMatInit[9] = {500, 0,  0, 0, 500, 0, 0, 0, 2500};
     float pMatInit[9] = {5, 0, 0, 0, 5, 0, 0, 0, 8};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};

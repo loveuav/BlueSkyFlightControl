@@ -35,6 +35,8 @@ RCCOMMAND_t rcCommand;
 uint32_t failsafeTime = 0;
 uint8_t rcAuxMode[12][3];
 
+static uint8_t  armedCheckFlag = 0;   
+	
 static void RcDataUpdate(RCDATA_t data);
 static void RcCommandUpdate(void);
 static void RcCheckSticks(void);
@@ -153,8 +155,7 @@ static void RcCheckSticks(void)
 {
     static uint32_t armedCheckTime = 0;
     static uint32_t armedDisarmedTime = 0;
-    static uint32_t caliCheckTime = 0;
-    static uint8_t  armedCheckFlag = 0;    
+    static uint32_t caliCheckTime = 0; 
     
     //摇杆外八字解锁,同时也可上锁，即使在飞行中，也可通过外八强制上锁
 	if((rcData.roll > MAXCHECK) && (rcData.pitch < MINCHECK) &&
@@ -193,7 +194,7 @@ static void RcCheckSticks(void)
     }
     
     //摇杆若回中，则重置解锁标志位，此时可以再次通过外八操作将飞机上锁 
-    if(rcData.throttle > 1400)
+    if(rcData.throttle > 1300)
         armedCheckFlag = 0; 
     
     //摇杆内八字持续5s，进入罗盘校准
@@ -433,7 +434,7 @@ void FlightStatusUpdate(void)
             }
             else
             {
-                if(rcData.throttle < MINCHECK && abs(rcData.yaw - MIDCHECK) < 50)
+                if(rcData.throttle < MINCHECK && abs(rcData.yaw - MIDCHECK) < 50 && !armedCheckFlag)
                 {
                     if(GetSysTimeMs() - disArmedCheckTime > 500)
                         SetArmedStatus(DISARMED);

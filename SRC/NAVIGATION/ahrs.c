@@ -348,7 +348,7 @@ void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 **********************************************************************************************************/
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfOffset)
 {
-	static uint16_t offset_cnt = 10000;	//计算零偏的次数
+	static uint16_t offset_cnt = 8000;	//计算零偏的次数
     static Vector3f_t accLpf, accEfLpf, accAngle;   //用于计算初始零偏
     
     //即使经过校准并对传感器做了恒温处理，加速度的零偏误差还是存在不稳定性，即相隔一定时间后再上电加速度零偏会发生变化
@@ -367,8 +367,6 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
     accEf->x -= accEfOffset->x;
     accEf->y -= accEfOffset->y;
     accEf->z -= accEfOffset->z;
-    
-    accEf->z = ApplyDeadbandFloat(accEf->z, 0.003);
     
 	//系统初始化时，计算加速度零偏
 	if(GetSysTimeMs() > 5000 && GetInitStatus() == HEAT_FINISH)
@@ -399,6 +397,14 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 			accEfOffset->y = accEfOffset->y * 0.998f + accEfLpf.y * 0.002f; 
 			accEfOffset->z = accEfOffset->z * 0.998f + accEfLpf.z * 0.002f; 
 			offset_cnt--;
+		}
+		else
+		{
+			//计算过程中如果出现晃动，则重新开始
+			offset_cnt 	   = 8000;
+			accEfOffset->x = 0;
+			accEfOffset->y = 0;
+			accEfOffset->z = 0;
 		}
         //完成零偏计算，系统初始化结束
         if(offset_cnt == 0)
