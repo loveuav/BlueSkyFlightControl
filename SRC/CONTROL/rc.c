@@ -13,6 +13,7 @@
 #include "flightStatus.h"
 #include "board.h"
 #include "drv_sbus.h"
+#include "drv_ppm.h"
 #include "accelerometer.h"
 #include "magnetometer.h"
 #include "navigation.h"
@@ -51,7 +52,7 @@ void RcInit(void)
 	#if( RC_PROTOCOL == SBUS )
 		Sbus_SetRcDataCallback(RcDataUpdate);
 	#elif ( RC_PROTOCOL == PPM )
-	//·········
+        PPM_SetRcDataCallback(RcDataUpdate);
 	#endif
     
     //设置各辅助通道对应的飞行模式

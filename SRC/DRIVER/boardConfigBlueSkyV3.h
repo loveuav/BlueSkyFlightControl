@@ -61,6 +61,9 @@
 #define PPM_TIM_PERIOD       0xFFFF
 #define PPM_TIM              1
 #define PPM_CH               1
+#define PPM_GPIO             GPIOA
+#define PPM_PIN              GPIO_Pin_8
+#define PPM_PINSOURCE        GPIO_PinSource8
 
 /**********************************************************************************************************
 *单片机Flash存储区域分配
@@ -234,9 +237,9 @@
 #define TIM1_PWM_OUT                  0
 #define TIM1_PPM_IN                   1		
 #if(configUSE_TIM1_CH1 == 1)
-	#define TIM1_CH1_GPIO             GPIOA
-	#define TIM1_CH1_PIN              GPIO_Pin_8
-	#define TIM1_CH1_PINSOURCE        GPIO_PinSource8
+	#define TIM1_CH1_GPIO             PPM_GPIO
+	#define TIM1_CH1_PIN              PPM_PIN
+	#define TIM1_CH1_PINSOURCE        PPM_PINSOURCE
 #endif
 #if(configUSE_TIM1_CH2 == 1)
 	#define TIM1_CH2_GPIO             GPIOA

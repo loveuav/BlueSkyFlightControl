@@ -3,8 +3,10 @@
 
 #include "board.h"
 
-void PPM_Init(void);
+typedef void (*RcDataCallback)(RCDATA_t data);
 
+void PPM_Init(void);
+void PPM_SetRcDataCallback(RcDataCallback rcDataCallback);
 
 #endif
 
