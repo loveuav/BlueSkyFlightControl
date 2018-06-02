@@ -12,9 +12,12 @@
 #include "mpu6500.h"
 #include "drv_spi.h"
 
-#define MPU_RA_XG_OFFS_TC       0x00    //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU_RA_YG_OFFS_TC       0x01    //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
-#define MPU_RA_ZG_OFFS_TC       0x02    //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU_GYRO_SELF_TEST_X    0x00    //陀螺仪x轴自检
+#define MPU_GYRO_SELF_TEST_Y    0x01    //陀螺仪y轴自检
+#define MPU_GYRO_SELF_TEST_Z    0x02    //陀螺仪z轴自检
+#define MPU_ACCEL_SELF_TEST_X   0x0D    //加速度x轴自检
+#define MPU_ACCEL_SELF_TEST_Y   0x0E    //加速度y轴自检
+#define MPU_ACCEL_SELF_TEST_Z   0x0F    //加速度z轴自检
 #define MPU_RA_X_FINE_GAIN      0x03    //[7:0] X_FINE_GAIN
 #define MPU_RA_Y_FINE_GAIN      0x04    //[7:0] Y_FINE_GAIN
 #define MPU_RA_Z_FINE_GAIN      0x05    //[7:0] Z_FINE_GAIN
@@ -152,10 +155,10 @@ bool MPU6500_Detect(void)
 void MPU6500_Init(void)
 {	
 	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x80);
-	SoftDelayMs(50);
+	SoftDelayMs(100);
 	
 	Spi_GyroSingleWrite(MPU_RA_SIGNAL_PATH_RESET, BIT_GYRO | BIT_ACC | BIT_TEMP);
-	SoftDelayMs(50);
+	SoftDelayMs(100);
 	
 	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x03);
 	SoftDelayUs(5);
@@ -185,7 +188,7 @@ void MPU6500_Init(void)
 	
 	//加速度自检、测量范围(不自检，+-8G)			
 	Spi_GyroSingleWrite(MPU_RA_ACCEL_CONFIG, 2 << 3);		
-	
+    
 	SoftDelayMs(5);		
 }
 

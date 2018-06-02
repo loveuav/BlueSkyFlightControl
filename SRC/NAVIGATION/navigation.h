@@ -5,6 +5,7 @@
 
 typedef struct{
 	Vector3f_t accel;
+    Vector3f_t accelLpf;
 	Vector3f_t velocity;	
 	Vector3f_t velocity2;    
 	Vector3f_t position;		

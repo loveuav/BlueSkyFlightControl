@@ -26,19 +26,19 @@ void FlightControlInit(void)
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
 	PID_SetParam(&fc.pid[ROLL_INNER],  1.5, 3.5, 0.15, 50, 30);
 	PID_SetParam(&fc.pid[PITCH_INNER], 1.5, 3.5, 0.15, 50, 30);
-	PID_SetParam(&fc.pid[YAW_INNER],   15.0, 15.0, 0, 50, 30);
+	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 8.0, 0, 50, 30);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[YAW_OUTER],   8.0, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[YAW_OUTER],   5.0, 0, 0, 0, 0);	
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       1.5, 1.0, 0.01, 250, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.03, 250, 30);	
 
 	PID_SetParam(&fc.pid[POS_X],       1.5, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[POS_Z],       1.5, 0, 0, 0, 0);		
+	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);		
 }
 
 /**********************************************************************************************************
@@ -114,7 +114,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
         fc.posInnerTarget.z = -150;
     
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
-    velLpf = velLpf * 0.98f + velZ * 0.02f;
+    velLpf = velLpf * 0.95f + velZ * 0.05f;
     
     //计算控制误差
 	fc.posInnerError.z = fc.posInnerTarget.z - velLpf;
@@ -126,6 +126,8 @@ static float AltitudeInnerControl(float velZ, float deltaT)
 	
 	altInnerControlOutput += throttleMid;
 
+    altInnerControlOutput = ConstrainFloat(altInnerControlOutput, 400, 1800);	
+    
     return altInnerControlOutput;
 }	
 
@@ -154,7 +156,7 @@ void FlightControlInnerLoop(Vector3f_t gyro)
 	previousT = GetSysTimeUs();	    
     
     //姿态内环控制量
-    Vector3f_t attInnerCtlValue;
+    static Vector3f_t attInnerCtlValue;
     //高度内环控制量
     static float      altInnerCtlValue;
     
@@ -501,7 +503,7 @@ void FlightControlReset(void)
     PID_ResetI(&fc.pid[YAW_INNER]);
     PID_ResetI(&fc.pid[VEL_X]);
     PID_ResetI(&fc.pid[VEL_Y]);
-    PID_ResetI(&fc.pid[VEL_Z]);
+    //PID_ResetI(&fc.pid[VEL_Z]);
     
     //高度控制目标复位为当前高度
     SetAltOuterCtlTarget(GetCopterPosition().z);

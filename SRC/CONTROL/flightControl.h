@@ -77,6 +77,8 @@ Vector3f_t GetPosOuterCtlError(void);
 
 void FlightControlReset(void);
 
+extern FLIGHTCONTROL_t fc;
+
 #endif
 
 

@@ -157,7 +157,7 @@ void MPU6000_Init(void)
 	Spi_GyroSingleWrite(MPU_RA_SIGNAL_PATH_RESET, BIT_GYRO | BIT_ACC | BIT_TEMP);
 	SoftDelayMs(50);
 	
-	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x03);
+	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x00);
 	SoftDelayUs(5);
 	
 	Spi_GyroSingleWrite(MPU_RA_USER_CTRL, 0x10);

@@ -15,8 +15,8 @@ enum{
 /**********************************************************************************************************
 *定义硬件类型
 **********************************************************************************************************/
-#define BLUESKY_V2
-//#define BLUESKY_V3
+//#define BLUESKY_V2
+#define BLUESKY_V3
 
 #ifdef BLUESKY_V2
 	#include "boardConfigBlueSkyV2.h"
@@ -44,6 +44,24 @@ typedef struct
     int16_t aux11;  
     int16_t aux12;  
 }RCDATA_t;
+
+enum
+{
+    MPU6000,
+    MPU6500
+};
+
+enum
+{
+    BMP280,
+    MS5611
+};
+
+enum
+{
+    HMC5883,
+    QMC5883
+};
 
 void BoardInit(void);
 void SoftDelayMs(uint32_t ms);

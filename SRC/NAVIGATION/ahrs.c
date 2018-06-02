@@ -350,23 +350,50 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 {
 	static uint16_t offset_cnt = 8000;	//计算零偏的次数
     static Vector3f_t accLpf, accEfLpf, accAngle;   //用于计算初始零偏
+    Vector3f_t gravityBf;
     
     //即使经过校准并对传感器做了恒温处理，加速度的零偏误差还是存在不稳定性，即相隔一定时间后再上电加速度零偏会发生变化
     //由于加速度零偏对导航积分计算影响较大，因此每次上电工作都需要计算零偏并补偿
-    //计算初始零偏时，直接使用加速度值计算角度，因为飞控初始化时角度估计值存在误差，导致计算出来的零偏有误差
+    //计算初始零偏时，直接使用加速度值计算角度，因为飞控初始化时角度估计值存在误差，导致计算出来的零偏有误差   
     
-    //转化加速度到地理坐标系
-	BodyFrameToEarthFrame(angle, acc, accEf);
+    if(GetInitStatus() == INIT_FINISH)
+    {
+        //计算重力加速度在机体坐标系的投影
+        gravityBf.x = 0;
+        gravityBf.y = 0;    
+        gravityBf.z = GRAVITY_ACCEL;
+        EarthFrameToBodyFrame(angle, gravityBf, &gravityBf);
+        
+        //减去重力加速度
+        acc.x -= gravityBf.x;
+        acc.y -= gravityBf.y;
+        acc.z -= gravityBf.z;
+        
+        //加速度正反轴比例误差补偿,不同型号传感器这个误差不一样，其中6500的特别大
+        if(GYRO_TYPE == MPU6500)
+        {
+            if(acc.x > 0)
+                acc.x *= 1.002f;
+            else
+                acc.x *= 0.998f;
+            
+            if(acc.z > 0)
+                acc.z *= 1.018f;
+            else
+                acc.z *= 0.982f;
+        }
+        
+        //转化加速度到地理坐标系
+        BodyFrameToEarthFrame(angle, acc, accEf);
 
-    //转换坐标系（西北天）到东北天
-	accEf->y = -accEf->y;	
-    //减去重力加速度(0,0,g)    
-	accEf->z = accEf->z - GRAVITY_ACCEL;   
+        //转换坐标系（西北天）到东北天
+        accEf->y = -accEf->y;	
 
-    //零偏补偿
-    accEf->x -= accEfOffset->x;
-    accEf->y -= accEfOffset->y;
-    accEf->z -= accEfOffset->z;
+        //零偏补偿
+        accEf->x -= accEfOffset->x;
+        accEf->y -= accEfOffset->y;
+        accEf->z -= accEfOffset->z;
+    }
     
 	//系统初始化时，计算加速度零偏
 	if(GetSysTimeMs() > 5000 && GetInitStatus() == HEAT_FINISH)
@@ -434,9 +461,9 @@ static Vector3f_t AccSportCompensate(Vector3f_t acc)
     sportAccBf.y = ApplyDeadbandFloat(sportAccBf.y, 0.03f);
     sportAccBf.z = ApplyDeadbandFloat(sportAccBf.z, 0.03f);
     //补偿到姿态估计主回路中的加速度
-    acc.x = acc.x - sportAccBf.x * 0.9f;
-    acc.y = acc.y - sportAccBf.y * 0.9f;
-    acc.z = acc.z - sportAccBf.z * 0.9f;   
+    acc.x = acc.x - sportAccBf.x * 0.95f;
+    acc.y = acc.y - sportAccBf.y * 0.95f;
+    acc.z = acc.z - sportAccBf.z * 0.95f;   
 
     return acc;
 }

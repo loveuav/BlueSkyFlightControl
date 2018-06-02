@@ -60,30 +60,30 @@ static void MagSensorRotate(Vector3f_t *mag)
 **********************************************************************************************************/
 void GyroSensorInit(void)
 {
-    #if (GYRO_TYPE == MPU6000)
-    if(MPU6000_Detect())
+    if(GYRO_TYPE == MPU6000)
     {
-        MPU6000_Init();
+        if(MPU6000_Detect())
+        {
+            MPU6000_Init();
+        }
+        else
+        {
+            //未检测到陀螺仪
+            FaultDetectSetError(GYRO_UNDETECTED);
+        }   
     }
-    else
+    else if (GYRO_TYPE == MPU6500)
     {
-        //未检测到陀螺仪
-        FaultDetectSetError(GYRO_UNDETECTED);
-    }        
-    #endif
-
-    #if (GYRO_TYPE == MPU6500)
-    if(MPU6500_Detect())
-    {
-        MPU6500_Init();
+        if(MPU6500_Detect())
+        {
+            MPU6500_Init();
+        }
+        else
+        {
+            //未检测到陀螺仪
+            FaultDetectSetError(GYRO_UNDETECTED);
+        }        
     }
-    else
-    {
-        //未检测到陀螺仪
-        FaultDetectSetError(GYRO_UNDETECTED);
-    }        
-    #endif
-    
 }
 
 /**********************************************************************************************************
@@ -94,17 +94,18 @@ void GyroSensorInit(void)
 **********************************************************************************************************/
 void MagSensorInit(void)
 {
-    #if (MAG_TYPE == QMC5883)
-    if(QMC5883_Detect())
+    if(MAG_TYPE == QMC5883)
     {
-        QMC5883_Init();
-    }
-    else
-    {
-        //未检测到磁力计
-        FaultDetectSetError(MAG_UNDETECTED);
-    }        
-    #endif   
+        if(QMC5883_Detect())
+        {
+            QMC5883_Init();
+        }
+        else
+        {
+            //未检测到磁力计
+            FaultDetectSetError(MAG_UNDETECTED);
+        }  
+    }    
 }
 
 /**********************************************************************************************************
@@ -115,17 +116,18 @@ void MagSensorInit(void)
 **********************************************************************************************************/
 void BaroSensorInit(void)
 {
-    #if (BARO_TYPE == MS5611)
-    if(MS5611_Detect())
+    if(BARO_TYPE == MS5611)
     {
-        MS5611_Init();
+        if(MS5611_Detect())
+        {
+            MS5611_Init();
+        }
+        else
+        {
+            //未检测到磁力计
+            FaultDetectSetError(BARO_UNDETECTED);
+        }        
     }
-    else
-    {
-        //未检测到磁力计
-        FaultDetectSetError(BARO_UNDETECTED);
-    }        
-    #endif
 }
 
 /**********************************************************************************************************
@@ -148,12 +150,10 @@ void GPSModuleInit(void)
 **********************************************************************************************************/
 void GyroSensorRead(Vector3f_t* gyro)
 {
-    #if (GYRO_TYPE == MPU6000)
-    MPU6000_ReadGyro(gyro);
-    #endif     
-    #if (GYRO_TYPE == MPU6500)
-    MPU6500_ReadGyro(gyro);
-    #endif    
+    if(GYRO_TYPE == MPU6000)
+        MPU6000_ReadGyro(gyro);    
+    else if(GYRO_TYPE == MPU6500)
+        MPU6500_ReadGyro(gyro);
     
     //传感器方向转换
     GyroSensorRotate(gyro);
@@ -167,12 +167,10 @@ void GyroSensorRead(Vector3f_t* gyro)
 **********************************************************************************************************/
 void AccSensorRead(Vector3f_t* acc)
 {
-    #if (GYRO_TYPE == MPU6000)
-    MPU6000_ReadAcc(acc);
-    #endif 
-    #if (GYRO_TYPE == MPU6500)
-    MPU6500_ReadAcc(acc);
-    #endif 
+    if(GYRO_TYPE == MPU6000)
+        MPU6000_ReadAcc(acc);
+    else if(GYRO_TYPE == MPU6500)
+        MPU6500_ReadAcc(acc);
     
     //传感器方向转换
     AccSensorRotate(acc);    
@@ -185,13 +183,11 @@ void AccSensorRead(Vector3f_t* acc)
 *返 回 值: 无
 **********************************************************************************************************/
 void TempSensorRead(float* temp)
-{
-    #if (GYRO_TYPE == MPU6000)
-    MPU6000_ReadTemp(temp);
-    #endif    
-    #if (GYRO_TYPE == MPU6500)
-    MPU6500_ReadTemp(temp);
-    #endif   
+{    
+    if(GYRO_TYPE == MPU6000)
+        MPU6000_ReadTemp(temp);
+    else if(GYRO_TYPE == MPU6500)
+        MPU6500_ReadTemp(temp);  
 }
 
 /**********************************************************************************************************
@@ -202,9 +198,8 @@ void TempSensorRead(float* temp)
 **********************************************************************************************************/
 void MagSensorUpdate(void)
 {
-    #if (MAG_TYPE == QMC5883)
-    QMC5883_Update();  
-    #endif    
+    if(MAG_TYPE == QMC5883)
+        QMC5883_Update();  
 }
 
 /**********************************************************************************************************
@@ -215,10 +210,9 @@ void MagSensorUpdate(void)
 **********************************************************************************************************/
 void MagSensorRead(Vector3f_t* mag)
 {
-    #if (MAG_TYPE == QMC5883)
-    QMC5883_Read(mag);
-    #endif  
-    
+    if(MAG_TYPE == QMC5883)
+        QMC5883_Read(mag);
+
     //传感器方向转换
     MagSensorRotate(mag);    
 }
@@ -231,9 +225,8 @@ void MagSensorRead(Vector3f_t* mag)
 **********************************************************************************************************/
 void BaroSensorUpdate(void)
 {
-    #if (BARO_TYPE == MS5611)
-    MS5611_Update();  
-    #endif    
+    if(BARO_TYPE == MS5611)
+        MS5611_Update();     
 }
 
 /**********************************************************************************************************
@@ -244,9 +237,8 @@ void BaroSensorUpdate(void)
 **********************************************************************************************************/
 void BaroSensorRead(int32_t* baroAlt)
 {
-    #if (BARO_TYPE == MS5611)
-    MS5611_Read(baroAlt);  
-    #endif     
+    if(BARO_TYPE == MS5611)
+        MS5611_Read(baroAlt);      
 }
 
 /**********************************************************************************************************

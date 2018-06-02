@@ -85,18 +85,25 @@ void VelocityEstimate(void)
         fuseFlag = false;
     }
 
-	if(nav.accel.z > 0)
-		nav.accel.z *= 1.002f;
-		
     //加速度积分，并转换单位为cm
     input.x = nav.accel.x * (deltaT * 1000);
-    input.y = nav.accel.y * (deltaT * 1000);  
-    input.z = nav.accel.z * (deltaT * 1000);  
+    input.y = nav.accel.y * (deltaT * 1000);
+    input.z = nav.accel.z * (deltaT * 1000);
     
     //测试用
-    nav.velocity2.x += input.x;
-    nav.velocity2.y += input.y;	
-    nav.velocity2.z += input.z;
+    if(GetArmedStatus() == ARMED)
+    {
+        nav.velocity2.x += input.x;
+        nav.velocity2.y += input.y;
+        nav.velocity2.z += input.z;
+    }
+    else
+    {
+        nav.velocity2.x = 0;
+        nav.velocity2.y = 0;
+        nav.velocity2.z = 0;       
+    }
+    nav.accelLpf.z = nav.accelLpf.z * 0.999f + nav.accel.z * 0.001f;
     
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
     input.x += nav.velErrorInt.x * 0.0001f;
@@ -245,10 +252,6 @@ void NavigationReset(void)
         kalmanPos.status.y = 0;  
     }    
     kalmanPos.status.z = BaroGetAlt();    
-    
-    nav.velErrorInt.x = 0;
-    nav.velErrorInt.y = 0;
-    nav.velErrorInt.z = 0;
 }
 
 /**********************************************************************************************************
