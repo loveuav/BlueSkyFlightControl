@@ -148,7 +148,6 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         
         posHoldChanged = 1;
         lastTimePosChanged = GetSysTimeMs();	
-        
     }
     else if(posHoldChanged)
     {
@@ -218,6 +217,8 @@ static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 {
     static int16_t rcDeadband = 50;
     static float yawHold;
+    static uint8_t yawHoldChanged = 0;
+    static int32_t lastTimeyawChanged = 0;
     
     //起飞前初始化航向锁定目标
     if(GetFlightStatus() < TAKE_OFF)
@@ -235,6 +236,23 @@ static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         
         //失能航向锁定
         SetYawHoldStatus(DISABLE);
+        
+        yawHoldChanged = 1;
+        lastTimeyawChanged = GetSysTimeMs();
+    }
+    else if(yawHoldChanged)
+    {
+        if(GetSysTimeMs() - lastTimeyawChanged > 20)
+        {
+            yawHoldChanged = 0;
+        }
+        else
+        {
+            rcTarget->yaw = 0;
+            
+            //记录当前飞机航向角
+            yawHold = GetCopterAngle().z;            
+        }
     }
     else
     {

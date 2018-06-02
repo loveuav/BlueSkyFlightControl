@@ -34,6 +34,7 @@ typedef struct
 	PID_t      pid[PIDNUM];
 	
     RCTARGET_t rcTarget;
+    Vector3f_t angleLpf;
     
 	Vector3f_t attInnerTarget;
     Vector3f_t attOuterTarget;
