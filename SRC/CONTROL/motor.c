@@ -19,6 +19,8 @@
 
 #define motorType quadX 
 
+static int16_t motorPWM[8];
+    
 static const MOTOR_TYPE_t quadX = {             //四轴X型
     .motorNum   = 4,                            //电机数量
     .motorMixer = 
@@ -51,7 +53,6 @@ static const MOTOR_TYPE_t hex6X = {             //六轴X型
 **********************************************************************************************************/
 void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
 {
-    static int16_t motorPWM[8];
     int16_t maxMotorValue;
     uint8_t escCaliFlag = 0;
     
@@ -126,5 +127,15 @@ void MotorStop(void)
     }       
 }
 
+/**********************************************************************************************************
+*函 数 名: GetMotorValue
+*功能说明: 获取电机PWM值
+*形    参: 无
+*返 回 值: PWM值
+**********************************************************************************************************/
+int16_t* GetMotorValue(void)
+{
+    return motorPWM;
+}
 
 

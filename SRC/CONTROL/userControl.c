@@ -242,7 +242,7 @@ static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     }
     else if(yawHoldChanged)
     {
-        if(GetSysTimeMs() - lastTimeyawChanged > 20)
+        if(GetSysTimeMs() - lastTimeyawChanged > 80)
         {
             yawHoldChanged = 0;
         }

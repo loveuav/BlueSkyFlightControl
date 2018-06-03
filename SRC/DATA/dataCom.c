@@ -19,6 +19,7 @@
 #include "navigation.h"
 #include "accelerometer.h"
 #include "barometer.h"
+#include "motor.h"
 
 DATA_TYPE_t dataTemp;  
 uint8_t dataToSend[50];
@@ -62,16 +63,16 @@ static void DataSendDebug(void)
 	dataTemp.i16 = GetAttOuterCtlError().z * 10;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = GetCopterVelocity().z;//BaroGetAlt();
+	dataTemp.i16 = fc.attInnerCtlValue.x;//GetCopterVelocity().z;//BaroGetAlt();
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.velocity2.x;//ahrs.vectorRollPitchError.x * 1000;
+	dataTemp.i16 = fc.attInnerCtlValue.y;//nav.velocity2.x;//ahrs.vectorRollPitchError.x * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.velocity2.y;//nav.velocity2.z;//ahrs.vectorRollPitchError.y * 1000;
+	dataTemp.i16 = fc.attInnerCtlValue.z;//nav.velocity2.y;//nav.velocity2.z;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.velocity2.z;//ahrs.vectorRollPitchError.z * 1000;
+	dataTemp.i16 = fc.altInnerCtlValue;//nav.velocity2.z;//ahrs.vectorRollPitchError.z * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 

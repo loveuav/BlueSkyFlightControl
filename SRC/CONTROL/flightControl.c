@@ -26,13 +26,14 @@ void FlightControlInit(void)
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
     
     //该参数下姿态控制精度可达0.1°（悬停），机架为F330，电调为BLS，动力为御的电机和桨
-	PID_SetParam(&fc.pid[ROLL_INNER],  4.8, 8.0, 0.2, 100, 30);
-	PID_SetParam(&fc.pid[PITCH_INNER], 4.6, 8.0, 0.18, 100, 30);
-	PID_SetParam(&fc.pid[YAW_INNER],   5.0, 5.0, 0, 100, 30);
+    //电池横放，使重量主要分布在roll轴上，因此roll的参数要稍大一些
+	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.18, 30, 35);
+	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.16, 30, 35);
+	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 20, 35);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[PITCH_OUTER], 10.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[YAW_OUTER],   5.0, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[YAW_OUTER],   8.0, 0, 0, 0, 0);	
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
@@ -68,7 +69,7 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 	static Vector3f_t rateControlOutput;
     static Vector3f_t attInnerTargetLpf;
     
-    attInnerTargetLpf.z = attInnerTargetLpf.z * 0.95f + fc.attInnerTarget.z * 0.05f;
+    attInnerTargetLpf.z = attInnerTargetLpf.z * 0.9f + fc.attInnerTarget.z * 0.1f;
     
     //保留小数点后两位，减小数据误差对控制器的干扰（貌似没什么用）
     gyro.x = (float)((int32_t)(gyro.x * 100)) * 0.01f;
@@ -85,10 +86,10 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 	rateControlOutput.y = PID_GetPID(&fc.pid[PITCH_INNER], fc.attInnerError.y, deltaT);
 	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER],   fc.attInnerError.z, deltaT);
 
-	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -1200, +1200);	
-	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -1200, +1200);		
+	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -600, +600);	
+	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -600, +600);		
     //限制偏航轴控制输出量
-	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -400, +400);	
+	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -500, +500);	
 
     return rateControlOutput;
 }
@@ -115,7 +116,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
 	static float velLpf;
     float altInnerControlOutput;
     //悬停油门中点
-	int16_t throttleMid = 850;
+	int16_t throttleMid = 900;
 
     //防止解锁后在待机状态下油门输出过高
     if(GetFlightStatus() == STANDBY)
@@ -163,27 +164,22 @@ void FlightControlInnerLoop(Vector3f_t gyro)
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();	    
     
-    //姿态内环控制量
-    static Vector3f_t attInnerCtlValue;
-    //高度内环控制量
-    static float      altInnerCtlValue;
-    
     //姿态内环控制
-    attInnerCtlValue = AttitudeInnerControl(gyro, deltaT);
+    fc.attInnerCtlValue = AttitudeInnerControl(gyro, deltaT);
     
     //高度内环控制
     //在手动模式下（MANUAL），油门直接由摇杆数据控制
     if(GetFlightMode() == MANUAL)
     {
-        altInnerCtlValue = fc.rcTarget.throttle;
+        fc.altInnerCtlValue = fc.rcTarget.throttle;
     }
     else
     {
-        altInnerCtlValue = AltitudeInnerControl(GetCopterVelocity().z, deltaT);
+        fc.altInnerCtlValue = AltitudeInnerControl(GetCopterVelocity().z, deltaT);
     }
     
     //将内环控制量转换为动力电机输出
-    MotorControl(attInnerCtlValue.x, attInnerCtlValue.y, attInnerCtlValue.z, altInnerCtlValue);
+    MotorControl(fc.attInnerCtlValue.x, fc.attInnerCtlValue.y, fc.attInnerCtlValue.z, fc.altInnerCtlValue);
 }
 
 /**********************************************************************************************************
@@ -255,7 +251,7 @@ void AttitudeOuterControl(void)
         //计算偏航轴PID控制量
         attOuterCtlValue.z = -PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 1.0f;	
         //限幅，单位为°/s
-        attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -100, 100);
+        attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -50, 50);
 	}
 	else
 	{

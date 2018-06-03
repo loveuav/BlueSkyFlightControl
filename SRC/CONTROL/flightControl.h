@@ -35,6 +35,11 @@ typedef struct
 	
     RCTARGET_t rcTarget;
     Vector3f_t angleLpf;
+
+    //姿态内环控制量
+    Vector3f_t attInnerCtlValue;
+    //高度内环控制量
+    float      altInnerCtlValue;
     
 	Vector3f_t attInnerTarget;
     Vector3f_t attOuterTarget;

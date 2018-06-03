@@ -378,9 +378,9 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
                 acc.x *= 0.998f;
             
             if(acc.z > 0)
-                acc.z *= 1.023f;
+                acc.z *= 1.02f;
             else
-                acc.z *= 0.977f;
+                acc.z *= 0.98f;
         }
         
         //转化加速度到地理坐标系
