@@ -18,6 +18,12 @@
 
 xTaskHandle flightControlTask;
 
+/**********************************************************************************************************
+*函 数 名: vFlightControlTask
+*功能说明: 飞行控制相关任务
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
 portTASK_FUNCTION(vFlightControlTask, pvParameters) 
 {
 	Vector3f_t* gyro;
@@ -74,11 +80,23 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 	}
 }
 
+/**********************************************************************************************************
+*函 数 名: ControlTaskCreate
+*功能说明: 控制相关任务创建
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
 void ControlTaskCreate(void)
 {
 	xTaskCreate(vFlightControlTask, "flightControl", FLIGHTCONTROL_TASK_STACK, NULL, FLIGHTCONTROL_TASK_PRIORITY, &flightControlTask); 
 }
 
+/**********************************************************************************************************
+*函 数 名: GetFlightControlTaskStackUse
+*功能说明: 获取任务堆栈使用情况
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
 int16_t	GetFlightControlTaskStackUse(void)
 {
 	return uxTaskGetStackHighWaterMark(flightControlTask);

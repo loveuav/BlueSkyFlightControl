@@ -49,7 +49,7 @@ static void DataSendDebug(void)
 	dataToSend[_cnt++] = 0x02;
 	dataToSend[_cnt++] = 0;
 	
-	dataTemp.i16 = GetCopterAngle().z;//fc.angleLpf.x * 10;
+	dataTemp.i16 = fc.angleLpf.x * 10;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 	dataTemp.i16 = fc.rcTarget.roll;
@@ -58,22 +58,22 @@ static void DataSendDebug(void)
 	dataTemp.i16 = GetAttOuterCtlError().x * 10;//fc.posOuterTarget.z;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.gpsVel.y;//GetAttOuterCtlError().y * 10;//
+	dataTemp.i16 = GetAttOuterCtlError().y * 10;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.velocity.y;//GetAttOuterCtlError().z * 10;//
+	dataTemp.i16 = GetAttOuterCtlError().z * 10;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = fc.posInnerTarget.y;//GetCopterVelocity().z;//BaroGetAlt();
+	dataTemp.i16 = fc.attInnerCtlValue.x;//GetCopterVelocity().z;//BaroGetAlt();
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = fc.posInnerTarget.x;//nav.velocity2.x;//ahrs.vectorRollPitchError.x * 1000;
+	dataTemp.i16 = fc.attInnerCtlValue.y;//nav.velocity2.x;//ahrs.vectorRollPitchError.x * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.gpsVel.x;//GpsGetPosition().y;//nav.velocity2.y;//nav.velocity2.z;//
+	dataTemp.i16 = fc.attInnerCtlValue.z;//nav.velocity2.y;//nav.velocity2.z;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.velocity.x;//nav.velocity.y;//nav.velocity2.z;//ahrs.vectorRollPitchError.z * 1000;
+	dataTemp.i16 = fc.altInnerCtlValue;//nav.velocity2.z;//ahrs.vectorRollPitchError.z * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 

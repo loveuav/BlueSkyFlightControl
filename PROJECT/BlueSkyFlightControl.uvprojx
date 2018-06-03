@@ -439,6 +439,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\SYSTEM\flightStatus.h</FilePath>
             </File>
+            <File>
+              <FileName>README.md</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\README.md</FilePath>
+            </File>
+            <File>
+              <FileName>项目开发记录.md</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\项目开发记录.md</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

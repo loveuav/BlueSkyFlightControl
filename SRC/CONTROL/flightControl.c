@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     flightControl.c
- * @说明     飞行控制，由于飞控硬件没完成，飞机也还没组装，暂时无法测试
+ * @说明     飞行控制
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -33,11 +33,11 @@ void FlightControlInit(void)
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[YAW_OUTER],   8.0, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.03, 250, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.01, 250, 30);	
 
 	PID_SetParam(&fc.pid[POS_X],       1.5, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
@@ -52,9 +52,9 @@ void FlightControlInit(void)
 **********************************************************************************************************/
 void SetRcTarget(RCTARGET_t rcTarget)
 {
-    fc.rcTarget.roll  = fc.rcTarget.roll * 0.92f + rcTarget.roll * 0.08f;
-    fc.rcTarget.pitch = fc.rcTarget.pitch * 0.92f + rcTarget.pitch * 0.08f;
-    fc.rcTarget.yaw   = fc.rcTarget.yaw * 0.92f + rcTarget.yaw * 0.08f;
+    fc.rcTarget.roll  = fc.rcTarget.roll * 0.95f + rcTarget.roll * 0.05f;
+    fc.rcTarget.pitch = fc.rcTarget.pitch * 0.95f + rcTarget.pitch * 0.05f;
+    fc.rcTarget.yaw   = fc.rcTarget.yaw * 0.95f + rcTarget.yaw * 0.05f;
     fc.rcTarget.throttle  = rcTarget.throttle;
 }
 
