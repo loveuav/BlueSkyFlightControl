@@ -68,13 +68,15 @@ void VelocityEstimate(void)
         if(GpsGetFixStatus())
         {
             //获取GPS速度测量值，转换速度值到机体坐标系
-            TransVelToBodyFrame(GpsGetVelocity(), &velMeasure, GetCopterAngle().z);
+            TransVelToBodyFrame(GpsGetVelocity(), &nav.gpsVel, GetCopterAngle().z);
         }
         else
         {
-            velMeasure.x = 0;
-            velMeasure.y = 0;
+            nav.gpsVel.x = 0;
+            nav.gpsVel.y = 0;
         }
+        velMeasure.x = nav.gpsVel.x;
+        velMeasure.y = nav.gpsVel.y;
         //获取气压速度测量值
         velMeasure.z = BaroGetVelocity();	
         
@@ -190,7 +192,7 @@ void PositionEstimate(void)
 static void KalmanVelInit(void)
 {
     float qMatInit[9] = {0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.03};
-    float rMatInit[9] = {500, 0,  0, 0, 500, 0, 0, 0, 2500};
+    float rMatInit[9] = {50, 0,  0, 0, 50, 0, 0, 0, 2500};
     float pMatInit[9] = {5, 0, 0, 0, 5, 0, 0, 0, 8};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -214,7 +216,7 @@ static void KalmanVelInit(void)
 static void KalmanPosInit(void)
 {
     float qMatInit[9] = {0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.03};
-    float rMatInit[9] = {250, 0,  0, 0, 250, 0, 0, 0, 1000};
+    float rMatInit[9] = {3000, 0,  0, 0, 3000, 0, 0, 0, 1000};
     float pMatInit[9] = {3, 0, 0, 0, 3, 0, 0, 0, 5};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};

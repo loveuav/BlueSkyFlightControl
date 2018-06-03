@@ -350,12 +350,12 @@ void PositionInnerControl(void)
 	fc.posInnerError.y = fc.posInnerTarget.y - velLpf.y;
     
     //PID算法，计算出位置内环（X、Y轴速度）的控制量
-	posInnerCtlOutput.x = PID_GetPID(&fc.pid[VEL_X], fc.posInnerError.x, deltaT);
-	posInnerCtlOutput.y = PID_GetPID(&fc.pid[VEL_Y], fc.posInnerError.y, deltaT);
+	posInnerCtlOutput.y = PID_GetPID(&fc.pid[VEL_X], fc.posInnerError.x, deltaT) * 0.1f;
+	posInnerCtlOutput.x = PID_GetPID(&fc.pid[VEL_Y], fc.posInnerError.y, deltaT) * 0.1f;
 
 	//PID控制输出限幅
-	posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -200, 200);
-	posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -200, 200);
+	posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -30, 30);
+	posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -30, 30);
     
     //将位置内环控制量作为姿态外环的控制目标
 	SetAttOuterCtlTarget(posInnerCtlOutput);

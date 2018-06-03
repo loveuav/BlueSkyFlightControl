@@ -196,7 +196,9 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     {       
         //使能位置控制
         SetPosCtlStatus(ENABLE);
-        
+//        SetPosCtlStatus(DISABLE);
+//        velCtlTarget.x = 0;
+//        velCtlTarget.y = 0;        
         //更新位置控制状态
         SetPosControlStatus(POS_HOLD);     
     }     

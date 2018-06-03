@@ -59,13 +59,13 @@ void GpsDataPreTreat(void)
     
     //检查GPS状态，判断当前定位精度是否满足使用要求
     gps.status = GpsCheckStatus(gps.satNum, gps.acc);
-    
+
+	gps.latitude = gpsRaw.latitude;
+	gps.longitude = gpsRaw.longitude;  
+	
     //若GPS已经定位，则
     if(gps.status)
     {
-        gps.latitude = gpsRaw.latitude;
-        gps.longitude = gpsRaw.longitude;
-
         //以Home点为坐标原点计算GPS位置（cm）
         GpsCalcPositionChanged(&gps.position, gps.latitude, gps.longitude, gps.homePosition[LAT], gps.homePosition[LON]);	 
 
@@ -98,7 +98,7 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
 			gpsFixCnt++;
 			
 			if(gpsFixCnt > 10){
-				gps.status = 1;
+				status = 1;
 				
 				if(!firstFix){
 					firstFix = 1;
