@@ -48,19 +48,23 @@ typedef struct
 enum
 {
     MPU6000,
-    MPU6500
+    MPU6500,
+    ICM20689
 };
 
 enum
 {
     BMP280,
-    MS5611
+    MS5611,
+    _2SMPB,
+    LPS22HB
 };
 
 enum
 {
     HMC5883,
-    QMC5883
+    QMC5883,
+    IST8310
 };
 
 void BoardInit(void);

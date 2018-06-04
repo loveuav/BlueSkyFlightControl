@@ -2,22 +2,19 @@
                                 天穹飞控 —— 致力于打造中国最好的多旋翼开源飞控
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
- * @文件     mpu6500.c
- * @说明     MPU6500六轴传感器驱动
+ * @文件     icm20689.c
+ * @说明     ICM20689六轴传感器驱动
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.06 
 **********************************************************************************************************/
-#include "mpu6500.h"
+#include "icm20689.h"
 #include "drv_spi.h"
 
-#define MPU_GYRO_SELF_TEST_X    0x00    //陀螺仪x轴自检
-#define MPU_GYRO_SELF_TEST_Y    0x01    //陀螺仪y轴自检
-#define MPU_GYRO_SELF_TEST_Z    0x02    //陀螺仪z轴自检
-#define MPU_ACCEL_SELF_TEST_X   0x0D    //加速度x轴自检
-#define MPU_ACCEL_SELF_TEST_Y   0x0E    //加速度y轴自检
-#define MPU_ACCEL_SELF_TEST_Z   0x0F    //加速度z轴自检
+#define MPU_RA_XG_OFFS_TC       0x00    //[7] PWR_MODE, [6:1] XG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU_RA_YG_OFFS_TC       0x01    //[7] PWR_MODE, [6:1] YG_OFFS_TC, [0] OTP_BNK_VLD
+#define MPU_RA_ZG_OFFS_TC       0x02    //[7] PWR_MODE, [6:1] ZG_OFFS_TC, [0] OTP_BNK_VLD
 #define MPU_RA_X_FINE_GAIN      0x03    //[7:0] X_FINE_GAIN
 #define MPU_RA_Y_FINE_GAIN      0x04    //[7:0] Y_FINE_GAIN
 #define MPU_RA_Z_FINE_GAIN      0x05    //[7:0] Z_FINE_GAIN
@@ -129,38 +126,38 @@
 
 
 /**********************************************************************************************************
-*函 数 名: MPU6500_Detect
-*功能说明: 检测MPU6500是否存在
+*函 数 名: ICM20689_Detect
+*功能说明: 检测ICM20689是否存在
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-bool MPU6500_Detect(void)
+bool ICM20689_Detect(void)
 {
 	uint8_t who_am_i;
 	
 	Spi_GyroMultiRead(MPU_RA_WHO_AM_I, &who_am_i, 1);
 	
-	if(who_am_i == 0x70)
+	if(who_am_i == 0x98)
 		return true;
 	else 
 		return false;
 }
 
 /**********************************************************************************************************
-*函 数 名: MPU6500_Init
-*功能说明: MPU6500寄存器配置初始化
+*函 数 名: ICM20689_Init
+*功能说明: ICM20689寄存器配置初始化
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void MPU6500_Init(void)
+void ICM20689_Init(void)
 {	
 	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x80);
-	SoftDelayMs(100);
+	SoftDelayMs(50);
 	
 	Spi_GyroSingleWrite(MPU_RA_SIGNAL_PATH_RESET, BIT_GYRO | BIT_ACC | BIT_TEMP);
-	SoftDelayMs(100);
+	SoftDelayMs(50);
 	
-	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x03);
+	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x00);
 	SoftDelayUs(5);
 	
 	Spi_GyroSingleWrite(MPU_RA_USER_CTRL, 0x10);
@@ -197,12 +194,12 @@ void MPU6500_Init(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: MPU6500_ReadAcc
-*功能说明: MPU6500读取加速度传感器，并转化为标准单位
+*函 数 名: ICM20689_ReadAcc
+*功能说明: ICM20689读取加速度传感器，并转化为标准单位
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void MPU6500_ReadAcc(Vector3f_t* acc)
+void ICM20689_ReadAcc(Vector3f_t* acc)
 {
 	uint8_t buffer[6];
     Vector3i_t accRaw;
@@ -220,12 +217,12 @@ void MPU6500_ReadAcc(Vector3f_t* acc)
 }
 
 /**********************************************************************************************************
-*函 数 名: MPU6500_ReadGyro
-*功能说明: MPU6500读取陀螺仪传感器，并转化为标准单位
+*函 数 名: ICM20689_ReadGyro
+*功能说明: ICM20689读取陀螺仪传感器，并转化为标准单位
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void MPU6500_ReadGyro(Vector3f_t* gyro)
+void ICM20689_ReadGyro(Vector3f_t* gyro)
 {
 	uint8_t buffer[6];
     Vector3i_t gyroRaw;
@@ -243,19 +240,19 @@ void MPU6500_ReadGyro(Vector3f_t* gyro)
 }
 
 /**********************************************************************************************************
-*函 数 名: MPU6500_ReadTemp
-*功能说明: MPU6500读取温度传感器
+*函 数 名: ICM20689_ReadTemp
+*功能说明: ICM20689读取温度传感器
 *形    参: 读出数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void MPU6500_ReadTemp(float* temp)
+void ICM20689_ReadTemp(float* temp)
 {
 	uint8_t buffer[2];
 	static int16_t temperature_temp;
 	
 	Spi_GyroMultiRead(MPU_RA_TEMP_OUT_H, buffer, 2);	
 	temperature_temp = ((((int16_t)buffer[0]) << 8) | buffer[1]);		
-	*temp = 21 + (float)temperature_temp / 333.87f;
+	*temp = 25 + (float)temperature_temp / 326.8f;
     
     SoftDelayUs(1);
 }

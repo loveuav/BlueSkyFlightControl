@@ -29,9 +29,9 @@ portTASK_FUNCTION(vImuSensorReadTask, pvParameters)
 {
 	portTickType xLastWakeTime;
 
-	Vector3f_t* accRawData = pvPortMalloc(sizeof(Vector3f_t));
+	Vector3f_t* accRawData  = pvPortMalloc(sizeof(Vector3f_t));
 	Vector3f_t* gyroRawData = pvPortMalloc(sizeof(Vector3f_t));
-	float* tempRawData = pvPortMalloc(sizeof(float));
+	float*      tempRawData = pvPortMalloc(sizeof(float));
 
 	//挂起调度器
 	vTaskSuspendAll();

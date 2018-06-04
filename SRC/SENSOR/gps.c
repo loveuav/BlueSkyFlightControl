@@ -93,14 +93,18 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
 	static uint16_t gpsFixCnt = 0;
     static uint8_t status = 0;
 		
-	if(!status){
-		if(satNum >= 6 && (acc < 2.5f && acc > 0) ){			
+	if(!status)
+    {
+		if(satNum >= 6 && (acc < 2.5f && acc > 0) )
+        {			
 			gpsFixCnt++;
 			
-			if(gpsFixCnt > 10){
+			if(gpsFixCnt > 10)
+            {
 				status = 1;
 				
-				if(!firstFix){
+				if(!firstFix)
+                {
 					firstFix = 1;
 					//设置Home点坐标
 					GpsSetHomePosition();
@@ -109,8 +113,10 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
 			}
 		}
 	}
-	else{
-		if(satNum <= 4 || acc > 3.5f){
+	else
+    {
+		if(satNum <= 4 || acc > 3.5f || FaultDetectGetErrorStatus(GPS_UNDETECTED))
+        {
 			status = 0;
 		}
 	}
