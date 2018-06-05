@@ -18,6 +18,9 @@ void NavigationInit(void);
 void VelocityEstimate(void);
 void PositionEstimate(void);
 
+void AltCovarianceSelfAdaptation(void);
+void PosCovarianceSelfAdaptation(void);
+
 Vector3f_t GetCopterAccel(void);
 Vector3f_t GetCopterVelocity(void);
 Vector3f_t GetCopterPosition(void);

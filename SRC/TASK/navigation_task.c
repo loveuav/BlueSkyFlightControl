@@ -58,6 +58,12 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 		//等待系统初始化完成
 		if(GetInitStatus() == INIT_FINISH)
 		{
+			//高度卡尔曼噪声协方差参数自适应
+			AltCovarianceSelfAdaptation();
+
+			//位置卡尔曼噪声协方差参数自适应
+			PosCovarianceSelfAdaptation();
+
 			//飞行速度估计
 			VelocityEstimate();
 			

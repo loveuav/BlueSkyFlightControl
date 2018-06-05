@@ -21,6 +21,7 @@ NAVGATION_t nav;
 Kalman_t kalmanVel;
 Kalman_t kalmanPos;
 
+
 static void KalmanVelInit(void);
 static void KalmanPosInit(void);
 
@@ -181,6 +182,81 @@ void PositionEstimate(void)
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanPos, input, posMeasure, fuseFlag);
     nav.position = kalmanPos.status;    
+}
+
+/**********************************************************************************************************
+*函 数 名: AltCovarianceSelfAdaptation
+*功能说明: 高度误差协方差自适应
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void AltCovarianceSelfAdaptation(void)
+{
+	static Vector3f_t accelLpf;
+	float accelMag;
+	float windSpeed, windSpeedAcc;
+
+	//对运动加速度进行低通滤波
+	accelLpf.x = accelLpf.x * 0.995f + nav.accel.x * 0.005f;
+	accelLpf.y = accelLpf.y * 0.995f + nav.accel.y * 0.005f;	
+
+	//计算运动加速度模值
+	accelMag = Pythagorous2(accelLpf.x, accelLpf.y);
+
+	//获取当前环境风速与风加速（悬停时）
+	windSpeed = 0;
+	windSpeedAcc = 0;
+
+	//飞行中，速度变化会带来气压变化（伯努利效应），引起高度计算误差
+	//除了要适当补偿气压误差外，还可以在这种状态下增大高度测量协方差，减小气压融合权重
+	if(GetPosControlStatus() == POS_CHANGED)	
+	{
+		if(GetAltControlStatus() == ALT_HOLD)
+		{
+			kalmanVel.r[8] = 2500 * (1 + ConstrainFloat(accelMag, 0, 0.5f));
+			kalmanPos.r[8] = 1500 * (1 + ConstrainFloat(accelMag, 0, 0.5f));
+		}
+		else
+		{
+			kalmanVel.r[8] = 2500 * (1 + ConstrainFloat(accelMag, 0, 0.5f));
+			kalmanPos.r[8] = 500;			
+		}
+	}
+	else if(GetPosControlStatus() == POS_HOLD)	
+	{
+		//悬停时,气压误差会随着环境风速的变化而增大
+		if(GetAltControlStatus() == ALT_HOLD)
+		{
+			kalmanVel.r[8] = 2500 * (1 + ConstrainFloat(windSpeed * 0.6f + windSpeedAcc * 0.4f, 0, 0.5f));
+			kalmanPos.r[8] = 1500 * (1 + ConstrainFloat(windSpeed * 0.6f + windSpeedAcc * 0.4f, 0, 0.5f));	
+		}
+		else if(GetAltControlStatus() == ALT_CHANGED)
+		{
+			kalmanVel.r[8] = 2500;
+			kalmanPos.r[8] = 200;	
+		}
+		else
+		{
+			kalmanVel.r[8] = 1800;
+			kalmanPos.r[8] = 500;			
+		}
+	}
+	else
+	{
+		kalmanVel.r[8] = 2500;
+		kalmanPos.r[8] = 1500;	
+	}
+}
+
+/**********************************************************************************************************
+*函 数 名: PosCovarianceSelfAdaptation
+*功能说明: 位置误差协方差自适应
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void PosCovarianceSelfAdaptation(void)
+{
+
 }
 
 /**********************************************************************************************************
