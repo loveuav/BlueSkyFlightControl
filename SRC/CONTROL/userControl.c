@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     userControl.c
- * @说明     用户操控逻辑处理，目前分为手动档、半自动档、自动档
+ * @说明     用户操控逻辑处理，目前分为手动档（自稳）、半自动档（定高）、自动档（定点）
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -55,17 +55,17 @@ void UserControl(void)
 
     if(flightMode == MANUAL)        
     {
-        //手动档
+        //手动档（自稳）
         ManualControl(rcCommand, &rcTarget);
     }
     else if(flightMode ==SEMIAUTO)  
     {
-        //半自动档
+        //半自动档（定高）
         SemiAutoControl(rcCommand, &rcTarget);        
     }
     else if(flightMode == AUTO)     
     {
-        //自动档
+        //自动档（定点）
         AutoControl(rcCommand, &rcTarget);       
     }
 
@@ -126,7 +126,7 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     AltControl(rcCommand);  
 
     /**********************************************************************************************************
-    位置控制：该模式下油门摇杆量控制飞行速度，回中时飞机自动悬停
+    位置控制：该模式下摇杆量控制飞行速度，回中时飞机自动悬停
     **********************************************************************************************************/    
     if(abs(rcCommand.roll) > rcDeadband || abs(rcCommand.pitch) > rcDeadband)
     {
