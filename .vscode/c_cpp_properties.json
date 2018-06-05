@@ -1,0 +1,40 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "${workspaceFolder}",
+                "${workspaceFolder}/FreeRTOS/Source/include",
+                "${workspaceFolder}/FreeRTOS/Source/portable/RVDS/ARM_CM4F",
+                "${workspaceFolder}/STMLIB",
+                "${workspaceFolder}/STMLIB/inc",
+                "${workspaceFolder}/STMLIB/include",
+                "${workspaceFolder}/STMLIB/CORE",
+                "${workspaceFolder}/SRC/CONTROL",
+                "${workspaceFolder}/SRC/DATA",
+                "${workspaceFolder}/SRC/DRIVER",
+                "${workspaceFolder}/SRC/MATH",
+                "${workspaceFolder}/SRC/MODULE",
+                "${workspaceFolder}/SRC/NAVIGATION",
+                "${workspaceFolder}/SRC/SENSOR",
+                "${workspaceFolder}/SRC/SYSTEM",
+                "${workspaceFolder}/SRC/TASK"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 4
+}
