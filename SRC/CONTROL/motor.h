@@ -5,10 +5,10 @@
 
 typedef struct
 {
-    float throttle;
-    float roll;
-    float pitch;
-    float yaw;
+    float throttle;     //油门
+    float roll;         //横滚
+    float pitch;        //俯仰
+    float yaw;          //偏航
 } MOTOR_MIXER_t;
 
 typedef struct

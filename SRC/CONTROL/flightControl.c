@@ -86,8 +86,9 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 	rateControlOutput.y = PID_GetPID(&fc.pid[PITCH_INNER], fc.attInnerError.y, deltaT);
 	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER],   fc.attInnerError.z, deltaT);
 
-	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -600, +600);	
-	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -600, +600);		
+    //限制俯仰和横滚轴的控制输出量
+	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -800, +800);	
+	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -800, +800);		
     //限制偏航轴控制输出量
 	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -500, +500);	
 
@@ -118,7 +119,14 @@ static float AltitudeInnerControl(float velZ, float deltaT)
     //悬停油门中点
 	int16_t throttleMid = 900;
 
-    //防止解锁后在待机状态下油门输出过高
+    /****************************************************************************************
+        目前高度控制由高度环P控制以及速度环PID控制串联而成
+        速度环的D项，即加速度，起到速度前馈控制的效果，但速度微分过程会放大数据噪声，导致控制效果有限
+        后续考虑将加速度测量值代替速度环D项的微分值，提升前馈效果
+        但本身加速度测量值的噪声也比较大，可能需要使用一个合适的低通滤波来减少数据噪声
+    *****************************************************************************************/
+
+    //限制待机状态下的油门输出
     if(GetFlightStatus() == STANDBY)
         fc.posInnerTarget.z = -150;
     
@@ -129,12 +137,13 @@ static float AltitudeInnerControl(float velZ, float deltaT)
 	fc.posInnerError.z = fc.posInnerTarget.z - velLpf;
     
     //PID算法，计算出高度内环（Z轴速度）的控制量
-	altInnerControlOutput =  PID_GetP(&fc.pid[VEL_Z], fc.posInnerError.z);
-	altInnerControlOutput += PID_GetI(&fc.pid[VEL_Z], fc.posInnerError.z, deltaT);
-	altInnerControlOutput += ConstrainInt32(PID_GetD(&fc.pid[VEL_Z], fc.posInnerError.z, deltaT), -300, 300);
+	altInnerControlOutput  = PID_GetPI(&fc.pid[VEL_Z], fc.posInnerError.z, deltaT);
+    altInnerControlOutput += PID_GetD(&fc.pid[VEL_Z], fc.posInnerError.z, deltaT);
 	
+    //在PID控制量上加入油门前馈补偿
 	altInnerControlOutput += throttleMid;
 
+    //油门输出限幅
     altInnerControlOutput = ConstrainFloat(altInnerControlOutput, 200, 1800);	
     
     return altInnerControlOutput;
@@ -228,15 +237,26 @@ void AttitudeOuterControl(void)
 	attOuterCtlValue.y = PID_GetP(&fc.pid[PITCH_OUTER], fc.attOuterError.y) * 1.0f;
 
 	//PID控制输出限幅，目的是限制飞行中最大的运动角速度，单位为°/s
+    //同时限制各种位置控制状态下的角速度，提升飞行过程中的控制感观
     if(flightMode == MANUAL || flightMode == SEMIAUTO || GpsGetFixStatus() == false)	
 	{
         attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -220, 220);
         attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -220, 220);
     }
+    else if(GetPosControlStatus() == POS_CHANGED)
+    {
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -150, 150);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -150, 150);        
+    }
+    else if(GetPosControlStatus() == POS_BRAKE)
+    {
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -50, 50);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -50, 50);        
+    }
     else
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -80, 80);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -80, 80);        
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -100, 100);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -100, 100);    
     }
     
 	//若航向锁定被失能则直接将摇杆数值作为目标角速度
@@ -342,8 +362,8 @@ void PositionInnerControl(void)
 	previousT = GetSysTimeUs();	    
 	
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
-    velLpf.x = velLpf.x * 0.99f + GetCopterVelocity().x * 0.01f;
-    velLpf.y = velLpf.y * 0.99f + GetCopterVelocity().y * 0.01f;
+    velLpf.x = velLpf.x * 0.95f + GetCopterVelocity().x * 0.05f;
+    velLpf.y = velLpf.y * 0.95f + GetCopterVelocity().y * 0.05f;
     
     //计算控制误差
 	fc.posInnerError.x = fc.posInnerTarget.x - velLpf.x;
@@ -353,10 +373,18 @@ void PositionInnerControl(void)
 	posInnerCtlOutput.y = PID_GetPID(&fc.pid[VEL_X], fc.posInnerError.x, deltaT) * 0.1f;
 	posInnerCtlOutput.x = PID_GetPID(&fc.pid[VEL_Y], fc.posInnerError.y, deltaT) * 0.1f;
 
-	//PID控制输出限幅
-	posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -30, 30);
-	posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -30, 30);
-    
+	//PID控制输出限幅，单位：°（目标角度）
+    if(GetPosControlStatus() == POS_BRAKE)
+    {
+        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -20, 20);
+        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -20, 20);    
+    }
+    else
+    {
+        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -35, 35);
+        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -35, 35);
+    }
+
     //将位置内环控制量作为姿态外环的控制目标
 	SetAttOuterCtlTarget(posInnerCtlOutput);
 }	
@@ -385,8 +413,8 @@ void PositionOuterControl(void)
     Vector3f_t posOuterCtlValue; 
     
 	//获取当前飞机位置，并低通滤波，减少数据噪声对控制的干扰
-	posLpf.x = posLpf.x * 0.99f + GetCopterPosition().x * 0.01f;
-	posLpf.y = posLpf.y * 0.99f + GetCopterPosition().y * 0.01f;
+	posLpf.x = posLpf.x * 0.95f + GetCopterPosition().x * 0.05f;
+	posLpf.y = posLpf.y * 0.95f + GetCopterPosition().y * 0.05f;
 	
 	//计算位置外环控制误差：目标位置 - 实际位置
 	fc.posOuterError.x = fc.posOuterTarget.x - posLpf.x;
@@ -512,7 +540,6 @@ void FlightControlReset(void)
     PID_ResetI(&fc.pid[YAW_INNER]);
     PID_ResetI(&fc.pid[VEL_X]);
     PID_ResetI(&fc.pid[VEL_Y]);
-    //PID_ResetI(&fc.pid[VEL_Z]);
     
     //高度控制目标复位为当前高度
     SetAltOuterCtlTarget(GetCopterPosition().z);

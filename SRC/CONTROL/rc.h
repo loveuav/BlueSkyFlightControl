@@ -36,10 +36,10 @@ enum
 
 typedef struct
 {
-    int16_t roll;   
-    int16_t pitch;   
-    int16_t yaw;      
-    int16_t throttle;  
+    int16_t roll;       //横滚
+    int16_t pitch;      //俯仰
+    int16_t yaw;        //偏航
+    int16_t throttle;   //油门
 }RCCOMMAND_t;
 
 void RcInit(void);

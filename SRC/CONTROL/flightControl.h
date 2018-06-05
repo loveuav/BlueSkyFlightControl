@@ -31,29 +31,27 @@ typedef struct
 
 typedef struct
 {
-	PID_t      pid[PIDNUM];
+	PID_t      pid[PIDNUM];         //PID参数结构体
 	
-    RCTARGET_t rcTarget;
+    RCTARGET_t rcTarget;            //摇杆控制量
     Vector3f_t angleLpf;
 
-    //姿态内环控制量
-    Vector3f_t attInnerCtlValue;
-    //高度内环控制量
-    float      altInnerCtlValue;
+    Vector3f_t attInnerCtlValue;    //姿态内环控制量
+    float      altInnerCtlValue;    //高度内环控制量
     
-	Vector3f_t attInnerTarget;
-    Vector3f_t attOuterTarget;
- 	Vector3f_t posInnerTarget;   
- 	Vector3f_t posOuterTarget;  
+	Vector3f_t attInnerTarget;      //姿态内环（角速度）控制目标
+    Vector3f_t attOuterTarget;      //姿态外环（角度）控制目标
+ 	Vector3f_t posInnerTarget;      //位置内环（速度）控制目标
+ 	Vector3f_t posOuterTarget;      //位置外环（位置）控制目标
 
-    Vector3f_t attInnerError;
-    Vector3f_t attOuterError;
-    Vector3f_t posInnerError;
- 	Vector3f_t posOuterError;  
+    Vector3f_t attInnerError;       //姿态内环（角速度）控制误差
+    Vector3f_t attOuterError;       //姿态外环（角度）控制误差
+    Vector3f_t posInnerError;       //位置内环（速度）控制误差
+ 	Vector3f_t posOuterError;       //位置外环（位置）控制误差  
     
-    uint8_t    altCtlFlag;
-    uint8_t    posCtlFlag;
-    uint8_t    yawHoldFlag;
+    uint8_t    altCtlFlag;          //高度控制使能标志位
+    uint8_t    posCtlFlag;          //位置控制使能标志位
+    uint8_t    yawHoldFlag;         //航向锁定控制使能标志位
 }FLIGHTCONTROL_t;
 
 void FlightControlInit(void);

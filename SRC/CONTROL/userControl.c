@@ -17,10 +17,11 @@
 #include "navigation.h"
 #include "board.h"
 
-#define MAXANGLE  400
+#define MAXANGLE  400               //最大飞行角度：40°
 #define MAXRCDATA 450
-#define ALT_SPEED_UP_MAX	500	//5m/s
-#define ALT_SPEED_DOWN_MAX	300
+#define ALT_SPEED_UP_MAX	500	    //最大上升速度：5m/s
+#define ALT_SPEED_DOWN_MAX	300     //最大下降速度：3m/s
+#define HORIZON_SPEED_MAX	800     //最大水平飞行速度：8m/s
 
 static void ManualControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget);
 static void SemiAutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget);
@@ -113,7 +114,7 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     static int32_t lastTimePosChanged = 0;
     static int32_t lastTimePosBrake   = 0;
     static int16_t rcDeadband     = 50;
-	static float velRate          = (float)500 / MAXRCDATA;
+	static float velRate          = (float)HORIZON_SPEED_MAX / MAXRCDATA;
     static uint8_t posHoldChanged = 0;
     static Vector3f_t velCtlTarget;
     static Vector3f_t posCtlTarget;    
@@ -133,8 +134,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         rcCommand.pitch = ApplyDeadbandInt(rcCommand.pitch, rcDeadband);
         
         //摇杆量转为目标速度，低通滤波改变操控手感
-        velCtlTarget.x = velCtlTarget.x * 0.98f + (rcCommand.pitch * velRate) * 0.02f;
-        velCtlTarget.y = velCtlTarget.y * 0.98f + (rcCommand.roll * velRate) * 0.02f;
+        velCtlTarget.x = velCtlTarget.x * 0.992f + (rcCommand.pitch * velRate) * 0.008f;
+        velCtlTarget.y = velCtlTarget.y * 0.992f + (rcCommand.roll * velRate) * 0.008f;
         
         //直接控制速度，禁用位置控制
         SetPosCtlStatus(DISABLE);
@@ -162,8 +163,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         else if(GetPosControlStatus() == POS_BRAKE)
         {
             //减速刹车
-            velCtlTarget.x -= velCtlTarget.x * 0.06f;
-            velCtlTarget.y -= velCtlTarget.y * 0.06f;
+            velCtlTarget.x -= velCtlTarget.x * 0.05f;
+            velCtlTarget.y -= velCtlTarget.y * 0.05f;
 	        
             //飞机速度小于一定值或超出一定时间则认为刹车完成
             if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged < 3000)
