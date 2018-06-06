@@ -88,6 +88,10 @@ uint8_t GetFlightStatus(void);
 void SetFlightMode(uint8_t mode);
 uint8_t GetFlightMode(void);
 
+void WindEstimate(void);
+float GetWindSpeed(void);
+float GetWindSpeedAcc(void);
+
 void SetFailSafeStatus(bool status);
 bool GetFailSafeStatus(void);
 

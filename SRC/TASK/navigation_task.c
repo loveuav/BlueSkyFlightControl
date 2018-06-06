@@ -93,6 +93,9 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
         //飞行状态更新
         FlightStatusUpdate();
 
+		//环境风速估计
+		WindEstimate();
+
         //发送飞控数据
         DataSendLoop();
         

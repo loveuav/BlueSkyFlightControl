@@ -12,7 +12,8 @@
 #include "flightStatus.h"
 #include "rc.h"
 #include "navigation.h"
-
+#include "ahrs.h"
+#include "board.h"
 typedef struct
 {
     uint8_t init;           //初始化状态
@@ -26,6 +27,7 @@ typedef struct
 }FLIGHT_STATUS_t;
 
 FLIGHT_STATUS_t flyStatus;
+float windSpeed, windSpeedAcc;
 
 /**********************************************************************************************************
 *函 数 名: ArmedCheck
@@ -231,31 +233,31 @@ void SetFlightMode(uint8_t mode)
     switch(mode)
     {
         case    MANUAL:
-            flyStatus.mode = MANUAL;
+            flyStatus.mode = MANUAL;			//手动模式（自稳）
             break;
         case    SEMIAUTO:
-            flyStatus.mode = SEMIAUTO;
+            flyStatus.mode = SEMIAUTO;			//半自动模式（定高）
             break;
         case    AUTO:
-            flyStatus.mode = AUTO;
+            flyStatus.mode = AUTO;				//自动模式（定点）
             break;
         case    AUTOTAKEOFF:
-            //flyStatus.mode = AUTOTAKEOFF;
+            //flyStatus.mode = AUTOTAKEOFF;		//自动起飞
             break;
         case    AUTOLAND:
-            //flyStatus.mode = AUTOLAND;
+            //flyStatus.mode = AUTOLAND;		//自动降落
             break;
         case    RETURNTOHOME:
-            //flyStatus.mode = RETURNTOHOME;
+            //flyStatus.mode = RETURNTOHOME;	//自动返航
             break;
         case    AUTOCIRCLE:
-            //flyStatus.mode = AUTOCIRCLE;
+            //flyStatus.mode = AUTOCIRCLE;		//自动环绕
             break;
         case    AUTOPILOT:
-            //flyStatus.mode = AUTOPILOT;
+            //flyStatus.mode = AUTOPILOT;		//自动航线
             break;
         case    FOLLOWME:
-            //flyStatus.mode = FOLLOWME;
+            //flyStatus.mode = FOLLOWME;		//自动跟随
             break;
 		case    0xFF:
             break;
@@ -274,6 +276,68 @@ void SetFlightMode(uint8_t mode)
 uint8_t GetFlightMode(void)
 {
     return flyStatus.mode;    
+}
+
+/**********************************************************************************************************
+*函 数 名: WindEstimate
+*功能说明: 环境风速估计, 设定大小范围为[0:100]
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void WindEstimate(void)
+{
+	Vector3f_t angle = GetCopterAngle();
+	static float tiltAngle;
+	static float lastWindSpeed;
+
+	static uint32_t previousT;
+	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
+	previousT = GetSysTimeUs();	
+
+	//目前的风速估计思路为判断悬停状态下飞机悬停倾角大小
+
+	if(GetPosControlStatus() == POS_HOLD)
+	{
+		//计算悬停倾角, 并低通滤波
+		angle.x = ApplyDeadbandFloat(angle.x , 3);
+		angle.y = ApplyDeadbandFloat(angle.y , 3);
+		tiltAngle = tiltAngle * 0.995f + Pythagorous2(angle.x, angle.y) * 0.005f;
+
+		//将飞行倾角转换为环境风速
+		windSpeed = 100 * sinf(Radians(tiltAngle));
+
+		//计算风速变化，并低通滤波
+		windSpeedAcc = windSpeedAcc * 0.95f + ((windSpeed - lastWindSpeed) / deltaT) * 0.05f;
+		lastWindSpeed = windSpeed;
+	}
+	else
+	{
+		windSpeed    -= windSpeed * 0.005f;
+		windSpeedAcc -= windSpeedAcc * 0.005f;
+	}
+	
+}
+
+/**********************************************************************************************************
+*函 数 名: GetWindSpeed
+*功能说明: 获取当前环境风速
+*形    参: 无
+*返 回 值: 风速
+**********************************************************************************************************/
+float GetWindSpeed(void)
+{
+    return windSpeed;    
+}
+
+/**********************************************************************************************************
+*函 数 名: GetWindSpeedAcc
+*功能说明: 获取当前环境风加速
+*形    参: 无
+*返 回 值: 风加速
+**********************************************************************************************************/
+float GetWindSpeedAcc(void)
+{
+    return windSpeedAcc;    
 }
 
 /**********************************************************************************************************

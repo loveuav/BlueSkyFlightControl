@@ -101,6 +101,18 @@ static void SemiAutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     
     //高度控制
     AltControl(rcCommand);
+
+	//判断飞行状态
+	if(abs(rcCommand.roll) > 50 || abs(rcCommand.pitch) > 50)
+	{
+        //更新位置控制状态
+        SetPosControlStatus(POS_CHANGED);
+	}
+	else
+	{
+        //更新位置控制状态
+        SetPosControlStatus(POS_HOLD);		
+	}
 }
 
 /**********************************************************************************************************
