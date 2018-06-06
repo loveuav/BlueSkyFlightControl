@@ -204,8 +204,8 @@ void AltCovarianceSelfAdaptation(void)
 	accelMag = Pythagorous2(accelLpf.x, accelLpf.y);
 
 	//获取当前环境风速与风加速（悬停时）
-	windSpeed = 0;
-	windSpeedAcc = 0;
+	windSpeed = GetWindSpeed() * 0.02f;
+	windSpeedAcc = GetWindSpeedAcc() * 0.005f;
 
 	//飞行中，速度变化会带来气压变化（伯努利效应），引起高度计算误差
 	//除了要适当补偿气压误差外，还可以在这种状态下增大高度测量协方差，减小气压融合权重
@@ -214,7 +214,7 @@ void AltCovarianceSelfAdaptation(void)
 		if(GetAltControlStatus() == ALT_HOLD)
 		{
 			kalmanVel.r[8] = 2500 * (1 + ConstrainFloat(accelMag, 0, 0.5f));
-			kalmanPos.r[8] = 1500 * (1 + ConstrainFloat(accelMag, 0, 0.5f));
+			kalmanPos.r[8] = 1500 * (1 + ConstrainFloat(accelMag, 0, 1.0f));
 		}
 		else
 		{
@@ -227,8 +227,8 @@ void AltCovarianceSelfAdaptation(void)
 		//悬停时,气压误差会随着环境风速的变化而增大
 		if(GetAltControlStatus() == ALT_HOLD)
 		{
-			kalmanVel.r[8] = 2500 * (1 + ConstrainFloat(windSpeed * 0.6f + windSpeedAcc * 0.4f, 0, 0.5f));
-			kalmanPos.r[8] = 1500 * (1 + ConstrainFloat(windSpeed * 0.6f + windSpeedAcc * 0.4f, 0, 0.5f));	
+			kalmanVel.r[8] = 2500 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f));
+			kalmanPos.r[8] = 1500 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f));	
 		}
 		else if(GetAltControlStatus() == ALT_CHANGED)
 		{
