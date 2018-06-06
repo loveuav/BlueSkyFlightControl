@@ -16,7 +16,7 @@
 #define RAD_TO_DEG           57.29577951f	//弧度转角度
 
 #define EARTH_RADIUS         6371.004f      //km
-#define GRAVITY_ACCEL        0.98f          //重力加速度 单位：m/s^2
+#define GRAVITY_ACCEL        9.8f          //重力加速度 单位：m/s^2
 
 #define HALF_SQRT_2          0.70710678118654757f	//根号2的值
 

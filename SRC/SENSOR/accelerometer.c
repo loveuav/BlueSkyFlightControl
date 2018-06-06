@@ -82,7 +82,7 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 	acc.dataLpf = LowPassFilter2nd(&acc.lpf_2nd, acc.data);
     
 	//计算加速度模值
-	acc.mag = Pythagorous3(acc.dataLpf.x, acc.dataLpf.y, acc.dataLpf.z) / GRAVITY_ACCEL;
+	acc.mag = Pythagorous3(acc.dataLpf.x, acc.dataLpf.y, acc.dataLpf.z);
     
 	//震动系数计算
 	accMagderi = (acc.mag - lastAccMag) / deltaT;
@@ -137,7 +137,7 @@ void AccCalibration(Vector3f_t accRaw)
 		if(samples_count == 101)
 		{
             //高斯牛顿法求解误差方程
-            GaussNewtonCalibrate(samples, &new_offset, &new_scale, GRAVITY_ACCEL, 20);
+            GaussNewtonCalibrate(samples, &new_offset, &new_scale, 1, 20);
 			acc.cali.step = 0;
 
             //判断校准参数是否正常
@@ -145,7 +145,7 @@ void AccCalibration(Vector3f_t accRaw)
             {
                 success = false;
             }
-            if(fabsf(new_offset.x) > (GRAVITY_ACCEL * 0.35f) || fabsf(new_offset.y) > (GRAVITY_ACCEL * 0.35f) || fabsf(new_offset.z) > (GRAVITY_ACCEL * 0.6f)) 
+            if(fabsf(new_offset.x) > (1 * 0.35f) || fabsf(new_offset.y) > (1 * 0.35f) || fabsf(new_offset.z) > (1 * 0.6f)) 
             {
                 success = false;
             }

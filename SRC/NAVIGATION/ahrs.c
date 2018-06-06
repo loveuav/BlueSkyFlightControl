@@ -361,7 +361,7 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         //计算重力加速度在机体坐标系的投影
         gravityBf.x = 0;
         gravityBf.y = 0;    
-        gravityBf.z = GRAVITY_ACCEL;
+        gravityBf.z = 1;
         EarthFrameToBodyFrame(angle, gravityBf, &gravityBf);
         
         //减去重力加速度
@@ -369,19 +369,26 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         acc.y -= gravityBf.y;
         acc.z -= gravityBf.z;
         
-        //加速度正反轴比例误差补偿,不同型号传感器这个误差不一样，其中6500的特别大
-        if(GYRO_TYPE == MPU6500)
-        {
-            if(acc.x > 0)
-                acc.x *= 1.002f;
-            else
-                acc.x *= 0.998f;
-            
-            if(acc.z > 0)
-                acc.z *= 1.02f;
-            else
-                acc.z *= 0.98f;
-        }
+        //加速度正反轴比例误差补偿
+//        if(GYRO_TYPE == MPU6500)
+//        {
+//            if(acc.x > 0)
+//                acc.x *= 1.002f;
+//            else
+//                acc.x *= 0.998f;
+//            
+//            if(acc.z > 0)
+//                acc.z *= 1.02f;
+//            else
+//                acc.z *= 0.98f;
+//        }
+//        else
+//        {
+//            if(acc.z > 0)
+//                acc.z *= 1.015f;
+//            else
+//                acc.z *= 0.985f;            
+//        }
         
         //转化加速度到地理坐标系
         BodyFrameToEarthFrame(angle, acc, accEf);
@@ -418,7 +425,7 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
             
             BodyFrameToEarthFrame(accAngle, acc, &accEfLpf);
             accEfLpf.y = -accEfLpf.y;	
-            accEfLpf.z = accEfLpf.z - GRAVITY_ACCEL; 
+            accEfLpf.z = accEfLpf.z - 1; 
             
 			accEfOffset->x = accEfOffset->x * 0.998f + accEfLpf.x * 0.002f;
 			accEfOffset->y = accEfOffset->y * 0.998f + accEfLpf.y * 0.002f; 

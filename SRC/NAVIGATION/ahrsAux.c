@@ -165,7 +165,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	BodyFrameToEarthFrame(ahrsAux.angle, acc, &ahrsAux.accEf);
 
     //减去重力加速度(0,0,g)    
-	ahrsAux.accEf.z = ahrsAux.accEf.z - GRAVITY_ACCEL;   
+	ahrsAux.accEf.z = ahrsAux.accEf.z - 1;   
 }
 
 /**********************************************************************************************************
