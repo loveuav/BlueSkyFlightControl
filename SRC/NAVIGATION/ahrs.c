@@ -24,7 +24,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc);
 static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag);
 static void KalmanRollPitchInit(void);
 static void KalmanYawInit(void);
-static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfOffset);
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accBfOffset);
 static Vector3f_t AccSportCompensate(Vector3f_t acc);
 
 /**********************************************************************************************************
@@ -108,9 +108,14 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
 	deltaAngle.x = Radians(gyro.x * deltaT); 
 	deltaAngle.y = Radians(gyro.y * deltaT); 
 	deltaAngle.z = Radians(gyro.z * deltaT);	    
-    
+     
     //运动加速度补偿
     accCompensate = AccSportCompensate(acc);
+    
+    //加速度零偏补偿
+    accCompensate.x -= ahrs.accBfOffset.x;
+    accCompensate.y -= ahrs.accBfOffset.y;
+    accCompensate.z -= ahrs.accBfOffset.z;    
     
     //俯仰横滚角估计
     AttitudeEstimateRollPitch(deltaAngle, accCompensate);
@@ -119,7 +124,7 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     AttitudeEstimateYaw(deltaAngle, mag);
     
     //计算飞行器在地理坐标系下的运动加速度
-    TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accEfOffset);
+    TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accBfOffset);
 }
 
 /**********************************************************************************************************
@@ -346,10 +351,10 @@ void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 *形    参: 当前飞机姿态 加速度 地理坐标系下的加速度
 *返 回 值: 无
 **********************************************************************************************************/
-static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfOffset)
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accBfOffset)
 {
 	static uint16_t offset_cnt = 8000;	//计算零偏的次数
-    static Vector3f_t accLpf, accEfLpf, accAngle;   //用于计算初始零偏
+    static Vector3f_t accAngle;   //用于计算初始零偏
     Vector3f_t gravityBf;
     
     //即使经过校准并对传感器做了恒温处理，加速度的零偏误差还是存在不稳定性，即相隔一定时间后再上电加速度零偏会发生变化
@@ -364,10 +369,10 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         gravityBf.z = 1;
         EarthFrameToBodyFrame(angle, gravityBf, &gravityBf);
         
-        //减去重力加速度
-        acc.x -= gravityBf.x;
-        acc.y -= gravityBf.y;
-        acc.z -= gravityBf.z;
+        //减去重力加速度和加速度零偏
+        acc.x -= (gravityBf.x + accBfOffset->x);
+        acc.y -= (gravityBf.y + accBfOffset->y);
+        acc.z -= (gravityBf.z + accBfOffset->z);
         
         //加速度正反轴比例误差补偿
 //        if(GYRO_TYPE == MPU6500)
@@ -392,14 +397,9 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         
         //转化加速度到地理坐标系
         BodyFrameToEarthFrame(angle, acc, accEf);
-
+        
         //转换坐标系（西北天）到东北天
         accEf->y = -accEf->y;	
-
-        //零偏补偿
-        accEf->x -= accEfOffset->x;
-        accEf->y -= accEfOffset->y;
-        accEf->z -= accEfOffset->z;
     }
     
 	//系统初始化时，计算加速度零偏
@@ -408,37 +408,28 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         //飞机静止时才进行零偏计算
 		if(GetPlaceStatus() == STATIC)
 		{
-            //加速度数据低通滤波，然后直接用滤波后的加速度值计算出姿态角
-            if(accLpf.x == 0 && accLpf.y == 0 && accLpf.z == 0)
-            {
-                accLpf = acc;
-            }
-            else
-            {
-                accLpf.x = accLpf.x * 0.999f + acc.x * 0.001f;
-                accLpf.y = accLpf.y * 0.999f + acc.y * 0.001f;
-                accLpf.z = accLpf.z * 0.999f + acc.z * 0.001f;                
-            }
-            //计算姿态角
-            accAngle.x = Degrees(atan2f(accLpf.y, Pythagorous2(accLpf.x, accLpf.z)));
-            accAngle.y = Degrees(atan2f(-accLpf.x, accLpf.z));
+            //直接使用加速度数据计算姿态角
+            accAngle.x = Degrees(atan2f(acc.y, Pythagorous2(acc.x, acc.z)));
+            accAngle.y = Degrees(atan2f(-acc.x, acc.z));
             
-            BodyFrameToEarthFrame(accAngle, acc, &accEfLpf);
-            accEfLpf.y = -accEfLpf.y;	
-            accEfLpf.z = accEfLpf.z - 1; 
+            //转换重力加速度到机体坐标系并计算零偏误差
+            gravityBf.x = 0;
+            gravityBf.y = 0;    
+            gravityBf.z = 1;
+            EarthFrameToBodyFrame(accAngle, gravityBf, &gravityBf);
             
-			accEfOffset->x = accEfOffset->x * 0.998f + accEfLpf.x * 0.002f;
-			accEfOffset->y = accEfOffset->y * 0.998f + accEfLpf.y * 0.002f; 
-			accEfOffset->z = accEfOffset->z * 0.998f + accEfLpf.z * 0.002f; 
+			accBfOffset->x = accBfOffset->x * 0.998f + (acc.x - gravityBf.x) * 0.002f;
+			accBfOffset->y = accBfOffset->y * 0.998f + (acc.y - gravityBf.y) * 0.002f; 
+			accBfOffset->z = accBfOffset->z * 0.998f + (acc.z - gravityBf.z) * 0.002f; 
 			offset_cnt--;
 		}
 		else
 		{
 			//计算过程中如果出现晃动，则重新开始
 			offset_cnt 	   = 8000;
-			accEfOffset->x = 0;
-			accEfOffset->y = 0;
-			accEfOffset->z = 0;
+			accBfOffset->x = 0;
+			accBfOffset->y = 0;
+			accBfOffset->z = 0;
 		}
         //完成零偏计算，系统初始化结束
         if(offset_cnt == 0)
@@ -456,13 +447,15 @@ static Vector3f_t AccSportCompensate(Vector3f_t acc)
 {
     Vector3f_t sportAccEf, sportAccBf;
     
-    //获取运动加速度并减去零偏误差
+    //获取运动加速度
     sportAccEf    = GetSportAccEf();
-    sportAccEf.x -= ahrs.accEfOffset.x;
-    sportAccEf.y -= -ahrs.accEfOffset.y;    
-    sportAccEf.z -= ahrs.accEfOffset.z;
-    //转换到机体坐标系
+    //转换到机体坐标系   
     EarthFrameToBodyFrame(ahrs.angle, sportAccEf, &sportAccBf);
+    //减去加速度零偏
+    sportAccBf.x -= ahrs.accBfOffset.x;
+    sportAccBf.y -= ahrs.accBfOffset.y;    
+    sportAccBf.z -= ahrs.accBfOffset.z;
+    
     //应用死区
     sportAccBf.x = ApplyDeadbandFloat(sportAccBf.x, 0.03f);
     sportAccBf.y = ApplyDeadbandFloat(sportAccBf.y, 0.03f);

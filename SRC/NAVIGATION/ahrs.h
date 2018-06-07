@@ -16,7 +16,7 @@ typedef struct{
     float      vectorYawKI;	
     
     Vector3f_t accEf;
-    Vector3f_t accEfOffset;
+    Vector3f_t accBfOffset;
 }AHRS_t;
 
 void AHRSInit(void);
