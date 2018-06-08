@@ -89,9 +89,9 @@ void VelocityEstimate(void)
     }
 
     //加速度积分，并转换单位为cm
-    input.x = nav.accel.x * deltaT * 100 * GRAVITY_ACCEL;
-    input.y = nav.accel.y * deltaT * 100 * GRAVITY_ACCEL;
-    input.z = nav.accel.z * deltaT * 100 * GRAVITY_ACCEL;
+    input.x = nav.accel.x * GRAVITY_ACCEL * deltaT * 100;
+    input.y = nav.accel.y * GRAVITY_ACCEL * deltaT * 100;
+    input.z = nav.accel.z * GRAVITY_ACCEL * deltaT * 100;
     
     //测试用
 //    if(GetArmedStatus() == ARMED)

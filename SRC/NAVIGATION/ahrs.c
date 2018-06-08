@@ -375,25 +375,7 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         acc.z -= (gravityBf.z + accBfOffset->z);
         
         //加速度正反轴比例误差补偿
-//        if(GYRO_TYPE == MPU6500)
-//        {
-//            if(acc.x > 0)
-//                acc.x *= 1.002f;
-//            else
-//                acc.x *= 0.998f;
-//            
-//            if(acc.z > 0)
-//                acc.z *= 1.02f;
-//            else
-//                acc.z *= 0.98f;
-//        }
-//        else
-//        {
-//            if(acc.z > 0)
-//                acc.z *= 1.015f;
-//            else
-//                acc.z *= 0.985f;            
-//        }
+        AccScaleCalibrate(&acc);
         
         //转化加速度到地理坐标系
         BodyFrameToEarthFrame(angle, acc, accEf);
