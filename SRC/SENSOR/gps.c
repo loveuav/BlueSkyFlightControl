@@ -18,6 +18,8 @@
 #define LAT  0 //纬度 latitude
 #define LON  1 //经度 longitude
 
+#define USE_VELNED
+
 typedef struct{
 	float acc;
 	uint8_t satNum;
@@ -37,10 +39,13 @@ typedef struct{
 static uint8_t GpsCheckStatus(uint8_t satNum, float acc);
 static void GpsSetHomePosition(void);
 static void GpsCalcPositionChanged(Vector3f_t* deltaDis, double lat1, double lon1, double lat2, double lon2);
-static void GpsCalcVelocity(double lat, double lon);
 void TransVelToBodyFrame(Vector3f_t velEf, Vector3f_t* velBf, float yaw);
 void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw);
 static void GpsDetectCheck(float gpsTime);
+
+#ifndef USE_VELNED
+static void GpsCalcVelocity(double lat, double lon);
+#endif
 
 GPS_t gps;
 
@@ -71,14 +76,17 @@ void GpsDataPreTreat(void)
 
         //通过坐标变化计算移动速度
         //如果直接从GPS模块获取速度值则无需调用此函数
-        //GpsCalcVelocity(gps.latitude, gps.longitude);  
+        #ifdef USE_VELNED
         gps.velocity.x = gpsRaw.velN;
-        gps.velocity.y = gpsRaw.velE;        
+        gps.velocity.y = gpsRaw.velE; 
+        #else
+        GpsCalcVelocity(gps.latitude, gps.longitude);  
+        #endif
+               
     }
 	
 	//判断GPS模块连接状况
 	GpsDetectCheck(gpsRaw.time);
-    
 }
 
 /**********************************************************************************************************
@@ -159,6 +167,7 @@ static void GpsCalcPositionChanged(Vector3f_t* deltaDis, double lat1, double lon
 *形    参: 纬度坐标 经度坐标
 *返 回 值: 无
 **********************************************************************************************************/
+#ifndef USE_VELNED
 static void GpsCalcVelocity(double lat, double lon)
 {
 	double deltaDis[2];
@@ -186,6 +195,7 @@ static void GpsCalcVelocity(double lat, double lon)
     lastGPSPosition[LON] = gps.longitude;
     lastGPSPosition[LAT] = gps.latitude;
 }
+#endif
 
 /**********************************************************************************************************
 *函 数 名: TransVelToBodyFrame

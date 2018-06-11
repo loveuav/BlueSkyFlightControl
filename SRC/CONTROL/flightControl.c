@@ -25,11 +25,11 @@ void FlightControlInit(void)
     //对于不同机型，姿态PID参数需要进行调整，高度和位置相关参数无需太大改动
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
     
-    //该参数下姿态控制精度可达0.1°（悬停），机架为F330，电调为BLS，动力为御的电机和桨
+    //该参数下姿态控制精度可达0.1°（悬停），测试机架为F330和F450，电调为BLS
     //电池横放，使重量主要分布在roll轴上，因此roll的参数要稍大一些
-	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.18, 30, 35);
-	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.16, 30, 35);
-	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 20, 35);
+	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.2, 50, 35);
+	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.18, 50, 35);
+	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 50, 35);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
@@ -87,10 +87,10 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 	rateControlOutput.z = PID_GetPID(&fc.pid[YAW_INNER],   fc.attInnerError.z, deltaT);
 
     //限制俯仰和横滚轴的控制输出量
-	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -800, +800);	
-	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -800, +800);		
+	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -1000, +1000);	
+	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -1000, +1000);		
     //限制偏航轴控制输出量
-	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -500, +500);	
+	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -600, +600);	
 
     return rateControlOutput;
 }

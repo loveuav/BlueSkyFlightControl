@@ -188,7 +188,7 @@ void ICM20689_Init(void)
     SoftDelayUs(50);		
     
 	//加速度低通滤波设置		
-	Spi_GyroSingleWrite(MPU_RA_ACCEL_CONFIG2, MPU_LPF_188HZ);   
+	Spi_GyroSingleWrite(MPU_RA_ACCEL_CONFIG2, MPU_LPF_42HZ);   
     
 	SoftDelayMs(5);		
 }

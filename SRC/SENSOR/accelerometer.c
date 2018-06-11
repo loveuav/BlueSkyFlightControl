@@ -130,7 +130,7 @@ void AccCalibration(Vector3f_t accRaw)
 			samples[acc.cali.step - 1].z /= 100;
 			samples_count++;		
 		}		
-	}	
+	}
 
 	if(acc.cali.step == 6)
 	{
@@ -149,6 +149,13 @@ void AccCalibration(Vector3f_t accRaw)
             {
                 success = false;
             }
+        }
+        
+        for(u8 i=0; i<6; i++)
+        {
+			samples[i].x = 0;
+			samples[i].y = 0;
+			samples[i].z = 0;            
         }
         
         if(success)
