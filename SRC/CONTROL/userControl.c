@@ -128,6 +128,7 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     static int16_t rcDeadband     = 50;
 	static float velRate          = (float)HORIZON_SPEED_MAX / MAXRCDATA;
     static uint8_t posHoldChanged = 0;
+    static float brakeFilter = 0;
     static Vector3f_t velCtlTarget;
     static Vector3f_t posCtlTarget;    
 
@@ -174,9 +175,12 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         }
         else if(GetPosControlStatus() == POS_BRAKE)
         {
+            brakeFilter += 0.0002f;
+			brakeFilter = ConstrainFloat(brakeFilter, 0.03f, 0.08f);
+            
             //减速刹车
-            velCtlTarget.x -= velCtlTarget.x * 0.05f;
-            velCtlTarget.y -= velCtlTarget.y * 0.05f;
+            velCtlTarget.x -= velCtlTarget.x * brakeFilter;
+            velCtlTarget.y -= velCtlTarget.y * brakeFilter;
 	        
             //飞机速度小于一定值或超出一定时间则认为刹车完成
             if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged < 3000)
@@ -199,6 +203,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
             {
                 posHoldChanged = 0;
             }
+            
+            brakeFilter = 0;
         }
         
         //更新位置控制目标
