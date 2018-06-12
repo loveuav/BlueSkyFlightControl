@@ -8,6 +8,7 @@ void TransVelToBodyFrame(Vector3f_t velEf, Vector3f_t* velBf, float yaw);
 void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw);
 float GetMagDeclination(void);
 bool GpsGetFixStatus(void);
+float GpsGetAccuracy(void);
 Vector3f_t GpsGetVelocity(void);
 Vector3f_t GpsGetPosition(void);
 

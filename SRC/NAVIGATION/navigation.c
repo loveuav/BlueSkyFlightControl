@@ -21,7 +21,6 @@ NAVGATION_t nav;
 Kalman_t kalmanVel;
 Kalman_t kalmanPos;
 
-
 static void KalmanVelInit(void);
 static void KalmanPosInit(void);
 
@@ -40,7 +39,7 @@ void NavigationInit(void)
 /**********************************************************************************************************
 *函 数 名: VelocityEstimate
 *功能说明: 飞行速度估计 目前只融合了GPS与气压，以后还会有光流、TOF等模块数据的参与
-*          速度的计算均在机体坐标系下进行，所以GPS速度在参与融合时需要先转换到机体坐标系
+*          速度的计算均在机体坐标系下进行，所以GPS速度在参与融合时需要先转换到机体坐标系 
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
@@ -258,7 +257,33 @@ void AltCovarianceSelfAdaptation(void)
 **********************************************************************************************************/
 void PosCovarianceSelfAdaptation(void)
 {
-
+    //获取GPS水平定位精度
+    float gpsAcc = GpsGetAccuracy();
+    
+	if(GetPosControlStatus() == POS_HOLD)	
+	{ 
+        kalmanVel.r[0] = kalmanVel.r[4] = 50 * (1 + ConstrainFloat((gpsAcc - 0.8f), -1, +2));
+        
+        kalmanPos.r[0] += 3;
+        kalmanPos.r[4] += 3;
+        kalmanPos.r[0] = ConstrainFloat(kalmanPos.r[0], 50, 888888);
+        kalmanPos.r[4] = ConstrainFloat(kalmanPos.r[4], 50, 888888);       
+	}
+	else if(GetPosControlStatus() == POS_CHANGED)	
+	{
+        kalmanVel.r[0] = kalmanVel.r[4] = 100 * (1 + ConstrainFloat((gpsAcc - 0.8f), -1, +2));
+        kalmanPos.r[0] = kalmanPos.r[4] = 50;
+	}
+	else if(GetPosControlStatus() == POS_BRAKE)	
+	{
+        kalmanVel.r[0] = kalmanVel.r[4] = 888;
+        kalmanPos.r[0] = kalmanPos.r[4] = 50;
+	}
+	else if(GetPosControlStatus() == POS_BRAKE_FINISH)	
+	{
+        kalmanVel.r[0] = kalmanVel.r[4] = 50 * (1 + ConstrainFloat((gpsAcc - 0.8f), -1, +2));
+        kalmanPos.r[0] = kalmanPos.r[4] = 50;        
+	}
 }
 
 /**********************************************************************************************************
@@ -293,8 +318,8 @@ static void KalmanVelInit(void)
 **********************************************************************************************************/
 static void KalmanPosInit(void)
 {
-    float qMatInit[9] = {0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.03};
-    float rMatInit[9] = {3000, 0,  0, 0, 3000, 0, 0, 0, 1000};
+    float qMatInit[9] = {0.003, 0, 0, 0, 0.003, 0, 0, 0, 0.03};
+    float rMatInit[9] = {500, 0,  0, 0, 500, 0, 0, 0, 1000};
     float pMatInit[9] = {3, 0, 0, 0, 3, 0, 0, 0, 5};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
