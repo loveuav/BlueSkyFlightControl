@@ -25,6 +25,8 @@ Vector3f_t GetCopterAccel(void);
 Vector3f_t GetCopterVelocity(void);
 Vector3f_t GetCopterPosition(void);
 
+float GetDirectionToHome(Vector3f_t position);
+
 void NavigationReset(void);
 
 extern NAVGATION_t nav;

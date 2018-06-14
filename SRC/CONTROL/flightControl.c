@@ -326,7 +326,7 @@ void AltitudeOuterControl(void)
 	altOuterCtlValue = PID_GetP(&fc.pid[POS_Z], fc.posOuterError.z);
 	
 	//PID控制输出限幅
-	altOuterCtlValue = ConstrainFloat(altOuterCtlValue, -200, 200);
+	altOuterCtlValue = ConstrainFloat(altOuterCtlValue, -200, 500);
 
     //将高度外环控制量作为高度内环的控制目标
     //若当前高度控制被禁用则不输出

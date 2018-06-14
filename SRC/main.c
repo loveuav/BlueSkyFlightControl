@@ -3,10 +3,11 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
                                 
- * @版本：	 V0.1
+ * @版本：	 V0.1.1
  * @作者：   BlueSky
  * @QQ:      352707983
  * @论坛:    爱无人机 bbs.loveuav.com
+ * @Q群:     472648354
  * @编译：   Keil ARM MDK 5.24 @ Win10 64位  
  
  * 1缩进等于4空格!
