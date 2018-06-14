@@ -110,9 +110,9 @@ void VelocityEstimate(void)
     nav.accelLpf.z = nav.accelLpf.z * 0.999f + nav.accel.z * 0.001f;
     
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
-    input.x += nav.velErrorInt.x * 0.0001f;
-    input.y += nav.velErrorInt.y * 0.0001f;
-    input.z += nav.velErrorInt.z * 0.0001f;
+    input.x += nav.velErrorInt.x * 0.0003f;
+    input.y += nav.velErrorInt.y * 0.0003f;
+    input.z += nav.velErrorInt.z * 0.0005f;
 
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanVel, input, velMeasure, fuseFlag);

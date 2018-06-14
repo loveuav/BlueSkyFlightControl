@@ -62,9 +62,9 @@ void RcInit(void)
     rcAuxMode[AUX1][MID]  = SEMIAUTO;
     rcAuxMode[AUX1][HIGH] = AUTO;	
     
-    rcAuxMode[AUX2][LOW]  = AUTO;
-    rcAuxMode[AUX2][MID]  = AUTOLAND;
-    rcAuxMode[AUX2][HIGH] = RETURNTOHOME;	
+    rcAuxMode[AUX2][LOW]  = 0xFF;//AUTO;
+    rcAuxMode[AUX2][MID]  = 0xFF;//AUTOLAND;
+    rcAuxMode[AUX2][HIGH] = 0xFF;//RETURNTOHOME;	
 
     rcAuxMode[AUX3][LOW]  = 0xFF;
     rcAuxMode[AUX3][MID]  = 0xFF;
@@ -225,7 +225,7 @@ static void RcCheckSticks(void)
 **********************************************************************************************************/
 static void RcCheckAux(void)
 {
-	uint8_t auxStatus[12];
+	static uint8_t auxStatus[12];
     
     //辅助通道1检测
     if(rcData.aux1 > RC_LEGAL_MIN && rcData.aux1 < RC_LEGAL_MAX)

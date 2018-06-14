@@ -149,15 +149,15 @@ void AccCalibration(Vector3f_t accRaw)
             {
                 success = false;
             }
+            
+            for(u8 i=0; i<6; i++)
+            {
+                samples[i].x = 0;
+                samples[i].y = 0;
+                samples[i].z = 0;            
+            }
         }
-        
-        for(u8 i=0; i<6; i++)
-        {
-			samples[i].x = 0;
-			samples[i].y = 0;
-			samples[i].z = 0;            
-        }
-        
+   
         if(success)
         {
 			acc.cali.offset = new_offset;
@@ -189,16 +189,16 @@ void AccScaleCalibrate(Vector3f_t* acc)
         if(GYRO_TYPE == MPU6500)
         {
             if(acc->z > 0)
-                acc->z *= 1.02f;
+                acc->z *= 1.003f;
             else
-                acc->z *= 0.98f;
+                acc->z *= 0.997f;
         }
         else if(GYRO_TYPE == ICM20689)
         {
             if(acc->z > 0)
-                acc->z *= 1.015f;
+                acc->z *= 1.002f;
             else
-                acc->z *= 0.985f;            
+                acc->z *= 0.998f;            
         }
         else
         {

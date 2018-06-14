@@ -74,8 +74,9 @@ void ImuTempControl(float tempMeasure)
                 SetInitStatus(HEAT_FINISH);
         }          
         else
-            SetInitStatus(HEATING);
+            SetInitStatus(HEATING); 
     }
+
 }
 
 

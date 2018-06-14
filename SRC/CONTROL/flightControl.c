@@ -37,7 +37,7 @@ void FlightControlInit(void)
 	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.01, 250, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       3.0, 3.0, 0.03, 500, 30);	
 
 	PID_SetParam(&fc.pid[POS_X],       1.5, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
@@ -117,7 +117,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
 	static float velLpf;
     float altInnerControlOutput;
     //悬停油门中点
-	int16_t throttleMid = 900;
+	int16_t throttleMid = 1000;
 
     /****************************************************************************************
         目前高度控制由高度环P控制以及速度环PID控制串联而成

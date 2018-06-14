@@ -20,7 +20,7 @@
 #define ACC_LPF_CUT 8
 
 //传感器恒温目标值，单位为摄氏度
-#define SENSOR_TEMP_KEPT 55
+#define SENSOR_TEMP_KEPT 50
 
 typedef struct
 {

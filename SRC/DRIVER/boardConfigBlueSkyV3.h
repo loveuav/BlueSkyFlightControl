@@ -31,8 +31,8 @@
 #define GYRO_CS_GPIO         GPIOC
 #define GYRO_CS_PIN          GPIO_Pin_2
 
-#define TEMP_TIM_FREQ        21000000
-#define TEMP_TIM_PERIOD      52499
+#define TEMP_TIM_FREQ        500000
+#define TEMP_TIM_PERIOD      5000
 #define TEMP_TIM             2
 #define TEMP_CH              2
 
