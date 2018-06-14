@@ -3,6 +3,17 @@
 
 #include "mathTool.h"
 
+enum 
+{
+    RTH_STEP_START = 0,
+    RTH_STEP_TURN,
+    RTH_STEP_CLIMB,
+    RTH_STEP_FLIGHT_VEL,
+    RTH_STEP_FLIGHT_POS,
+    RTH_STEP_TURN_BACK,
+    RTH_STEP_LOITER
+};
+
 void MissionControl(void);
     
 #endif
