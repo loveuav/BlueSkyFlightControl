@@ -262,7 +262,7 @@ void PosCovarianceSelfAdaptation(void)
     
 	if(GetPosControlStatus() == POS_HOLD)	
 	{ 
-        kalmanVel.r[0] = kalmanVel.r[4] = 50 * (1 + ConstrainFloat((gpsAcc - 0.8f), -1, +2));
+        kalmanVel.r[0] = kalmanVel.r[4] = 80 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2));
         
         kalmanPos.r[0] += 3;
         kalmanPos.r[4] += 3;
@@ -271,7 +271,7 @@ void PosCovarianceSelfAdaptation(void)
 	}
 	else if(GetPosControlStatus() == POS_CHANGED)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = 100 * (1 + ConstrainFloat((gpsAcc - 0.8f), -1, +2));
+        kalmanVel.r[0] = kalmanVel.r[4] = 100 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE)	
@@ -281,7 +281,7 @@ void PosCovarianceSelfAdaptation(void)
 	}
 	else if(GetPosControlStatus() == POS_BRAKE_FINISH)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = 50 * (1 + ConstrainFloat((gpsAcc - 0.8f), -1, +2));
+        kalmanVel.r[0] = kalmanVel.r[4] = 50 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;        
 	}
 }

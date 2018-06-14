@@ -20,6 +20,7 @@
 #include "drv_pwm.h"
 #include "drv_sbus.h"
 #include "drv_usbhid.h"
+#include "drv_adc.h"
 
 static void SysPeriphClockInit(void);
 
@@ -84,6 +85,9 @@ void BoardInit(void)
 	
 	//USB HID初始化
 	UsbHid_Init();
+	
+	//ADC初始化
+	Adc_Init();
 }
 
 /**********************************************************************************************************
@@ -116,6 +120,7 @@ static void SysPeriphClockInit(void)
 	#if(configUSE_GPIOG == 1)
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
 	#endif
+    
 	//串口
 	#if(configUSE_USART1 == 1)	
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
@@ -135,6 +140,7 @@ static void SysPeriphClockInit(void)
 	#if(configUSE_USART6 == 1)	
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
 	#endif
+    
 	//SPI
 	#if(configUSE_SPI1 == 1)	
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
@@ -142,6 +148,7 @@ static void SysPeriphClockInit(void)
 	#if(configUSE_SPI2 == 1)	
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 	#endif	
+    
 	//定时器
 	#if(configUSE_TIM1 == 1)	
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
@@ -155,6 +162,17 @@ static void SysPeriphClockInit(void)
 	#if(configUSE_TIM4 == 1)	
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 	#endif	
+    
+    //ADC
+    #if(configUSE_ADC1 == 1)
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);
+    #endif
+    #if(configUSE_ADC2 == 1)
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2,ENABLE);
+    #endif
+    #if(configUSE_ADC3 == 1)
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3,ENABLE);
+    #endif
 }
 
 

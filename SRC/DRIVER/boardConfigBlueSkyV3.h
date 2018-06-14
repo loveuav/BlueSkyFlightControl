@@ -71,6 +71,16 @@
 #define PPM_PIN              GPIO_Pin_8
 #define PPM_PINSOURCE        GPIO_PinSource8
 
+#define ADC_VOLTAGE          ADC1
+#define ADC_VOLTAGE_CHAN     ADC_Channel_1
+#define ADC_VOLTAGE_GPIO     GPIOA
+#define ADC_VOLTAGE_PIN      GPIO_Pin_8
+
+#define ADC_CURRENT          ADC2
+#define ADC_CURRENT_CHAN     ADC_Channel_1
+#define ADC_CURRENT_GPIO     GPIOA
+#define ADC_CURRENT_PIN      GPIO_Pin_8
+
 /**********************************************************************************************************
 *单片机Flash存储区域分配
 **********************************************************************************************************/
@@ -122,6 +132,10 @@
 #define configUSE_UART4      0
 #define configUSE_UART5      0
 #define configUSE_USART6     1
+
+#define configUSE_ADC1       1
+#define configUSE_ADC2       1
+#define configUSE_ADC3       0
 
 #define configUSE_SPI1       1
 #define configUSE_SPI2       0
