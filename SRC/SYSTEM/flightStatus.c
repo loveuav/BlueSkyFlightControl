@@ -245,7 +245,7 @@ void SetFlightMode(uint8_t mode)
             //flyStatus.mode = AUTOTAKEOFF;		//自动起飞
             break;
         case    AUTOLAND:
-            //flyStatus.mode = AUTOLAND;		//自动降落
+            flyStatus.mode = AUTOLAND;		//自动降落
             break;
         case    RETURNTOHOME:
             //flyStatus.mode = RETURNTOHOME;	//自动返航

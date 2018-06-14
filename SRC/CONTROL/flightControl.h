@@ -4,6 +4,9 @@
 #include "mathTool.h"
 #include "pid.h"
 
+#define MAXANGLE  400               //最大飞行角度：40°
+#define MAXRCDATA 450
+
 enum 
 {
     ROLL_INNER,

@@ -17,11 +17,12 @@
 #include "navigation.h"
 #include "board.h"
 
-#define MAXANGLE  400               //最大飞行角度：40°
-#define MAXRCDATA 450
 #define ALT_SPEED_UP_MAX	500	    //最大上升速度：5m/s
 #define ALT_SPEED_DOWN_MAX	300     //最大下降速度：3m/s
 #define HORIZON_SPEED_MAX	800     //最大水平飞行速度：8m/s
+
+static Vector3f_t posCtlTarget;
+static float yawHold;
 
 static void ManualControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget);
 static void SemiAutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget);
@@ -67,6 +68,13 @@ void UserControl(void)
     {
         //自动档（定点）
         AutoControl(rcCommand, &rcTarget);       
+    }
+    else
+    {
+        //在非用户控制模式下，更新当前位置目标
+        posCtlTarget = GetCopterPosition();       
+
+        yawHold = GetCopterAngle().z;        
     }
 
     //设置目标控制量
@@ -129,8 +137,7 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 	static float velRate          = (float)HORIZON_SPEED_MAX / MAXRCDATA;
     static uint8_t posHoldChanged = 0;
     static float brakeFilter = 0;
-    static Vector3f_t velCtlTarget;
-    static Vector3f_t posCtlTarget;    
+    static Vector3f_t velCtlTarget;  
 
     //航向控制
     YawControl(rcCommand, rcTarget);
@@ -235,7 +242,6 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 {
     static int16_t rcDeadband = 50;
-    static float yawHold;
     static uint8_t yawHoldChanged = 0;
     static int32_t lastTimeyawChanged = 0;
     
@@ -298,8 +304,7 @@ static void AltControl(RCCOMMAND_t rcCommand)
 	static float speedUpRate   = (float)ALT_SPEED_UP_MAX / MAXRCDATA;
 	static float speedDownRate = (float)ALT_SPEED_DOWN_MAX / MAXRCDATA;
     static uint8_t altHoldChanged = 0;
-    static float velCtlTarget     = 0;
-    static float altCtlTarget     = 0;    
+    static float velCtlTarget     = 0; 
     
     /**********************************************************************************************************
     高度控制：该模式下油门摇杆量控制上升下降速度，回中时飞机自动定高
@@ -322,7 +327,7 @@ static void AltControl(RCCOMMAND_t rcCommand)
         SetAltCtlStatus(DISABLE);
         
         //更新高度控制目标
-        altCtlTarget = GetCopterPosition().z;
+        posCtlTarget.z = GetCopterPosition().z;
         
         //更新高度控制状态
         SetAltControlStatus(ALT_CHANGED);
@@ -352,7 +357,7 @@ static void AltControl(RCCOMMAND_t rcCommand)
             }	
 
             //更新高度控制目标
-            altCtlTarget = GetCopterPosition().z;       
+            posCtlTarget.z = GetCopterPosition().z;       
         }        
     }
     else
@@ -367,7 +372,7 @@ static void AltControl(RCCOMMAND_t rcCommand)
     //更新高度内环控制目标
     SetAltInnerCtlTarget(velCtlTarget); 
     //更新高度外环控制目标
-    SetAltOuterCtlTarget(altCtlTarget);       
+    SetAltOuterCtlTarget(posCtlTarget.z);       
 }
 
 

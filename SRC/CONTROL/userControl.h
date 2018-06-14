@@ -3,8 +3,7 @@
 
 #include "mathTool.h"
 
-
 void UserControl(void);
-    
+
 #endif
 
