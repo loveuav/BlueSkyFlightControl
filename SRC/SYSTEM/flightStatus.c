@@ -63,6 +63,13 @@ void SetArmedStatus(uint8_t status)
         //解锁检查
         if(!ArmedCheck())
             return;
+		
+		//不使用恒温的话，每次解锁时校准一下陀螺仪
+		#if(configUSE_SENSORHEAT == 0)
+		GyroCalibrateEnable();
+		SoftDelayMs(100);
+		while(GetGyroCaliStatus());
+		#endif
         
         //导航数据复位
         NavigationReset();

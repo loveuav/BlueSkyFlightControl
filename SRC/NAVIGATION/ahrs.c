@@ -195,9 +195,9 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	static float vectorErrorIntRate = 0.0005f;
 
     //测量噪声协方差矩阵自适应
-	kalmanRollPitch.r[0] = 3500 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2));
-	kalmanRollPitch.r[4] = 3500 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2));	
-	kalmanRollPitch.r[8] = 3500 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2));
+	kalmanRollPitch.r[0] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
+	kalmanRollPitch.r[4] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));	
+	kalmanRollPitch.r[8] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
     
 	//用向量叉积误差积分来补偿陀螺仪零偏噪声
 	deltaAngle.x += ahrs.vectorRollPitchErrorInt.x * ahrs.vectorRollPitchKI;

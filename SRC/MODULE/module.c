@@ -266,7 +266,11 @@ void BaroSensorRead(int32_t* baroAlt)
 **********************************************************************************************************/
 void TempControlSet(int16_t value)
 {
+    #if(configUSE_SENSORHEAT == 1)
     TempControlPWMSet(value);
+    #else
+    TempControlPWMSet(0);
+    #endif
 }
 
 

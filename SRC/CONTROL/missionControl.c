@@ -21,8 +21,8 @@
 static Vector3f_t posCtlTarget;
 
 static uint8_t rthStep;
-static float rthHeight   = 3000;  //预设返航高度30m
-static float rthWaitTime = 1000;  //返航回到Home点后的悬停等待时间
+static float rthHeight   = 3000;  //预设返航高度 单位：cm
+static float rthWaitTime = 1000;  //返航回到Home点后的悬停等待时间 单位：ms
 
 void AutoLand(void);
 void ReturnToHome(void);
@@ -166,10 +166,18 @@ void ReturnToHome(void)
             //记录起始航向
             originYaw = GetCopterAngle().z; 
             
-            //判断当前Home点距离，小于一定值则直接进入自动降落模式
-            if(distanceToHome < 888)
-                SetFlightMode(AUTOLAND);    
-            
+            //判断当前Home点距离，小于一定值则转入步骤5或直接进入自动降落模式
+            if(distanceToHome < 555)
+                SetFlightMode(AUTOLAND); 
+			else if(distanceToHome < 3000)
+			{
+				//更新位置控制目标
+				posCtlTarget = GetCopterPosition(); 
+				//转入步骤5
+				rthStep = RTH_STEP_FLIGHT_POS;
+				break;
+			}
+				
             //使能位置控制
             SetPosCtlStatus(ENABLE);  
               
@@ -232,10 +240,10 @@ void ReturnToHome(void)
                 
                 //更新位置控制目标
                 posCtlTarget = GetCopterPosition();     
-                
-                //使能位置控制
-                SetPosCtlStatus(ENABLE);  
             }
+
+			//更新位置控制状态
+        	SetPosControlStatus(POS_CHANGED);
             break;
 
         case RTH_STEP_FLIGHT_POS:
@@ -249,9 +257,15 @@ void ReturnToHome(void)
                 posCtlTarget.x = 0;
                 posCtlTarget.y = 0;
             }
+ 
+			//使能位置控制
+            SetPosCtlStatus(ENABLE); 
             
             //设置位置控制目标
             SetPosOuterCtlTarget(posCtlTarget);
+
+			//更新位置控制状态
+        	SetPosControlStatus(POS_HOLD);
             break;
             
         case RTH_STEP_TURN_BACK:

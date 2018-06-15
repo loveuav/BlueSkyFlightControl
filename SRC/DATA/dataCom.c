@@ -70,10 +70,10 @@ static void DataSendDebug(void)
 	dataTemp.i16 = nav.accelLpf.z * 4000;//fc.attInnerCtlValue.y;//nav.velocity2.x;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.accel.z * 4000;//fc.attInnerCtlValue.z;//nav.velocity2.y;//nav.velocity2.z;//
+	dataTemp.i16 = nav.accel.x * 500;//fc.attInnerCtlValue.z;//nav.velocity2.y;//nav.velocity2.z;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = nav.velocity2.z;//fc.altInnerCtlValue;//ahrs.vectorRollPitchError.z * 1000;
+	dataTemp.i16 = GetCopterVelocity().x;//nav.velocity2.z;//fc.altInnerCtlValue;//ahrs.vectorRollPitchError.z * 1000;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 

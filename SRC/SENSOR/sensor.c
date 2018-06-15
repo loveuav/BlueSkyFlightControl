@@ -75,6 +75,10 @@ void ImuTempControl(float tempMeasure)
         }          
         else
             SetInitStatus(HEATING); 
+        
+        #if(configUSE_SENSORHEAT == 0)
+        SetInitStatus(HEAT_FINISH);
+        #endif
     }
 
 }

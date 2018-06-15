@@ -13,6 +13,7 @@
 #include "parameter.h"
 #include "accelerometer.h"
 #include "faultDetect.h"
+#include "flightStatus.h"
 
 GYROSCOPE_t gyro;
 
@@ -81,6 +82,8 @@ void GyroCalibration(Vector3f_t gyroRaw)
 	static float gyro_sum[3] = {0, 0, 0};
 	Vector3f_t gyro_cali_temp, gyro_raw_temp;
 	static int16_t count = 0;
+	static uint8_t staticFlag;
+	static uint8_t successFlag;
 	
 	if(!gyro.cali.should_cali)
 		return;
@@ -91,12 +94,21 @@ void GyroCalibration(Vector3f_t gyroRaw)
 	gyro_sum[1] += gyro_raw_temp.y;
 	gyro_sum[2] += gyro_raw_temp.z;
 	count++;
+    
+    gyro.cali.step = 1;
+    
+	//陀螺仪校准过程中如果检测到飞机不是静止状态则认为校准失败
+	if(GetPlaceStatus() != STATIC)
+	{
+		staticFlag = 1;
+	}
 	
 	if(count == CALIBRATING_GYRO_CYCLES)
 	{
 		count = 0;
 		gyro.cali.should_cali = 0;
-		
+		gyro.cali.step = 0;     
+        
 		gyro_cali_temp.x = gyro_sum[0] / CALIBRATING_GYRO_CYCLES;
 		gyro_cali_temp.y = gyro_sum[1] / CALIBRATING_GYRO_CYCLES;
 		gyro_cali_temp.z = gyro_sum[2] / CALIBRATING_GYRO_CYCLES;
@@ -106,7 +118,12 @@ void GyroCalibration(Vector3f_t gyroRaw)
 		
 		//检测校准数据是否有效		
 		if((abs(gyro_raw_temp.x - gyro_cali_temp.x) + abs(gyro_raw_temp.x - gyro_cali_temp.x)
-			+ abs(gyro_raw_temp.x - gyro_cali_temp.x)) < 10)
+			+ abs(gyro_raw_temp.x - gyro_cali_temp.x)) < 0.6f)
+		{
+			successFlag = 1;
+		}	
+		
+		if(successFlag && !staticFlag)
 		{
 			gyro.cali.offset.x = gyro_cali_temp.x;
 			gyro.cali.offset.y = gyro_cali_temp.y;
@@ -116,7 +133,10 @@ void GyroCalibration(Vector3f_t gyroRaw)
 			ParamUpdateData(PARAM_GYRO_OFFSET_X, &gyro.cali.offset.x);
 			ParamUpdateData(PARAM_GYRO_OFFSET_Y, &gyro.cali.offset.y);
 			ParamUpdateData(PARAM_GYRO_OFFSET_Z, &gyro.cali.offset.z);
-		}		
+		}
+		
+		successFlag = 0;
+		staticFlag = 0;		
 	}
 }
 
@@ -129,6 +149,17 @@ void GyroCalibration(Vector3f_t gyroRaw)
 void GyroCalibrateEnable(void)
 {
 	gyro.cali.should_cali = 1;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetGyroCaliStatus
+*功能说明: 陀螺仪校准状态
+*形    参: 无 
+*返 回 值: 状态 0：不在校准中 非0：校准中
+**********************************************************************************************************/
+uint8_t GetGyroCaliStatus(void)
+{
+	return gyro.cali.step;
 }
 
 /**********************************************************************************************************

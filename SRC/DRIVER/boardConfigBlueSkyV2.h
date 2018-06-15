@@ -23,16 +23,18 @@
 /**********************************************************************************************************
 *传感器配置
 **********************************************************************************************************/
-#define GYRO_TYPE            MPU6000
-#define BARO_TYPE            MS5611    
-#define MAG_TYPE             QMC5883
+#define GYRO_TYPE            MPU6000        //陀螺仪型号
+#define BARO_TYPE            MS5611         //气压计型号    
+#define MAG_TYPE             QMC5883        //罗盘型号
+
+#define configUSE_SENSORHEAT 1              //是否使用传感器恒温
 
 #define GYRO_SPI             1
 #define GYRO_CS_GPIO         GPIOC
 #define GYRO_CS_PIN          GPIO_Pin_2
 
-#define TEMP_TIM_FREQ        21000000
-#define TEMP_TIM_PERIOD      52499
+#define TEMP_TIM_FREQ        500000
+#define TEMP_TIM_PERIOD      5000
 #define TEMP_TIM             1
 #define TEMP_CH              1
 
@@ -79,7 +81,7 @@
 #define ADC_CURRENT          ADC1
 #define ADC_CURRENT_CHAN     ADC_Channel_1
 #define ADC_CURRENT_GPIO     GPIOA
-#define ADC_CURRENT_PIN      GPIO_Pin_8
+#define ADC_CURRENT_PIN      GPIO_Pin_2
 
 /**********************************************************************************************************
 *单片机Flash存储区域分配

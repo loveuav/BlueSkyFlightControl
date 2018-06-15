@@ -23,9 +23,11 @@
 /**********************************************************************************************************
 *传感器配置
 **********************************************************************************************************/
-#define GYRO_TYPE            ICM20689
-#define BARO_TYPE            MS5611    
-#define MAG_TYPE             QMC5883
+#define GYRO_TYPE            ICM20689       //陀螺仪型号
+#define BARO_TYPE            MS5611         //气压计型号
+#define MAG_TYPE             QMC5883        //罗盘型号
+
+#define configUSE_SENSORHEAT 1              //是否使用传感器恒温
 
 #define GYRO_SPI             1
 #define GYRO_CS_GPIO         GPIOC

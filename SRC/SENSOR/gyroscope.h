@@ -13,7 +13,10 @@ typedef struct{
 void GyroPreTreatInit(void);
 void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData, Vector3f_t* gyroLpfData);
 void GyroCalibration(Vector3f_t gyroRaw);
+
+uint8_t GetGyroCaliStatus(void);
 void GyroCalibrateEnable(void);
+
 Vector3f_t GyroGetData(void);
 Vector3f_t GyroLpfGetData(void);
 
