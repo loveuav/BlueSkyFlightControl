@@ -21,6 +21,7 @@
 #include "drv_sbus.h"
 #include "drv_usbhid.h"
 #include "drv_adc.h"
+#include "drv_ppm.h"
 
 static void SysPeriphClockInit(void);
 
@@ -79,10 +80,12 @@ void BoardInit(void)
     PWM_Init();
 	
 	//遥控器接收机数据协议解析初始化
-	#if (RC_PROTOCOL == SBUS)
+	if(RC_PROTOCOL == SBUS)
 		Sbus_Init();
-	#endif 
-	
+	else if(RC_PROTOCOL == PPM)
+        PPM_Init();
+
+    
 	//USB HID初始化
 	UsbHid_Init();
 	

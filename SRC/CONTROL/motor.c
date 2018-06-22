@@ -83,7 +83,7 @@ void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
     //电调校准
     if(escCaliFlag)
     {
-        if(GetSysTimeMs() < 5000)
+        if(GetSysTimeMs() < 6000)
         {
             for (u8 i=0; i<motorType.motorNum; i++)
             {
@@ -109,7 +109,7 @@ void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
         for (u8 i=0; i<motorType.motorNum; i++)
         {
             MotorPWMSet(i+1, 0);
-        }           
+        }               
     }
 }
 

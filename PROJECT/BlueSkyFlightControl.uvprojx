@@ -824,6 +824,16 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\MODULE\icm20689.h</FilePath>
             </File>
+            <File>
+              <FileName>2smpb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\2smpb.c</FilePath>
+            </File>
+            <File>
+              <FileName>2smpb.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\MODULE\2smpb.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -838,6 +848,11 @@
               <FileName>boardConfigBlueSkyV3.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\SRC\DRIVER\boardConfigBlueSkyV3.h</FilePath>
+            </File>
+            <File>
+              <FileName>boardConfigTest.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\DRIVER\boardConfigTest.h</FilePath>
             </File>
             <File>
               <FileName>board.c</FileName>

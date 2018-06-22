@@ -17,12 +17,16 @@ enum{
 **********************************************************************************************************/
 //#define BLUESKY_V2
 #define BLUESKY_V3
+//#define TESTBOARD
 
 #ifdef BLUESKY_V2
 	#include "boardConfigBlueSkyV2.h"
 #endif
 #ifdef BLUESKY_V3
 	#include "boardConfigBlueSkyV3.h"
+#endif
+#ifdef TESTBOARD
+	#include "boardConfigTest.h"
 #endif
 
 typedef struct
@@ -65,6 +69,12 @@ enum
     HMC5883,
     QMC5883,
     IST8310
+};
+
+enum
+{
+    SBUS,
+    PPM
 };
 
 void BoardInit(void);

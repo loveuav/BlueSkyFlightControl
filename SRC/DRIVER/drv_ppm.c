@@ -46,6 +46,15 @@ void PPM_Cal(uint16_t pulseHigh)
     //脉宽高于一定值说明一帧数据已经结束
 	if(pulseHigh > 5000)
     {
+        uint16_t temp;
+        temp = ppm.captures[3];
+        ppm.captures[3] = ppm.captures[2];
+        ppm.captures[2] = temp;
+        
+        //通道反向
+        ppm.captures[0] = 3000 - ppm.captures[0];
+        ppm.captures[2] = 3000 - ppm.captures[2];
+        
         //一帧数据解析完成
         if(rcDataCallbackFunc != 0)
             (*rcDataCallbackFunc)(ppm.data); 
@@ -57,7 +66,7 @@ void PPM_Cal(uint16_t pulseHigh)
 		if (pulseHigh > PULSE_MIN && pulseHigh < PULSE_MAX)
         {  
             ppm.captures[chan] = (pulseHigh - 600) + 1000;	
-                      
+                        
             chan++;		
 		}
 	}

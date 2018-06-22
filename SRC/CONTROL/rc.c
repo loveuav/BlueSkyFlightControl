@@ -51,11 +51,10 @@ static void RcCheckFailsafe(void);
 **********************************************************************************************************/
 void RcInit(void)
 {
-	#if( RC_PROTOCOL == SBUS )
+	if(RC_PROTOCOL == SBUS)
 		Sbus_SetRcDataCallback(RcDataUpdate);
-	#elif ( RC_PROTOCOL == PPM )
+	else if(RC_PROTOCOL == PPM)
         PPM_SetRcDataCallback(RcDataUpdate);
-	#endif
     
     //设置各辅助通道对应的飞行模式
     rcAuxMode[AUX1][LOW]  = MANUAL;

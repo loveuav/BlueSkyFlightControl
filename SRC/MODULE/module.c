@@ -14,6 +14,7 @@
 #include "mpu6500.h"
 #include "icm20689.h"
 #include "ms5611.h"
+#include "2smpb.h"
 #include "qmc5883.h"
 #include "ublox.h"
 #include "drv_pwm.h"
@@ -135,8 +136,16 @@ void BaroSensorInit(void)
             detectFlag = 1;
         }     
     }
+	else if(BARO_TYPE == _2SMPB)
+	{
+		if(_2SMPB_Detect())
+        {
+            _2SMPB_Init();
+            detectFlag = 1;
+        }
+	}
     
-    //未检测到磁力计
+    //未检测到气压计
     if(!detectFlag)
         FaultDetectSetError(BARO_UNDETECTED);
 }
@@ -243,7 +252,9 @@ void MagSensorRead(Vector3f_t* mag)
 void BaroSensorUpdate(void)
 {
     if(BARO_TYPE == MS5611)
-        MS5611_Update();     
+        MS5611_Update();    
+	else if(BARO_TYPE == _2SMPB)
+		_2SMPB_Update();
 }
 
 /**********************************************************************************************************
@@ -255,7 +266,9 @@ void BaroSensorUpdate(void)
 void BaroSensorRead(int32_t* baroAlt)
 {
     if(BARO_TYPE == MS5611)
-        MS5611_Read(baroAlt);      
+        MS5611_Read(baroAlt);   
+    else if(BARO_TYPE == _2SMPB)
+        _2SMPB_Read(baroAlt);  	
 }
 
 /**********************************************************************************************************

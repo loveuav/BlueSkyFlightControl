@@ -34,9 +34,9 @@ void PWM_Init(void)
 
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
     TIM_OCInitStructure.TIM_Pulse = 0;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
 	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
 	TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset;
     
@@ -231,7 +231,7 @@ void MotorPWMSet(uint8_t motor, int16_t pwmValue)
 {
     TIM_TypeDef* timer[] = {TIM1, TIM2, TIM3, TIM4};
     
-    //使用PWM协议输出信号给电调 488Hz
+    //使用PWM协议输出信号给电调 
     #if(ESC_PROTOCOL == PWM)
     pwmValue = 21 * (pwmValue * 0.5f) + 21000;
     #endif

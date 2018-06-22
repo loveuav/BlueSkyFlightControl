@@ -14,6 +14,8 @@
 #include "navigation.h"
 #include "ahrs.h"
 #include "board.h"
+#include "gyroscope.h"
+
 typedef struct
 {
     uint8_t init;           //初始化状态
@@ -68,7 +70,7 @@ void SetArmedStatus(uint8_t status)
 		#if(configUSE_SENSORHEAT == 0)
 		GyroCalibrateEnable();
 		SoftDelayMs(100);
-		while(GetGyroCaliStatus());
+		while(GetGyroCaliStatus()){}
 		#endif
         
         //导航数据复位

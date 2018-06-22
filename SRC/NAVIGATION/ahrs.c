@@ -162,7 +162,7 @@ static void KalmanRollPitchInit(void)
 **********************************************************************************************************/
 static void KalmanYawInit(void)
 {
-    float qMatInit[9] = {0.0001, 0, 0, 0, 0.0001, 0, 0, 0, 0.0001};
+    float qMatInit[9] = {0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.001};
     float rMatInit[9] = {3000, 0,  0, 0, 3000, 0, 0, 0, 3000};
     float pMatInit[9] = {0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -195,9 +195,9 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	static float vectorErrorIntRate = 0.0005f;
 
     //测量噪声协方差矩阵自适应
-	kalmanRollPitch.r[0] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
-	kalmanRollPitch.r[4] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));	
-	kalmanRollPitch.r[8] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
+	kalmanRollPitch.r[0] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 5, 0, 5)));
+	kalmanRollPitch.r[4] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 5, 0, 5)));	
+	kalmanRollPitch.r[8] = Sq(55 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 5, 0, 5)));
     
 	//用向量叉积误差积分来补偿陀螺仪零偏噪声
 	deltaAngle.x += ahrs.vectorRollPitchErrorInt.x * ahrs.vectorRollPitchKI;
@@ -296,9 +296,9 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	ahrs.vectorYawErrorInt.y += vectorError.y * vectorErrorIntRate;
 	ahrs.vectorYawErrorInt.z += vectorError.z * vectorErrorIntRate;
     //积分限幅
-	ahrs.vectorYawErrorInt.x = ConstrainFloat(ahrs.vectorYawErrorInt.x, -0.3f, 0.3f);
-	ahrs.vectorYawErrorInt.y = ConstrainFloat(ahrs.vectorYawErrorInt.y, -0.3f, 0.3f);
-	ahrs.vectorYawErrorInt.z = ConstrainFloat(ahrs.vectorYawErrorInt.z, -0.3f, 0.3f);    
+	ahrs.vectorYawErrorInt.x = ConstrainFloat(ahrs.vectorYawErrorInt.x, -0.1f, 0.1f);
+	ahrs.vectorYawErrorInt.y = ConstrainFloat(ahrs.vectorYawErrorInt.y, -0.1f, 0.1f);
+	ahrs.vectorYawErrorInt.z = ConstrainFloat(ahrs.vectorYawErrorInt.z, -0.1f, 0.1f);    
 	
     //表示航向误差
 	ahrs.vectorYawError.x = ahrs.vectorYawError.x * 0.999f + (mag.x - ahrs.vectorYaw.x) * 0.001f;

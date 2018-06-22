@@ -140,7 +140,7 @@ bool MPU6500_Detect(void)
 	
 	Spi_GyroMultiRead(MPU_RA_WHO_AM_I, &who_am_i, 1);
 	
-	if(who_am_i == 0x70)
+	if(who_am_i == 0x70 || who_am_i == 0x71)
 		return true;
 	else 
 		return false;
