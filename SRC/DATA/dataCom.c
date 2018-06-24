@@ -10,6 +10,7 @@
  * @日期     2018.05 
 **********************************************************************************************************/
 #include "dataCom.h"
+#include "dataSend.h"
 #include "drv_usart.h"
 #include "drv_usbhid.h"
 
@@ -22,19 +23,29 @@
 #include "motor.h"
 #include "gps.h"
 
-DATA_TYPE_t dataTemp;  
-uint8_t dataToSend[50];
+static DATA_TYPE_t dataTemp;  
+static uint8_t dataToSend[50];
 
-static void DataSend(uint8_t *data , uint8_t length);
 static void DataSendDebug(void);
 
+/**********************************************************************************************************
+*函 数 名: DataSendLoop
+*功能说明: 飞控数据发送循环
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
 void DataSendLoop(void)
 {
     static uint32_t cnt;
     
-    if(cnt % 2 == 0)
+    if(cnt % 3 == 0)
     {
-        DataSendDebug();        
+        SendFlightData();     
+    }
+    
+    if(cnt % 10 == 0)
+    {
+        SendRcData();
     }
     
     cnt++;
@@ -49,13 +60,13 @@ static void DataSendDebug(void)
 	dataToSend[_cnt++] = 0x02;
 	dataToSend[_cnt++] = 0;
 	
-	dataTemp.i16 = fc.angleLpf.x * 10;
+	dataTemp.i16 = GetCopterAngle().x * 10;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = fc.rcTarget.roll;
+	dataTemp.i16 = GetCopterAngle().y * 10;
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
-	dataTemp.i16 = GetAttOuterCtlError().x * 10;//fc.posOuterTarget.z;//
+	dataTemp.i16 = GetCopterAngle().z * 10;//fc.posOuterTarget.z;//
 	dataToSend[_cnt++] = dataTemp.byte[1];
 	dataToSend[_cnt++] = dataTemp.byte[0];
 	dataTemp.i16 = GetPosInnerCtlError().z;//GetAttOuterCtlError().y * 10;//
@@ -94,7 +105,7 @@ static void DataSendDebug(void)
 *形    参: 数据指针 长度
 *返 回 值: 无
 **********************************************************************************************************/
-static void DataSend(uint8_t *data , uint8_t length)
+void DataSend(uint8_t *data , uint8_t length)
 {
     //串口发送
     Usart_SendData(DATA_UART, data, length);

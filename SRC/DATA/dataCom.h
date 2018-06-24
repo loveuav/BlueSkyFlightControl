@@ -3,6 +3,10 @@
 
 #include "mathTool.h"
 
+#define FRAME_HEAD_1    0xDE
+#define FRAME_HEAD_2    0xED
+#define DEVICE_TYPE     0x02
+
 typedef union   
 {  
     int16_t i16;  
@@ -12,6 +16,7 @@ typedef union
 }DATA_TYPE_t;
 
 void DataSendLoop(void);
+void DataSend(uint8_t *data , uint8_t length);
 
 #endif
 

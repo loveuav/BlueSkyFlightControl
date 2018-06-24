@@ -2,6 +2,7 @@
 #define _RC_H_
 
 #include "mathTool.h"
+#include "board.h"
 
 enum 
 {
@@ -44,6 +45,7 @@ typedef struct
 
 void RcInit(void);
 void RcCheck(void);
+RCDATA_t GetRcData(void);
 RCCOMMAND_t GetRcCommad(void);
 
 void FlightStatusUpdate(void);
