@@ -180,12 +180,13 @@ static void Ublox_Decode(uint8_t data)
                 }
                 if(ck_a == PosllhData.temp[28] && ck_b == PosllhData.temp[29])	//校验通过
                 {
-                    ublox.time = PosllhData.data.iTOW / 1000;
+                    ublox.time = (float)PosllhData.data.iTOW / 1000;
                     ublox.longitude = (double)PosllhData.data.lon / 10000000;
                     ublox.latitude = PosllhData.data.lat;
                     ublox.latitude = (double)PosllhData.data.lat / 10000000;
                     ublox.altitude = (float)PosllhData.data.height / 1000;
                     ublox.hAcc = (float)PosllhData.data.hAcc / 1000;
+                    ublox.vAcc = (float)PosllhData.data.vAcc / 1000;
                 }
             }
             break;

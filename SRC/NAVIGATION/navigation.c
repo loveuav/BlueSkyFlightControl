@@ -214,12 +214,12 @@ void AltCovarianceSelfAdaptation(void)
 	{
 		if(GetAltControlStatus() == ALT_HOLD)
 		{
-			kalmanVel.r[8] = 2000 * (1 + ConstrainFloat(accelMag, 0, 0.5f));
-			kalmanPos.r[8] = 1000 * (1 + ConstrainFloat(accelMag, 0, 1.0f));
+			kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
+			kalmanPos.r[8] = Sq(40 * (1 + ConstrainFloat(accelMag, 0, 1.0f)));
 		}
 		else
 		{
-			kalmanVel.r[8] = 2000 * (1 + ConstrainFloat(accelMag, 0, 0.5f));
+			kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
 			kalmanPos.r[8] = 500;			
 		}
 	}
@@ -228,8 +228,8 @@ void AltCovarianceSelfAdaptation(void)
 		//悬停时,气压误差会随着环境风速的变化而增大
 		if(GetAltControlStatus() == ALT_HOLD)
 		{
-			kalmanVel.r[8] = 2000 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f));
-			kalmanPos.r[8] = 1000 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f));	
+			kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
+			kalmanPos.r[8] = Sq(40 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));	
 		}
 		else if(GetAltControlStatus() == ALT_CHANGED)
 		{
@@ -262,16 +262,16 @@ void PosCovarianceSelfAdaptation(void)
     
 	if(GetPosControlStatus() == POS_HOLD)	
 	{ 
-        kalmanVel.r[0] = kalmanVel.r[4] = 80 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(9 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
         
-        kalmanPos.r[0] += 3;
-        kalmanPos.r[4] += 3;
-        kalmanPos.r[0] = ConstrainFloat(kalmanPos.r[0], 50, 888888);
-        kalmanPos.r[4] = ConstrainFloat(kalmanPos.r[4], 50, 888888);       
+        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.01f, 8, 300);
+        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.01f, 8, 300);
+        kalmanPos.r[0] = Sq(kalmanPos.r[0]);
+        kalmanPos.r[4] = Sq(kalmanPos.r[4]);    
 	}
 	else if(GetPosControlStatus() == POS_CHANGED)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = 100 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(10 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE)	
@@ -281,7 +281,7 @@ void PosCovarianceSelfAdaptation(void)
 	}
 	else if(GetPosControlStatus() == POS_BRAKE_FINISH)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = 50 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(7 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;        
 	}
 }

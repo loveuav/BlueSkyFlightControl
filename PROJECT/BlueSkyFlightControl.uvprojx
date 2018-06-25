@@ -10,10 +10,13 @@
       <TargetName>BlueSkyFlightControl</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060422::V5.06 update 4 (build 422)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F407VG</Device>
           <Vendor>STMicroelectronics</Vendor>
+          <PackID>Keil.STM32F4xx_DFP.2.11.0</PackID>
+          <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IROM(0x08000000,0x100000) IRAM(0x20000000,0x20000) IRAM2(0x10000000,0x10000) CPUTYPE("Cortex-M4") FPU2 CLOCK(168000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -72,6 +75,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopB1X>0</nStopB1X>
+            <nStopB2X>0</nStopB2X>
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
@@ -80,6 +85,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -118,47 +125,6 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
-          <Simulator>
-            <UseSimulator>0</UseSimulator>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
-          </Simulator>
-          <Target>
-            <UseTarget>1</UseTarget>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>0</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreTracepoints>1</RestoreTracepoints>
-          </Target>
-          <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>6</TargetSelection>
-          <SimDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-          </SimDlls>
-          <TargetDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-            <Driver>Segger\JL2CM3.dll</Driver>
-          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -223,6 +189,7 @@
             <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
+            <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>3</RwSelD>
             <CodeSel>0</CodeSel>
@@ -357,6 +324,13 @@
             <uSurpInc>0</uSurpInc>
             <uC99>0</uC99>
             <useXO>0</useXO>
+            <v6Lang>1</v6Lang>
+            <v6LangP>1</v6LangP>
+            <vShortEn>1</vShortEn>
+            <vShortWch>1</vShortWch>
+            <v6Lto>0</v6Lto>
+            <v6WtE>0</v6WtE>
+            <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--c99</MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,__TARGET_FPU_VFP,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,ARM_MATH_CM4,__CC_ARM,__FPU_PRESENT,USE_USB_OTG_FS</Define>
@@ -374,6 +348,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
+            <uClangAs>0</uClangAs>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -415,29 +390,14 @@
               <FilePath>..\SRC\SYSTEM\parameter.c</FilePath>
             </File>
             <File>
-              <FileName>parameter.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SYSTEM\parameter.h</FilePath>
-            </File>
-            <File>
               <FileName>faultDetect.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\SYSTEM\faultDetect.c</FilePath>
             </File>
             <File>
-              <FileName>faultDetect.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SYSTEM\faultDetect.h</FilePath>
-            </File>
-            <File>
               <FileName>flightStatus.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\SYSTEM\flightStatus.c</FilePath>
-            </File>
-            <File>
-              <FileName>flightStatus.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SYSTEM\flightStatus.h</FilePath>
             </File>
             <File>
               <FileName>README.md</FileName>
@@ -465,19 +425,9 @@
               <FilePath>..\SRC\TASK\messageQueue.c</FilePath>
             </File>
             <File>
-              <FileName>messageQueue.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\TASK\messageQueue.h</FilePath>
-            </File>
-            <File>
               <FileName>module_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\TASK\module_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>module_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\TASK\module_task.h</FilePath>
             </File>
             <File>
               <FileName>sensor_task.c</FileName>
@@ -485,29 +435,14 @@
               <FilePath>..\SRC\TASK\sensor_task.c</FilePath>
             </File>
             <File>
-              <FileName>sensor_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\TASK\sensor_task.h</FilePath>
-            </File>
-            <File>
               <FileName>navigation_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\TASK\navigation_task.c</FilePath>
             </File>
             <File>
-              <FileName>navigation_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\TASK\navigation_task.h</FilePath>
-            </File>
-            <File>
               <FileName>control_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\TASK\control_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>control_task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\TASK\control_task.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -520,29 +455,14 @@
               <FilePath>..\SRC\NAVIGATION\ahrs.c</FilePath>
             </File>
             <File>
-              <FileName>ahrs.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\NAVIGATION\ahrs.h</FilePath>
-            </File>
-            <File>
               <FileName>ahrsAux.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\NAVIGATION\ahrsAux.c</FilePath>
             </File>
             <File>
-              <FileName>ahrsAux.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\NAVIGATION\ahrsAux.h</FilePath>
-            </File>
-            <File>
               <FileName>navigation.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\NAVIGATION\navigation.c</FilePath>
-            </File>
-            <File>
-              <FileName>navigation.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\NAVIGATION\navigation.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -555,19 +475,9 @@
               <FilePath>..\SRC\CONTROL\rc.c</FilePath>
             </File>
             <File>
-              <FileName>rc.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\CONTROL\rc.h</FilePath>
-            </File>
-            <File>
               <FileName>motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\CONTROL\motor.c</FilePath>
-            </File>
-            <File>
-              <FileName>motor.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\CONTROL\motor.h</FilePath>
             </File>
             <File>
               <FileName>flightControl.c</FileName>
@@ -575,29 +485,14 @@
               <FilePath>..\SRC\CONTROL\flightControl.c</FilePath>
             </File>
             <File>
-              <FileName>flightControl.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\CONTROL\flightControl.h</FilePath>
-            </File>
-            <File>
               <FileName>userControl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\CONTROL\userControl.c</FilePath>
             </File>
             <File>
-              <FileName>userControl.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\CONTROL\userControl.h</FilePath>
-            </File>
-            <File>
               <FileName>missionControl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\CONTROL\missionControl.c</FilePath>
-            </File>
-            <File>
-              <FileName>missionControl.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\CONTROL\missionControl.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -610,29 +505,14 @@
               <FilePath>..\SRC\DATA\dataCom.c</FilePath>
             </File>
             <File>
-              <FileName>dataCom.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DATA\dataCom.h</FilePath>
-            </File>
-            <File>
               <FileName>dataSend.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DATA\dataSend.c</FilePath>
             </File>
             <File>
-              <FileName>dataSend.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DATA\dataSend.h</FilePath>
-            </File>
-            <File>
               <FileName>dataDecode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DATA\dataDecode.c</FilePath>
-            </File>
-            <File>
-              <FileName>dataDecode.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DATA\dataDecode.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -645,19 +525,9 @@
               <FilePath>..\SRC\MATH\mathTool.c</FilePath>
             </File>
             <File>
-              <FileName>mathTool.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\mathTool.h</FilePath>
-            </File>
-            <File>
               <FileName>vector3.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\vector3.c</FilePath>
-            </File>
-            <File>
-              <FileName>vector3.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\vector3.h</FilePath>
             </File>
             <File>
               <FileName>matrix3.c</FileName>
@@ -665,19 +535,9 @@
               <FilePath>..\SRC\MATH\matrix3.c</FilePath>
             </File>
             <File>
-              <FileName>matrix3.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\matrix3.h</FilePath>
-            </File>
-            <File>
               <FileName>kalman3.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\kalman3.c</FilePath>
-            </File>
-            <File>
-              <FileName>kalman3.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\kalman3.h</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>
@@ -685,19 +545,9 @@
               <FilePath>..\SRC\MATH\pid.c</FilePath>
             </File>
             <File>
-              <FileName>pid.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\pid.h</FilePath>
-            </File>
-            <File>
               <FileName>gaussNewton.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\gaussNewton.c</FilePath>
-            </File>
-            <File>
-              <FileName>gaussNewton.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\gaussNewton.h</FilePath>
             </File>
             <File>
               <FileName>lowPassFilter.c</FileName>
@@ -705,29 +555,14 @@
               <FilePath>..\SRC\MATH\lowPassFilter.c</FilePath>
             </File>
             <File>
-              <FileName>lowPassFilter.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\lowPassFilter.h</FilePath>
-            </File>
-            <File>
               <FileName>declination.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\declination.c</FilePath>
             </File>
             <File>
-              <FileName>declination.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\declination.h</FilePath>
-            </File>
-            <File>
               <FileName>rotation.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\rotation.c</FilePath>
-            </File>
-            <File>
-              <FileName>rotation.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MATH\rotation.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -740,19 +575,9 @@
               <FilePath>..\SRC\SENSOR\sensor.c</FilePath>
             </File>
             <File>
-              <FileName>sensor.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SENSOR\sensor.h</FilePath>
-            </File>
-            <File>
               <FileName>gyroscope.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\SENSOR\gyroscope.c</FilePath>
-            </File>
-            <File>
-              <FileName>gyroscope.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SENSOR\gyroscope.h</FilePath>
             </File>
             <File>
               <FileName>accelerometer.c</FileName>
@@ -760,19 +585,9 @@
               <FilePath>..\SRC\SENSOR\accelerometer.c</FilePath>
             </File>
             <File>
-              <FileName>accelerometer.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SENSOR\accelerometer.h</FilePath>
-            </File>
-            <File>
               <FileName>magnetometer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\SENSOR\magnetometer.c</FilePath>
-            </File>
-            <File>
-              <FileName>magnetometer.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SENSOR\magnetometer.h</FilePath>
             </File>
             <File>
               <FileName>barometer.c</FileName>
@@ -780,19 +595,9 @@
               <FilePath>..\SRC\SENSOR\barometer.c</FilePath>
             </File>
             <File>
-              <FileName>barometer.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SENSOR\barometer.h</FilePath>
-            </File>
-            <File>
               <FileName>gps.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\SENSOR\gps.c</FilePath>
-            </File>
-            <File>
-              <FileName>gps.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\SENSOR\gps.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -805,19 +610,9 @@
               <FilePath>..\SRC\MODULE\module.c</FilePath>
             </File>
             <File>
-              <FileName>module.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\module.h</FilePath>
-            </File>
-            <File>
               <FileName>mpu6000.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\mpu6000.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6000.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\mpu6000.h</FilePath>
             </File>
             <File>
               <FileName>ms5611.c</FileName>
@@ -825,19 +620,9 @@
               <FilePath>..\SRC\MODULE\ms5611.c</FilePath>
             </File>
             <File>
-              <FileName>ms5611.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\ms5611.h</FilePath>
-            </File>
-            <File>
               <FileName>qmc5883.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\qmc5883.c</FilePath>
-            </File>
-            <File>
-              <FileName>qmc5883.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\qmc5883.h</FilePath>
             </File>
             <File>
               <FileName>ublox.c</FileName>
@@ -845,19 +630,9 @@
               <FilePath>..\SRC\MODULE\ublox.c</FilePath>
             </File>
             <File>
-              <FileName>ublox.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\ublox.h</FilePath>
-            </File>
-            <File>
               <FileName>mpu6500.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\mpu6500.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\mpu6500.h</FilePath>
             </File>
             <File>
               <FileName>icm20689.c</FileName>
@@ -865,19 +640,14 @@
               <FilePath>..\SRC\MODULE\icm20689.c</FilePath>
             </File>
             <File>
-              <FileName>icm20689.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\icm20689.h</FilePath>
-            </File>
-            <File>
               <FileName>2smpb.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\2smpb.c</FilePath>
             </File>
             <File>
-              <FileName>2smpb.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\MODULE\2smpb.h</FilePath>
+              <FileName>battery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\battery.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -915,19 +685,9 @@
               <FilePath>..\SRC\DRIVER\drv_spi.c</FilePath>
             </File>
             <File>
-              <FileName>drv_spi.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_spi.h</FilePath>
-            </File>
-            <File>
               <FileName>drv_usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_usart.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_usart.h</FilePath>
             </File>
             <File>
               <FileName>drv_i2c_soft.c</FileName>
@@ -935,19 +695,9 @@
               <FilePath>..\SRC\DRIVER\drv_i2c_soft.c</FilePath>
             </File>
             <File>
-              <FileName>drv_i2c_soft.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_i2c_soft.h</FilePath>
-            </File>
-            <File>
               <FileName>drv_flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_flash.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_flash.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_flash.h</FilePath>
             </File>
             <File>
               <FileName>drv_pwm.c</FileName>
@@ -955,19 +705,9 @@
               <FilePath>..\SRC\DRIVER\drv_pwm.c</FilePath>
             </File>
             <File>
-              <FileName>drv_pwm.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_pwm.h</FilePath>
-            </File>
-            <File>
               <FileName>drv_sbus.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_sbus.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_sbus.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_sbus.h</FilePath>
             </File>
             <File>
               <FileName>drv_usbhid.c</FileName>
@@ -975,29 +715,14 @@
               <FilePath>..\SRC\DRIVER\drv_usbhid.c</FilePath>
             </File>
             <File>
-              <FileName>drv_usbhid.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_usbhid.h</FilePath>
-            </File>
-            <File>
               <FileName>drv_ppm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_ppm.c</FilePath>
             </File>
             <File>
-              <FileName>drv_ppm.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_ppm.h</FilePath>
-            </File>
-            <File>
               <FileName>drv_adc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_adc.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_adc.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\SRC\DRIVER\drv_adc.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1144,5 +869,11 @@
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

@@ -250,8 +250,8 @@ void AttitudeOuterControl(void)
     }
     else if(GetPosControlStatus() == POS_BRAKE)
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -50, 50);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -50, 50);        
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -120, 120);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -120, 120);        
     }
     else
     {
@@ -548,6 +548,30 @@ void FlightControlReset(void)
     
     //高度控制失能
     SetAltCtlStatus(DISABLE);
+}
+
+/**********************************************************************************************************
+*函 数 名: FcGetPID
+*功能说明: 获取飞控PID参数
+*形    参: PID的ID号
+*返 回 值: PID结构体
+**********************************************************************************************************/
+PID_t FcGetPID(uint8_t id)
+{
+    return fc.pid[id];
+}
+
+/**********************************************************************************************************
+*函 数 名: FcSetPID
+*功能说明: 设置飞控PID参数
+*形    参: PID的ID号 PID结构体
+*返 回 值: 无
+**********************************************************************************************************/
+void FcSetPID(uint8_t id, PID_t pid)
+{
+   fc.pid[id].kP = pid.kP;
+   fc.pid[id].kI = pid.kI;
+   fc.pid[id].kD = pid.kD;
 }
 
 

@@ -186,24 +186,24 @@ void AccCalibration(Vector3f_t accRaw)
 **********************************************************************************************************/
 void AccScaleCalibrate(Vector3f_t* acc)
 {
-        if(GYRO_TYPE == MPU6500)
-        {
-            if(acc->z > 0)
-                acc->z *= 1.003f;
-            else
-                acc->z *= 0.997f;
-        }
-        else if(GYRO_TYPE == ICM20689)
-        {
-            if(acc->z > 0)
-                acc->z *= 1.002f;
-            else
-                acc->z *= 0.998f;            
-        }
+    if(GYRO_TYPE == MPU6500)
+    {
+        if(acc->z > 0)
+            acc->z *= 1.003f;
         else
-        {
-          
-        }    
+            acc->z *= 0.997f;
+    }
+    else if(GYRO_TYPE == ICM20689)
+    {
+        if(acc->z > 0)
+            acc->z *= 1.002f;
+        else
+            acc->z *= 0.998f;            
+    }
+    else
+    {
+      
+    }    
 }
 
 /**********************************************************************************************************

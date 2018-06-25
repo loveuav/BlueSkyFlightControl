@@ -5,6 +5,11 @@
 
 void SendFlightData(void);
 void SendRcData(void);
+void SendGpsData(void);
+void SendPidAttInner(void);
+void SendPidAttOuter(void);
+void SendPidPosInner(void);
+void SendPidPosOuter(void);
 
 #endif
 

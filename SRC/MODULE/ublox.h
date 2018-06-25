@@ -12,6 +12,7 @@ typedef struct{
 	int32_t	velE;		  //东向速度
 	int32_t	velD;		  //天向速度
 	float	hAcc;		  //水平定位精度
+    float   vAcc;         //垂直定位精度
 	uint8_t fixStatus;    //定位状态		
 	uint8_t numSV;		  //卫星数量
 }UBLOX_t;

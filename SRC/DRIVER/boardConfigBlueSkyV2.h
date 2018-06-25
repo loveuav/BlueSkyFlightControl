@@ -77,11 +77,13 @@
 #define ADC_VOLTAGE_CHAN     ADC_Channel_2
 #define ADC_VOLTAGE_GPIO     GPIOA
 #define ADC_VOLTAGE_PIN      GPIO_Pin_2
+#define ADC_VOLTAGE_COEF     10.0f
 
 #define ADC_CURRENT          ADC1
 #define ADC_CURRENT_CHAN     ADC_Channel_1
 #define ADC_CURRENT_GPIO     GPIOA
 #define ADC_CURRENT_PIN      GPIO_Pin_2
+#define ADC_CURRENT_COEF     10.0f
 
 /**********************************************************************************************************
 *单片机Flash存储区域分配

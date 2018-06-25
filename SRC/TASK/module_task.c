@@ -12,6 +12,7 @@
 #include "TaskConfig.h"
 
 #include "module.h"
+#include "battery.h"
 #include "parameter.h"
 #include "flightStatus.h"
 
@@ -105,7 +106,10 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
         if(count % 10 == 0)
         {       
             ParamSaveToFlash();
-        }
+        }  
+        
+        //电池电压采样更新 200Hz
+        BatteryVoltageUpdate();
         
         count++;
         
