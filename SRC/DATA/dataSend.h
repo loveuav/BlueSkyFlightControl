@@ -4,6 +4,7 @@
 #include "mathTool.h"
 
 void SendFlightData(void);
+void SendImuSensor(void);
 void SendRcData(void);
 void SendGpsData(void);
 void SendPidAttInner(void);

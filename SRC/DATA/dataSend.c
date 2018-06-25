@@ -98,6 +98,71 @@ void SendFlightData(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: SendImuSensor
+*功能说明: 发送IMU传感器数据
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void SendImuSensor(void)
+{
+	uint8_t _cnt=0;
+
+	dataToSend[_cnt++] = FRAME_HEAD_1;
+	dataToSend[_cnt++] = FRAME_HEAD_2;
+    dataToSend[_cnt++] = DEVICE_TYPE;
+    
+	dataToSend[_cnt++] = 0x03;
+	dataToSend[_cnt++] = 0;
+    
+	dataTemp.i16 = GyroGetData().x * 10;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = GyroGetData().y * 10;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = GyroGetData().z * 10;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = GyroLpfGetData().x * 10;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = GyroLpfGetData().y * 10;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = GyroLpfGetData().z * 10;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = AccGetData().x * 1000;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = AccGetData().y * 1000;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = AccGetData().z * 1000;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = AccLpfGetData().x * 1000;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = AccLpfGetData().y * 1000;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+	dataTemp.i16 = AccLpfGetData().z * 1000;
+	dataToSend[_cnt++] = dataTemp.byte[0];
+	dataToSend[_cnt++] = dataTemp.byte[1];
+    
+	dataToSend[4] = _cnt-4;
+	
+	uint8_t sum = 0;
+	for(uint8_t i=0;i<_cnt;i++)
+		sum += dataToSend[i];
+	
+	dataToSend[_cnt++]=sum;
+	
+	DataSend(dataToSend, _cnt);    
+}
+
+/**********************************************************************************************************
 *函 数 名: SendGpsData
 *功能说明: 发送GPS数据
 *形    参: 无

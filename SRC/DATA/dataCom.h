@@ -19,6 +19,7 @@ typedef union
 enum
 {
     FRAME_FLIGHT,
+    FRAME_IMU_SENSOR,
     FRAME_RC,
     FRAME_GPS,
     FRAME_PID_ATTINNER,

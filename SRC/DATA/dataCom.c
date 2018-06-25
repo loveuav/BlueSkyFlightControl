@@ -42,7 +42,8 @@ void DataSendLoop(void)
     //循环发送的数据帧
     if(cnt % 3 == 0)        //33Hz
     {
-        sendFlag[FRAME_FLIGHT] = ENABLE;      
+        sendFlag[FRAME_FLIGHT] = ENABLE;
+        sendFlag[FRAME_IMU_SENSOR] = ENABLE;        
     }
     if(cnt % 10 == 0)       //10Hz
     {
@@ -59,6 +60,11 @@ void DataSendLoop(void)
         SendFlightData();   
         sendFlag[FRAME_FLIGHT] = DISABLE;
     }
+    if(sendFlag[FRAME_IMU_SENSOR])          //IMU传感器数据
+    {
+        SendImuSensor();   
+        sendFlag[FRAME_IMU_SENSOR] = DISABLE;
+    }    
     if(sendFlag[FRAME_RC])                  //遥控通道数据
     {
         SendRcData();  
