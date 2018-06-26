@@ -15,6 +15,13 @@ uint8_t usartTxBuf[6][256];
 uint8_t usartTxCounter[6];
 uint8_t usartTxDataCnt[6];
 
+static void DMA_USART1_Tx_Init(void);
+static void DMA_USART2_Tx_Init(void);
+static void DMA_USART3_Tx_Init(void);
+static void DMA_UART4_Tx_Init(void);
+static void DMA_UART5_Tx_Init(void);
+static void DMA_USART6_Tx_Init(void);
+
 /**********************************************************************************************************
 *函 数 名: Usart_Open
 *功能说明: 串口初始化
@@ -61,6 +68,8 @@ void Usart_Open(uint8_t deviceNum)
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USART1_IRQ_PRIORITY;   
         NVIC_Init(&NVIC_InitStructure);	   
 
+        DMA_USART1_Tx_Init();
+        
         GPIO_PinAFConfig(USART1_GPIO, USART1_PINSOURCE_TX, GPIO_AF_USART1);
         GPIO_PinAFConfig(USART1_GPIO, USART1_PINSOURCE_RX, GPIO_AF_USART1);
         
@@ -85,6 +94,8 @@ void Usart_Open(uint8_t deviceNum)
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USART2_IRQ_PRIORITY;   
         NVIC_Init(&NVIC_InitStructure);	   
 
+        DMA_USART2_Tx_Init();
+        
         GPIO_PinAFConfig(USART2_GPIO, USART2_PINSOURCE_TX, GPIO_AF_USART2);
         GPIO_PinAFConfig(USART2_GPIO, USART2_PINSOURCE_RX, GPIO_AF_USART2);
         
@@ -109,6 +120,8 @@ void Usart_Open(uint8_t deviceNum)
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USART3_IRQ_PRIORITY;   
         NVIC_Init(&NVIC_InitStructure);	   
 
+        DMA_USART3_Tx_Init();
+        
         GPIO_PinAFConfig(USART3_GPIO, USART3_PINSOURCE_TX, GPIO_AF_USART3);
         GPIO_PinAFConfig(USART3_GPIO, USART3_PINSOURCE_RX, GPIO_AF_USART3);
         
@@ -133,6 +146,8 @@ void Usart_Open(uint8_t deviceNum)
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USART1_IRQ_PRIORITY;   
         NVIC_Init(&NVIC_InitStructure);	   
 
+        DMA_UART4_Tx_Init();
+        
         GPIO_PinAFConfig(UART4_GPIO, UART4_PINSOURCE_TX, GPIO_AF_UART4);
         GPIO_PinAFConfig(UART4_GPIO, UART4_PINSOURCE_RX, GPIO_AF_UART4);
         
@@ -157,6 +172,8 @@ void Usart_Open(uint8_t deviceNum)
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = UART5_IRQ_PRIORITY;   
         NVIC_Init(&NVIC_InitStructure);	   
 
+        DMA_UART5_Tx_Init();
+        
         GPIO_PinAFConfig(UART5_GPIO, UART5_PINSOURCE_TX, GPIO_AF_UART5);
         GPIO_PinAFConfig(UART5_GPIO, UART5_PINSOURCE_RX, GPIO_AF_UART5);
         
@@ -181,6 +198,8 @@ void Usart_Open(uint8_t deviceNum)
         NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USART6_IRQ_PRIORITY;   
         NVIC_Init(&NVIC_InitStructure);	   
 
+        DMA_USART6_Tx_Init();
+        
         GPIO_PinAFConfig(USART6_GPIO, USART6_PINSOURCE_TX, GPIO_AF_USART6);
         GPIO_PinAFConfig(USART6_GPIO, USART6_PINSOURCE_RX, GPIO_AF_USART6);
         
@@ -454,75 +473,487 @@ void Usart_SendData(uint8_t deviceNum, uint8_t *DataToSend ,uint8_t length)
     {
         for(i=0;i<length;i++)
         {
-            usartTxBuf[0][usartTxDataCnt[0]++] = *(DataToSend+i);
+            usartTxBuf[0][i] = *(DataToSend+i);
         }
-
-        if(!(USART1->CR1 & USART_CR1_TXEIE))
-        {
-            USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
-        }
+        //打开DMA发送
+        DMA_SetCurrDataCounter(DMA2_Stream7, length);   
+        DMA_Cmd(DMA2_Stream7,ENABLE); 
     }
     else if(deviceNum == 2)
     {
         for(i=0;i<length;i++)
         {
-            usartTxBuf[1][usartTxDataCnt[1]++] = *(DataToSend+i);
+            usartTxBuf[1][i] = *(DataToSend+i);
         }
-
-        if(!(USART2->CR1 & USART_CR1_TXEIE))
-        {
-            USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
-        }
+        //打开DMA发送
+        DMA_SetCurrDataCounter(DMA1_Stream6, length);  
+        DMA_Cmd(DMA1_Stream6,ENABLE); 
     }
     else if(deviceNum == 3)
     {
         for(i=0;i<length;i++)
         {
-            usartTxBuf[2][usartTxDataCnt[2]++] = *(DataToSend+i);
+            //usartTxBuf[2][usartTxDataCnt[2]++] = *(DataToSend+i);
+            usartTxBuf[2][i] = *(DataToSend+i);
         }
-
-        if(!(USART3->CR1 & USART_CR1_TXEIE))
-        {
-            USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
-        }
+        //打开DMA发送
+        DMA_SetCurrDataCounter(DMA1_Stream3, length);  
+        DMA_Cmd(DMA1_Stream3,ENABLE); 
+//        if(!(USART3->CR1 & USART_CR1_TXEIE))
+//        {
+//            USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
+//        }
     }
     else if(deviceNum == 4)
     {
         for(i=0;i<length;i++)
         {
-            usartTxBuf[3][usartTxDataCnt[3]++] = *(DataToSend+i);
+            usartTxBuf[3][i] = *(DataToSend+i);
         }
-
-        if(!(UART4->CR1 & USART_CR1_TXEIE))
-        {
-            USART_ITConfig(UART4, USART_IT_TXE, ENABLE);
-        }
+        //打开DMA发送
+        DMA_SetCurrDataCounter(DMA1_Stream4, length);  
+        DMA_Cmd(DMA1_Stream4,ENABLE); 
     }
     else if(deviceNum == 5)
     {
         for(i=0;i<length;i++)
         {
-            usartTxBuf[4][usartTxDataCnt[4]++] = *(DataToSend+i);
+            usartTxBuf[4][i] = *(DataToSend+i);
         }
-
-        if(!(UART5->CR1 & USART_CR1_TXEIE))
-        {
-            USART_ITConfig(UART5, USART_IT_TXE, ENABLE);
-        }
+        //打开DMA发送
+        DMA_SetCurrDataCounter(DMA1_Stream7, length);  
+        DMA_Cmd(DMA1_Stream7,ENABLE); 
     }
     else if(deviceNum == 6)
     {
         for(i=0;i<length;i++)
         {
-            usartTxBuf[5][usartTxDataCnt[5]++] = *(DataToSend+i);
+            usartTxBuf[5][i] = *(DataToSend+i);
         }
-
-        if(!(USART6->CR1 & USART_CR1_TXEIE))
-        {
-            USART_ITConfig(USART6, USART_IT_TXE, ENABLE);
-        }
+        //打开DMA发送
+        DMA_SetCurrDataCounter(DMA2_Stream6, length);  
+        DMA_Cmd(DMA2_Stream6,ENABLE); 
     }   
 }
 
+/**********************************************************************************************************
+*函 数 名: DMA_USART1_Tx_Init
+*功能说明: 串口1DMA发送初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void DMA_USART1_Tx_Init(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    DMA_InitTypeDef DMA_InitStructure;
+
+    /* 1.使能DMA2时钟 */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+
+    /* 2.配置使用DMA发送数据 */
+    DMA_DeInit(DMA2_Stream7); 
+
+    DMA_InitStructure.DMA_Channel             = DMA_Channel_4;                 /* 配置DMA通道 */
+    DMA_InitStructure.DMA_PeripheralBaseAddr  = (uint32_t)(&(USART1->DR));     /* 目的 */
+    DMA_InitStructure.DMA_Memory0BaseAddr     = (uint32_t)usartTxBuf[0];       /* 源 */
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_MemoryToPeripheral;    /* 方向 */
+    DMA_InitStructure.DMA_BufferSize          = 50;                            /* 长度 */                  
+    DMA_InitStructure.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;     /* 外设地址是否自增 */
+    DMA_InitStructure.DMA_MemoryInc           = DMA_MemoryInc_Enable;          /* 内存地址是否自增 */
+    DMA_InitStructure.DMA_PeripheralDataSize  = DMA_MemoryDataSize_Byte;       /* 目的数据带宽 */
+    DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;       /* 源数据宽度 */
+    DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;               /* 单次传输模式/循环传输模式 */
+    DMA_InitStructure.DMA_Priority            = DMA_Priority_High;             /* DMA优先级 */
+    DMA_InitStructure.DMA_FIFOMode            = DMA_FIFOMode_Disable;          /* FIFO模式/直接模式 */
+    DMA_InitStructure.DMA_FIFOThreshold       = DMA_FIFOThreshold_HalfFull;    /* FIFO大小 */
+    DMA_InitStructure.DMA_MemoryBurst         = DMA_MemoryBurst_Single;        /* 单次传输 */
+    DMA_InitStructure.DMA_PeripheralBurst     = DMA_PeripheralBurst_Single;
+
+    /* 3. 配置DMA */
+    DMA_Init(DMA2_Stream7, &DMA_InitStructure);
+
+    /* 4.使能DMA中断 */
+    DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE);
+
+    /* 5.使能串口的DMA发送接口 */
+    USART_DMACmd(USART1, USART_DMAReq_Tx, ENABLE);
+
+    /* 6. 配置DMA中断优先级 */
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream7_IRQn;           
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;          
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0; 
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* 7.不使能DMA */                  
+    DMA_Cmd(DMA2_Stream7, DISABLE);
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA2_Stream7_IRQHandler
+*功能说明: 串口1DMA发送中断
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void DMA2_Stream7_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA2_Stream7, DMA_IT_TCIF7) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA2_Stream7, DMA_IT_TCIF7);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA2_Stream7, DISABLE);
+    }  
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA_USART2_Tx_Init
+*功能说明: 串口2DMA发送初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void DMA_USART2_Tx_Init(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    DMA_InitTypeDef DMA_InitStructure;
+
+    /* 1.使能DMA1时钟 */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+
+    /* 2.配置使用DMA发送数据 */
+    DMA_DeInit(DMA1_Stream6); 
+
+    DMA_InitStructure.DMA_Channel             = DMA_Channel_4;                 /* 配置DMA通道 */
+    DMA_InitStructure.DMA_PeripheralBaseAddr  = (uint32_t)(&(USART2->DR));     /* 目的 */
+    DMA_InitStructure.DMA_Memory0BaseAddr     = (uint32_t)usartTxBuf[1];       /* 源 */
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_MemoryToPeripheral;    /* 方向 */
+    DMA_InitStructure.DMA_BufferSize          = 50;                            /* 长度 */                  
+    DMA_InitStructure.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;     /* 外设地址是否自增 */
+    DMA_InitStructure.DMA_MemoryInc           = DMA_MemoryInc_Enable;          /* 内存地址是否自增 */
+    DMA_InitStructure.DMA_PeripheralDataSize  = DMA_MemoryDataSize_Byte;       /* 目的数据带宽 */
+    DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;       /* 源数据宽度 */
+    DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;               /* 单次传输模式/循环传输模式 */
+    DMA_InitStructure.DMA_Priority            = DMA_Priority_High;             /* DMA优先级 */
+    DMA_InitStructure.DMA_FIFOMode            = DMA_FIFOMode_Disable;          /* FIFO模式/直接模式 */
+    DMA_InitStructure.DMA_FIFOThreshold       = DMA_FIFOThreshold_HalfFull;    /* FIFO大小 */
+    DMA_InitStructure.DMA_MemoryBurst         = DMA_MemoryBurst_Single;        /* 单次传输 */
+    DMA_InitStructure.DMA_PeripheralBurst     = DMA_PeripheralBurst_Single;
+
+    /* 3. 配置DMA */
+    DMA_Init(DMA1_Stream6, &DMA_InitStructure);
+
+    /* 4.使能DMA中断 */
+    DMA_ITConfig(DMA1_Stream6, DMA_IT_TC, ENABLE);
+
+    /* 5.使能串口的DMA发送接口 */
+    USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
+
+    /* 6. 配置DMA中断优先级 */
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream6_IRQn;           
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;          
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0; 
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* 7.不使能DMA */                  
+    DMA_Cmd(DMA1_Stream6, DISABLE);
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA1_Stream6_IRQHandler
+*功能说明: 串口2DMA发送中断
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void DMA1_Stream6_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA1_Stream6, DMA_IT_TCIF6);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA1_Stream6, DISABLE);
+    }  
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA_USART3_Tx_Init
+*功能说明: 串口3DMA发送初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void DMA_USART3_Tx_Init(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    DMA_InitTypeDef DMA_InitStructure;
+
+    /* 1.使能DMA1时钟 */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+
+    /* 2.配置使用DMA发送数据 */
+    DMA_DeInit(DMA1_Stream3); 
+
+    DMA_InitStructure.DMA_Channel             = DMA_Channel_4;                 /* 配置DMA通道 */
+    DMA_InitStructure.DMA_PeripheralBaseAddr  = (uint32_t)(&(USART3->DR));     /* 目的 */
+    DMA_InitStructure.DMA_Memory0BaseAddr     = (uint32_t)usartTxBuf[2];       /* 源 */
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_MemoryToPeripheral;    /* 方向 */
+    DMA_InitStructure.DMA_BufferSize          = 50;                            /* 长度 */                  
+    DMA_InitStructure.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;     /* 外设地址是否自增 */
+    DMA_InitStructure.DMA_MemoryInc           = DMA_MemoryInc_Enable;          /* 内存地址是否自增 */
+    DMA_InitStructure.DMA_PeripheralDataSize  = DMA_MemoryDataSize_Byte;       /* 目的数据带宽 */
+    DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;       /* 源数据宽度 */
+    DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;               /* 单次传输模式/循环传输模式 */
+    DMA_InitStructure.DMA_Priority            = DMA_Priority_High;             /* DMA优先级 */
+    DMA_InitStructure.DMA_FIFOMode            = DMA_FIFOMode_Disable;          /* FIFO模式/直接模式 */
+    DMA_InitStructure.DMA_FIFOThreshold       = DMA_FIFOThreshold_HalfFull;    /* FIFO大小 */
+    DMA_InitStructure.DMA_MemoryBurst         = DMA_MemoryBurst_Single;        /* 单次传输 */
+    DMA_InitStructure.DMA_PeripheralBurst     = DMA_PeripheralBurst_Single;
+
+    /* 3. 配置DMA */
+    DMA_Init(DMA1_Stream3, &DMA_InitStructure);
+
+    /* 4.使能DMA中断 */
+    DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, ENABLE);
+
+    /* 5.使能串口的DMA发送接口 */
+    USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
+
+    /* 6. 配置DMA中断优先级 */
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream3_IRQn;           
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;          
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0; 
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* 7.不使能DMA */                  
+    DMA_Cmd(DMA1_Stream3, DISABLE);
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA1_Stream3_IRQHandler
+*功能说明: 串口3DMA发送中断
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void DMA1_Stream3_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA1_Stream3, DMA_IT_TCIF3);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA1_Stream3, DISABLE);
+    }  
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA_USART4_Tx_Init
+*功能说明: 串口4DMA发送初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void DMA_UART4_Tx_Init(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    DMA_InitTypeDef DMA_InitStructure;
+
+    /* 1.使能DMA1时钟 */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+
+    /* 2.配置使用DMA发送数据 */
+    DMA_DeInit(DMA1_Stream4); 
+
+    DMA_InitStructure.DMA_Channel             = DMA_Channel_4;                 /* 配置DMA通道 */
+    DMA_InitStructure.DMA_PeripheralBaseAddr  = (uint32_t)(&(UART4->DR));     /* 目的 */
+    DMA_InitStructure.DMA_Memory0BaseAddr     = (uint32_t)usartTxBuf[3];       /* 源 */
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_MemoryToPeripheral;    /* 方向 */
+    DMA_InitStructure.DMA_BufferSize          = 50;                            /* 长度 */                  
+    DMA_InitStructure.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;     /* 外设地址是否自增 */
+    DMA_InitStructure.DMA_MemoryInc           = DMA_MemoryInc_Enable;          /* 内存地址是否自增 */
+    DMA_InitStructure.DMA_PeripheralDataSize  = DMA_MemoryDataSize_Byte;       /* 目的数据带宽 */
+    DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;       /* 源数据宽度 */
+    DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;               /* 单次传输模式/循环传输模式 */
+    DMA_InitStructure.DMA_Priority            = DMA_Priority_High;             /* DMA优先级 */
+    DMA_InitStructure.DMA_FIFOMode            = DMA_FIFOMode_Disable;          /* FIFO模式/直接模式 */
+    DMA_InitStructure.DMA_FIFOThreshold       = DMA_FIFOThreshold_HalfFull;    /* FIFO大小 */
+    DMA_InitStructure.DMA_MemoryBurst         = DMA_MemoryBurst_Single;        /* 单次传输 */
+    DMA_InitStructure.DMA_PeripheralBurst     = DMA_PeripheralBurst_Single;
+
+    /* 3. 配置DMA */
+    DMA_Init(DMA1_Stream4, &DMA_InitStructure);
+
+    /* 4.使能DMA中断 */
+    DMA_ITConfig(DMA1_Stream4, DMA_IT_TC, ENABLE);
+
+    /* 5.使能串口的DMA发送接口 */
+    USART_DMACmd(UART4, USART_DMAReq_Tx, ENABLE);
+
+    /* 6. 配置DMA中断优先级 */
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream4_IRQn;           
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;          
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0; 
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* 7.不使能DMA */                  
+    DMA_Cmd(DMA1_Stream4, DISABLE);
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA1_Stream4_IRQHandler
+*功能说明: 串口4DMA发送中断
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void DMA1_Stream4_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA1_Stream4, DMA_IT_TCIF4) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA1_Stream4, DMA_IT_TCIF4);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA1_Stream4, DISABLE);
+    }  
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA_USART5_Tx_Init
+*功能说明: 串口5DMA发送初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void DMA_UART5_Tx_Init(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    DMA_InitTypeDef DMA_InitStructure;
+
+    /* 1.使能DMA1时钟 */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+
+    /* 2.配置使用DMA发送数据 */
+    DMA_DeInit(DMA1_Stream7); 
+
+    DMA_InitStructure.DMA_Channel             = DMA_Channel_4;                 /* 配置DMA通道 */
+    DMA_InitStructure.DMA_PeripheralBaseAddr  = (uint32_t)(&(UART5->DR));     /* 目的 */
+    DMA_InitStructure.DMA_Memory0BaseAddr     = (uint32_t)usartTxBuf[4];       /* 源 */
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_MemoryToPeripheral;    /* 方向 */
+    DMA_InitStructure.DMA_BufferSize          = 50;                            /* 长度 */                  
+    DMA_InitStructure.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;     /* 外设地址是否自增 */
+    DMA_InitStructure.DMA_MemoryInc           = DMA_MemoryInc_Enable;          /* 内存地址是否自增 */
+    DMA_InitStructure.DMA_PeripheralDataSize  = DMA_MemoryDataSize_Byte;       /* 目的数据带宽 */
+    DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;       /* 源数据宽度 */
+    DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;               /* 单次传输模式/循环传输模式 */
+    DMA_InitStructure.DMA_Priority            = DMA_Priority_High;             /* DMA优先级 */
+    DMA_InitStructure.DMA_FIFOMode            = DMA_FIFOMode_Disable;          /* FIFO模式/直接模式 */
+    DMA_InitStructure.DMA_FIFOThreshold       = DMA_FIFOThreshold_HalfFull;    /* FIFO大小 */
+    DMA_InitStructure.DMA_MemoryBurst         = DMA_MemoryBurst_Single;        /* 单次传输 */
+    DMA_InitStructure.DMA_PeripheralBurst     = DMA_PeripheralBurst_Single;
+
+    /* 3. 配置DMA */
+    DMA_Init(DMA1_Stream7, &DMA_InitStructure);
+
+    /* 4.使能DMA中断 */
+    DMA_ITConfig(DMA1_Stream7, DMA_IT_TC, ENABLE);
+
+    /* 5.使能串口的DMA发送接口 */
+    USART_DMACmd(UART5, USART_DMAReq_Tx, ENABLE);
+
+    /* 6. 配置DMA中断优先级 */
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA1_Stream7_IRQn;           
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;          
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0; 
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* 7.不使能DMA */                  
+    DMA_Cmd(DMA1_Stream7, DISABLE);
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA1_Stream7_IRQHandler
+*功能说明: 串口5DMA发送中断
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void DMA1_Stream7_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA1_Stream7, DMA_IT_TCIF7) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA1_Stream7, DMA_IT_TCIF7);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA1_Stream7, DISABLE);
+    }  
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA_USART6_Tx_Init
+*功能说明: 串口6DMA发送初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void DMA_USART6_Tx_Init(void)
+{
+    NVIC_InitTypeDef NVIC_InitStructure;
+    DMA_InitTypeDef DMA_InitStructure;
+
+    /* 1.使能DMA2时钟 */
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
+
+    /* 2.配置使用DMA发送数据 */
+    DMA_DeInit(DMA2_Stream6); 
+
+    DMA_InitStructure.DMA_Channel             = DMA_Channel_5;                 /* 配置DMA通道 */
+    DMA_InitStructure.DMA_PeripheralBaseAddr  = (uint32_t)(&(USART6->DR));     /* 目的 */
+    DMA_InitStructure.DMA_Memory0BaseAddr     = (uint32_t)usartTxBuf[5];       /* 源 */
+    DMA_InitStructure.DMA_DIR                 = DMA_DIR_MemoryToPeripheral;    /* 方向 */
+    DMA_InitStructure.DMA_BufferSize          = 50;                            /* 长度 */                  
+    DMA_InitStructure.DMA_PeripheralInc       = DMA_PeripheralInc_Disable;     /* 外设地址是否自增 */
+    DMA_InitStructure.DMA_MemoryInc           = DMA_MemoryInc_Enable;          /* 内存地址是否自增 */
+    DMA_InitStructure.DMA_PeripheralDataSize  = DMA_MemoryDataSize_Byte;       /* 目的数据带宽 */
+    DMA_InitStructure.DMA_MemoryDataSize      = DMA_MemoryDataSize_Byte;       /* 源数据宽度 */
+    DMA_InitStructure.DMA_Mode                = DMA_Mode_Normal;               /* 单次传输模式/循环传输模式 */
+    DMA_InitStructure.DMA_Priority            = DMA_Priority_High;             /* DMA优先级 */
+    DMA_InitStructure.DMA_FIFOMode            = DMA_FIFOMode_Disable;          /* FIFO模式/直接模式 */
+    DMA_InitStructure.DMA_FIFOThreshold       = DMA_FIFOThreshold_HalfFull;    /* FIFO大小 */
+    DMA_InitStructure.DMA_MemoryBurst         = DMA_MemoryBurst_Single;        /* 单次传输 */
+    DMA_InitStructure.DMA_PeripheralBurst     = DMA_PeripheralBurst_Single;
+
+    /* 3. 配置DMA */
+    DMA_Init(DMA2_Stream6, &DMA_InitStructure);
+
+    /* 4.使能DMA中断 */
+    DMA_ITConfig(DMA2_Stream6, DMA_IT_TC, ENABLE);
+
+    /* 5.使能串口的DMA发送接口 */
+    USART_DMACmd(USART6, USART_DMAReq_Tx, ENABLE);
+
+    /* 6. 配置DMA中断优先级 */
+    NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream6_IRQn;           
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;          
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 0; 
+    NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+
+    /* 7.不使能DMA */                  
+    DMA_Cmd(DMA2_Stream6, DISABLE);
+}
+
+/**********************************************************************************************************
+*函 数 名: DMA2_Stream6_IRQHandler
+*功能说明: 串口6DMA发送中断
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void DMA2_Stream6_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA2_Stream6, DMA_IT_TCIF6) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA2_Stream6, DMA_IT_TCIF6);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA2_Stream6, DISABLE);
+    }  
+}
 
 

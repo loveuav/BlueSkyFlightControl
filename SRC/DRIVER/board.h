@@ -16,8 +16,8 @@ enum{
 *定义硬件类型
 **********************************************************************************************************/
 //#define BLUESKY_V2
-//#define BLUESKY_V3
-#define TESTBOARD
+#define BLUESKY_V3
+//#define TESTBOARD
 
 #ifdef BLUESKY_V2
 	#include "boardConfigBlueSkyV2.h"
