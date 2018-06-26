@@ -89,7 +89,7 @@ typedef struct
     int16_t aux8;           //辅助通道8
 }BSKLINK_PAYLOAD_RC_DATA_t;
 
-//角速率内环PID参数
+//角速率环PID参数
 typedef struct
 {
 	float roll_kp;          //横滚角速度环P
@@ -103,6 +103,7 @@ typedef struct
     float yaw_kd;           //偏航角速度环D
 }BSKLINK_PAYLOAD_PID_ATT_INNER_t;
 
+//角度环PID参数
 typedef struct
 {
 	float roll_kp;          //横滚角度环P
@@ -110,6 +111,7 @@ typedef struct
     float yaw_kp;           //偏航角度环P
 }BSKLINK_PAYLOAD_PID_ATT_OUTER_t;
 
+//速度环PID参数
 typedef struct{
 	float velX_kp;          //X轴速度环P
 	float velX_ki;          //X轴速度环I
@@ -122,6 +124,7 @@ typedef struct{
     float velZ_kd;          //Z轴速度环D
 }BSKLINK_PAYLOAD_PID_POS_INNER_t;
 
+//位置环PID参数
 typedef struct
 {
 	float posX_kp;          //X轴位置环P
@@ -129,6 +132,7 @@ typedef struct
     float posZ_kp;          //Z轴位置环P
 }BSKLINK_PAYLOAD_PID_POS_OUTER_t;
 
+//GPS数据
 typedef struct
 {
 	float   time;           //当地时间 单位：秒
