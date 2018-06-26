@@ -108,8 +108,9 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
             ParamSaveToFlash();
         }  
         
-        //电池电压采样更新 200Hz
+        //电池电压电流采样更新 200Hz
         BatteryVoltageUpdate();
+        BatteryCurrentUpdate();
         
         count++;
         

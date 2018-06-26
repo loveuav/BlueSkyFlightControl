@@ -86,8 +86,6 @@ void FlightControlReset(void);
 PID_t FcGetPID(uint8_t id);
 void FcSetPID(uint8_t id, PID_t pid);
 
-extern FLIGHTCONTROL_t fc;
-
 #endif
 
 

@@ -86,56 +86,55 @@ void BsklinkMsgFormat(BSKLINK_MSG_t msg, uint8_t* msgTemp)
 *返 回 值: 标志位 一帧接收完成返回true
 **********************************************************************************************************/
 bool BsklinkDecode(BSKLINK_MSG_t* msg, uint8_t data)
-{ 
-    static uint8_t recvStatus = 0;
-    static uint8_t payloadTemp[BSKLINK_MAX_PAYLOAD_LENGTH];
-    static uint8_t payloadRecvCnt = 0;
-    
-    switch(recvStatus)
+{     
+    switch(msg->recvStatus)
     {
-        case 0:
+        case 0:     //帧头
             if(data == BSKLINK_MSG_HEAD_1)
             {
                 msg->head1 = data;
-                recvStatus++;
-            }        
+                msg->recvStatus++;
+            }
             break;
-        case 1:
+        case 1:     //帧头
             if(data == BSKLINK_MSG_HEAD_2)
             {
                 msg->head2 = data;
-                recvStatus++;
-            }   
+                msg->recvStatus++;
+            } 
+            else
+                msg->recvStatus = 0;
             break;
-        case 2:
+        case 2:     //设备ID
             msg->deviceid = data;
-            recvStatus++;
+            msg->recvStatus++;
             break;
-        case 3:
+        case 3:     //消息ID
             msg->msgid = data;
-            recvStatus++;
+            msg->recvStatus++;
             break;
-        case 4:
+        case 4:     //数据负载长度
             msg->length = data;
-            recvStatus++;
+            msg->recvStatus++;
             break;
-        case 5:
-            payloadTemp[payloadRecvCnt++] = data;
-            if(payloadRecvCnt == msg->length)
+        case 5:     //数据负载接收
+            msg->payload[msg->payloadRecvCnt++] = data;
+            if(msg->payloadRecvCnt == msg->length)
             {
-                memcpy(msg->payload, payloadTemp, msg->length);
-                payloadRecvCnt = 0;
-                recvStatus++;
+                msg->payloadRecvCnt = 0;
+                msg->recvStatus++;
             }
             break;
-        case 6:
+        case 6:     //帧校验
             msg->checksum = data;
-            recvStatus = 0;
+            msg->recvStatus = 0;
             if(BsklinkMsgCheckSum(msg))
             {
                 return true;
             } 
         default:
+            msg->recvStatus = 0;
+            msg->payloadRecvCnt = 0;
             break;        
     }
     

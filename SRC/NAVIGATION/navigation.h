@@ -29,8 +29,6 @@ float GetDirectionToHome(Vector3f_t position);
 
 void NavigationReset(void);
 
-extern NAVGATION_t nav;
-
 #endif
 
 

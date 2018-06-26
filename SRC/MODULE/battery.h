@@ -11,6 +11,8 @@ enum
 };
 
 void BatteryVoltageUpdate(void);
+void BatteryCurrentUpdate(void);
+
 int16_t GetBatteryVoltage(void);
 int16_t GetBatteryCurrent(void);
 uint8_t GetBatteryStatus(void);

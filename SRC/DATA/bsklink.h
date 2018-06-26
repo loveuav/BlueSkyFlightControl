@@ -19,6 +19,9 @@ typedef struct
     uint8_t length;                                //数据负载长度
 	uint8_t payload[BSKLINK_MAX_PAYLOAD_LENGTH];   //数据负载
     uint8_t checksum;                              //校验和
+    
+    uint8_t recvStatus;                            //解析状态
+    uint8_t payloadRecvCnt;                        //负载接收计数
 }BSKLINK_MSG_t;
 
 /********************************************消息类型定义**********************************************/

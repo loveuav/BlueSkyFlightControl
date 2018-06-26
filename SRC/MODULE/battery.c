@@ -50,7 +50,7 @@ void BatteryCurrentUpdate(void)
     }
     else
     {
-        batCurrent = batCurrent * 0.999f + GetCurrentAdcValue() * ADC_CURRENT_COEF * 0.001f;
+        batCurrent = batCurrent * 0.99f + GetCurrentAdcValue() * ADC_CURRENT_COEF * 0.01f;
     }  
 }
 

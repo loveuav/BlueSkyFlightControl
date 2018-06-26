@@ -15,12 +15,17 @@
 void dataDecode(uint8_t data)
 {
     static BSKLINK_MSG_t msg;
+    static uint8_t i=0;
     
     if(BsklinkDecode(&msg, data))
     {
+        if(msg.msgid == BSKLINK_MSG_ID_FLIGHT_DATA)
+        {
+            i++;
+        }
+        
         if(msg.msgid == BSKLINK_MSG_ID_RC_DATA)
         {
-            static uint8_t i=0;
             i++;
         }
     }

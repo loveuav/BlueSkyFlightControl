@@ -28,8 +28,6 @@ Vector3f_t GetCopterAngle(void);
 Vector3f_t GetCopterAccEf(void);
 void Data_Send_Test(void);
 
-extern AHRS_t ahrs;
-
 #endif
 
 
