@@ -3,14 +3,14 @@
 
 #include "mathTool.h"
 
-void SendFlightData(void);
-void SendImuSensor(void);
-void SendRcData(void);
-void SendGpsData(void);
-void SendPidAttInner(void);
-void SendPidAttOuter(void);
-void SendPidPosInner(void);
-void SendPidPosOuter(void);
+void BsklinkSendFlightData(void);
+void BsklinkSendImuSensor(void);
+void BsklinkSendGps(void);
+void BsklinkSendRcData(void);
+void BsklinkSendPidAttInner(void);
+void BsklinkPidAttOuter(void);
+void BsklinkSendPidPosInner(void);
+void BsklinkSendPidPosOuter(void);
 
 #endif
 

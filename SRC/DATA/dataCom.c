@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "dataCom.h"
 #include "dataSend.h"
+#include "dataDecode.h"
 #include "drv_usart.h"
 #include "drv_usbhid.h"
 
@@ -23,9 +24,21 @@
 #include "motor.h"
 #include "gps.h"
 
-uint8_t sendFlag[FRAME_NUM];
+uint8_t sendFlag[MSG_NUM];
 
 //static void DataSendDebug(void);
+
+/**********************************************************************************************************
+*函 数 名: DataCommunicationInit
+*功能说明: 飞控数据通信初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void DataCommunicationInit(void)
+{
+    //设置数据通信串口接收中断回调函数
+    Usart_SetIRQCallback(DATA_UART, dataDecode);
+}
 
 /**********************************************************************************************************
 *函 数 名: DataSendLoop
@@ -40,60 +53,55 @@ void DataSendLoop(void)
     cnt++;
     
     //循环发送的数据帧
-    if(cnt % 3 == 0)        //33Hz
-    {
-        sendFlag[FRAME_FLIGHT] = ENABLE;
-        sendFlag[FRAME_IMU_SENSOR] = ENABLE;        
-    }
-    if(cnt % 10 == 0)       //10Hz
-    {
-        sendFlag[FRAME_RC] = ENABLE;   
-    }
-    if(cnt % 30 == 0)       //3Hz
-    {
-        sendFlag[FRAME_GPS] = ENABLE;   
-    }
+    if(cnt % 3 == 0)   
+        sendFlag[MSG_FLIGHT] = ENABLE;
+    if(cnt % 7 == 0)  
+        sendFlag[MSG_IMU_SENSOR] = ENABLE;         
+    if(cnt % 11 == 0)     
+        sendFlag[MSG_RC] = ENABLE;   
+    if(cnt % 29 == 0)     
+        sendFlag[MSG_GPS] = ENABLE;   
     
     //检测是否有需要发送的数据帧
-    if(sendFlag[FRAME_FLIGHT])              //基本飞行数据
+    if(sendFlag[MSG_FLIGHT])              //基本飞行数据
     {
-        SendFlightData();   
-        sendFlag[FRAME_FLIGHT] = DISABLE;
+        BsklinkSendFlightData();
+        sendFlag[MSG_FLIGHT] = DISABLE;
     }
-    if(sendFlag[FRAME_IMU_SENSOR])          //IMU传感器数据
+    else if(sendFlag[MSG_IMU_SENSOR])          //IMU传感器数据
     {
-        SendImuSensor();   
-        sendFlag[FRAME_IMU_SENSOR] = DISABLE;
+        BsklinkSendImuSensor();   
+        sendFlag[MSG_IMU_SENSOR] = DISABLE;
     }    
-    if(sendFlag[FRAME_RC])                  //遥控通道数据
+    else if(sendFlag[MSG_RC])                  //遥控通道数据
     {
-        SendRcData();  
-        sendFlag[FRAME_RC] = DISABLE;
+        BsklinkSendRcData();
+        sendFlag[MSG_RC] = DISABLE;
     }
-    if(sendFlag[FRAME_GPS])                 //GPS数据
+    else if(sendFlag[MSG_GPS])                 //GPS数据
     {
-        SendGpsData(); 
-        sendFlag[FRAME_GPS] = DISABLE;
+        BsklinkSendGps(); 
+        sendFlag[MSG_GPS] = DISABLE;
     }
-    if(sendFlag[FRAME_PID_ATTINNER])        //姿态内环PID
+    else if(sendFlag[MSG_PID_ATTINNER])        //姿态内环PID
     {
-        SendPidAttInner();
-        sendFlag[FRAME_PID_ATTINNER] = DISABLE;
+        BsklinkSendPidAttInner();
+        sendFlag[MSG_PID_ATTINNER] = DISABLE;
     }   
-    if(sendFlag[FRAME_PID_ATTOUTER])        //姿态外环PID
+    else if(sendFlag[MSG_PID_ATTOUTER])        //姿态外环PID
     {
-        SendPidAttOuter();
-        sendFlag[FRAME_PID_ATTOUTER] = DISABLE;
+        BsklinkPidAttOuter();
+        sendFlag[MSG_PID_ATTOUTER] = DISABLE;
     }       
-    if(sendFlag[FRAME_PID_POSINNER])        //位置内环PID
+    else if(sendFlag[MSG_PID_POSINNER])        //位置内环PID
     {
-        SendPidPosInner();
-        sendFlag[FRAME_PID_POSINNER] = DISABLE;
+        BsklinkSendPidPosInner();
+        sendFlag[MSG_PID_POSINNER] = DISABLE;
     }        
-    if(sendFlag[FRAME_PID_POSOUTER])        //位置外环PID
+    else if(sendFlag[MSG_PID_POSOUTER])        //位置外环PID
     {
-        SendPidPosOuter();
-        sendFlag[FRAME_PID_POSOUTER] = DISABLE;
+        BsklinkSendPidPosOuter();
+        sendFlag[MSG_PID_POSOUTER] = DISABLE;
     }  
 }
 

@@ -400,6 +400,11 @@
               <FilePath>..\SRC\SYSTEM\flightStatus.c</FilePath>
             </File>
             <File>
+              <FileName>flightStatus.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\SYSTEM\flightStatus.h</FilePath>
+            </File>
+            <File>
               <FileName>README.md</FileName>
               <FileType>5</FileType>
               <FilePath>..\README.md</FilePath>
@@ -513,6 +518,16 @@
               <FileName>dataDecode.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DATA\dataDecode.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsklink.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\DATA\bsklink.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsklink.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\SRC\DATA\bsklink.h</FilePath>
             </File>
           </Files>
         </Group>

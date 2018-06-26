@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
                                 
- * @版本：	 V0.1.2
+ * @版本：	 V0.1.3
  * @作者：   BlueSky
  * @QQ:      352707983
  * @论坛:    爱无人机 bbs.loveuav.com
@@ -28,6 +28,7 @@
 #include "messageQueue.h"
 #include "parameter.h"
 #include "faultDetect.h"
+#include "dataCom.h"
 
 xTaskHandle startTask;
 
@@ -48,7 +49,9 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     ParamInit();
 	//系统故障检测初始化
     FaultDetectInit();
-	
+    //飞控数据通信初始化
+	DataCommunicationInit();
+    
     //消息队列创建
     MessageQueueCreate();
         

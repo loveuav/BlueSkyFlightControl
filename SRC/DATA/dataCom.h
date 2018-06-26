@@ -3,10 +3,6 @@
 
 #include "mathTool.h"
 
-#define FRAME_HEAD_1    0xDE
-#define FRAME_HEAD_2    0xED
-#define DEVICE_TYPE     0x02
-
 typedef union   
 {  
     int8_t  i8; 
@@ -18,17 +14,18 @@ typedef union
 
 enum
 {
-    FRAME_FLIGHT,
-    FRAME_IMU_SENSOR,
-    FRAME_RC,
-    FRAME_GPS,
-    FRAME_PID_ATTINNER,
-    FRAME_PID_ATTOUTER,
-    FRAME_PID_POSINNER,
-    FRAME_PID_POSOUTER,
-    FRAME_NUM
+    MSG_FLIGHT,
+    MSG_IMU_SENSOR,
+    MSG_RC,
+    MSG_GPS,
+    MSG_PID_ATTINNER,
+    MSG_PID_ATTOUTER,
+    MSG_PID_POSINNER,
+    MSG_PID_POSOUTER,
+    MSG_NUM
 };
 
+void DataCommunicationInit(void);
 void DataSendLoop(void);
 void DataSend(uint8_t *data , uint8_t length);
 

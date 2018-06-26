@@ -10,5 +10,20 @@
  * @日期     2018.06
 **********************************************************************************************************/
 #include "dataDecode.h"
+#include "bsklink.h"
+
+void dataDecode(uint8_t data)
+{
+    static BSKLINK_MSG_t msg;
+    
+    if(BsklinkDecode(&msg, data))
+    {
+        if(msg.msgid == BSKLINK_MSG_ID_RC_DATA)
+        {
+            static uint8_t i=0;
+            i++;
+        }
+    }
+}
 
 

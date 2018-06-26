@@ -185,7 +185,7 @@
 #define USART2_PIN_TX           GPIO_Pin_5
 #define USART2_PIN_RX           GPIO_Pin_6
 #define USART2_BAUDRATE         115200
-#define USART2_IRQ_PRIORITY     3
+#define USART2_IRQ_PRIORITY     4
 
 #define USART3_GPIO             GPIOB
 #define USART3_PINSOURCE_TX     GPIO_PinSource10

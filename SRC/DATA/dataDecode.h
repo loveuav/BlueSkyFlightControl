@@ -3,6 +3,6 @@
 
 #include "mathTool.h"
 
-
+void dataDecode(uint8_t data);
 
 #endif
