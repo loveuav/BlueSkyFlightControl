@@ -47,7 +47,7 @@ void VelocityEstimate(void)
 {
 	static uint32_t previousT;	
 	float deltaT;
-	Vector3f_t velMeasure;
+	Vector3f_t gpsVel;	
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
@@ -68,17 +68,17 @@ void VelocityEstimate(void)
         if(GpsGetFixStatus())
         {
             //获取GPS速度测量值，转换速度值到机体坐标系
-            TransVelToBodyFrame(GpsGetVelocity(), &nav.gpsVel, GetCopterAngle().z);
+            TransVelToBodyFrame(GpsGetVelocity(), &gpsVel, GetCopterAngle().z);
         }
         else
         {
-            nav.gpsVel.x = 0;
-            nav.gpsVel.y = 0;
+            gpsVel.x = 0;
+            gpsVel.y = 0;
         }
-        velMeasure.x = nav.gpsVel.x;
-        velMeasure.y = nav.gpsVel.y;
+        nav.velMeasure.x = gpsVel.x;
+        nav.velMeasure.y = gpsVel.y;
         //获取气压速度测量值
-        velMeasure.z = BaroGetVelocity();	
+        nav.velMeasure.z = BaroGetVelocity();	
         
         fuseFlag = true;
     }
@@ -105,9 +105,6 @@ void VelocityEstimate(void)
 //        nav.velocity2.y = 0;
 //        nav.velocity2.z = 0;       
 //    }
-    nav.accelLpf.x = nav.accelLpf.x * 0.999f + nav.accel.x * 0.001f;
-    nav.accelLpf.y = nav.accelLpf.y * 0.999f + nav.accel.y * 0.001f;
-    nav.accelLpf.z = nav.accelLpf.z * 0.999f + nav.accel.z * 0.001f;
     
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
     input.x += nav.velErrorInt.x * 0.0003f;
@@ -115,13 +112,13 @@ void VelocityEstimate(void)
     input.z += nav.velErrorInt.z * 0.0005f;
 
     //卡尔曼滤波器更新
-    KalmanUpdate(&kalmanVel, input, velMeasure, fuseFlag);
+    KalmanUpdate(&kalmanVel, input, nav.velMeasure, fuseFlag);
     nav.velocity = kalmanVel.status;
     
     //计算误差积分
-    nav.velErrorInt.x += (velMeasure.x - nav.velocity.x) * velErrorIntRate;
-    nav.velErrorInt.y += (velMeasure.y - nav.velocity.y) * velErrorIntRate;
-    nav.velErrorInt.z += (velMeasure.z - nav.velocity.z) * velErrorIntRate;
+    nav.velErrorInt.x += (nav.velMeasure.x - nav.velocity.x) * velErrorIntRate;
+    nav.velErrorInt.y += (nav.velMeasure.y - nav.velocity.y) * velErrorIntRate;
+    nav.velErrorInt.z += (nav.velMeasure.z - nav.velocity.z) * velErrorIntRate;
     nav.velErrorInt.x  = ConstrainFloat(nav.velErrorInt.x, -50, 50);
     nav.velErrorInt.y  = ConstrainFloat(nav.velErrorInt.y, -50, 50);
     nav.velErrorInt.z  = ConstrainFloat(nav.velErrorInt.z, -50, 50);
@@ -138,7 +135,7 @@ void PositionEstimate(void)
 {
 	static uint32_t previousT;	
 	float deltaT;
-	Vector3f_t velocityEf, posMeasure;
+	Vector3f_t velocityEf;
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
@@ -155,15 +152,15 @@ void PositionEstimate(void)
         if(GpsGetFixStatus())
         {
             //获取GPS位置
-            posMeasure = GpsGetPosition();
+            nav.posMeasure = GpsGetPosition();
         }
         else
         {
-            posMeasure.x = 0;
-            posMeasure.y = 0;
+            nav.posMeasure.x = 0;
+            nav.posMeasure.y = 0;
         }
         //获取气压高度测量值
-        posMeasure.z = BaroGetAlt();	
+        nav.posMeasure.z = BaroGetAlt();	
         
         fuseFlag = true;
     }
@@ -181,7 +178,7 @@ void PositionEstimate(void)
     input.z = velocityEf.z * deltaT;    
     
     //卡尔曼滤波器更新
-    KalmanUpdate(&kalmanPos, input, posMeasure, fuseFlag);
+    KalmanUpdate(&kalmanPos, input, nav.posMeasure, fuseFlag);
     nav.position = kalmanPos.status;    
 }
 
@@ -398,7 +395,7 @@ Vector3f_t GetCopterAccel(void)
 
 /**********************************************************************************************************
 *函 数 名: GetCopterVelocity
-*功能说明: 获取飞行速度
+*功能说明: 获取飞行速度估计值
 *形    参: 无
 *返 回 值: 速度值
 **********************************************************************************************************/
@@ -408,8 +405,19 @@ Vector3f_t GetCopterVelocity(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: GetCopterVelMeasure
+*功能说明: 获取飞行速度测量值
+*形    参: 无
+*返 回 值: 速度值
+**********************************************************************************************************/
+Vector3f_t GetCopterVelMeasure(void)
+{
+    return nav.velMeasure;
+}
+
+/**********************************************************************************************************
 *函 数 名: GetCopterPosition
-*功能说明: 获取飞机位置
+*功能说明: 获取位置估计值
 *形    参: 无
 *返 回 值: 位置值
 **********************************************************************************************************/
@@ -418,4 +426,13 @@ Vector3f_t GetCopterPosition(void)
     return nav.position;
 }
 
-
+/**********************************************************************************************************
+*函 数 名: GetCopterPosMeasure
+*功能说明: 获取位置测量值
+*形    参: 无
+*返 回 值: 速度值
+**********************************************************************************************************/
+Vector3f_t GetCopterPosMeasure(void)
+{
+    return nav.posMeasure;
+}

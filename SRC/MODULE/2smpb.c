@@ -255,12 +255,12 @@ void _2SMPB_Init(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: _2SMPB_ReadTemp
+*函 数 名: _2SMPB_Temperature
 *功能说明: 2SMPB读取温度
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void _2SMPB_ReadTemp(void)
+void _2SMPB_ReadTemperature(void)
 {
 	uint8_t cmdBuf[8] = {0};
 	_2SMPB_MultiRead(_2SMPB02_TEMP_TXD2, cmdBuf, 3);
@@ -299,7 +299,7 @@ void _2SMPB_ReadPressure(void)
 **********************************************************************************************************/
 void _2SMPB_Update(void)
 {
-	_2SMPB_ReadTemp();
+	_2SMPB_ReadTemperature();
 	
 	_2SMPB_ReadPressure();
 }
@@ -313,6 +313,17 @@ void _2SMPB_Update(void)
 void _2SMPB_Read(int32_t* baroAlt)
 {
     *baroAlt = _2smpbData.altitude;
+}
+
+/**********************************************************************************************************
+*函 数 名: _2SMPB_ReadTemp
+*功能说明: 读取2SMPB的温度值
+*形    参: 读出数据指针
+*返 回 值: 无
+**********************************************************************************************************/
+void _2SMPB_ReadTemp(float* temp)
+{
+    *temp = _2smpbData.rawTemp;
 }
 
 static void JoinOtp(uint8_t *pReadData) 

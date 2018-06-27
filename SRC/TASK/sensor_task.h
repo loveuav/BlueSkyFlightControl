@@ -3,7 +3,8 @@
 
 void SensorTaskCreate(void);
 
-int16_t	GetImuDataPreTreatTaskStackUse(void);
+int16_t	GetImuDataPreTreatTaskStackRemain(void);
+int16_t	GetOtherSensorTaskStackRemain(void);
 
 #endif
 

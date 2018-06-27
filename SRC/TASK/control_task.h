@@ -3,7 +3,7 @@
 
 void ControlTaskCreate(void);
 
-int16_t	GetFlightControlTaskStackUse(void);
+int16_t	GetFlightControlTaskStackRemain(void);
 
 #endif
 

@@ -8,5 +8,6 @@ void _2SMPB_Init(void);
 
 void _2SMPB_Update(void);
 void _2SMPB_Read(int32_t* baroAlt);
+void _2SMPB_ReadTemp(float* temp);
 
 #endif

@@ -24,7 +24,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc);
 static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag);
 static void KalmanRollPitchInit(void);
 static void KalmanYawInit(void);
-static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accBfOffset);
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfLpf, Vector3f_t* accBfOffset);
 static Vector3f_t AccSportCompensate(Vector3f_t acc);
 
 /**********************************************************************************************************
@@ -124,7 +124,7 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     AttitudeEstimateYaw(deltaAngle, mag);
     
     //计算飞行器在地理坐标系下的运动加速度
-    TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accBfOffset);
+    TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accEfLpf, &ahrs.accBfOffset);
 }
 
 /**********************************************************************************************************
@@ -348,10 +348,10 @@ void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 /**********************************************************************************************************
 *函 数 名: TransAccToEarthFrame
 *功能说明: 转换加速度到地理坐标系，并去除重力加速度
-*形    参: 当前飞机姿态 加速度 地理坐标系下的加速度
+*形    参: 当前飞机姿态 加速度 地理系加速度 地理系加速度低通滤波 加速度零偏
 *返 回 值: 无
 **********************************************************************************************************/
-static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accBfOffset)
+static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfLpf, Vector3f_t* accBfOffset)
 {
 	static uint16_t offset_cnt = 8000;	//计算零偏的次数
     static Vector3f_t accAngle;   //用于计算初始零偏
@@ -375,13 +375,18 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         acc.z -= (gravityBf.z + accBfOffset->z);
         
         //加速度正反轴比例误差补偿
-        AccScaleCalibrate(&acc);
+        //AccScaleCalibrate(&acc);
         
         //转化加速度到地理坐标系
         BodyFrameToEarthFrame(angle, acc, accEf);
         
         //转换坐标系（西北天）到东北天
         accEf->y = -accEf->y;	
+		
+		//地理系加速度低通滤波（主要用于调试观察）
+		accEfLpf->x = accEfLpf->x * 0.999f + accEf->x * 0.001f;
+		accEfLpf->y = accEfLpf->y * 0.999f + accEf->y * 0.001f;
+		accEfLpf->z = accEfLpf->z * 0.999f + accEf->z * 0.001f;
     }
     
 	//系统初始化时，计算加速度零偏
@@ -459,6 +464,17 @@ static Vector3f_t AccSportCompensate(Vector3f_t acc)
 Vector3f_t GetCopterAccEf(void)
 {
     return ahrs.accEf;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetCopterAccEfLpf
+*功能说明: 获取地理系运动加速度的低通滤波值
+*形    参: 无
+*返 回 值: 加速度
+**********************************************************************************************************/
+Vector3f_t GetCopterAccEfLpf(void)
+{
+    return ahrs.accEfLpf;
 }
 
 /**********************************************************************************************************

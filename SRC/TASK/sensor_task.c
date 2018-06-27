@@ -61,7 +61,7 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
         AccCalibration(*accRawData);
         
 		//陀螺仪数据预处理
-		GyroDataPreTreat(*gyroRawData, gyroData, gyroLpfData);
+		GyroDataPreTreat(*gyroRawData, *tempRawData, gyroData, gyroLpfData);
         //加速度数据预处理
         AccDataPreTreat(*accRawData, accData);
         
@@ -145,23 +145,23 @@ void SensorTaskCreate(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: GetImuDataPreTreatTaskStackUse
-*功能说明: 获取任务堆栈使用情况
+*函 数 名: GetImuDataPreTreatTaskStackRemain
+*功能说明: 获取任务堆栈使用剩余
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-int16_t	GetImuDataPreTreatTaskStackUse(void)
+int16_t	GetImuDataPreTreatTaskStackRemain(void)
 {
 	return uxTaskGetStackHighWaterMark(imuDataPreTreatTask);
 }
 
 /**********************************************************************************************************
-*函 数 名: GetOtherSensorTaskStackUse
-*功能说明: 获取任务堆栈使用情况
+*函 数 名: GetOtherSensorTaskStackRemain
+*功能说明: 获取任务堆栈使用剩余
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-int16_t	GetOtherSensorTaskStackUse(void)
+int16_t	GetOtherSensorTaskStackRemain(void)
 {
 	return uxTaskGetStackHighWaterMark(otherSensorTask);	
 }

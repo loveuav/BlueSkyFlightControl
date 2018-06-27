@@ -18,7 +18,6 @@
 #include "magnetometer.h"
 #include "flightStatus.h"
 #include "rc.h"
-#include "dataCom.h"
 
 xTaskHandle navigationTask;
 xTaskHandle flightStatusTask;
@@ -95,9 +94,6 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
 
 		//环境风速估计
 		WindEstimate();
-
-        //发送飞控数据
-        DataSendLoop();
         
         //睡眠10ms
 		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
@@ -117,23 +113,23 @@ void NavigationTaskCreate(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: GetNavigationTaskStackUse
-*功能说明: 获取任务堆栈使用情况
+*函 数 名: GetNavigationTaskStackRemain
+*功能说明: 获取任务堆栈使用剩余
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-int16_t	GetNavigationTaskStackUse(void)
+int16_t	GetNavigationTaskStackRemain(void)
 {
 	return uxTaskGetStackHighWaterMark(navigationTask);
 }
 
 /**********************************************************************************************************
-*函 数 名: GetFlightStatusTaskStackUse
-*功能说明: 获取任务堆栈使用情况
+*函 数 名: GetFlightStatusTaskStackRemain
+*功能说明: 获取任务堆栈使用剩余
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-int16_t	GetFlightStatusTaskStackUse(void)
+int16_t	GetFlightStatusTaskStackRemain(void)
 {
 	return uxTaskGetStackHighWaterMark(flightStatusTask);
 }

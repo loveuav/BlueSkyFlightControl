@@ -48,12 +48,15 @@ void GyroPreTreatInit(void)
 *形    参: 陀螺仪原始数据 陀螺仪预处理数据指针
 *返 回 值: 无
 **********************************************************************************************************/
-void GyroDataPreTreat(Vector3f_t gyroRaw, Vector3f_t* gyroData, Vector3f_t* gyroLpfData)
+void GyroDataPreTreat(Vector3f_t gyroRaw, float temperature, Vector3f_t* gyroData, Vector3f_t* gyroLpfData)
 {	
 	gyro.data = gyroRaw;
 
     //检测陀螺仪是否工作正常
     GyroDetectCheck(gyroRaw);
+	
+	//获取温度值
+	gyro.temperature = temperature;
 	
 	//零偏误差校准
 	gyro.data.x -= gyro.cali.offset.x;
@@ -182,6 +185,17 @@ Vector3f_t GyroGetData(void)
 Vector3f_t GyroLpfGetData(void)
 {
     return gyro.dataLpf;
+}
+
+/**********************************************************************************************************
+*函 数 名: GyroGetTemp
+*功能说明: 获取陀螺仪温度
+*形    参: 无 
+*返 回 值: 温度值
+**********************************************************************************************************/
+float GyroGetTemp(void)
+{
+    return gyro.temperature;
 }
 
 /**********************************************************************************************************

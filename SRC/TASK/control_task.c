@@ -92,12 +92,12 @@ void ControlTaskCreate(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: GetFlightControlTaskStackUse
-*功能说明: 获取任务堆栈使用情况
+*函 数 名: GetFlightControlTaskStackRemain
+*功能说明: 获取任务堆栈使用剩余
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-int16_t	GetFlightControlTaskStackUse(void)
+int16_t	GetFlightControlTaskStackRemain(void)
 {
 	return uxTaskGetStackHighWaterMark(flightControlTask);
 }

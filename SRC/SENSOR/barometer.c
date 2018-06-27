@@ -17,8 +17,9 @@
 typedef struct{
 	int32_t alt;
 	int32_t lastAlt;
-	float velocity;
+	float   velocity;
 	int32_t alt_offset;
+	float temperature;
 }BAROMETER_t;
 
 BAROMETER_t baro;
@@ -40,7 +41,8 @@ void BaroDataPreTreat(void)
 	lastTime = GetSysTimeUs();
 	
     BaroSensorRead(&baro.alt);
-    
+    BaroTemperatureRead(&baro.temperature);
+	
     if(GetSysTimeMs() > 1500)
     {
         //计算气压高度的初始零偏值
@@ -71,6 +73,17 @@ void BaroDataPreTreat(void)
 int32_t BaroGetAlt(void)
 {
    return baro.alt;
+}
+
+/**********************************************************************************************************
+*函 数 名: BaroGetTemp
+*功能说明: 获取气压温度数据
+*形    参: 无 
+*返 回 值: 气压温度
+**********************************************************************************************************/
+float BaroGetTemp(void)
+{
+   return baro.temperature;
 }
 
 /**********************************************************************************************************

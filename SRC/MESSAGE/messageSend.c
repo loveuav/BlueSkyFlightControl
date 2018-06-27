@@ -9,20 +9,22 @@
  * @网站     bbs.loveuav.com
  * @日期     2018.06
 **********************************************************************************************************/
-#include "dataSend.h"
-#include "dataCom.h"
+#include "messageSend.h"
+#include "message.h"
 #include "bsklink.h"
 
 #include "ahrs.h"
+#include "navigation.h"
 #include "flightControl.h"
 #include "gyroscope.h"
-#include "navigation.h"
+#include "magnetometer.h"
 #include "accelerometer.h"
 #include "barometer.h"
 #include "motor.h"
 #include "rc.h"
 #include "gps.h"
 #include "ublox.h"
+#include "flightStatus.h"
 
 /**********************************************************************************************************
 *函 数 名: BsklinkSendFlightData
@@ -37,19 +39,28 @@ void BsklinkSendFlightData(void)
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
 	
 	//数据负载填充
-	payload.angleRoll  = GetCopterAngle().x * 10;
-	payload.anglePitch = GetCopterAngle().y * 10;
-	payload.angleYaw   = GetCopterAngle().z * 10;
-	payload.accelX     = GetCopterAccel().x * GRAVITY_ACCEL * 100;
-	payload.accelY     = GetCopterAccel().y * GRAVITY_ACCEL * 100;
-	payload.accelZ     = GetCopterAccel().z * GRAVITY_ACCEL * 100;
-	payload.velocityX  = GetCopterVelocity().x;
-	payload.velocityY  = GetCopterVelocity().y;
-	payload.velocityZ  = GetCopterVelocity().z;
-	payload.positionX  = GetCopterPosition().x;
-	payload.positionY  = GetCopterPosition().y;
-	payload.positionZ  = GetCopterPosition().z;
-
+    payload.angle.x      = GetCopterAngle().x * 10;
+	payload.angle.y      = GetCopterAngle().y * 10;
+	payload.angle.z      = GetCopterAngle().z * 10;
+	payload.accel.x      = GetCopterAccel().x * GRAVITY_ACCEL * 100;
+	payload.accel.y      = GetCopterAccel().y * GRAVITY_ACCEL * 100;
+	payload.accel.z	     = GetCopterAccel().z * GRAVITY_ACCEL * 100;
+	payload.accelLpf.x	 = GetCopterAccEfLpf().x * GRAVITY_ACCEL * 100;
+	payload.accelLpf.y	 = GetCopterAccEfLpf().y * GRAVITY_ACCEL * 100;
+	payload.accelLpf.z	 = GetCopterAccEfLpf().z * GRAVITY_ACCEL * 100;
+	payload.velocity.x	 = GetCopterVelocity().x;
+	payload.velocity.y	 = GetCopterVelocity().y;
+	payload.velocity.z   = GetCopterVelocity().z;
+	payload.velMeasure.x = GetCopterVelMeasure().x;
+	payload.velMeasure.y = GetCopterVelMeasure().y;
+	payload.velMeasure.z = GetCopterVelMeasure().z;
+	payload.position.x   = GetCopterPosition().x;
+	payload.position.y   = GetCopterPosition().y;
+	payload.position.z   = GetCopterPosition().z;
+	payload.posMeasure.x = GetCopterPosMeasure().x;
+	payload.posMeasure.y = GetCopterPosMeasure().y;
+	payload.posMeasure.z = GetCopterPosMeasure().z;
+	
 	/*********************************************消息帧赋值******************************************/
 	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
 	msg.head2 	 = BSKLINK_MSG_HEAD_2;
@@ -69,38 +80,83 @@ void BsklinkSendFlightData(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: BsklinkSendImuSensor
-*功能说明: 发送IMU传感器数据
+*函 数 名: BsklinkSendFlightStatus
+*功能说明: 发送飞行状态
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendImuSensor(void)
+void BsklinkSendFlightStatus(void)
 {
 	BSKLINK_MSG_t msg;
-	BSKLINK_PAYLOAD_IMU_SENSOR_t payload;
+	BSKLINK_PAYLOAD_FLIGHT_STATUS_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
 	
 	//数据负载填充
-	payload.gyroX 	 = GyroGetData().x * 10;
-	payload.gyroY 	 = GyroGetData().y * 10;
-	payload.gyroZ 	 = GyroGetData().z * 10;
-	payload.gyroLpfX = GyroLpfGetData().x * 10;
-	payload.gyroLpfY = GyroLpfGetData().y * 10;
-	payload.gyroLpfZ = GyroLpfGetData().z * 10;
-	payload.accX     = AccGetData().x * 1000;
-	payload.accY     = AccGetData().y * 1000;
-	payload.accZ     = AccGetData().z * 1000;
-	payload.accLpfX  = AccLpfGetData().x * 1000;
-	payload.accLpfY  = AccLpfGetData().y * 1000;
-	payload.accLpfZ  = AccLpfGetData().z * 1000;
-
+    payload.flightMode    = GetFlightMode();
+	payload.initStatus	  = GetInitStatus();		  
+	payload.armedStatus   = GetArmedStatus();	
+	payload.flightStatus  = GetFlightStatus();
+	payload.placeStatus	  = GetPlaceStatus();	
+	payload.altCtlStatus  = GetAltControlStatus();
+	payload.posCtlStatus  = GetPosControlStatus();    
+	
 	/*********************************************消息帧赋值******************************************/
 	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
 	msg.head2 	 = BSKLINK_MSG_HEAD_2;
 	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
     
-	msg.msgid 	 = BSKLINK_MSG_ID_IMU_SENSOR;                    //消息ID
-	msg.length   = sizeof(BSKLINK_PAYLOAD_IMU_SENSOR_t);         //数据负载长度
+	msg.msgid 	 = BSKLINK_MSG_ID_FLIGHT_STATUS;                 //消息ID
+	msg.length   = sizeof(BSKLINK_PAYLOAD_FLIGHT_STATUS_t);      //数据负载长度
+	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+	
+	BsklinkMsgCalculateSum(&msg);                                //计算校验和
+	/*************************************************************************************************/
+    
+	//消息帧格式化
+	BsklinkMsgFormat(msg, msgToSend);
+	//发送消息帧
+	DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSendSensor
+*功能说明: 发送传感器数据
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendSensor(void)
+{
+	BSKLINK_MSG_t msg;
+	BSKLINK_PAYLOAD_SENSOR_t payload;
+	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+	
+	//数据负载填充
+	payload.gyro.x 	  = GyroGetData().x * 10;
+	payload.gyro.y 	  = GyroGetData().y * 10;
+	payload.gyro.z 	  = GyroGetData().z * 10;
+	payload.gyroLpf.x = GyroLpfGetData().x * 10;
+	payload.gyroLpf.y = GyroLpfGetData().y * 10;
+	payload.gyroLpf.z = GyroLpfGetData().z * 10;
+	payload.acc.x     = AccGetData().x * 1000;
+	payload.acc.y     = AccGetData().y * 1000;
+	payload.acc.z     = AccGetData().z * 1000;
+	payload.accLpf.x  = AccLpfGetData().x * 1000;
+	payload.accLpf.y  = AccLpfGetData().y * 1000;
+	payload.accLpf.z  = AccLpfGetData().z * 1000;
+	payload.gyroTemp  = GyroGetTemp() * 100;
+	payload.mag.x	  = MagGetData().x * 1000;
+	payload.mag.y	  = MagGetData().y * 1000;
+	payload.mag.z	  = MagGetData().z * 1000;
+	payload.baroAlt   = BaroGetAlt();
+	payload.baroTemp  = BaroGetTemp() * 100;
+	
+	/*********************************************消息帧赋值******************************************/
+	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
+	msg.head2 	 = BSKLINK_MSG_HEAD_2;
+	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    
+	msg.msgid 	 = BSKLINK_MSG_ID_SENSOR;                        //消息ID
+	msg.length   = sizeof(BSKLINK_PAYLOAD_SENSOR_t);             //数据负载长度
 	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
 	
 	BsklinkMsgCalculateSum(&msg);                                //计算校验和
@@ -127,6 +183,7 @@ void BsklinkSendGps(void)
 	//数据负载填充
 	payload.time  	  = Ublox_GetData().time;
 	payload.numSV 	  = Ublox_GetData().numSV;
+    payload.fixStatus = Ublox_GetData().fixStatus;
 	payload.hAcc 	  = Ublox_GetData().hAcc * 100;
 	payload.vAcc 	  = Ublox_GetData().vAcc * 100;
 	payload.latitude  = Ublox_GetData().latitude;
@@ -199,15 +256,15 @@ void BsklinkSendRcData(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: BsklinkSendPidAttInner
-*功能说明: 发送姿态内环PID
+*函 数 名: BsklinkSendPidAtt
+*功能说明: 发送姿态PID
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendPidAttInner(void)
+void BsklinkSendPidAtt(void)
 {
 	BSKLINK_MSG_t msg;
-	BSKLINK_PAYLOAD_PID_ATT_INNER_t payload;
+	BSKLINK_PAYLOAD_PID_ATT_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
 	
 	//数据负载填充
@@ -220,14 +277,17 @@ void BsklinkSendPidAttInner(void)
 	payload.yaw_kp   = FcGetPID(YAW_INNER).kP;
 	payload.yaw_ki   = FcGetPID(YAW_INNER).kI;
 	payload.yaw_kd   = FcGetPID(YAW_INNER).kD;
-
+    payload.rollAngle_kp  = FcGetPID(ROLL_OUTER).kP;
+	payload.pitchAngle_kp = FcGetPID(PITCH_OUTER).kP;
+	payload.yawAngle_kp   = FcGetPID(YAW_OUTER).kP;
+    
 	/*********************************************消息帧赋值******************************************/
 	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
 	msg.head2 	 = BSKLINK_MSG_HEAD_2;
 	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
     
-	msg.msgid 	 = BSKLINK_MSG_ID_PID_ATT_INNER;                 //消息ID
-	msg.length   = sizeof(BSKLINK_PAYLOAD_PID_ATT_INNER_t);      //数据负载长度    
+	msg.msgid 	 = BSKLINK_MSG_ID_PID_ATT;                       //消息ID
+	msg.length   = sizeof(BSKLINK_PAYLOAD_PID_ATT_t);            //数据负载长度    
 	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
 	
 	BsklinkMsgCalculateSum(&msg);                                //计算校验和
@@ -240,50 +300,15 @@ void BsklinkSendPidAttInner(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: BsklinkPidAttOuter
-*功能说明: 发送姿态外环PID
+*函 数 名: BsklinkSendPidPos
+*功能说明: 发送位置PID
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkPidAttOuter(void)
+void BsklinkSendPidPos(void)
 {
 	BSKLINK_MSG_t msg;
-	BSKLINK_PAYLOAD_PID_ATT_OUTER_t payload;
-	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
-	
-	//数据负载填充
-	payload.roll_kp  = FcGetPID(ROLL_OUTER).kP;
-	payload.pitch_kp = FcGetPID(PITCH_OUTER).kP;
-	payload.yaw_kp   = FcGetPID(YAW_OUTER).kP;
-
-	/*********************************************消息帧赋值******************************************/
-	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
-	msg.head2 	 = BSKLINK_MSG_HEAD_2;
-	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
-    
-	msg.msgid 	 = BSKLINK_MSG_ID_PID_ATT_OUTER;                 //消息ID
-	msg.length   = sizeof(BSKLINK_PAYLOAD_PID_ATT_OUTER_t);      //数据负载长度   
-	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
-	
-	BsklinkMsgCalculateSum(&msg);                                //计算校验和
-	/*************************************************************************************************/
-	
-	//消息帧格式化
-	BsklinkMsgFormat(msg, msgToSend);
-	//发送消息帧
-	DataSend(msgToSend+1, msgToSend[0]);
-}
-
-/**********************************************************************************************************
-*函 数 名: BsklinkSendPidPosInner
-*功能说明: 发送位置内环PID
-*形    参: 无
-*返 回 值: 无
-**********************************************************************************************************/
-void BsklinkSendPidPosInner(void)
-{
-	BSKLINK_MSG_t msg;
-	BSKLINK_PAYLOAD_PID_POS_INNER_t payload;
+	BSKLINK_PAYLOAD_PID_POS_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
 	
 	//数据负载填充
@@ -296,49 +321,17 @@ void BsklinkSendPidPosInner(void)
 	payload.velZ_kp = FcGetPID(VEL_Z).kP;
 	payload.velZ_ki = FcGetPID(VEL_Z).kI;
 	payload.velZ_kd = FcGetPID(VEL_Z).kD;
-	
-	/*********************************************消息帧赋值******************************************/
-	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
-	msg.head2 	 = BSKLINK_MSG_HEAD_2;
-	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
-    
-	msg.msgid 	 = BSKLINK_MSG_ID_PID_POS_INNER;                 //消息ID
-	msg.length   = sizeof(BSKLINK_PAYLOAD_PID_POS_INNER_t);      //数据负载长度  
-	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
-	
-	BsklinkMsgCalculateSum(&msg);                                //计算校验和
-	/*************************************************************************************************/
-    
-	//消息帧格式化
-	BsklinkMsgFormat(msg, msgToSend);
-	//发送消息帧
-	DataSend(msgToSend+1, msgToSend[0]);
-}
-
-/**********************************************************************************************************
-*函 数 名: BsklinkSendPidPosOuter
-*功能说明: 发送位置外环PID
-*形    参: 无
-*返 回 值: 无
-**********************************************************************************************************/
-void BsklinkSendPidPosOuter(void)
-{
-	BSKLINK_MSG_t msg;
-	BSKLINK_PAYLOAD_PID_POS_OUTER_t payload;
-	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
-	
-	//数据负载填充
 	payload.posX_kp = FcGetPID(POS_X).kP;
-	payload.posY_kp = FcGetPID(POS_Y).kP;
-	payload.posZ_kp = FcGetPID(POS_Z).kP;
+	payload.posY_kp = FcGetPID(POS_Z).kP;
+	payload.posZ_kp = FcGetPID(POS_Z).kP;	
 	
 	/*********************************************消息帧赋值******************************************/
 	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
 	msg.head2 	 = BSKLINK_MSG_HEAD_2;
 	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
     
-	msg.msgid 	 = BSKLINK_MSG_ID_PID_POS_OUTER;                 //消息ID
-	msg.length   = sizeof(BSKLINK_PAYLOAD_PID_POS_OUTER_t);      //数据负载长度   
+	msg.msgid 	 = BSKLINK_MSG_ID_PID_POS;                       //消息ID
+	msg.length   = sizeof(BSKLINK_PAYLOAD_PID_POS_t);            //数据负载长度  
 	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
 	
 	BsklinkMsgCalculateSum(&msg);                                //计算校验和
@@ -349,6 +342,5 @@ void BsklinkSendPidPosOuter(void)
 	//发送消息帧
 	DataSend(msgToSend+1, msgToSend[0]);
 }
-
 
 

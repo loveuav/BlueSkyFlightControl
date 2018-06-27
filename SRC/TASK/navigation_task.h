@@ -4,8 +4,8 @@
 
 void NavigationTaskCreate(void);
 
-int16_t	GetNavigationTaskStackUse(void);
-int16_t	GetFlightStatusTaskStackUse(void);
+int16_t	GetNavigationTaskStackRemain(void);
+int16_t	GetFlightStatusTaskStackRemain(void);
 
 #endif
 

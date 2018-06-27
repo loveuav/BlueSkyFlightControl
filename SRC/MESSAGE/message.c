@@ -2,16 +2,16 @@
                                 天穹飞控 —— 致力于打造中国最好的多旋翼开源飞控
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
- * @文件     dataCom.c
+ * @文件     message.c
  * @说明     飞控数据通信，所有通信采用小端模式
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
  * @日期     2018.05 
 **********************************************************************************************************/
-#include "dataCom.h"
-#include "dataSend.h"
-#include "dataDecode.h"
+#include "message.h"
+#include "messageSend.h"
+#include "messageDecode.h"
 #include "drv_usart.h"
 #include "drv_usbhid.h"
 
@@ -24,17 +24,18 @@
 #include "motor.h"
 #include "gps.h"
 
-uint8_t sendFlag[MSG_NUM];
+uint8_t sendFlag[MSG_NUM];	//发送标志位
+uint8_t sendFreq[MSG_NUM];	//发送频率
 
 //static void DataSendDebug(void);
 
 /**********************************************************************************************************
-*函 数 名: DataCommunicationInit
+*函 数 名: MessageInit
 *功能说明: 飞控数据通信初始化
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void DataCommunicationInit(void)
+void MessageInit(void)
 {
     //设置数据通信串口接收中断回调函数
     Usart_SetIRQCallback(DATA_UART, dataDecode);
@@ -46,7 +47,7 @@ void DataCommunicationInit(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void DataSendLoop(void)
+void MessageSendLoop(void)
 {
     static uint32_t cnt;
     
@@ -54,55 +55,50 @@ void DataSendLoop(void)
     
     //循环发送的数据帧
     if(cnt % 3 == 0)   
-        sendFlag[MSG_FLIGHT] = ENABLE;
+        sendFlag[MSG_FLIGHT_DATA] = ENABLE;
     if(cnt % 7 == 0)  
-        sendFlag[MSG_IMU_SENSOR] = ENABLE;         
+        sendFlag[MSG_SENSOR] = ENABLE;         
     if(cnt % 11 == 0)     
         sendFlag[MSG_RC] = ENABLE;   
     if(cnt % 29 == 0)     
         sendFlag[MSG_GPS] = ENABLE;   
     
     //检测是否有需要发送的数据帧
-    if(sendFlag[MSG_FLIGHT])              //基本飞行数据
+    if(sendFlag[MSG_FLIGHT_DATA])          //基本飞行数据
     {
         BsklinkSendFlightData();
-        sendFlag[MSG_FLIGHT] = DISABLE;
+        sendFlag[MSG_FLIGHT_DATA] = DISABLE;
     }
-    else if(sendFlag[MSG_IMU_SENSOR])          //IMU传感器数据
+	else if(sendFlag[MSG_FLIGHT_STATUS])   //飞行状态信息
     {
-        BsklinkSendImuSensor();   
-        sendFlag[MSG_IMU_SENSOR] = DISABLE;
+        BsklinkSendFlightStatus();
+        sendFlag[MSG_FLIGHT_STATUS] = DISABLE;
+    }
+    else if(sendFlag[MSG_SENSOR])          //传感器数据
+    {
+        BsklinkSendSensor();   
+        sendFlag[MSG_SENSOR] = DISABLE;
     }    
-    else if(sendFlag[MSG_RC])                  //遥控通道数据
+    else if(sendFlag[MSG_RC])              //遥控通道数据
     {
         BsklinkSendRcData();
         sendFlag[MSG_RC] = DISABLE;
     }
-    else if(sendFlag[MSG_GPS])                 //GPS数据
+    else if(sendFlag[MSG_GPS])             //GPS数据
     {
         BsklinkSendGps(); 
         sendFlag[MSG_GPS] = DISABLE;
     }
-    else if(sendFlag[MSG_PID_ATTINNER])        //姿态内环PID
+    else if(sendFlag[MSG_PID_ATT])         //姿态PID
     {
-        BsklinkSendPidAttInner();
-        sendFlag[MSG_PID_ATTINNER] = DISABLE;
-    }   
-    else if(sendFlag[MSG_PID_ATTOUTER])        //姿态外环PID
-    {
-        BsklinkPidAttOuter();
-        sendFlag[MSG_PID_ATTOUTER] = DISABLE;
-    }       
-    else if(sendFlag[MSG_PID_POSINNER])        //位置内环PID
-    {
-        BsklinkSendPidPosInner();
-        sendFlag[MSG_PID_POSINNER] = DISABLE;
+        BsklinkSendPidAtt();
+        sendFlag[MSG_PID_ATT] = DISABLE;
     }        
-    else if(sendFlag[MSG_PID_POSOUTER])        //位置外环PID
+    else if(sendFlag[MSG_PID_POS])         //位置PID
     {
-        BsklinkSendPidPosOuter();
-        sendFlag[MSG_PID_POSOUTER] = DISABLE;
-    }  
+        BsklinkSendPidPos();
+        sendFlag[MSG_PID_POS] = DISABLE;
+    }        
 }
 
 //static void DataSendDebug(void)

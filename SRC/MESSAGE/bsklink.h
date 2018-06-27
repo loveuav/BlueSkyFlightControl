@@ -28,12 +28,14 @@ typedef struct
 enum
 {
     BSKLINK_MSG_ID_FLIGHT_DATA      = 0x01,     //基本飞行数据
-    BSKLINK_MSG_ID_IMU_SENSOR       = 0x03,     //IMU传感器数据
+    BSKLINK_MSG_ID_FLIGHT_STATUS    = 0x02,     //飞控状态信息
+    BSKLINK_MSG_ID_SENSOR           = 0x03,     //传感器数据
+    BSKLINK_MSG_ID_NAV_ERROR        = 0x05,     //导航相关误差数据
+    BSKLINK_MSG_ID_CONTROL_ERROR    = 0x06,     //控制相关误差数据
     BSKLINK_MSG_ID_RC_DATA          = 0x08,     //遥控通道数据
-    BSKLINK_MSG_ID_PID_ATT_INNER    = 0x10,     //姿态内环PID参数
-    BSKLINK_MSG_ID_PID_ATT_OUTER    = 0x11,     //姿态外环PID参数
-    BSKLINK_MSG_ID_PID_POS_INNER    = 0x12,     //位置内环PID参数
-    BSKLINK_MSG_ID_PID_POS_OUTER    = 0x13,     //位置外环PID参数
+    BSKLINK_MSG_ID_BATTERY          = 0x0A,     //电池信息
+    BSKLINK_MSG_ID_PID_ATT          = 0x10,     //姿态PID参数
+    BSKLINK_MSG_ID_PID_POS          = 0x11,     //位置PID参数
     BSKLINK_MSG_ID_GPS              = 0x20,     //GPS数据
 };
 
@@ -44,36 +46,39 @@ enum
 //基本飞行数据
 typedef struct
 {
-	int16_t angleRoll;      //横滚角 单位：0.1°
-	int16_t anglePitch;     //俯仰角 单位：0.1°
-	int16_t angleYaw;       //偏航角 单位：0.1°
-    int16_t accelX;         //地理系加速度X轴 单位：cm/s²
-    int16_t accelY;         //地理系加速度Y轴 单位：cm/s²
-    int16_t accelZ;         //地理系加速度Z轴 单位：cm/s²
-    int16_t velocityX;      //速度X轴  单位：cm/s
-    int16_t velocityY;      //速度Y轴  单位：cm/s
-    int16_t velocityZ;      //速度Z轴  单位：cm/s
-    int32_t positionX;      //位置X轴  单位：cm
-    int32_t positionY;      //位置Y轴  单位：cm
-    int32_t positionZ;      //位置Z轴  单位：cm
+    Vector3i_t angle;       //姿态角 单位：0.1°
+    Vector3i_t accel;       //地理系运动加速度 单位：cm/s²
+    Vector3i_t accelLpf;    //低通滤波后的地理系运动加速度 单位：cm/s²
+    Vector3i_t velocity;    //速度估计值  单位：cm/s
+    Vector3i_t velMeasure;  //速度观测值  单位：cm/s 
+    Vector3l_t position;    //位置估计值  单位：cm
+    Vector3l_t posMeasure;  //位置观测值  单位：cm
 }BSKLINK_PAYLOAD_FLIGHT_DATA_t;
 
-//IMU传感器数据
+//飞控状态信息
 typedef struct
 {
-	int16_t gyroX;          //陀螺仪X轴 单位：0.1°/s
-	int16_t gyroY;          //陀螺仪Y轴 单位：0.1°/s
-	int16_t gyroZ;          //陀螺仪Z轴 单位：0.1°/s
-    int16_t gyroLpfX;       //低通滤波后的陀螺仪X轴 单位：0.1°/s
-    int16_t gyroLpfY;       //低通滤波后的陀螺仪Y轴 单位：0.1°/s
-    int16_t gyroLpfZ;       //低通滤波后的陀螺仪Z轴 单位：0.1°/s
-	int16_t accX;           //加速度X轴 单位：0.001g
-	int16_t accY;           //加速度Y轴 单位：0.001g
-	int16_t accZ;           //加速度Z轴 单位：0.001g
-    int16_t accLpfX;        //通滤波后的加速度X轴 单位：0.001g
-    int16_t accLpfY;        //通滤波后的加速度Y轴 单位：0.001g
-    int16_t accLpfZ;        //通滤波后的加速度Z轴 单位：0.001g
-}BSKLINK_PAYLOAD_IMU_SENSOR_t;
+	uint8_t flightMode;		//飞行模式
+	uint8_t initStatus;		//初始化状态	
+	uint8_t armedStatus;	//锁定状态
+	uint8_t flightStatus;   //飞行状态
+	uint8_t placeStatus;	//放置状态
+	uint8_t altCtlStatus;	//高度控制状态
+	uint8_t posCtlStatus;   //位置控制状态
+}BSKLINK_PAYLOAD_FLIGHT_STATUS_t;
+
+//传感器数据
+typedef struct
+{
+	Vector3i_t gyro;        //角速度 单位：0.1°/s
+    Vector3i_t gyroLpf;     //低通滤波后的角速度 单位：0.1°/s
+	Vector3i_t acc;         //加速度 单位：0.001g
+    Vector3i_t accLpf;      //低通滤波后的加速度 单位：0.001g
+    int16_t    gyroTemp;    //陀螺仪温度 单位：0.01°
+	Vector3i_t mag;         //磁场强度 单位：0.001gauss
+    int32_t    baroAlt;     //气压高度 单位：cm 
+    int16_t    baroTemp;    //气压计温度 单位：0.01°
+}BSKLINK_PAYLOAD_SENSOR_t;
 
 //遥控通道数据
 typedef struct
@@ -92,7 +97,7 @@ typedef struct
     int16_t aux8;           //辅助通道8
 }BSKLINK_PAYLOAD_RC_DATA_t;
 
-//角速率环PID参数
+//姿态PID参数
 typedef struct
 {
 	float roll_kp;          //横滚角速度环P
@@ -104,18 +109,14 @@ typedef struct
     float yaw_kp;           //偏航角速度环P
     float yaw_ki;           //偏航角速度环I
     float yaw_kd;           //偏航角速度环D
-}BSKLINK_PAYLOAD_PID_ATT_INNER_t;
+    float rollAngle_kp;     //横滚角度环P
+    float pitchAngle_kp;    //俯仰角度环P
+    float yawAngle_kp;      //偏航角度环P
+}BSKLINK_PAYLOAD_PID_ATT_t;
 
-//角度环PID参数
+//位置PID参数
 typedef struct
 {
-	float roll_kp;          //横滚角度环P
-    float pitch_kp;         //俯仰角度环P
-    float yaw_kp;           //偏航角度环P
-}BSKLINK_PAYLOAD_PID_ATT_OUTER_t;
-
-//速度环PID参数
-typedef struct{
 	float velX_kp;          //X轴速度环P
 	float velX_ki;          //X轴速度环I
 	float velX_kd;          //X轴速度环D
@@ -125,21 +126,17 @@ typedef struct{
     float velZ_kp;          //Z轴速度环P
     float velZ_ki;          //Z轴速度环I
     float velZ_kd;          //Z轴速度环D
-}BSKLINK_PAYLOAD_PID_POS_INNER_t;
-
-//位置环PID参数
-typedef struct
-{
-	float posX_kp;          //X轴位置环P
+    float posX_kp;          //X轴位置环P
     float posY_kp;          //Y轴位置环P
     float posZ_kp;          //Z轴位置环P
-}BSKLINK_PAYLOAD_PID_POS_OUTER_t;
+}BSKLINK_PAYLOAD_PID_POS_t;
 
 //GPS数据
 typedef struct
 {
 	float   time;           //当地时间 单位：秒
     int8_t  numSV;          //卫星数量
+    int8_t  fixStatus;      //定位状态
     int16_t hAcc;           //水平定位精度 单位：m
     int16_t vAcc;           //垂直定位精度 单位：m
     float   latitude;       //纬度

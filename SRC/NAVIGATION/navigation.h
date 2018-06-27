@@ -5,11 +5,11 @@
 
 typedef struct{
 	Vector3f_t accel;
-    Vector3f_t accelLpf;
-	Vector3f_t velocity;	
+	Vector3f_t velocity;
+    Vector3f_t velMeasure;
 	Vector3f_t velocity2;    
-	Vector3f_t position;		
-	Vector3f_t gpsVel;	
+	Vector3f_t position;
+    Vector3f_t posMeasure;    
     
     Vector3f_t velErrorInt;	
 }NAVGATION_t;
@@ -23,7 +23,9 @@ void PosCovarianceSelfAdaptation(void);
 
 Vector3f_t GetCopterAccel(void);
 Vector3f_t GetCopterVelocity(void);
+Vector3f_t GetCopterVelMeasure(void);
 Vector3f_t GetCopterPosition(void);
+Vector3f_t GetCopterPosMeasure(void);
 
 float GetDirectionToHome(Vector3f_t position);
 

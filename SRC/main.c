@@ -28,9 +28,29 @@
 #include "messageQueue.h"
 #include "parameter.h"
 #include "faultDetect.h"
-#include "dataCom.h"
 
 xTaskHandle startTask;
+
+/**********************************************************************************************************
+*函 数 名: TaskStackUseUpdate
+*功能说明: 获取全部任务堆栈剩余情况
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void TaskStackUseUpdate(void)
+{
+	static int16_t stackUse[10];
+	
+	stackUse[0] = IMU_SENSOR_READ_TASK_STACK - GetImuSensorReadTaskStackRemain();
+	stackUse[1] = SENSOR_UPDATE_TASK_STACK - GetSensorUpdateTaskStackRemain();
+	stackUse[2] = IMU_DATA_PRETREAT_TASK_STACK - GetImuDataPreTreatTaskStackRemain();
+    stackUse[3] = OTHER_SENSOR_TASK_STACK -GetOtherSensorTaskStackRemain();
+	stackUse[4] = NAVIGATION_TASK_STACK - GetNavigationTaskStackRemain();
+	stackUse[5] = FLIGHT_STATUS_TASK_STACK - GetFlightStatusTaskStackRemain();
+	stackUse[6] = FLIGHTCONTROL_TASK_STACK - GetFlightControlTaskStackRemain();
+	stackUse[7] = MESSAGE_TASK_STACK - GetMessageTaskStackRemain();
+	stackUse[9] = stackUse[9];
+}
 
 /**********************************************************************************************************
 *函 数 名: vStartTask
@@ -49,8 +69,6 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     ParamInit();
 	//系统故障检测初始化
     FaultDetectInit();
-    //飞控数据通信初始化
-	DataCommunicationInit();
     
     //消息队列创建
     MessageQueueCreate();
@@ -67,10 +85,18 @@ portTASK_FUNCTION(vStartTask, pvParameters)
     
     //飞行控制任务创建
     ControlTaskCreate();
+	
+	//数据通信任务创建
+	MessageTaskCreate();
     /*************************************************************************/
     
     //删除本任务
-    vTaskDelete(NULL);
+    //vTaskDelete(NULL);
+	for(;;)
+	{
+		TaskStackUseUpdate();
+		vTaskDelay(5000);
+	}
 }
 
 /**********************************************************************************************************

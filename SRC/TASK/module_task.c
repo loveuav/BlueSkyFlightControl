@@ -47,7 +47,7 @@ portTASK_FUNCTION(vImuSensorReadTask, pvParameters)
 	for(;;) 
 	{
 		//读取加速度传感器
-		AccSensorRead(accRawData);
+		AccSensorRead(accRawData); 
 		//读取陀螺仪传感器
 		GyroSensorRead(gyroRawData);
 		//读取温度传感器
@@ -133,23 +133,23 @@ void ModuleTaskCreate(void)
 
 
 /**********************************************************************************************************
-*函 数 名: GetImuSensorReadTaskStackUse
-*功能说明: 获取任务堆栈使用情况
+*函 数 名: GetImuSensorReadTaskStackRemain
+*功能说明: 获取任务堆栈使用剩余
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-int16_t	GetImuSensorReadTaskStackUse(void)
+int16_t	GetImuSensorReadTaskStackRemain(void)
 {
 	return uxTaskGetStackHighWaterMark(imuSensorReadTask);
 }
 
 /**********************************************************************************************************
-*函 数 名: GetSensorUpdateTaskStackUse
-*功能说明: 获取任务堆栈使用情况
+*函 数 名: GetSensorUpdateTaskStackRemain
+*功能说明: 获取任务堆栈使用剩余
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-int16_t	GetSensorUpdateTaskStackUse(void)
+int16_t	GetSensorUpdateTaskStackRemain(void)
 {
 	return uxTaskGetStackHighWaterMark(sensorUpdateTask);
 }
