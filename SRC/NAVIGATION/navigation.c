@@ -195,8 +195,8 @@ void AltCovarianceSelfAdaptation(void)
 	float windSpeed, windSpeedAcc;
 
 	//对运动加速度进行低通滤波
-	accelLpf.x = accelLpf.x * 0.995f + nav.accel.x * 0.005f;
-	accelLpf.y = accelLpf.y * 0.995f + nav.accel.y * 0.005f;	
+	accelLpf.x = accelLpf.x * 0.99f + nav.accel.x * 0.01f;
+	accelLpf.y = accelLpf.y * 0.99f + nav.accel.y * 0.01f;	
 
 	//计算运动加速度模值
 	accelMag = Pythagorous2(accelLpf.x, accelLpf.y);
@@ -211,7 +211,7 @@ void AltCovarianceSelfAdaptation(void)
 	{
 		if(GetAltControlStatus() == ALT_HOLD)
 		{
-			kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
+			kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(accelMag * 1.5f, 0, 1.5f)));
 			kalmanPos.r[8] = Sq(40 * (1 + ConstrainFloat(accelMag, 0, 1.0f)));
 		}
 		else
@@ -259,10 +259,10 @@ void PosCovarianceSelfAdaptation(void)
     
 	if(GetPosControlStatus() == POS_HOLD)	
 	{ 
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(9 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
         
-        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.01f, 8, 300);
-        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.01f, 8, 300);
+        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.003f, 8, 300);
+        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.003f, 8, 300);
         kalmanPos.r[0] = Sq(kalmanPos.r[0]);
         kalmanPos.r[4] = Sq(kalmanPos.r[4]);    
 	}

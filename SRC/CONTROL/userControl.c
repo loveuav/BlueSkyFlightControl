@@ -154,8 +154,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         rcCommand.pitch = ApplyDeadbandInt(rcCommand.pitch, rcDeadband);
         
         //摇杆量转为目标速度，低通滤波改变操控手感
-        velCtlTarget.x = velCtlTarget.x * 0.992f + (rcCommand.pitch * velRate) * 0.008f;
-        velCtlTarget.y = velCtlTarget.y * 0.992f + (rcCommand.roll * velRate) * 0.008f;
+        velCtlTarget.x = velCtlTarget.x * 0.996f + (rcCommand.pitch * velRate) * 0.004f;
+        velCtlTarget.y = velCtlTarget.y * 0.996f + (rcCommand.roll * velRate) * 0.004f;
         
         //直接控制速度，禁用位置控制
         SetPosCtlStatus(DISABLE);
@@ -175,22 +175,22 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         //进入刹车状态时先初始化目标速度
         if(GetPosControlStatus() == POS_CHANGED)
         {
-            velCtlTarget.x = GetCopterVelocity().x;
-            velCtlTarget.y = GetCopterVelocity().y;
+            velCtlTarget.x = GetCopterVelocity().x * 0.9f;
+            velCtlTarget.y = GetCopterVelocity().y * 0.9f;
             //更新位置控制状态为刹车
             SetPosControlStatus(POS_BRAKE);
         }
         else if(GetPosControlStatus() == POS_BRAKE)
         {
-            brakeFilter += 0.0002f;
-			brakeFilter = ConstrainFloat(brakeFilter, 0.03f, 0.08f);
+            brakeFilter += 0.00003f;
+			brakeFilter = ConstrainFloat(brakeFilter, 0.003f, 0.05f);
             
             //减速刹车
             velCtlTarget.x -= velCtlTarget.x * brakeFilter;
             velCtlTarget.y -= velCtlTarget.y * brakeFilter;
 	        
             //飞机速度小于一定值或超出一定时间则认为刹车完成
-            if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged < 3000)
+            if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged > 5000)
             {   
                 //更新位置控制状态为刹车完成
                 SetPosControlStatus(POS_BRAKE_FINISH);

@@ -250,13 +250,13 @@ void AttitudeOuterControl(void)
     }
     else if(GetPosControlStatus() == POS_BRAKE)
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -120, 120);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -120, 120);        
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -130, 130);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -130, 130);        
     }
     else
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -100, 100);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -100, 100);    
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -160, 160);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -160, 160);    
     }
     
 	//若航向锁定被失能则直接将摇杆数值作为目标角速度
@@ -376,8 +376,8 @@ void PositionInnerControl(void)
 	//PID控制输出限幅，单位：°（目标角度）
     if(GetPosControlStatus() == POS_BRAKE)
     {
-        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -20, 20);
-        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -20, 20);    
+        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -30, 30);
+        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -30, 30);    
     }
     else
     {
