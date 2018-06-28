@@ -32,12 +32,17 @@
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendFlightData(void)
+void BsklinkSendFlightData(uint8_t* sendFlag)
 {
 	BSKLINK_MSG_t msg;
 	BSKLINK_PAYLOAD_FLIGHT_DATA_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
 	
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
 	//数据负载填充
     payload.angle.x      = GetCopterAngle().x * 10;
 	payload.angle.y      = GetCopterAngle().y * 10;
@@ -76,7 +81,7 @@ void BsklinkSendFlightData(void)
 	//消息帧格式化
 	BsklinkMsgFormat(msg, msgToSend);
 	//发送消息帧
-	DataSend(msgToSend+1, msgToSend[0]);
+	DataSend(msgToSend+1, msgToSend[0]);  
 }
 
 /**********************************************************************************************************
@@ -85,11 +90,16 @@ void BsklinkSendFlightData(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendFlightStatus(void)
+void BsklinkSendFlightStatus(uint8_t* sendFlag)
 {
 	BSKLINK_MSG_t msg;
 	BSKLINK_PAYLOAD_FLIGHT_STATUS_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
 	
 	//数据负载填充
     payload.flightMode    = GetFlightMode();
@@ -124,11 +134,16 @@ void BsklinkSendFlightStatus(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendSensor(void)
+void BsklinkSendSensor(uint8_t* sendFlag)
 {
 	BSKLINK_MSG_t msg;
 	BSKLINK_PAYLOAD_SENSOR_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
 	
 	//数据负载填充
 	payload.gyro.x 	  = GyroGetData().x * 10;
@@ -174,11 +189,16 @@ void BsklinkSendSensor(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendGps(void)
+void BsklinkSendGps(uint8_t* sendFlag)
 {
 	BSKLINK_MSG_t msg;
 	BSKLINK_PAYLOAD_GPS_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
 	
 	//数据负载填充
 	payload.time  	  = Ublox_GetData().time;
@@ -217,12 +237,17 @@ void BsklinkSendGps(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendRcData(void)
+void BsklinkSendRcData(uint8_t* sendFlag)
 {
 	BSKLINK_MSG_t msg;
 	BSKLINK_PAYLOAD_RC_DATA_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
-	
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
 	//数据负载填充
 	payload.roll 	 = GetRcData().roll;
 	payload.pitch 	 = GetRcData().pitch;
@@ -261,11 +286,16 @@ void BsklinkSendRcData(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendPidAtt(void)
+void BsklinkSendPidAtt(uint8_t* sendFlag)
 {
 	BSKLINK_MSG_t msg;
 	BSKLINK_PAYLOAD_PID_ATT_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
 	
 	//数据负载填充
 	payload.roll_kp  = FcGetPID(ROLL_INNER).kP;
@@ -305,11 +335,16 @@ void BsklinkSendPidAtt(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void BsklinkSendPidPos(void)
+void BsklinkSendPidPos(uint8_t* sendFlag)
 {
 	BSKLINK_MSG_t msg;
 	BSKLINK_PAYLOAD_PID_POS_t payload;
 	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
 	
 	//数据负载填充
 	payload.velX_kp = FcGetPID(VEL_X).kP;

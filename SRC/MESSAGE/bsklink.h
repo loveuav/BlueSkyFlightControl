@@ -97,6 +97,19 @@ typedef struct
     int16_t aux8;           //辅助通道8
 }BSKLINK_PAYLOAD_RC_DATA_t;
 
+//电池信息
+typedef struct
+{
+    int16_t voltage;        //电池电压 单位：0.01V
+    int16_t current;        //电池电流 单位：0.01A
+    int8_t  capacityPer;    //电池电量百分比（0xFF表示无电量数据）
+    int16_t capacity;       //电池设计容量 单位：mah
+    int16_t capRemain;      //电池当前剩余容量 单位：mah
+    int16_t temperature;    //电池温度 单位：0.01°
+    int8_t  cellNum;        //电芯节数
+    int16_t cellVolt[6];    //电芯电压（最多6节） 单位：0.01V
+}BSKLINK_PAYLOAD_BATTERY_t;
+
 //姿态PID参数
 typedef struct
 {

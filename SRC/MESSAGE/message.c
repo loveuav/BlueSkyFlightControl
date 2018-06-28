@@ -49,7 +49,7 @@ void MessageInit(void)
     sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 40;
     sendFreq[BSKLINK_MSG_ID_SENSOR]        = 20; 
     sendFreq[BSKLINK_MSG_ID_RC_DATA]       = 10; 
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS] = 2;
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS] = 1;
     sendFreq[BSKLINK_MSG_ID_GPS]           = 2; 
     sendFreq[BSKLINK_MSG_ID_BATTERY]       = 1;
     
@@ -66,54 +66,25 @@ void MessageInit(void)
 **********************************************************************************************************/
 void MessageSendLoop(void)
 {    
-    static uint8_t i = 0;
+    static uint32_t i = 0;
+
+    //根据发送列表来使能对应的数据帧发送标志位
+    sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE; 
     
     //根据需求发送的数据帧
-    if(sendFlag[BSKLINK_MSG_ID_PID_ATT])                  //姿态PID
-    {
-        BsklinkSendPidAtt();
-        sendFlag[BSKLINK_MSG_ID_PID_ATT] = DISABLE;
-    }        
-    else if(sendFlag[BSKLINK_MSG_ID_PID_POS])             //位置PID
-    {
-        BsklinkSendPidPos();
-        sendFlag[BSKLINK_MSG_ID_PID_POS] = DISABLE;
-    }  
-    //循环发送的数据帧
+    if(sendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
+        BsklinkSendPidAtt(&sendFlag[BSKLINK_MSG_ID_PID_ATT]);                   //姿态PID    
+    else if(sendFlag[BSKLINK_MSG_ID_PID_POS] == ENABLE)
+        BsklinkSendPidPos(&sendFlag[BSKLINK_MSG_ID_PID_POS]);                   //位置PID
+    //循环发送的数据
     else
-    {  
-        //根据发送列表来使能对应的数据帧发送标志位
-        sendFlag[sendList[i++]] = ENABLE;
-        
-        if(i >= 100)    
-            i = 0;
-        
-        if(sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA])          //基本飞行数据
-        {
-            BsklinkSendFlightData();
-            sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA] = DISABLE;
-        }
-        else if(sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS])   //飞行状态信息
-        {
-            BsklinkSendFlightStatus();
-            sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS] = DISABLE;
-        }
-        else if(sendFlag[BSKLINK_MSG_ID_SENSOR])          //传感器数据
-        {
-            BsklinkSendSensor();   
-            sendFlag[BSKLINK_MSG_ID_SENSOR] = DISABLE;
-        }    
-        else if(sendFlag[BSKLINK_MSG_ID_RC_DATA])         //遥控通道数据
-        {
-            BsklinkSendRcData();
-            sendFlag[BSKLINK_MSG_ID_RC_DATA] = DISABLE;
-        }
-        else if(sendFlag[BSKLINK_MSG_ID_GPS])             //GPS数据
-        {
-            BsklinkSendGps(); 
-            sendFlag[BSKLINK_MSG_ID_GPS] = DISABLE;
-        }  
-    }    
+    {
+        BsklinkSendFlightData(&sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA]);          //基本飞行数据
+        BsklinkSendFlightStatus(&sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS]);      //飞行状态信息
+        BsklinkSendSensor(&sendFlag[BSKLINK_MSG_ID_SENSOR]);                   //传感器数据
+        BsklinkSendRcData(&sendFlag[BSKLINK_MSG_ID_RC_DATA]);                  //遥控通道数据
+        BsklinkSendGps(&sendFlag[BSKLINK_MSG_ID_GPS]);                         //GPS数据
+    }
 }
 
 //static void DataSendDebug(void)

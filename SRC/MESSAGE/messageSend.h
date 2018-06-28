@@ -3,13 +3,13 @@
 
 #include "mathTool.h"
 
-void BsklinkSendFlightData(void);
-void BsklinkSendFlightStatus(void);
-void BsklinkSendSensor(void);
-void BsklinkSendGps(void);
-void BsklinkSendRcData(void);
-void BsklinkSendPidAtt(void);
-void BsklinkSendPidPos(void);
+void BsklinkSendFlightData(uint8_t* sendFlag);
+void BsklinkSendFlightStatus(uint8_t* sendFlag);
+void BsklinkSendSensor(uint8_t* sendFlag);
+void BsklinkSendGps(uint8_t* sendFlag);
+void BsklinkSendRcData(uint8_t* sendFlag);
+void BsklinkSendPidAtt(uint8_t* sendFlag);
+void BsklinkSendPidPos(uint8_t* sendFlag);
 
 #endif
 
