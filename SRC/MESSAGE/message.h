@@ -3,6 +3,8 @@
 
 #include "mathTool.h"
 
+#define MAX_SEND_FREQ   80         //最大发送频率 单位:Hz
+
 typedef union   
 {  
     int8_t  i8; 
@@ -11,18 +13,6 @@ typedef union
     float   f32;
     uint8_t byte[4];  
 }DATA_TYPE_t;
-
-enum
-{
-    MSG_FLIGHT_DATA,
-	MSG_FLIGHT_STATUS,
-    MSG_SENSOR,
-    MSG_RC,
-    MSG_GPS,
-    MSG_PID_ATT,
-    MSG_PID_POS,
-    MSG_NUM
-};
 
 void MessageInit(void);
 void MessageSendLoop(void);

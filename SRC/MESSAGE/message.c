@@ -14,6 +14,7 @@
 #include "messageDecode.h"
 #include "drv_usart.h"
 #include "drv_usbhid.h"
+#include "bsklink.h"
 
 #include "ahrs.h"
 #include "flightControl.h"
@@ -24,10 +25,14 @@
 #include "motor.h"
 #include "gps.h"
 
-uint8_t sendFlag[MSG_NUM];	//发送标志位
-uint8_t sendFreq[MSG_NUM];	//发送频率
+uint8_t sendFlag[0xFF];	            //发送标志位
+uint8_t sendFreq[0xFF];	            //发送频率
+uint8_t sortResult[0xFF];           
+uint8_t sendList[MAX_SEND_FREQ];    //发送列表
 
 //static void DataSendDebug(void);
+void SendFreqSort(void);
+void SendListCreate(void);
 
 /**********************************************************************************************************
 *函 数 名: MessageInit
@@ -39,66 +44,76 @@ void MessageInit(void)
 {
     //设置数据通信串口接收中断回调函数
     Usart_SetIRQCallback(DATA_UART, dataDecode);
+    
+    //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 40;
+    sendFreq[BSKLINK_MSG_ID_SENSOR]        = 20; 
+    sendFreq[BSKLINK_MSG_ID_RC_DATA]       = 10; 
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS] = 2;
+    sendFreq[BSKLINK_MSG_ID_GPS]           = 2; 
+    sendFreq[BSKLINK_MSG_ID_BATTERY]       = 1;
+    
+    //生成发送列表
+    SendFreqSort();
+    SendListCreate();
 }
 
 /**********************************************************************************************************
-*函 数 名: DataSendLoop
-*功能说明: 飞控数据发送循环
+*函 数 名: MessageSendLoop
+*功能说明: 检测是否有需要发送的数据帧
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
 void MessageSendLoop(void)
-{
-    static uint32_t cnt;
+{    
+    static uint8_t i = 0;
     
-    cnt++;
-    
-    //循环发送的数据帧
-    if(cnt % 3 == 0)   
-        sendFlag[MSG_FLIGHT_DATA] = ENABLE;
-    if(cnt % 7 == 0)  
-        sendFlag[MSG_SENSOR] = ENABLE;         
-    if(cnt % 11 == 0)     
-        sendFlag[MSG_RC] = ENABLE;   
-    if(cnt % 29 == 0)     
-        sendFlag[MSG_GPS] = ENABLE;   
-    
-    //检测是否有需要发送的数据帧
-    if(sendFlag[MSG_FLIGHT_DATA])          //基本飞行数据
-    {
-        BsklinkSendFlightData();
-        sendFlag[MSG_FLIGHT_DATA] = DISABLE;
-    }
-	else if(sendFlag[MSG_FLIGHT_STATUS])   //飞行状态信息
-    {
-        BsklinkSendFlightStatus();
-        sendFlag[MSG_FLIGHT_STATUS] = DISABLE;
-    }
-    else if(sendFlag[MSG_SENSOR])          //传感器数据
-    {
-        BsklinkSendSensor();   
-        sendFlag[MSG_SENSOR] = DISABLE;
-    }    
-    else if(sendFlag[MSG_RC])              //遥控通道数据
-    {
-        BsklinkSendRcData();
-        sendFlag[MSG_RC] = DISABLE;
-    }
-    else if(sendFlag[MSG_GPS])             //GPS数据
-    {
-        BsklinkSendGps(); 
-        sendFlag[MSG_GPS] = DISABLE;
-    }
-    else if(sendFlag[MSG_PID_ATT])         //姿态PID
+    //根据需求发送的数据帧
+    if(sendFlag[BSKLINK_MSG_ID_PID_ATT])                  //姿态PID
     {
         BsklinkSendPidAtt();
-        sendFlag[MSG_PID_ATT] = DISABLE;
+        sendFlag[BSKLINK_MSG_ID_PID_ATT] = DISABLE;
     }        
-    else if(sendFlag[MSG_PID_POS])         //位置PID
+    else if(sendFlag[BSKLINK_MSG_ID_PID_POS])             //位置PID
     {
         BsklinkSendPidPos();
-        sendFlag[MSG_PID_POS] = DISABLE;
-    }        
+        sendFlag[BSKLINK_MSG_ID_PID_POS] = DISABLE;
+    }  
+    //循环发送的数据帧
+    else
+    {  
+        //根据发送列表来使能对应的数据帧发送标志位
+        sendFlag[sendList[i++]] = ENABLE;
+        
+        if(i >= 100)    
+            i = 0;
+        
+        if(sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA])          //基本飞行数据
+        {
+            BsklinkSendFlightData();
+            sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA] = DISABLE;
+        }
+        else if(sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS])   //飞行状态信息
+        {
+            BsklinkSendFlightStatus();
+            sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS] = DISABLE;
+        }
+        else if(sendFlag[BSKLINK_MSG_ID_SENSOR])          //传感器数据
+        {
+            BsklinkSendSensor();   
+            sendFlag[BSKLINK_MSG_ID_SENSOR] = DISABLE;
+        }    
+        else if(sendFlag[BSKLINK_MSG_ID_RC_DATA])         //遥控通道数据
+        {
+            BsklinkSendRcData();
+            sendFlag[BSKLINK_MSG_ID_RC_DATA] = DISABLE;
+        }
+        else if(sendFlag[BSKLINK_MSG_ID_GPS])             //GPS数据
+        {
+            BsklinkSendGps(); 
+            sendFlag[BSKLINK_MSG_ID_GPS] = DISABLE;
+        }  
+    }    
 }
 
 //static void DataSendDebug(void)
@@ -150,6 +165,99 @@ void MessageSendLoop(void)
 //	
 //	DataSend(dataToSend, _cnt);    
 //}
+
+
+/**********************************************************************************************************
+*函 数 名: SendFreqSort
+*功能说明: 根据消息发送频率来给消息ID排序
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void SendFreqSort(void)
+{
+    uint8_t i = 0, j = 0;
+    uint8_t temp;
+    
+    //先初始化消息ID排序序列
+    for(i = 0; i<0xFF; i++)
+        sortResult[i] = i;
+
+    //开始按照发送频率来给消息ID排序
+    for(i=0; i<0xFF; i++)
+    {    
+        for(j=i+1; j<0xFF; j++)
+        {
+            if(sendFreq[sortResult[j]] > sendFreq[sortResult[i]])
+            {
+                temp = sortResult[i];
+                sortResult[i] = sortResult[j];
+                sortResult[j] = temp;
+            }
+        }
+    }
+    
+    //除了第一个，其它改为倒序，目的是为了让所有数据帧发送尽可能均匀
+    uint8_t validNum = 0;
+    for(i=0; i<0xFF; i++)
+    {
+        if(sendFreq[sortResult[i]] != 0)
+            validNum++;        
+    }   
+    
+    validNum -= 1;
+    
+    for(i=1; i<=validNum/2; i++)
+    {
+        temp = sortResult[i];
+        sortResult[i] = sortResult[validNum + 1 - i];
+        sortResult[validNum + 1 - i] = temp;
+    }
+}
+
+/**********************************************************************************************************
+*函 数 名: SendListCreate
+*功能说明: 根据各消息帧的发送频率自动生成发送列表
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void SendListCreate(void)
+{
+    uint8_t sendNum = 0;
+    uint8_t i, j;
+    
+    //判断总发送量是否超出最大发送频率，若超过则退出该函数
+    for(i=0; i<0xFF; i++)
+    {
+        if(sendFreq[sortResult[i]] == 0)
+            break;
+        
+        sendNum += sendFreq[sortResult[i]];
+    }
+    if(sendNum > MAX_SEND_FREQ)
+        return;
+    
+    //开始生成发送列表
+    for(i=0; i<0xFF; i++)
+    {
+        if(sendFreq[sortResult[i]] == 0)
+            return;
+
+        //发送间隔
+        uint8_t interval = MAX_SEND_FREQ/sendFreq[sortResult[i]];
+        
+        for(j=0; j<sendFreq[sortResult[i]]; j++)
+        {
+            for(uint8_t k=0; k<MAX_SEND_FREQ-j*interval; k++)
+            {
+                if(sendList[j*interval+k] == 0)
+                {
+                    sendList[j*interval+k] = sortResult[i];
+                    break;
+                }
+            }
+        }
+    }
+}
 
 /**********************************************************************************************************
 *函 数 名: DataSend

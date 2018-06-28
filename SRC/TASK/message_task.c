@@ -34,8 +34,7 @@ portTASK_FUNCTION(vMessageTask, pvParameters)
         //发送飞控数据
         MessageSendLoop();
         
-        //睡眠10ms
-		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
+		vTaskDelayUntil(&xLastWakeTime, ((1000 / MAX_SEND_FREQ) / portTICK_RATE_MS));
 	}
 }
 
