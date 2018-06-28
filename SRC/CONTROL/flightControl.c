@@ -376,8 +376,8 @@ void PositionInnerControl(void)
 	//PID控制输出限幅，单位：°（目标角度）
     if(GetPosControlStatus() == POS_BRAKE)
     {
-        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -30, 30);
-        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -30, 30);    
+        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -25, 25);
+        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -25, 25);    
     }
     else
     {

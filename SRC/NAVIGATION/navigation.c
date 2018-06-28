@@ -116,8 +116,11 @@ void VelocityEstimate(void)
     nav.velocity = kalmanVel.status;
     
     //计算误差积分
-    nav.velErrorInt.x += (nav.velMeasure.x - nav.velocity.x) * velErrorIntRate;
-    nav.velErrorInt.y += (nav.velMeasure.y - nav.velocity.y) * velErrorIntRate;
+    if(GetPosControlStatus() == POS_HOLD)
+    {
+        nav.velErrorInt.x += (nav.velMeasure.x - nav.velocity.x) * velErrorIntRate;
+        nav.velErrorInt.y += (nav.velMeasure.y - nav.velocity.y) * velErrorIntRate;        
+    }
     nav.velErrorInt.z += (nav.velMeasure.z - nav.velocity.z) * velErrorIntRate;
     nav.velErrorInt.x  = ConstrainFloat(nav.velErrorInt.x, -50, 50);
     nav.velErrorInt.y  = ConstrainFloat(nav.velErrorInt.y, -50, 50);
@@ -261,8 +264,8 @@ void PosCovarianceSelfAdaptation(void)
 	{ 
         kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
         
-        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.003f, 8, 300);
-        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.003f, 8, 300);
+        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.003f, 20, 300);
+        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.003f, 20, 300);
         kalmanPos.r[0] = Sq(kalmanPos.r[0]);
         kalmanPos.r[4] = Sq(kalmanPos.r[4]);    
 	}
@@ -273,12 +276,12 @@ void PosCovarianceSelfAdaptation(void)
 	}
 	else if(GetPosControlStatus() == POS_BRAKE)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = 888;
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(55);
         kalmanPos.r[0] = kalmanPos.r[4] = 50;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE_FINISH)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(7 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(15 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;        
 	}
 }
