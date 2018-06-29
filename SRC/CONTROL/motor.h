@@ -20,6 +20,7 @@ typedef struct
 void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle);
 void MotorStop(void);
 int16_t* GetMotorValue(void);
+int8_t GetMotorNum(void);
 
 #endif
 

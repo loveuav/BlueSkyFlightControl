@@ -12,7 +12,13 @@
 #include "messageDecode.h"
 #include "bsklink.h"
 
-void dataDecode(uint8_t data)
+/**********************************************************************************************************
+*函 数 名: MessageDecode
+*功能说明: 消息解析
+*形    参: 接收数据
+*返 回 值: 无
+**********************************************************************************************************/
+void MessageDecode(uint8_t data)
 {
     static BSKLINK_MSG_t msg;
     static uint32_t i=0;

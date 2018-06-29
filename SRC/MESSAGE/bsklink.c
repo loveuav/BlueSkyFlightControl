@@ -20,7 +20,7 @@
 **********************************************************************************************************/
 void BsklinkMsgCalculateSum(BSKLINK_MSG_t* msg)
 {
-    uint8_t length = msg->length + 5;
+    uint8_t length = msg->length + 6;
     uint8_t temp[BSKLINK_MAX_PAYLOAD_LENGTH+10];
     
     memcpy(temp, msg, length);
@@ -41,7 +41,7 @@ void BsklinkMsgCalculateSum(BSKLINK_MSG_t* msg)
 **********************************************************************************************************/
 bool BsklinkMsgCheckSum(BSKLINK_MSG_t* msg)
 {
-    uint8_t length = msg->length + 5;
+    uint8_t length = msg->length + 6;
     uint8_t temp[BSKLINK_MAX_PAYLOAD_LENGTH+10];
     uint8_t checksum = 0;
     
@@ -72,11 +72,12 @@ void BsklinkMsgFormat(BSKLINK_MSG_t msg, uint8_t* msgTemp)
     msgTemp[1] = msg.head1;
     msgTemp[2] = msg.head2;
     msgTemp[3] = msg.deviceid;
-    msgTemp[4] = msg.msgid;
-    msgTemp[5] = msg.length;
+	msgTemp[4] = msg.sysid;
+    msgTemp[5] = msg.msgid;
+    msgTemp[6] = msg.length;
     
-    memcpy(msgTemp+6, msg.payload, msg.length);
-    msgTemp[6+msg.length] = msg.checksum;
+    memcpy(msgTemp+7, msg.payload, msg.length);
+    msgTemp[7+msg.length] = msg.checksum;
 }
 
 /**********************************************************************************************************
@@ -109,15 +110,19 @@ bool BsklinkDecode(BSKLINK_MSG_t* msg, uint8_t data)
             msg->deviceid = data;
             msg->recvStatus++;
             break;
-        case 3:     //消息ID
+		case 3:     //系统ID
+            msg->sysid = data;
+            msg->recvStatus++;
+            break;
+        case 4:     //消息ID
             msg->msgid = data;
             msg->recvStatus++;
             break;
-        case 4:     //数据负载长度
+        case 5:     //数据负载长度
             msg->length = data;
             msg->recvStatus++;
             break;
-        case 5:     //数据负载接收
+        case 6:     //数据负载接收
             msg->payload[msg->payloadRecvCnt++] = data;
             if(msg->payloadRecvCnt == msg->length)
             {
@@ -125,7 +130,7 @@ bool BsklinkDecode(BSKLINK_MSG_t* msg, uint8_t data)
                 msg->recvStatus++;
             }
             break;
-        case 6:     //帧校验
+        case 7:     //帧校验
             msg->checksum = data;
             msg->recvStatus = 0;
             if(BsklinkMsgCheckSum(msg))

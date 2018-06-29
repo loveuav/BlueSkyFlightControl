@@ -16,6 +16,7 @@
 #include "gps.h"
 #include "flightStatus.h"
 #include "accelerometer.h"
+#include "navigation.h"
 
 AHRS_t ahrs;
 Kalman_t kalmanRollPitch, kalmanYaw;
@@ -26,6 +27,8 @@ static void KalmanRollPitchInit(void);
 static void KalmanYawInit(void);
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfLpf, Vector3f_t* accBfOffset);
 static Vector3f_t AccSportCompensate(Vector3f_t acc);
+static void GyroEfUpdate(Vector3f_t gyro, Vector3f_t angle);
+static void CentripetalAccUpdate(Vector3f_t velocity, float gyroYawEf);
 
 /**********************************************************************************************************
 *函 数 名: AHRSInit
@@ -125,6 +128,12 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     
     //计算飞行器在地理坐标系下的运动加速度
     TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accEfLpf, &ahrs.accBfOffset);
+    
+    //计算飞行器在地理坐标系下的角速度
+    GyroEfUpdate(gyro, ahrs.angle);
+    
+    //计算飞行过程中产生的向心加速度误差
+    CentripetalAccUpdate(GetCopterVelocity(), ahrs.gyroEf.z);
 }
 
 /**********************************************************************************************************
@@ -456,6 +465,38 @@ static Vector3f_t AccSportCompensate(Vector3f_t acc)
 }
 
 /**********************************************************************************************************
+*函 数 名: GyroEfUpdate
+*功能说明: 计算机体的地理系角速度
+*形    参: 角速度 机体角度
+*返 回 值: 无
+**********************************************************************************************************/
+static void GyroEfUpdate(Vector3f_t gyro, Vector3f_t angle)
+{
+    BodyFrameToEarthFrame(angle, gyro, &ahrs.gyroEf);
+}
+
+/**********************************************************************************************************
+*函 数 名: CentripetalAccUpdate
+*功能说明: 计算圆周运动时产生的向心加速度误差
+*形    参: 飞行速度 地理系的z轴加速度
+*返 回 值: 无
+**********************************************************************************************************/
+static void CentripetalAccUpdate(Vector3f_t velocity, float gyroYawEf)
+{
+    if(GpsGetFixStatus() == true)
+    {
+        ahrs.centripetalAcc.x = velocity.y * gyroYawEf;
+        ahrs.centripetalAcc.y = velocity.x * gyroYawEf;
+    }
+    else
+    {
+        ahrs.centripetalAcc.x = 0;
+        ahrs.centripetalAcc.y = 0;
+        ahrs.centripetalAcc.z = 0;
+    }
+}
+
+/**********************************************************************************************************
 *函 数 名: GetCopterAccEf
 *功能说明: 获取地理坐标系下的运动加速度
 *形    参: 无
@@ -488,4 +529,14 @@ Vector3f_t GetCopterAngle(void)
     return ahrs.angle;
 }
 
+/**********************************************************************************************************
+*函 数 名: GetCentripetalAcc
+*功能说明: 获取向心加速度
+*形    参: 无
+*返 回 值: 向心加速度
+**********************************************************************************************************/
+Vector3f_t GetCentripetalAcc(void)
+{
+    return ahrs.centripetalAcc;
+}
 

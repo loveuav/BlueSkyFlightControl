@@ -43,12 +43,12 @@ void SendListCreate(void);
 void MessageInit(void)
 {
     //设置数据通信串口接收中断回调函数
-    Usart_SetIRQCallback(DATA_UART, dataDecode);
+    Usart_SetIRQCallback(DATA_UART, MessageDecode);
     
     //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 50;
-    sendFreq[BSKLINK_MSG_ID_SENSOR]        = 20; 
-    sendFreq[BSKLINK_MSG_ID_RC_DATA]       = 10; 
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 30;
+    sendFreq[BSKLINK_MSG_ID_SENSOR]        = 10; 
+    sendFreq[BSKLINK_MSG_ID_RC_DATA]       = 5; 
     sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS] = 1;
     sendFreq[BSKLINK_MSG_ID_GPS]           = 2; 
     sendFreq[BSKLINK_MSG_ID_BATTERY]       = 1;
@@ -67,9 +67,6 @@ void MessageInit(void)
 void MessageSendLoop(void)
 {    
     static uint32_t i = 0;
-	
-    //根据发送列表来使能对应的数据帧发送标志位
-    sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE; 
     
     //根据需求发送的数据帧
     if(sendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
@@ -79,6 +76,9 @@ void MessageSendLoop(void)
     //循环发送的数据
     else
     {
+        //根据发送列表来使能对应的数据帧发送标志位
+        sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE; 
+        
         BsklinkSendFlightData(&sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA]);          //基本飞行数据
         BsklinkSendFlightStatus(&sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS]);      //飞行状态信息
         BsklinkSendSensor(&sendFlag[BSKLINK_MSG_ID_SENSOR]);                   //传感器数据

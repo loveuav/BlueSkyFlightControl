@@ -3,7 +3,7 @@
 
 #include "mathTool.h"
 
-#define MAX_SEND_FREQ   100         //最大发送频率 单位:Hz
+#define MAX_SEND_FREQ   50         //最大发送频率 单位:Hz
 
 typedef union   
 {  
