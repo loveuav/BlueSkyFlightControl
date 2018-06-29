@@ -2,6 +2,7 @@
 #define __MATHTOOL_H__
 
 #include <stdint.h>
+#include <stdlib.h>
 #include "stdbool.h"
 #include <math.h>
 
@@ -37,6 +38,8 @@ float Pythagorous3(float a, float b, float c);
 float Pythagorous4(float a, float b, float c, float d);
 
 float WrapDegree360(float angle);
+
+int32_t GetRandom(void);
 
 #endif
 

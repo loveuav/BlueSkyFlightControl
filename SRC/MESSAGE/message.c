@@ -46,7 +46,7 @@ void MessageInit(void)
     Usart_SetIRQCallback(DATA_UART, dataDecode);
     
     //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 40;
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 50;
     sendFreq[BSKLINK_MSG_ID_SENSOR]        = 20; 
     sendFreq[BSKLINK_MSG_ID_RC_DATA]       = 10; 
     sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS] = 1;
@@ -67,7 +67,7 @@ void MessageInit(void)
 void MessageSendLoop(void)
 {    
     static uint32_t i = 0;
-
+	
     //根据发送列表来使能对应的数据帧发送标志位
     sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE; 
     
@@ -215,14 +215,16 @@ void SendListCreate(void)
 
         //发送间隔
         uint8_t interval = MAX_SEND_FREQ/sendFreq[sortResult[i]];
-        
+		//生成随机数，作为该帧数据在列表中的排序起始点，这样可以尽量使各帧数据分布均匀
+        uint8_t random   = GetRandom() % MAX_SEND_FREQ;
+		
         for(j=0; j<sendFreq[sortResult[i]]; j++)
         {
             for(uint8_t k=0; k<MAX_SEND_FREQ-j*interval; k++)
             {
-                if(sendList[j*interval+k] == 0)
+                if(sendList[(j*interval+k+random) % MAX_SEND_FREQ] == 0)
                 {
-                    sendList[j*interval+k] = sortResult[i];
+                    sendList[(j*interval+k+random) % MAX_SEND_FREQ] = sortResult[i];
                     break;
                 }
             }
