@@ -22,6 +22,7 @@ typedef struct{
 	Vector3f_t gyroEf;
 	
 	Vector3f_t centripetalAcc;
+    Vector3f_t centripetalAccBf;
 }AHRS_t;
 
 void AHRSInit(void);
