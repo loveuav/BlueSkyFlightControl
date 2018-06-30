@@ -290,6 +290,53 @@ void BsklinkSendRcData(uint8_t* sendFlag)
 }
 
 /**********************************************************************************************************
+*函 数 名: BsklinkSendMotor
+*功能说明: 发送电机输出数据
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendMotor(uint8_t* sendFlag)
+{
+	BSKLINK_MSG_t msg;
+	BSKLINK_PAYLOAD_MOTOR_t payload;
+	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+	//数据负载填充
+    payload.num = GetMotorNum();
+    payload.motorValue1 = GetMotorValue()[0];
+    payload.motorValue2 = GetMotorValue()[1];
+    payload.motorValue3 = GetMotorValue()[2];
+    payload.motorValue4 = GetMotorValue()[3];
+    payload.motorValue5 = GetMotorValue()[4];
+    payload.motorValue6 = GetMotorValue()[5];
+    payload.motorValue7 = GetMotorValue()[6];
+    payload.motorValue8 = GetMotorValue()[7];
+    
+	/*********************************************消息帧赋值******************************************/
+	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
+	msg.head2 	 = BSKLINK_MSG_HEAD_2;
+	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+	msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+    
+	msg.msgid 	 = BSKLINK_MSG_ID_MOTOR;                         //消息ID
+	msg.length   = sizeof(BSKLINK_PAYLOAD_MOTOR_t);              //数据负载长度
+	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+	
+	BsklinkMsgCalculateSum(&msg);                                //计算校验和
+	/*************************************************************************************************/
+	
+	//消息帧格式化
+	BsklinkMsgFormat(msg, msgToSend);
+	//发送消息帧
+	DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
 *函 数 名: BsklinkSendPidAtt
 *功能说明: 发送姿态PID
 *形    参: 发送标志指针

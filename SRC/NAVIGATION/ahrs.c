@@ -505,6 +505,10 @@ static void CentripetalAccUpdate(Vector3f_t* centripetalAcc, Vector3f_t velocity
         centripetalAcc->y = 0;
         centripetalAcc->z = 0;
     }
+    
+    centripetalAcc->x = ConstrainFloat(centripetalAcc->x, -1, 1);
+    centripetalAcc->y = ConstrainFloat(centripetalAcc->y, -1, 1);
+    centripetalAcc->z = ConstrainFloat(centripetalAcc->z, -1, 1);    
 }
 
 /**********************************************************************************************************

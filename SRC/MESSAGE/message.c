@@ -49,6 +49,7 @@ void MessageInit(void)
     sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 30;
     sendFreq[BSKLINK_MSG_ID_SENSOR]        = 10; 
     sendFreq[BSKLINK_MSG_ID_RC_DATA]       = 5; 
+	sendFreq[BSKLINK_MSG_ID_MOTOR]         = 0; 
     sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS] = 1;
     sendFreq[BSKLINK_MSG_ID_GPS]           = 2; 
     sendFreq[BSKLINK_MSG_ID_BATTERY]       = 1;
@@ -83,6 +84,7 @@ void MessageSendLoop(void)
         BsklinkSendFlightStatus(&sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS]);      //飞行状态信息
         BsklinkSendSensor(&sendFlag[BSKLINK_MSG_ID_SENSOR]);                   //传感器数据
         BsklinkSendRcData(&sendFlag[BSKLINK_MSG_ID_RC_DATA]);                  //遥控通道数据
+		BsklinkSendMotor(&sendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
         BsklinkSendGps(&sendFlag[BSKLINK_MSG_ID_GPS]);                         //GPS数据
     }
 }
@@ -104,25 +106,25 @@ void MessageSendLoop(void)
 //	dataTemp.i16 = GetCopterAngle().y * 10;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetCopterAngle().z * 10;//fc.posOuterTarget.z;//
+//	dataTemp.i16 = GetCopterAngle().z * 10;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetPosInnerCtlError().z;//GetAttOuterCtlError().y * 10;//
+//	dataTemp.i16 = GetPosInnerCtlError().z;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetPosOuterCtlError().z;//GetAttOuterCtlError().z * 10;//
+//	dataTemp.i16 = GetPosOuterCtlError().z;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetCopterVelocity().z;//fc.attInnerCtlValue.x;//BaroGetAlt();
+//	dataTemp.i16 = GetCopterVelocity().z;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = nav.accelLpf.z * 4000;//fc.attInnerCtlValue.y;//nav.velocity2.x;//
+//	dataTemp.i16 = nav.accelLpf.z * 4000;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = nav.accel.x * 500;//fc.attInnerCtlValue.z;//nav.velocity2.y;//nav.velocity2.z;//
+//	dataTemp.i16 = nav.accel.x * 500;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetCopterVelocity().x;//nav.velocity2.z;//fc.altInnerCtlValue;//ahrs.vectorRollPitchError.z * 1000;
+//	dataTemp.i16 = GetCopterVelocity().x;
 //	dataToSend[_cnt++] = dataTemp.byte[1];
 //	dataToSend[_cnt++] = dataTemp.byte[0];
 
