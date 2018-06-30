@@ -154,8 +154,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         rcCommand.pitch = ApplyDeadbandInt(rcCommand.pitch, rcDeadband);
         
         //摇杆量转为目标速度，低通滤波改变操控手感
-        velCtlTarget.x = velCtlTarget.x * 0.996f + (rcCommand.pitch * velRate) * 0.004f;
-        velCtlTarget.y = velCtlTarget.y * 0.996f + (rcCommand.roll * velRate) * 0.004f;
+        velCtlTarget.x = velCtlTarget.x * 0.998f + (rcCommand.pitch * velRate) * 0.002f;
+        velCtlTarget.y = velCtlTarget.y * 0.998f + (rcCommand.roll * velRate) * 0.002f;
         
         //直接控制速度，禁用位置控制
         SetPosCtlStatus(DISABLE);
