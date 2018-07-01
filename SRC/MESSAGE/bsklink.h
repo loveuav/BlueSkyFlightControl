@@ -197,8 +197,8 @@ typedef struct
 	float   time;           //当地时间 单位：秒
     int8_t  numSV;          //卫星数量
     int8_t  fixStatus;      //定位状态
-    int16_t hAcc;           //水平定位精度 单位：m
-    int16_t vAcc;           //垂直定位精度 单位：m
+    int16_t hAcc;           //水平定位精度 单位：cm
+    int16_t vAcc;           //垂直定位精度 单位：cm
     float   latitude;       //纬度
     float   longitude;      //经度
     float   altitude;       //高度 单位：m

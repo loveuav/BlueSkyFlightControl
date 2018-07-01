@@ -99,7 +99,10 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
         //气压传感器数据更新 50Hz
         if(count % 4 == 0)
         {
+            //读取气压计数据时挂起调度器，防止SPI总线冲突
+            vTaskSuspendAll();
             BaroSensorUpdate();	
+            xTaskResumeAll();
         }
         
         //飞控参数保存(参数有更新才会执行）20Hz

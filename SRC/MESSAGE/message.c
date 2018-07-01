@@ -46,13 +46,15 @@ void MessageInit(void)
     Usart_SetIRQCallback(DATA_UART, MessageDecode);
     
     //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]   = 30;
-    sendFreq[BSKLINK_MSG_ID_SENSOR]        = 10; 
-    sendFreq[BSKLINK_MSG_ID_RC_DATA]       = 5; 
-	sendFreq[BSKLINK_MSG_ID_MOTOR]         = 0; 
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS] = 1;
-    sendFreq[BSKLINK_MSG_ID_GPS]           = 2; 
-    sendFreq[BSKLINK_MSG_ID_BATTERY]       = 1;
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 30;
+    sendFreq[BSKLINK_MSG_ID_SENSOR]             = 5; 
+    sendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1; 
+    sendFreq[BSKLINK_MSG_ID_RC_DATA]            = 5; 
+	sendFreq[BSKLINK_MSG_ID_MOTOR]              = 0; 
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS]      = 1;
+    sendFreq[BSKLINK_MSG_ID_GPS]                = 2; 
+    sendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;  
+    sendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
     
     //生成发送列表
     SendFreqSort();
@@ -83,9 +85,11 @@ void MessageSendLoop(void)
         BsklinkSendFlightData(&sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA]);          //基本飞行数据
         BsklinkSendFlightStatus(&sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS]);      //飞行状态信息
         BsklinkSendSensor(&sendFlag[BSKLINK_MSG_ID_SENSOR]);                   //传感器数据
+        BsklinkSendSensorCaliData(&sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_DATA]); //传感器校准数据
         BsklinkSendRcData(&sendFlag[BSKLINK_MSG_ID_RC_DATA]);                  //遥控通道数据
 		BsklinkSendMotor(&sendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
         BsklinkSendGps(&sendFlag[BSKLINK_MSG_ID_GPS]);                         //GPS数据
+        BsklinkSendHeartBeat(&sendFlag[BSKLINK_MSG_ID_HEARTBEAT]);
     }
 }
 
@@ -197,6 +201,8 @@ void SendListCreate(void)
 {
     uint8_t sendNum = 0;
     uint8_t i, j;
+    static float interval;
+    uint8_t random;
     
     //判断总发送量是否超出最大发送频率，若超过则退出该函数
     for(i=0; i<0xFF; i++)
@@ -216,17 +222,17 @@ void SendListCreate(void)
             return;
 
         //发送间隔
-        uint8_t interval = MAX_SEND_FREQ/sendFreq[sortResult[i]];
+        interval = (float)MAX_SEND_FREQ / sendFreq[sortResult[i]];
 		//生成随机数，作为该帧数据在列表中的排序起始点，这样可以尽量使各帧数据分布均匀
-        uint8_t random   = GetRandom() % MAX_SEND_FREQ;
+        random   = GetRandom() % MAX_SEND_FREQ;
 		
         for(j=0; j<sendFreq[sortResult[i]]; j++)
         {
             for(uint8_t k=0; k<MAX_SEND_FREQ-j*interval; k++)
             {
-                if(sendList[(j*interval+k+random) % MAX_SEND_FREQ] == 0)
+                if(sendList[(int16_t)(j*interval+k+random) % MAX_SEND_FREQ] == 0)
                 {
-                    sendList[(j*interval+k+random) % MAX_SEND_FREQ] = sortResult[i];
+                    sendList[(int16_t)(j*interval+k+random) % MAX_SEND_FREQ] = sortResult[i];
                     break;
                 }
             }

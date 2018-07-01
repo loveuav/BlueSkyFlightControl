@@ -67,7 +67,7 @@ bool BsklinkMsgCheckSum(BSKLINK_MSG_t* msg)
 void BsklinkMsgFormat(BSKLINK_MSG_t msg, uint8_t* msgTemp)
 { 
     //首字节为帧长度
-    msgTemp[0] = msg.length + 6;
+    msgTemp[0] = msg.length + 7;
     
     msgTemp[1] = msg.head1;
     msgTemp[2] = msg.head2;

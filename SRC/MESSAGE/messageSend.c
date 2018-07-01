@@ -43,7 +43,7 @@ void BsklinkSendFlightData(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
 	//数据负载填充
     payload.angle.x      = GetCopterAngle().x * 10;
 	payload.angle.y      = GetCopterAngle().y * 10;
@@ -179,6 +179,61 @@ void BsklinkSendSensor(uint8_t* sendFlag)
     
 	msg.msgid 	 = BSKLINK_MSG_ID_SENSOR;                        //消息ID
 	msg.length   = sizeof(BSKLINK_PAYLOAD_SENSOR_t);             //数据负载长度
+	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+	
+	BsklinkMsgCalculateSum(&msg);                                //计算校验和
+	/*************************************************************************************************/
+	
+	//消息帧格式化
+	BsklinkMsgFormat(msg, msgToSend);
+	//发送消息帧
+	DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSendSensorCaliData
+*功能说明: 发送传感器校准数据
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendSensorCaliData(uint8_t* sendFlag)
+{
+	BSKLINK_MSG_t msg;
+	BSKLINK_PAYLOAD_SENSOR_CALI_DATA_t payload;
+	uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+	
+	//数据负载填充
+    payload.gyro_offset.x = GetGyroOffsetCaliData().x;
+    payload.gyro_offset.y = GetGyroOffsetCaliData().y;
+    payload.gyro_offset.z = GetGyroOffsetCaliData().z;
+    payload.acc_offset.x  = GetAccOffsetCaliData().x;
+    payload.acc_offset.y  = GetAccOffsetCaliData().y;
+    payload.acc_offset.z  = GetAccOffsetCaliData().z;
+    payload.acc_scale.x   = GetAccScaleCaliData().x;
+    payload.acc_scale.y   = GetAccScaleCaliData().y;
+    payload.acc_scale.z   = GetAccScaleCaliData().z;
+    payload.mag_offset.x  = GetMagOffsetCaliData().x;
+    payload.mag_offset.y  = GetMagOffsetCaliData().y;
+    payload.mag_offset.z  = GetMagOffsetCaliData().z;
+    payload.mag_scale.x   = GetMagScaleCaliData().x;
+    payload.mag_scale.y   = GetMagScaleCaliData().y;
+    payload.mag_scale.z   = GetMagScaleCaliData().z;	
+    payload.angle.x       = Degrees(GetLevelCalibraData().x);
+    payload.angle.y       = Degrees(GetLevelCalibraData().y);
+    
+	/*********************************************消息帧赋值******************************************/
+	msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头	
+	msg.head2 	 = BSKLINK_MSG_HEAD_2;
+	msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+	msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+    
+	msg.msgid 	 = BSKLINK_MSG_ID_SENSOR_CALI_DATA;                        //消息ID
+	msg.length   = sizeof(BSKLINK_PAYLOAD_SENSOR_CALI_DATA_t);             //数据负载长度
 	memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
 	
 	BsklinkMsgCalculateSum(&msg);                                //计算校验和

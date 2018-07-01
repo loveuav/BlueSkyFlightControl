@@ -21,6 +21,7 @@ void GyroCalibrateEnable(void);
 Vector3f_t GyroGetData(void);
 Vector3f_t GyroLpfGetData(void);
 float GyroGetTemp(void);
+Vector3f_t GetGyroOffsetCaliData(void);
 
 #endif
 

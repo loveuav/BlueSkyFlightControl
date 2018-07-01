@@ -17,6 +17,9 @@ void MagCalibration(void);
 Vector3f_t MagGetData(void);
 void MagCalibrateEnable(void);
 
+Vector3f_t GetMagOffsetCaliData(void);
+Vector3f_t GetMagScaleCaliData(void);
+
 #endif
 
 
