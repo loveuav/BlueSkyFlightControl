@@ -107,7 +107,7 @@ typedef struct
 //传感器校准命令
 typedef struct
 {
-	uint8_t sensorType;		//传感器类型
+	uint8_t type;			//传感器类型
 	uint8_t caliFlag;		//校准标志位
 	uint8_t successFlag;    //成功标志位
 	uint8_t step;			//校准步骤

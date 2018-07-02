@@ -30,6 +30,8 @@ uint8_t sendFreq[0xFF];	            //发送频率
 uint8_t sortResult[0xFF];           
 uint8_t sendList[MAX_SEND_FREQ];    //发送列表
 
+BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t sensorCali;
+
 //static void DataSendDebug(void);
 void SendFreqSort(void);
 void SendListCreate(void);
@@ -72,6 +74,8 @@ void MessageSendLoop(void)
     static uint32_t i = 0;
     
     //根据需求发送的数据帧
+	if(sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] == ENABLE) 						//传感器校准反馈 
+        BsklinkSendSensorCaliCmd(&sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD], sensorCali.type, sensorCali.step, sensorCali.successFlag);                  
     if(sendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
         BsklinkSendPidAtt(&sendFlag[BSKLINK_MSG_ID_PID_ATT]);                   //姿态PID    
     else if(sendFlag[BSKLINK_MSG_ID_PID_POS] == ENABLE)
@@ -91,6 +95,21 @@ void MessageSendLoop(void)
         BsklinkSendGps(&sendFlag[BSKLINK_MSG_ID_GPS]);                         //GPS数据
         BsklinkSendHeartBeat(&sendFlag[BSKLINK_MSG_ID_HEARTBEAT]);
     }
+}
+
+/**********************************************************************************************************
+*函 数 名: MessageSetSensorCaliFeedback
+*功能说明: 传感器校准反馈消息发送使能
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void MessageSensorCaliFeedbackEnable(uint8_t type, uint8_t step, uint8_t success)
+{
+	sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] = ENABLE;
+	
+	sensorCali.type = type;
+	sensorCali.successFlag = success;
+	sensorCali.step = step;
 }
 
 //static void DataSendDebug(void)

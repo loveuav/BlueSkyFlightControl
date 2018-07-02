@@ -15,6 +15,7 @@
 #include "parameter.h"
 #include "gaussNewton.h"
 #include "faultDetect.h"
+#include "message.h"
 
 enum{
     MaxX,
@@ -102,7 +103,6 @@ void MagCalibration(void)
     static Vector3f_t new_offset;
     static Vector3f_t new_scale;
 	Vector3f_t magRaw;
-    bool success = true;
     float earthMag;
     
     //计算时间间隔，用于积分
@@ -131,6 +131,9 @@ void MagCalibration(void)
 			mag.cali.step = 1;
 			cali_rotate_angle  = 0;		
 			cnt_m++;
+			
+			//发送当前校准步骤
+			MessageSensorCaliFeedbackEnable(MAG, mag.cali.step, mag.cali.success);
 		}
 		else if(cnt_m == 1)
         {
@@ -172,13 +175,15 @@ void MagCalibration(void)
 			{
 				mag.cali.step = 2;
 				cali_rotate_angle  = 0;
+				//发送当前校准步骤
+				MessageSensorCaliFeedbackEnable(MAG, mag.cali.step, mag.cali.success);
 			}
             //竖直旋转一圈
 			if(mag.cali.step == 2 && abs(cali_rotate_angle ) > 360)
 			{
 				cnt_m = 0;
 				mag.cali.should_cali = 0;
-				mag.cali.step = 0;
+				mag.cali.step = 3;
 				cali_rotate_angle  = 0;
 				
                 //计算当地地磁场强度模值均值
@@ -194,14 +199,18 @@ void MagCalibration(void)
                 //判断校准参数是否正常
                 if(fabsf(new_scale.x-1.0f) > 0.35f || fabsf(new_scale.y-1.0f) > 0.35f || fabsf(new_scale.z-1.0f) > 0.35f) 
                 {
-                    success = false;
+                    mag.cali.success = false;
                 }
-                if(fabsf(new_offset.x) > (earthMag * 0.8f) || fabsf(new_offset.y) > (earthMag * 0.8f) || fabsf(new_offset.z) > (earthMag * 0.8f)) 
+                else if(fabsf(new_offset.x) > (earthMag * 0.8f) || fabsf(new_offset.y) > (earthMag * 0.8f) || fabsf(new_offset.z) > (earthMag * 0.8f)) 
                 {
-                    success = false;
+                    mag.cali.success = false;
                 }
+				else
+				{
+					mag.cali.success = true;
+				}
                 
-                if(success)
+                if(mag.cali.success)
                 {
                     mag.cali.offset = new_offset;
                     mag.cali.scale = new_scale;
@@ -219,6 +228,11 @@ void MagCalibration(void)
                 else
                 {
                 }
+				
+				//发送校准结果
+				MessageSensorCaliFeedbackEnable(MAG, mag.cali.step, mag.cali.success);
+				
+				mag.cali.step = 0;
 			}
 		}
 	}

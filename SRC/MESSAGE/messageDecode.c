@@ -11,6 +11,24 @@
 **********************************************************************************************************/
 #include "messageDecode.h"
 #include "bsklink.h"
+#include <string.h>
+
+#include "sensor.h"
+#include "gyroscope.h"
+#include "magnetometer.h"
+#include "accelerometer.h"
+#include "barometer.h"
+#include "gps.h"
+#include "board.h"
+#include "ahrs.h"
+#include "navigation.h"
+#include "flightControl.h"
+#include "motor.h"
+#include "rc.h"
+#include "ublox.h"
+#include "flightStatus.h"
+
+static void BsklinkDecodeSensorCaliCmd(BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload);
 
 /**********************************************************************************************************
 *函 数 名: MessageDecode
@@ -29,11 +47,54 @@ void MessageDecode(uint8_t data)
         {
             i++;
         }
-        
-        if(msg.msgid == BSKLINK_MSG_ID_RC_DATA)
+        else if(msg.msgid == BSKLINK_MSG_ID_SENSOR_CALI_CMD)
+        {
+            BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload;
+            memcpy(&payload, msg.payload, msg.length);
+            BsklinkDecodeSensorCaliCmd(payload);
+        }
+        else if(msg.msgid == BSKLINK_MSG_ID_RC_DATA)
         {
             i++;
         }
+    }
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkDecodeSensorCaliCmd
+*功能说明: 传感器校准命令解析
+*形    参: 消息
+*返 回 值: 无
+**********************************************************************************************************/
+static void BsklinkDecodeSensorCaliCmd(BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload)
+{
+    if(payload.type == GYRO)			//陀螺仪
+    {
+        if(payload.caliFlag == true)
+        {
+            GyroCalibrateEnable();
+        }
+    }
+    else if(payload.type == ACC)		//加速度计
+    {
+		if(payload.caliFlag == true)
+        {
+			AccCalibrateEnable();
+		}
+    }
+    else if(payload.type == MAG)		//磁力计
+    {
+        
+    }
+    else if(payload.type == ANGLE)		//水平
+    {
+		if(payload.caliFlag == true)
+        {
+			LevelCalibrateEnable();
+		}
+    }
+    else if(payload.type == ESC)		//电调
+    {
     }
 }
 

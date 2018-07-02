@@ -23,6 +23,9 @@ Vector3f_t GetAccOffsetCaliData(void);
 Vector3f_t GetAccScaleCaliData(void);
 Vector3f_t GetLevelCalibraData(void);
 
+void AccCalibrateEnable(void);
+void LevelCalibrateEnable(void);
+    
 float GetAccMag(void);
 Vector3f_t AccGetData(void);
 Vector3f_t AccLpfGetData(void);

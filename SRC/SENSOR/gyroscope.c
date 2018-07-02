@@ -14,6 +14,7 @@
 #include "accelerometer.h"
 #include "faultDetect.h"
 #include "flightStatus.h"
+#include "message.h"
 
 GYROSCOPE_t gyro;
 
@@ -86,7 +87,6 @@ void GyroCalibration(Vector3f_t gyroRaw)
 	Vector3f_t gyro_cali_temp, gyro_raw_temp;
 	static int16_t count = 0;
 	static uint8_t staticFlag;
-	static uint8_t successFlag;
 	
 	if(!gyro.cali.should_cali)
 		return;
@@ -108,10 +108,9 @@ void GyroCalibration(Vector3f_t gyroRaw)
 	
 	if(count == CALIBRATING_GYRO_CYCLES)
 	{
-		count = 0;
-		gyro.cali.should_cali = 0;
-		gyro.cali.step = 0;     
-        
+		count = 0;  
+        gyro.cali.step = 2;
+		
 		gyro_cali_temp.x = gyro_sum[0] / CALIBRATING_GYRO_CYCLES;
 		gyro_cali_temp.y = gyro_sum[1] / CALIBRATING_GYRO_CYCLES;
 		gyro_cali_temp.z = gyro_sum[2] / CALIBRATING_GYRO_CYCLES;
@@ -121,12 +120,16 @@ void GyroCalibration(Vector3f_t gyroRaw)
 		
 		//检测校准数据是否有效		
 		if((abs(gyro_raw_temp.x - gyro_cali_temp.x) + abs(gyro_raw_temp.x - gyro_cali_temp.x)
-			+ abs(gyro_raw_temp.x - gyro_cali_temp.x)) < 0.6f)
+			+ abs(gyro_raw_temp.x - gyro_cali_temp.x)) < 0.6f && !staticFlag)
 		{
-			successFlag = 1;
+			gyro.cali.success = 1;
 		}	
+		else
+		{
+			gyro.cali.success = 0;
+		}
 		
-		if(successFlag && !staticFlag)
+		if(gyro.cali.success)
 		{
 			gyro.cali.offset.x = gyro_cali_temp.x;
 			gyro.cali.offset.y = gyro_cali_temp.y;
@@ -138,8 +141,13 @@ void GyroCalibration(Vector3f_t gyroRaw)
 			ParamUpdateData(PARAM_GYRO_OFFSET_Z, &gyro.cali.offset.z);
 		}
 		
-		successFlag = 0;
 		staticFlag = 0;		
+		
+		//发送校准结果
+		MessageSensorCaliFeedbackEnable(GYRO, gyro.cali.step, gyro.cali.success);
+		
+		gyro.cali.should_cali = 0;
+		gyro.cali.step = 0;   
 	}
 }
 

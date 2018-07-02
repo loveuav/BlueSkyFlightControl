@@ -25,7 +25,7 @@
 //传感器类型
 enum
 {
-    GRYO,
+    GYRO,
     ACC,
     MAG,
     ANGLE,
