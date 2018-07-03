@@ -17,6 +17,9 @@
 #include "barometer.h"
 #include "flightStatus.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 NAVGATION_t nav;
 Kalman_t kalmanVel;
 Kalman_t kalmanPos;
@@ -114,6 +117,7 @@ void VelocityEstimate(void)
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanVel, input, nav.velMeasure, fuseFlag);
     nav.velocity = kalmanVel.status;
+    //kalmanVel.statusSlidWindow[199].x = 123.45;
     
     //计算误差积分
     if(GetPosControlStatus() == POS_HOLD)
@@ -308,6 +312,13 @@ static void KalmanVelInit(void)
     KalmanCovarianceMatSet(&kalmanVel, pMatInit);    
     KalmanStateTransMatSet(&kalmanVel, fMatInit);
     KalmanObserveMapMatSet(&kalmanVel, hMatInit);
+    
+    //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
+    kalmanVel.slidWindowSize = 200;
+    kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.status));
+    kalmanVel.fuseDelay.x = kalmanVel.slidWindowSize;
+    kalmanVel.fuseDelay.y = kalmanVel.slidWindowSize;
+    kalmanVel.fuseDelay.z = 1;
 }
 
 /**********************************************************************************************************
@@ -332,6 +343,13 @@ static void KalmanPosInit(void)
     KalmanCovarianceMatSet(&kalmanPos, pMatInit);    
     KalmanStateTransMatSet(&kalmanPos, fMatInit);
     KalmanObserveMapMatSet(&kalmanPos, hMatInit);
+ 
+    //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题    
+    kalmanPos.slidWindowSize = 200;
+    kalmanPos.statusSlidWindow = pvPortMalloc(kalmanPos.slidWindowSize * sizeof(kalmanPos.status));
+    kalmanPos.fuseDelay.x = kalmanPos.slidWindowSize;
+    kalmanPos.fuseDelay.y = kalmanPos.slidWindowSize;
+    kalmanPos.fuseDelay.z = 1;
 }
 
 /**********************************************************************************************************

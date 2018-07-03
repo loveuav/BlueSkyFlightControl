@@ -14,7 +14,9 @@
 
 //单位矩阵
 float I[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-  
+
+static void KalmanSlidWindowUpdate(Kalman_t* kalman);
+
 /**********************************************************************************************************
 *函 数 名: KalmanUpdate
 *功能说明: 三阶卡尔曼算法更新
@@ -29,6 +31,9 @@ void KalmanUpdate(Kalman_t* kalman, Vector3f_t input, Vector3f_t observe, bool f
 	//1:状态预估计 Xk = Fk*Xk-1 + Bk*Uk
     kalman->status = Vector3f_Add(Matrix3MulVector3(kalman->f, kalman->status), Matrix3MulVector3(kalman->b, input));
     
+    //状态窗口更新
+    KalmanSlidWindowUpdate(kalman);
+    
     //当观测值未更新时不进行融合，退出本函数
     if(flag == false)
     {
@@ -40,8 +45,14 @@ void KalmanUpdate(Kalman_t* kalman, Vector3f_t input, Vector3f_t observe, bool f
 	Matrix3_Mul(m1, kalman->f_t, m2);    
 	Matrix3_Add(m2, kalman->q, kalman->covariance);
     
-	 //3：计算残差矩阵 Yk = Zk - Hk*Xk
-    kalman->residual = Vector3f_Sub(observe, Matrix3MulVector3(kalman->h, kalman->status));
+    //取出窗口中的状态量
+    Vector3f_t statusDelay;
+    statusDelay.x = kalman->statusSlidWindow[kalman->slidWindowSize - kalman->fuseDelay.x].x;
+    statusDelay.y = kalman->statusSlidWindow[kalman->slidWindowSize - kalman->fuseDelay.y].y;
+    statusDelay.z = kalman->statusSlidWindow[kalman->slidWindowSize - kalman->fuseDelay.z].z;
+    
+	//3：计算残差矩阵 Yk = Zk - Hk*Xk
+    kalman->residual = Vector3f_Sub(observe, Matrix3MulVector3(kalman->h, statusDelay));
     
 	//4：Sk = Hk*Pk*HkT + Rk
 	Matrix3_Mul(kalman->h, kalman->covariance, m1);
@@ -173,7 +184,21 @@ void KalmanBMatSet(Kalman_t* kalman, float* b)
     }
 }
 
-
+/**********************************************************************************************************
+*函 数 名: KalmanSlidWindowUpdate
+*功能说明: 卡尔曼状态量滑动窗口更新
+*形    参: 卡尔曼结构体指针 
+*返 回 值: 无
+**********************************************************************************************************/
+static void KalmanSlidWindowUpdate(Kalman_t* kalman)
+{
+    for(uint16_t i=0; i<kalman->slidWindowSize; i++)
+    {
+        if(i+1 < kalman->slidWindowSize)
+            kalman->statusSlidWindow[i] = kalman->statusSlidWindow[i+1];
+    }
+    kalman->statusSlidWindow[kalman->slidWindowSize - 1] = kalman->status;
+}
 
 
 

@@ -15,6 +15,9 @@
 #include "kalman3.h"
 #include "accelerometer.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 AHRSAUX_t ahrsAux;
 Kalman_t kalmanAux;
 
@@ -119,6 +122,13 @@ static void KalmanAuxInit(void)
     KalmanCovarianceMatSet(&kalmanAux, pMatInit);    
     KalmanStateTransMatSet(&kalmanAux, fMatInit);
     KalmanObserveMapMatSet(&kalmanAux, hMatInit);
+    
+    //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
+    kalmanAux.slidWindowSize = 1;
+    kalmanAux.statusSlidWindow = pvPortMalloc(kalmanAux.slidWindowSize * sizeof(kalmanAux.status));
+    kalmanAux.fuseDelay.x = 1;
+    kalmanAux.fuseDelay.y = 1;
+    kalmanAux.fuseDelay.z = 1;
 }
 
 /**********************************************************************************************************

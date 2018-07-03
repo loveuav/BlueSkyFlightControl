@@ -18,6 +18,9 @@
 #include "accelerometer.h"
 #include "navigation.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 AHRS_t ahrs;
 Kalman_t kalmanRollPitch, kalmanYaw;
 
@@ -165,6 +168,13 @@ static void KalmanRollPitchInit(void)
     KalmanStateTransMatSet(&kalmanRollPitch, fMatInit);
     KalmanObserveMapMatSet(&kalmanRollPitch, hMatInit);
     
+    //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
+    kalmanRollPitch.slidWindowSize = 1;
+    kalmanRollPitch.statusSlidWindow = pvPortMalloc(kalmanRollPitch.slidWindowSize * sizeof(kalmanRollPitch.status));
+    kalmanRollPitch.fuseDelay.x = 1;
+    kalmanRollPitch.fuseDelay.y = 1;
+    kalmanRollPitch.fuseDelay.z = 1;
+    
     //陀螺仪积分补偿系数
     ahrs.vectorRollPitchKI = 0.00001f;
 }
@@ -191,6 +201,13 @@ static void KalmanYawInit(void)
     KalmanCovarianceMatSet(&kalmanYaw, pMatInit);    
     KalmanStateTransMatSet(&kalmanYaw, fMatInit);
     KalmanObserveMapMatSet(&kalmanYaw, hMatInit);
+ 
+    //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
+    kalmanYaw.slidWindowSize = 1;
+    kalmanYaw.statusSlidWindow = pvPortMalloc(kalmanYaw.slidWindowSize * sizeof(kalmanYaw.status));
+    kalmanYaw.fuseDelay.x = 1;
+    kalmanYaw.fuseDelay.y = 1;
+    kalmanYaw.fuseDelay.z = 1;
     
     //陀螺仪积分补偿系数
     ahrs.vectorYawKI = 0.00002f;
