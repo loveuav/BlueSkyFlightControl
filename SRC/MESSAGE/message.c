@@ -48,7 +48,7 @@ void MessageInit(void)
     Usart_SetIRQCallback(DATA_UART, MessageDecode);
     
     //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 30;
+    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 15;
     sendFreq[BSKLINK_MSG_ID_SENSOR]             = 5; 
     sendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1; 
     sendFreq[BSKLINK_MSG_ID_RC_DATA]            = 5; 
@@ -76,7 +76,7 @@ void MessageSendLoop(void)
     //根据需求发送的数据帧
 	if(sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] == ENABLE) 						//传感器校准反馈 
         BsklinkSendSensorCaliCmd(&sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD], sensorCali.type, sensorCali.step, sensorCali.successFlag);                  
-    if(sendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
+    else if(sendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
         BsklinkSendPidAtt(&sendFlag[BSKLINK_MSG_ID_PID_ATT]);                   //姿态PID    
     else if(sendFlag[BSKLINK_MSG_ID_PID_POS] == ENABLE)
         BsklinkSendPidPos(&sendFlag[BSKLINK_MSG_ID_PID_POS]);                   //位置PID

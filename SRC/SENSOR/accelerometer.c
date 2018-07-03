@@ -128,7 +128,9 @@ void AccCalibration(Vector3f_t accRaw)
 			samples[acc.cali.step - 1].x /= 100;
 			samples[acc.cali.step - 1].y /= 100;
 			samples[acc.cali.step - 1].z /= 100;
-			samples_count++;		
+			samples_count++;
+            //发送当前校准步骤
+            MessageSensorCaliFeedbackEnable(ACC, acc.cali.step, acc.cali.success);            
 		}		
 	}
 
@@ -136,7 +138,6 @@ void AccCalibration(Vector3f_t accRaw)
 	{		
 		//高斯牛顿法求解误差方程
 		GaussNewtonCalibrate(samples, &new_offset, &new_scale, 1, 20);
-		acc.cali.step = 0;
 
 		//判断校准参数是否正常
 		if(fabsf(new_scale.x-1.0f) > 0.1f || fabsf(new_scale.y-1.0f) > 0.1f || fabsf(new_scale.z-1.0f) > 0.1f) 
@@ -179,6 +180,7 @@ void AccCalibration(Vector3f_t accRaw)
 		
 		//发送校准结果
 		MessageSensorCaliFeedbackEnable(ACC, acc.cali.step, acc.cali.success);
+        acc.cali.step = 0;
 	}       
 }
 
