@@ -14,6 +14,7 @@
 #include "board.h"
 #include "pid.h"
 #include "flightStatus.h"
+#include "faultDetect.h"
 
 PID_t tempPID;
 
@@ -42,6 +43,13 @@ void ImuTempControl(float tempMeasure)
     float	deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
 	lastTime = GetSysTimeUs();
     static uint16_t cnt = 0;
+    
+    //检测不到陀螺仪时停止加热并退出该函数
+    if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
+    {
+        TempControlSet(0);
+        return;
+    }
     
     //计算温度误差
 	tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;	  
