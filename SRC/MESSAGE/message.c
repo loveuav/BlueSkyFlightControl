@@ -93,7 +93,7 @@ void MessageSendLoop(void)
         BsklinkSendRcData(&sendFlag[BSKLINK_MSG_ID_RC_DATA]);                  //遥控通道数据
 		BsklinkSendMotor(&sendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
         BsklinkSendGps(&sendFlag[BSKLINK_MSG_ID_GPS]);                         //GPS数据
-        BsklinkSendHeartBeat(&sendFlag[BSKLINK_MSG_ID_HEARTBEAT]);
+        BsklinkSendHeartBeat(&sendFlag[BSKLINK_MSG_ID_HEARTBEAT]);             //心跳包
     }
 }
 

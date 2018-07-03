@@ -14,6 +14,8 @@
 #include <rl_usb.h>
 #define __NO_USB_LIB_C
 #include "usb_config.c"
+#include "FreeRTOS.h"
+#include "task.h"
 
 static UsbHidCallback usbHidCallbackFunc;
 
@@ -38,28 +40,45 @@ void UsbHid_Init(void)
 void UsbHid_Send(uint8_t *dataToSend, uint8_t length)
 {
     static uint8_t data2send[64];
-    static uint8_t datacnt = 0;
+    static uint8_t data2send2[64];
+    uint8_t datacnt = 0;
     
 	if(length <= 64)
 	{
-		for(;datacnt<length;datacnt++)
+        data2send[0] = length;
+		for(datacnt=0; datacnt<length; datacnt++)
 		{
 			data2send[datacnt+1] = dataToSend[datacnt];
 		}
+
+        usbd_hid_get_report_trigger(0, data2send, 64);
+        for(u8 i=0;i<64;i++)
+            data2send[i] = 0;
 	}
-	data2send[0] = length;
-    
-	for(u8 i=0;i<64;i++)
+	else
     {
-		if(data2send[i] != 0)
+        data2send[0] = 63;
+		for(datacnt=0; datacnt<64; datacnt++)
 		{
-			usbd_hid_get_report_trigger(0, data2send, 64);
-			datacnt = 0;
-			for(u8 i=0;i<64;i++)
-				data2send[i] = 0;
-			return;
+			data2send[datacnt+1] = dataToSend[datacnt];
 		}
-    }
+        data2send2[0] = length - 63;
+        for(datacnt=0; datacnt<length-63; datacnt++)
+		{
+			data2send2[datacnt+1] = dataToSend[datacnt+63];
+		}
+        
+        usbd_hid_get_report_trigger(0, data2send, 64);
+        for(u8 i=0;i<64;i++)
+            data2send[i] = 0;
+
+        vTaskDelay(1);
+        
+        usbd_hid_get_report_trigger(0, data2send2, 64);
+        for(u8 i=0;i<64;i++)
+            data2send2[i] = 0;
+
+    } 
 }
 
 /**********************************************************************************************************
