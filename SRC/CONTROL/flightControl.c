@@ -27,20 +27,20 @@ void FlightControlInit(void)
     
     //该参数下姿态控制精度可达0.1°（悬停），测试机架为F330和F450，电调为BLS
     //电池横放，使重量主要分布在roll轴上，因此roll的参数要稍大一些
-	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.2, 50, 35);
-	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.18, 50, 35);
-	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 50, 35);
+	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.2, 30, 35);
+	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.18, 30, 35);
+	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 30, 35);
 	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
 	
-	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.8, 0.0, 50, 30);	
-	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.8, 0.0, 50, 30);	
+	PID_SetParam(&fc.pid[VEL_X],	   2.5, 0.8, 0.0, 10, 30);	
+	PID_SetParam(&fc.pid[VEL_Y],       2.5, 0.8, 0.0, 10, 30);	
 	PID_SetParam(&fc.pid[VEL_Z],       3.0, 3.0, 0.03, 500, 30);	
 
-	PID_SetParam(&fc.pid[POS_X],       1.5, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[POS_Y],       1.5, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);		
 }
 

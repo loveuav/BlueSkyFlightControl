@@ -197,7 +197,7 @@ void MagCalibration(void)
                 GaussNewtonCalibrate(samples, &new_offset, &new_scale, earthMag, 20);
                 
                 //判断校准参数是否正常
-                if(fabsf(new_scale.x-1.0f) > 0.35f || fabsf(new_scale.y-1.0f) > 0.35f || fabsf(new_scale.z-1.0f) > 0.35f) 
+                if(fabsf(new_scale.x-1.0f) > 0.8f || fabsf(new_scale.y-1.0f) > 0.8f || fabsf(new_scale.z-1.0f) > 0.8f) 
                 {
                     mag.cali.success = false;
                 }

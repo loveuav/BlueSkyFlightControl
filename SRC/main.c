@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
                                 
- * @版本：	 V0.2.1
+ * @版本：	 V0.3.0
  * @作者：   BlueSky
  * @QQ:      352707983
  * @论坛:    爱无人机 bbs.loveuav.com

@@ -7,8 +7,8 @@
 *飞控软件版本
 **********************************************************************************************************/
 #define SOFTWARE_VERSION_HIGH   0
-#define SOFTWARE_VERSION_MID    2
-#define SOFTWARE_VERSION_LOW    1
+#define SOFTWARE_VERSION_MID    3
+#define SOFTWARE_VERSION_LOW    0
 
 /**********************************************************************************************************
 *飞控硬件类型

@@ -117,15 +117,12 @@ void VelocityEstimate(void)
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanVel, input, nav.velMeasure, fuseFlag);
     nav.velocity = kalmanVel.status;
-    //kalmanVel.statusSlidWindow[199].x = 123.45;
     
     //计算误差积分
-    if(GetPosControlStatus() == POS_HOLD)
-    {
-        nav.velErrorInt.x += (nav.velMeasure.x - nav.velocity.x) * velErrorIntRate;
-        nav.velErrorInt.y += (nav.velMeasure.y - nav.velocity.y) * velErrorIntRate;        
-    }
-    nav.velErrorInt.z += (nav.velMeasure.z - nav.velocity.z) * velErrorIntRate;
+    nav.velErrorInt.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * velErrorIntRate;
+    nav.velErrorInt.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * velErrorIntRate;        
+    nav.velErrorInt.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * velErrorIntRate;
+    
     nav.velErrorInt.x  = ConstrainFloat(nav.velErrorInt.x, -20, 20);
     nav.velErrorInt.y  = ConstrainFloat(nav.velErrorInt.y, -20, 20);
     nav.velErrorInt.z  = ConstrainFloat(nav.velErrorInt.z, -30, 30);
@@ -266,26 +263,26 @@ void PosCovarianceSelfAdaptation(void)
     
 	if(GetPosControlStatus() == POS_HOLD)	
 	{ 
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
         
-        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.001f, 10, 150);
-        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.001f, 10, 150);
+        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.002f, 10, 200);
+        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.002f, 10, 200);
         kalmanPos.r[0] = Sq(kalmanPos.r[0]);
         kalmanPos.r[4] = Sq(kalmanPos.r[4]);    
 	}
 	else if(GetPosControlStatus() == POS_CHANGED)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(55);
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(45);
         kalmanPos.r[0] = kalmanPos.r[4] = 50;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE_FINISH)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(12 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(12 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;        
 	}
 }
@@ -314,10 +311,10 @@ static void KalmanVelInit(void)
     KalmanObserveMapMatSet(&kalmanVel, hMatInit);
     
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
-    kalmanVel.slidWindowSize = 230;
+    kalmanVel.slidWindowSize = 250;
     kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.status));
-    kalmanVel.fuseDelay.x = 230;    //0.23s延时
-    kalmanVel.fuseDelay.y = 230;    //0.23s延时
+    kalmanVel.fuseDelay.x = 250;    //0.25s延时
+    kalmanVel.fuseDelay.y = 250;    //0.25s延时
     kalmanVel.fuseDelay.z = 200;    //0.2s延时
 }
 
