@@ -36,13 +36,17 @@ void BaroDataPreTreat(void)
 {
 	static uint32_t lastTime = 0;
 	static uint16_t offset_cnt = 300;
-
+    int32_t baroAltTemp;
+    
 	float deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
 	lastTime = GetSysTimeUs();
 	
-    BaroSensorRead(&baro.alt);
+    BaroSensorRead(&baroAltTemp);
     BaroTemperatureRead(&baro.temperature);
 	
+    //气压高度低通滤波
+    baro.alt = baro.alt * 0.75f + baroAltTemp * 0.25f;
+    
     if(GetSysTimeMs() > 1500)
     {
         //计算气压高度的初始零偏值
@@ -56,8 +60,8 @@ void BaroDataPreTreat(void)
     
 	//读取气压高度
 	baro.alt -= baro.alt_offset;
-	//计算气压变化速度
-	baro.velocity = baro.velocity * 0.8f + ((baro.alt - baro.lastAlt) / deltaT) * 0.2f;
+	//计算气压变化速度，并进行低通滤波
+	baro.velocity = baro.velocity * 0.75f + ((baro.alt - baro.lastAlt) / deltaT) * 0.25f;
 	baro.lastAlt = baro.alt;
 
     //检测气压传感器是否工作正常

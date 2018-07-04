@@ -192,10 +192,9 @@ void KalmanBMatSet(Kalman_t* kalman, float* b)
 **********************************************************************************************************/
 static void KalmanSlidWindowUpdate(Kalman_t* kalman)
 {
-    for(uint16_t i=0; i<kalman->slidWindowSize; i++)
+    for(uint16_t i=0; i<kalman->slidWindowSize-1; i++)
     {
-        if(i+1 < kalman->slidWindowSize)
-            kalman->statusSlidWindow[i] = kalman->statusSlidWindow[i+1];
+        kalman->statusSlidWindow[i] = kalman->statusSlidWindow[i+1];
     }
     kalman->statusSlidWindow[kalman->slidWindowSize - 1] = kalman->status;
 }

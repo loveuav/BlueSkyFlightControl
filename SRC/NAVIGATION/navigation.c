@@ -275,7 +275,7 @@ void PosCovarianceSelfAdaptation(void)
 	}
 	else if(GetPosControlStatus() == POS_CHANGED)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(10 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.5f, +2)));
         kalmanPos.r[0] = kalmanPos.r[4] = 50;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE)	
@@ -314,11 +314,11 @@ static void KalmanVelInit(void)
     KalmanObserveMapMatSet(&kalmanVel, hMatInit);
     
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
-    kalmanVel.slidWindowSize = 200;
+    kalmanVel.slidWindowSize = 230;
     kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.status));
-    kalmanVel.fuseDelay.x = kalmanVel.slidWindowSize;
-    kalmanVel.fuseDelay.y = kalmanVel.slidWindowSize;
-    kalmanVel.fuseDelay.z = 1;
+    kalmanVel.fuseDelay.x = 230;    //0.23s延时
+    kalmanVel.fuseDelay.y = 230;    //0.23s延时
+    kalmanVel.fuseDelay.z = 200;    //0.2s延时
 }
 
 /**********************************************************************************************************
@@ -347,9 +347,9 @@ static void KalmanPosInit(void)
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题    
     kalmanPos.slidWindowSize = 200;
     kalmanPos.statusSlidWindow = pvPortMalloc(kalmanPos.slidWindowSize * sizeof(kalmanPos.status));
-    kalmanPos.fuseDelay.x = kalmanPos.slidWindowSize;
-    kalmanPos.fuseDelay.y = kalmanPos.slidWindowSize;
-    kalmanPos.fuseDelay.z = 1;
+    kalmanPos.fuseDelay.x = 200;    //0.2s延时
+    kalmanPos.fuseDelay.y = 200;    //0.2s延时
+    kalmanPos.fuseDelay.z = 100;    //0.1s延时
 }
 
 /**********************************************************************************************************
