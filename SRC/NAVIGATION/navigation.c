@@ -110,8 +110,8 @@ void VelocityEstimate(void)
 //    }
     
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
-    input.x += nav.velErrorInt.x * 0.0001f;
-    input.y += nav.velErrorInt.y * 0.0001f;
+    input.x += nav.velErrorInt.x * 0.0003f;
+    input.y += nav.velErrorInt.y * 0.0003f;
     input.z += nav.velErrorInt.z * 0.0003f;
 
     //卡尔曼滤波器更新
@@ -273,17 +273,17 @@ void PosCovarianceSelfAdaptation(void)
 	else if(GetPosControlStatus() == POS_CHANGED)	
 	{
         kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
-        kalmanPos.r[0] = kalmanPos.r[4] = 50;
+        kalmanPos.r[0] = kalmanPos.r[4] = 10;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE)	
 	{
         kalmanVel.r[0] = kalmanVel.r[4] = Sq(45);
-        kalmanPos.r[0] = kalmanPos.r[4] = 50;
+        kalmanPos.r[0] = kalmanPos.r[4] = 10;
 	}
 	else if(GetPosControlStatus() == POS_BRAKE_FINISH)	
 	{
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(12 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
-        kalmanPos.r[0] = kalmanPos.r[4] = 50;        
+        kalmanVel.r[0] = kalmanVel.r[4] = Sq(10 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
+        kalmanPos.r[0] = kalmanPos.r[4] = 10;        
 	}
 }
 

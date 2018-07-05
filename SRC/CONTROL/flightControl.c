@@ -35,9 +35,9 @@ void FlightControlInit(void)
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
 	
-	PID_SetParam(&fc.pid[VEL_X],	   2.5, 0.8, 0.0, 10, 30);	
-	PID_SetParam(&fc.pid[VEL_Y],       2.5, 0.8, 0.0, 10, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       3.0, 3.0, 0.03, 500, 30);	
+	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0, 0, 10, 30);	
+	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0, 0, 10, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.03, 300, 30);	
 
 	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
@@ -250,13 +250,13 @@ void AttitudeOuterControl(void)
     }
     else if(GetPosControlStatus() == POS_BRAKE)
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -130, 130);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -130, 130);        
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -120, 120);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -120, 120);        
     }
     else
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -160, 160);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -160, 160);    
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -120, 120);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -120, 120);    
     }
     
 	//若航向锁定被失能则直接将摇杆数值作为目标角速度

@@ -13,6 +13,8 @@
 #include "module.h"
 #include "board.h"
 #include "faultDetect.h"
+#include "navigation.h"
+#include "gps.h"
 
 typedef struct{
 	int32_t alt;
@@ -24,6 +26,7 @@ typedef struct{
 
 BAROMETER_t baro;
 
+static void BaroCompensate(int32_t* alt);
 static void BaroDetectCheck(int32_t baroAlt);
 
 /**********************************************************************************************************
@@ -44,6 +47,9 @@ void BaroDataPreTreat(void)
     BaroSensorRead(&baroAltTemp);
     BaroTemperatureRead(&baro.temperature);
 	
+    //飞行中的气压高度补偿
+    BaroCompensate(&baroAltTemp);
+    
     //气压高度低通滤波
     baro.alt = baro.alt * 0.75f + baroAltTemp * 0.25f;
     
@@ -66,6 +72,25 @@ void BaroDataPreTreat(void)
 
     //检测气压传感器是否工作正常
     BaroDetectCheck(baro.alt);	
+}
+
+/**********************************************************************************************************
+*函 数 名: BaroCompensate
+*功能说明: 气压高度补偿（简单处理，用于测试）
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void BaroCompensate(int32_t* alt)
+{
+    int16_t velocity;
+    
+    if(!GpsGetFixStatus())
+        return;
+    
+    velocity = Pythagorous2(GetCopterVelocity().x, GetCopterVelocity().y);
+    velocity = ApplyDeadbandInt(ConstrainInt16(velocity, 0, 500), 20);
+    
+    *alt -= velocity * 0.05f;
 }
 
 /**********************************************************************************************************

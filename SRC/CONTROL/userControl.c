@@ -159,7 +159,10 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         
         //直接控制速度，禁用位置控制
         SetPosCtlStatus(DISABLE);
- 
+        
+         //更新位置内环控制目标    
+        SetPosInnerCtlTarget(velCtlTarget);
+        
         //更新位置控制目标
         posCtlTarget.x = GetCopterPosition().x;
         posCtlTarget.y = GetCopterPosition().y;
@@ -175,22 +178,22 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         //进入刹车状态时先初始化目标速度
         if(GetPosControlStatus() == POS_CHANGED)
         {
-            velCtlTarget.x = GetCopterVelocity().x * 0.9f;
-            velCtlTarget.y = GetCopterVelocity().y * 0.9f;
+            velCtlTarget.x = GetCopterVelocity().x;
+            velCtlTarget.y = GetCopterVelocity().y;
             //更新位置控制状态为刹车
             SetPosControlStatus(POS_BRAKE);
         }
         else if(GetPosControlStatus() == POS_BRAKE)
         {
-            brakeFilter += 0.00003f;
-			brakeFilter = ConstrainFloat(brakeFilter, 0.003f, 0.05f);
+            brakeFilter += 0.00001f;
+			brakeFilter = ConstrainFloat(brakeFilter, 0.002f, 0.008f);
             
             //减速刹车
             velCtlTarget.x -= velCtlTarget.x * brakeFilter;
             velCtlTarget.y -= velCtlTarget.y * brakeFilter;
 	        
             //飞机速度小于一定值或超出一定时间则认为刹车完成
-            if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged > 5000)
+            if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged > 3000)
             {   
                 //更新位置控制状态为刹车完成
                 SetPosControlStatus(POS_BRAKE_FINISH);
@@ -203,8 +206,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
             //刹车完成后再缓冲一小段时间便切换为自动悬停
             if(GetSysTimeMs() - lastTimePosBrake < 1000)
             {
-                velCtlTarget.x = 0;
-                velCtlTarget.y = 0;
+                velCtlTarget.x -= velCtlTarget.x * 0.02f;
+                velCtlTarget.y -= velCtlTarget.y * 0.02f;
             }
             else
             {
@@ -214,23 +217,31 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
             brakeFilter = 0;
         }
         
+        //更新位置内环控制目标    
+        SetPosInnerCtlTarget(velCtlTarget);
+        
         //更新位置控制目标
         posCtlTarget.x = GetCopterPosition().x;
-        posCtlTarget.y = GetCopterPosition().y;        
+        posCtlTarget.y = GetCopterPosition().y;         
     }
     else
-    {       
+    {     
+        //待机状态下不断刷新位置目标
+        if(GetFlightStatus() == STANDBY)
+        {
+            posCtlTarget.x = GetCopterPosition().x;
+            posCtlTarget.y = GetCopterPosition().y;         
+        }
+        
         //使能位置控制
         SetPosCtlStatus(ENABLE);
      
         //更新位置控制状态
         SetPosControlStatus(POS_HOLD);     
+        
+        //更新位置外环控制目标
+        SetPosOuterCtlTarget(posCtlTarget);
     }     
-
-    //更新位置内环控制目标    
-    SetPosInnerCtlTarget(velCtlTarget);   
-    //更新位置外环控制目标
-    SetPosOuterCtlTarget(posCtlTarget);
 }
 
 /**********************************************************************************************************
