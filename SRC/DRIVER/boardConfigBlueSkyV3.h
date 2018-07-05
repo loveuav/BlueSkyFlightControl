@@ -16,8 +16,8 @@
 /**********************************************************************************************************
 *传感器安装方向
 **********************************************************************************************************/
-#define GYRO_ROTATION       ROTATION_YAW_270
-#define ACC_ROTATION        ROTATION_YAW_270
+#define GYRO_ROTATION       ROTATION_NONE//ROTATION_YAW_270
+#define ACC_ROTATION        ROTATION_NONE//ROTATION_YAW_270
 #define MAG_ROTATION        ROTATION_ROLL_180_YAW_90
 
 /**********************************************************************************************************

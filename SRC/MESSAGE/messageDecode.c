@@ -84,7 +84,10 @@ static void BsklinkDecodeSensorCaliCmd(BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload
     }
     else if(payload.type == MAG)		//磁力计
     {
-        
+        if(payload.caliFlag == true)
+        {
+            MagCalibrateEnable();
+        }
     }
     else if(payload.type == ANGLE)		//水平
     {

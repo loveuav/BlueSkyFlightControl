@@ -279,7 +279,7 @@ void ImuLevelCalibration(void)
 		}
 		
 		//发送校准结果
-		MessageSensorCaliFeedbackEnable(ACC, acc.levelCali.step, acc.levelCali.success);
+		MessageSensorCaliFeedbackEnable(ANGLE, acc.levelCali.step, acc.levelCali.success);
 		
 		acc.levelCali.step = 0;
 	}    
