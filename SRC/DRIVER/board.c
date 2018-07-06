@@ -49,25 +49,11 @@ void BoardInit(void)
 	#endif
     
     //串口初始化
-    #if (configUSE_USART1 == 1)
-		Usart_Open(1);
-	#endif    
-    #if (configUSE_USART2 == 1)
-		Usart_Open(2);
-	#endif  
-    #if (configUSE_USART3 == 1)
-		Usart_Open(3);
-	#endif  
-    #if (configUSE_UART4 == 1)
-		Usart_Open(4);
-	#endif  
-    #if (configUSE_UART5 == 1)
-		Usart_Open(5);
-	#endif  
-    #if (configUSE_USART6 == 1)
-		Usart_Open(6);
-	#endif 
-
+	Usart_Open(GPS_UART, GPS_BAUDRATE);
+	Usart_Open(DATA_UART, DATA_BAUDRATE);
+	Usart_Open(TOF_UART, TOF_BAUDRATE);
+	Usart_Open(SBUS_UART, SBUS_BAUDRATE);
+    
     //软件I2C初始化
     #if (configUSE_SOFT_I2C1 == 1)
 		Soft_I2c_Open(1);
@@ -85,7 +71,6 @@ void BoardInit(void)
 	else if(RC_PROTOCOL == PPM)
         PPM_Init();
 
-    
 	//USB HID初始化
 	UsbHid_Init();
 	
@@ -102,80 +87,36 @@ void BoardInit(void)
 static void SysPeriphClockInit(void)
 {
 	//GPIO
-	#if(configUSE_GPIOA == 1)
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-	#endif
-	#if(configUSE_GPIOB == 1)
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
-	#endif
-	#if(configUSE_GPIOC == 1)
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	#endif
-	#if(configUSE_GPIOD == 1)
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-	#endif
-	#if(configUSE_GPIOE == 1)
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-	#endif
-	#if(configUSE_GPIOF == 1)
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
-	#endif
-	#if(configUSE_GPIOG == 1)
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-	#endif
-    
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
+  
 	//串口
-	#if(configUSE_USART1 == 1)	
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-	#endif
-	#if(configUSE_USART2 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-	#endif
-	#if(configUSE_USART3 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
-	#endif
-	#if(configUSE_UART4 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
-	#endif
-	#if(configUSE_UART5 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
-	#endif
-	#if(configUSE_USART6 == 1)	
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
-	#endif
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
     
 	//SPI
-	#if(configUSE_SPI1 == 1)	
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
-	#endif
-	#if(configUSE_SPI2 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-	#endif	
-    
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
+
 	//定时器
-	#if(configUSE_TIM1 == 1)	
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
-	#endif	
-	#if(configUSE_TIM2 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-	#endif		
-	#if(configUSE_TIM3 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	#endif	
-	#if(configUSE_TIM4 == 1)	
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-	#endif	
-    
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+
     //ADC
-    #if(configUSE_ADC1 == 1)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);
-    #endif
-    #if(configUSE_ADC2 == 1)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2,ENABLE);
-    #endif
-    #if(configUSE_ADC3 == 1)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3,ENABLE);
-    #endif
 }
 
 

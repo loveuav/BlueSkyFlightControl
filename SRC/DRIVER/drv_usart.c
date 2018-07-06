@@ -28,7 +28,7 @@ static void DMA_USART6_Tx_Init(void);
 *形    参: 串口号
 *返 回 值: 无
 **********************************************************************************************************/
-void Usart_Open(uint8_t deviceNum)
+void Usart_Open(uint8_t deviceNum, uint32_t baudrate)
 {
 	USART_InitTypeDef USART_InitStructure;
 	USART_ClockInitTypeDef USART_ClockInitStruct;
@@ -82,7 +82,7 @@ void Usart_Open(uint8_t deviceNum)
         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
         GPIO_Init(USART1_GPIO, &GPIO_InitStructure); 
         
-        USART_InitStructure.USART_BaudRate = USART1_BAUDRATE; 
+        USART_InitStructure.USART_BaudRate = baudrate; 
         USART_Init(USART1, &USART_InitStructure);
         USART_ClockInit(USART1, &USART_ClockInitStruct);
         USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
@@ -108,7 +108,7 @@ void Usart_Open(uint8_t deviceNum)
         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
         GPIO_Init(USART2_GPIO, &GPIO_InitStructure); 
         
-        USART_InitStructure.USART_BaudRate = USART2_BAUDRATE; 
+        USART_InitStructure.USART_BaudRate = baudrate; 
         USART_Init(USART2, &USART_InitStructure);
         USART_ClockInit(USART2, &USART_ClockInitStruct);
         USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
@@ -134,7 +134,7 @@ void Usart_Open(uint8_t deviceNum)
         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
         GPIO_Init(USART3_GPIO, &GPIO_InitStructure); 
         
-        USART_InitStructure.USART_BaudRate = USART3_BAUDRATE; 
+        USART_InitStructure.USART_BaudRate = baudrate; 
         USART_Init(USART3, &USART_InitStructure);
         USART_ClockInit(USART3, &USART_ClockInitStruct);
         USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
@@ -143,7 +143,7 @@ void Usart_Open(uint8_t deviceNum)
 	else if(deviceNum == 4)
 	{  
         NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn; 
-        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = USART1_IRQ_PRIORITY;   
+        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = UART4_IRQ_PRIORITY;   
         NVIC_Init(&NVIC_InitStructure);	   
 
         DMA_UART4_Tx_Init();
@@ -160,7 +160,7 @@ void Usart_Open(uint8_t deviceNum)
         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
         GPIO_Init(UART4_GPIO, &GPIO_InitStructure); 
         
-        USART_InitStructure.USART_BaudRate = UART4_BAUDRATE; 
+        USART_InitStructure.USART_BaudRate = baudrate; 
         USART_Init(UART4, &USART_InitStructure);
         USART_ClockInit(UART4, &USART_ClockInitStruct);
         USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);
@@ -186,7 +186,7 @@ void Usart_Open(uint8_t deviceNum)
         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
         GPIO_Init(UART5_GPIO, &GPIO_InitStructure); 
         
-        USART_InitStructure.USART_BaudRate = UART5_BAUDRATE; 
+        USART_InitStructure.USART_BaudRate = baudrate; 
         USART_Init(UART5, &USART_InitStructure);
         USART_ClockInit(UART5, &USART_ClockInitStruct);
         USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);
@@ -212,7 +212,7 @@ void Usart_Open(uint8_t deviceNum)
         GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
         GPIO_Init(USART6_GPIO, &GPIO_InitStructure); 
         
-        USART_InitStructure.USART_BaudRate = USART6_BAUDRATE; 
+        USART_InitStructure.USART_BaudRate = baudrate; 
         USART_Init(USART6, &USART_InitStructure);
         USART_ClockInit(USART6, &USART_ClockInitStruct);
         USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
@@ -226,8 +226,12 @@ void Usart_Open(uint8_t deviceNum)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-#if (configUSE_USART1 == 1)
 static UsartCallback usart1CallbackFunc;
+static UsartCallback usart2CallbackFunc;
+static UsartCallback usart3CallbackFunc;
+static UsartCallback uart4CallbackFunc;
+static UsartCallback uart5CallbackFunc;
+static UsartCallback usart6CallbackFunc;
 
 void USART1_IRQHandler(void)
 {
@@ -255,10 +259,6 @@ void USART1_IRQHandler(void)
 		}
 	}
 }
-#endif
-
-#if (configUSE_USART2 == 1)
-static UsartCallback usart2CallbackFunc;
 
 void USART2_IRQHandler(void)
 {
@@ -286,10 +286,6 @@ void USART2_IRQHandler(void)
 		}
 	}
 }
-#endif
-
-#if (configUSE_USART3 == 1)
-static UsartCallback usart3CallbackFunc;
 
 void USART3_IRQHandler(void)
 {
@@ -317,10 +313,6 @@ void USART3_IRQHandler(void)
 		}
 	}
 }
-#endif
-
-#if (configUSE_UART4 == 1)
-static UsartCallback uart4CallbackFunc;
 
 void UART4_IRQHandler(void)
 {
@@ -348,10 +340,6 @@ void UART4_IRQHandler(void)
 		}
 	}
 }
-#endif
-
-#if (configUSE_UART5 == 1)
-static UsartCallback uart5CallbackFunc;
 
 void UART5_IRQHandler(void)
 {
@@ -379,11 +367,6 @@ void UART5_IRQHandler(void)
 		}
 	}
 }
-#endif
-
-
-#if (configUSE_USART6 == 1)
-static UsartCallback usart6CallbackFunc;
 
 void USART6_IRQHandler(void)
 {
@@ -411,7 +394,6 @@ void USART6_IRQHandler(void)
 		}
 	}
 }
-#endif
 
 /**********************************************************************************************************
 *函 数 名: Usart_SetIRQCallback
@@ -423,39 +405,27 @@ void Usart_SetIRQCallback(uint8_t deviceNum, UsartCallback usartCallback)
 {
     if(deviceNum == 1)
     {
-        #if (configUSE_USART1 == 1)
         usart1CallbackFunc = usartCallback;
-        #endif
     }
 	else if(deviceNum == 2)
     {
-        #if (configUSE_USART2 == 1)
         usart2CallbackFunc = usartCallback;
-        #endif
     }
 	else if(deviceNum == 3)
     {
-        #if (configUSE_USART3 == 1)
         usart3CallbackFunc = usartCallback;
-        #endif
     }
 	else if(deviceNum == 4)
     {
-        #if (configUSE_UART4 == 1)
         uart4CallbackFunc = usartCallback;
-        #endif
     }
 	else if(deviceNum == 5)
     {
-        #if (configUSE_UART5 == 1)
         uart5CallbackFunc = usartCallback;
-        #endif
     }
 	else if(deviceNum == 6)
     {
-        #if (configUSE_USART6 == 1)
         usart6CallbackFunc = usartCallback;
-        #endif
     }
 }
 

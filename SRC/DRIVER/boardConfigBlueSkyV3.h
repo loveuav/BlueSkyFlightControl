@@ -43,10 +43,15 @@
 #define BARO_CS_PIN          GPIO_Pin_3
 
 #define MAG_I2C              1
+
 #define GPS_UART             3
+#define GPS_BAUDRATE         230400
 #define DATA_UART            1
+#define DATA_BAUDRATE        115200
 #define TOF_UART             2
+#define TOF_BAUDRATE         115200
 #define SBUS_UART            6
+#define SBUS_BAUDRATE        100000
 
 #define ESC_PROTOCOL         PWM
 //#define ESC_PROTOCOL         DSHOT600
@@ -122,21 +127,6 @@
 /**********************************************************************************************************
 *外设使能配置
 **********************************************************************************************************/
-#define configUSE_GPIOA      1
-#define configUSE_GPIOB      1
-#define configUSE_GPIOC      1
-#define configUSE_GPIOD      1
-#define configUSE_GPIOE      0
-#define configUSE_GPIOF      0
-#define configUSE_GPIOG      0
-
-#define configUSE_USART1     1
-#define configUSE_USART2     1
-#define configUSE_USART3     1
-#define configUSE_UART4      0
-#define configUSE_UART5      0
-#define configUSE_USART6     1
-
 #define configUSE_ADC1       1
 #define configUSE_ADC2       1
 #define configUSE_ADC3       0
@@ -176,7 +166,6 @@
 #define USART1_PINSOURCE_RX     GPIO_PinSource10
 #define USART1_PIN_TX           GPIO_Pin_9
 #define USART1_PIN_RX           GPIO_Pin_10
-#define USART1_BAUDRATE         115200
 #define USART1_IRQ_PRIORITY     3
 
 #define USART2_GPIO             GPIOA
@@ -184,7 +173,6 @@
 #define USART2_PINSOURCE_RX     GPIO_PinSource3
 #define USART2_PIN_TX           GPIO_Pin_2
 #define USART2_PIN_RX           GPIO_Pin_3
-#define USART2_BAUDRATE         115200
 #define USART2_IRQ_PRIORITY     3
 
 #define USART3_GPIO             GPIOB
@@ -192,7 +180,6 @@
 #define USART3_PINSOURCE_RX     GPIO_PinSource11
 #define USART3_PIN_TX           GPIO_Pin_10
 #define USART3_PIN_RX           GPIO_Pin_11
-#define USART3_BAUDRATE         230400
 #define USART3_IRQ_PRIORITY     3
 
 #define UART4_GPIO              GPIOA
@@ -200,7 +187,6 @@
 #define UART4_PINSOURCE_RX      GPIO_PinSource1
 #define UART4_PIN_TX            GPIO_Pin_0
 #define UART4_PIN_RX            GPIO_Pin_1
-#define UART4_BAUDRATE          230400
 #define UART4_IRQ_PRIORITY      3
 
 #define UART5_GPIO              GPIOA
@@ -208,7 +194,6 @@
 #define UART5_PINSOURCE_RX      GPIO_PinSource1
 #define UART5_PIN_TX            GPIO_Pin_6
 #define UART5_PIN_RX            GPIO_Pin_7
-#define UART5_BAUDRATE          115200
 #define UART5_IRQ_PRIORITY      3
 
 #define USART6_GPIO             GPIOC
@@ -216,7 +201,6 @@
 #define USART6_PINSOURCE_RX     GPIO_PinSource7
 #define USART6_PIN_TX           GPIO_Pin_6
 #define USART6_PIN_RX           GPIO_Pin_7
-#define USART6_BAUDRATE         100000
 #define USART6_IRQ_PRIORITY     3
 /**********************************************************************************************************
 *SPI引脚及参数配置
