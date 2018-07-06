@@ -29,37 +29,37 @@
 
 #define configUSE_SENSORHEAT 1              //是否使用传感器恒温
 
-#define GYRO_SPI             1
+#define GYRO_SPI             1              //陀螺仪SPI配置
 #define GYRO_CS_GPIO         GPIOC
 #define GYRO_CS_PIN          GPIO_Pin_2
 
-#define TEMP_TIM_FREQ        500000
+#define BARO_SPI             1              //气压计SPI配置
+#define BARO_CS_GPIO         GPIOD
+#define BARO_CS_PIN          GPIO_Pin_7
+
+#define MAG_I2C              1              //磁力计I2C配置
+
+#define GPS_UART             4              //GPS串口配置
+#define GPS_BAUDRATE         230400
+#define DATA_UART            1              //数据链串口配置
+#define DATA_BAUDRATE        115200
+#define TOF_UART             0              //TOF模块串口配置
+#define TOF_BAUDRATE         115200
+#define SBUS_UART            0              //SBUS接收机串口配置
+#define SBUS_BAUDRATE        100000
+
+#define ESC_PROTOCOL         PWM            //电调输出信号协议选择
+//#define ESC_PROTOCOL         DSHOT600
+
+#define RC_PROTOCOL		     SBUS           //遥控接收方式选择
+//#define RC_PROTOCOL		     PPM
+
+#define TEMP_TIM_FREQ        500000         //传感器恒温PWM输出定时器配置
 #define TEMP_TIM_PERIOD      5000
 #define TEMP_TIM             1
 #define TEMP_CH              1
 
-#define BARO_SPI             1
-#define BARO_CS_GPIO         GPIOD
-#define BARO_CS_PIN          GPIO_Pin_7
-
-#define MAG_I2C              1
-
-#define GPS_UART             4
-#define GPS_BAUDRATE         230400
-#define DATA_UART            1
-#define DATA_BAUDRATE        115200
-#define TOF_UART             0
-#define TOF_BAUDRATE         115200
-#define SBUS_UART            0
-#define SBUS_BAUDRATE        100000
-
-#define ESC_PROTOCOL         PWM
-//#define ESC_PROTOCOL         DSHOT600
-
-#define RC_PROTOCOL		     SBUS
-//#define RC_PROTOCOL		     PPM
-
-#define PWM_TIM_FREQ         21000000
+#define PWM_TIM_FREQ         21000000       //电机输出PWM输出定时器配置
 #define PWM_TIM_PERIOD       52499
 #define PWM1_TIM             3
 #define PWM1_CH              1
@@ -70,7 +70,7 @@
 #define PWM4_TIM             3
 #define PWM4_CH              4
 
-#define PPM_TIM_FREQ         21000000
+#define PPM_TIM_FREQ         21000000        //PPM输入捕获定时器配置
 #define PPM_TIM_PERIOD       52499
 #define PPM_TIM              4
 #define PPM_CH               1
@@ -78,13 +78,13 @@
 #define PPM_PIN              GPIO_Pin_8
 #define PPM_PINSOURCE        GPIO_PinSource8
 
-#define ADC_VOLTAGE          ADC1
+#define ADC_VOLTAGE          ADC1           //电池电压采集ADC配置
 #define ADC_VOLTAGE_CHAN     ADC_Channel_2
 #define ADC_VOLTAGE_GPIO     GPIOA
 #define ADC_VOLTAGE_PIN      GPIO_Pin_2
 #define ADC_VOLTAGE_COEF     10.0f
 
-#define ADC_CURRENT          ADC1
+#define ADC_CURRENT          ADC1           //电池电流采集ADC配置
 #define ADC_CURRENT_CHAN     ADC_Channel_1
 #define ADC_CURRENT_GPIO     GPIOA
 #define ADC_CURRENT_PIN      GPIO_Pin_2
