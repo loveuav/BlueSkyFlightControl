@@ -51,16 +51,19 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
         //辅助姿态估计
         AttitudeAuxEstimate(*gyro, *acc);
         
+        //姿态卡尔曼测量噪声协方差参数自适应
+        AttCovarianceSelfAdaptation();
+        
 		//姿态估计
 		AttitudeEstimate(*gyro, *acc, MagGetData());
         
 		//等待系统初始化完成
 		if(GetInitStatus() == INIT_FINISH)
 		{
-			//高度卡尔曼噪声协方差参数自适应
+			//高度卡尔曼测量噪声协方差参数自适应
 			AltCovarianceSelfAdaptation();
 
-			//位置卡尔曼噪声协方差参数自适应
+			//位置卡尔曼测量噪声协方差参数自适应
 			PosCovarianceSelfAdaptation();
 
 			//飞行速度估计

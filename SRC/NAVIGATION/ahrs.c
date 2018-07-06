@@ -225,11 +225,6 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     float dcMat[9];
  	static Vector3f_t vectorError;	
 	static float vectorErrorIntRate = 0.0005f;
-
-    //测量噪声协方差矩阵自适应
-	kalmanRollPitch.r[0] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
-	kalmanRollPitch.r[4] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));	
-	kalmanRollPitch.r[8] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
     
 	//用向量叉积误差积分来补偿陀螺仪零偏噪声
 	deltaAngle.x += ahrs.vectorRollPitchErrorInt.x * ahrs.vectorRollPitchKI;
@@ -266,6 +261,28 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	ahrs.vectorRollPitchError.x = ahrs.vectorRollPitchError.x * 0.999f + (acc.x - ahrs.vectorRollPitch.x) * 0.001f;
 	ahrs.vectorRollPitchError.y = ahrs.vectorRollPitchError.y * 0.999f + (acc.y - ahrs.vectorRollPitch.y) * 0.001f;
 	ahrs.vectorRollPitchError.z = ahrs.vectorRollPitchError.z * 0.999f + (acc.z - ahrs.vectorRollPitch.z) * 0.001f;	    
+}
+
+/**********************************************************************************************************
+*函 数 名: AttCovarianceSelfAdaptation
+*功能说明: 姿态观测误差协方差自适应
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void AttCovarianceSelfAdaptation(void)
+{  
+	if(GetPosControlStatus() == POS_BRAKE)	
+	{
+        kalmanRollPitch.r[0] = Sq(1000);
+        kalmanRollPitch.r[4] = Sq(1000);	
+        kalmanRollPitch.r[8] = Sq(1000);
+	}
+	else
+	{
+        kalmanRollPitch.r[0] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
+        kalmanRollPitch.r[4] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));	
+        kalmanRollPitch.r[8] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
+	}
 }
 
 /**********************************************************************************************************
