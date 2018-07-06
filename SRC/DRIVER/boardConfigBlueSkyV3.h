@@ -43,7 +43,7 @@
 #define GPS_BAUDRATE         230400
 #define DATA_UART            1              //数据链串口配置
 #define DATA_BAUDRATE        115200
-#define TOF_UART             2              //TOF模块串口配置
+#define TOF_UART             0              //TOF模块串口配置
 #define TOF_BAUDRATE         115200
 #define SBUS_UART            6              //SBUS接收机串口配置
 #define SBUS_BAUDRATE        100000

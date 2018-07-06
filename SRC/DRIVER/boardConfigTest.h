@@ -43,9 +43,9 @@
 #define GPS_BAUDRATE         115200
 #define DATA_UART            2              //数据链串口配置
 #define DATA_BAUDRATE        115200
-#define TOF_UART             5              //TOF模块串口配置
+#define TOF_UART             0              //TOF模块串口配置
 #define TOF_BAUDRATE         115200
-#define SBUS_UART            6              //SBUS接收机串口配置
+#define SBUS_UART            0              //SBUS接收机串口配置
 #define SBUS_BAUDRATE        100000
 
 #define ESC_PROTOCOL         PWM            //电调输出信号协议选择
