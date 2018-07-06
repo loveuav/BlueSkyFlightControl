@@ -44,8 +44,22 @@ void BaroDataPreTreat(void)
 	float deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
 	lastTime = GetSysTimeUs();
 	
+	//读取气压高度
     BaroSensorRead(&baroAltTemp);
+	//读取气压温度
     BaroTemperatureRead(&baro.temperature);
+	
+	//计算气压高度的初始零偏值
+	if(GetSysTimeMs() > 1500)
+    {    
+        if(offset_cnt)
+        {
+            offset_cnt--;
+            baro.alt_offset += baroAltTemp;
+            baro.alt_offset *= 0.5f;
+        }
+    }
+	baroAltTemp -= baro.alt_offset;
 	
     //飞行中的气压高度补偿
     BaroCompensate(&baroAltTemp);
@@ -53,19 +67,6 @@ void BaroDataPreTreat(void)
     //气压高度低通滤波
     baro.alt = baro.alt * 0.75f + baroAltTemp * 0.25f;
     
-    if(GetSysTimeMs() > 1500)
-    {
-        //计算气压高度的初始零偏值
-        if(offset_cnt)
-        {
-            offset_cnt--;
-            baro.alt_offset += baro.alt;
-            baro.alt_offset *= 0.5f;
-        }
-    }
-    
-	//读取气压高度
-	baro.alt -= baro.alt_offset;
 	//计算气压变化速度，并进行低通滤波
 	baro.velocity = baro.velocity * 0.75f + ((baro.alt - baro.lastAlt) / deltaT) * 0.25f;
 	baro.lastAlt = baro.alt;
