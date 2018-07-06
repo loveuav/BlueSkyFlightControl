@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
                                 
- * @版本：	 V0.3.0
+ * @版本：	 V0.3.2
  * @作者：   BlueSky
  * @QQ:      352707983
  * @论坛:    爱无人机 bbs.loveuav.com
@@ -53,6 +53,21 @@ void TaskStackUseUpdate(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: CpuUseUpdate
+*功能说明: 获取CPU使用率
+*形    参: 无
+*返 回 值: 使用率
+**********************************************************************************************************/
+float CpuUsageUpdate(void)
+{
+	static float cpuUsage;
+    
+	cpuUsage = Get_OSCPUusage();
+    
+    return cpuUsage;
+}
+
+/**********************************************************************************************************
 *函 数 名: vStartTask
 *功能说明: 系统启动任务，调用各类初始化函数，并创建消息队列和要运行的用户任务
 *形    参: 无
@@ -95,6 +110,7 @@ portTASK_FUNCTION(vStartTask, pvParameters)
 	for(;;)
 	{
 		TaskStackUseUpdate();
+        CpuUsageUpdate();
 		vTaskDelay(5000);
 	}
 }

@@ -185,8 +185,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         }
         else if(GetPosControlStatus() == POS_BRAKE)
         {
-            brakeFilter += 0.00001f;
-			brakeFilter = ConstrainFloat(brakeFilter, 0.002f, 0.008f);
+            brakeFilter += 0.000015f;
+			brakeFilter = ConstrainFloat(brakeFilter, 0.002f, 0.01f);
             
             //减速刹车
             velCtlTarget.x -= velCtlTarget.x * brakeFilter;
@@ -204,7 +204,7 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         else if(GetPosControlStatus() == POS_BRAKE_FINISH)
         {
             //刹车完成后再缓冲一小段时间便切换为自动悬停
-            if(GetSysTimeMs() - lastTimePosBrake < 1000)
+            if(GetSysTimeMs() - lastTimePosBrake < 1500)
             {
                 velCtlTarget.x -= velCtlTarget.x * 0.02f;
                 velCtlTarget.y -= velCtlTarget.y * 0.02f;
@@ -329,10 +329,10 @@ static void AltControl(RCCOMMAND_t rcCommand)
         //摇杆量转为目标速度，低通滤波改变操控手感
         if(rcCommand.throttle > 0)
         {
-            velCtlTarget = velCtlTarget * 0.95f + (rcCommand.throttle * speedUpRate) * 0.05f;
+            velCtlTarget = velCtlTarget * 0.98f + (rcCommand.throttle * speedUpRate) * 0.02f;
         }
         else
-            velCtlTarget = velCtlTarget * 0.95f + (rcCommand.throttle * speedDownRate) * 0.05f;
+            velCtlTarget = velCtlTarget * 0.98f + (rcCommand.throttle * speedDownRate) * 0.02f;
         
         //直接控制速度，禁用高度控制
         SetAltCtlStatus(DISABLE);

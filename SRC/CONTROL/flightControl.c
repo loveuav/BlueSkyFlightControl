@@ -35,8 +35,8 @@ void FlightControlInit(void)
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
 	
-	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0, 0, 10, 30);	
-	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0, 0, 10, 30);	
+	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.6, 0, 15, 30);	
+	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.6, 0, 15, 30);	
 	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.03, 300, 30);	
 
 	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
@@ -210,9 +210,9 @@ void AttitudeOuterControl(void)
 	flightMode = GetFlightMode();
 
     //对姿态测量值进行低通滤波，减少数据噪声对控制器的影响
-    fc.angleLpf.x = fc.angleLpf.x * 0.92f + angle.x * 0.08f;
-    fc.angleLpf.y = fc.angleLpf.y * 0.92f + angle.y * 0.08f;    
-    fc.angleLpf.z = fc.angleLpf.z * 0.92f + angle.z * 0.08f;
+    fc.angleLpf.x = fc.angleLpf.x * 0.9f + angle.x * 0.1f;
+    fc.angleLpf.y = fc.angleLpf.y * 0.9f + angle.y * 0.1f;    
+    fc.angleLpf.z = fc.angleLpf.z * 0.9f + angle.z * 0.1f;
     
     //保留小数点后两位，减小数据误差对控制器的干扰（貌似没什么用）	
     fc.angleLpf.x = (float)((int32_t)(fc.angleLpf.x * 100)) * 0.01f;
@@ -317,7 +317,7 @@ void AltitudeOuterControl(void)
 	float altOuterCtlValue;
     
 	//获取当前飞机高度，并低通滤波，减少数据噪声对控制的干扰
-	altLpf = altLpf * 0.95f + GetCopterPosition().z * 0.05f;
+	altLpf = altLpf * 0.9f + GetCopterPosition().z * 0.1f;
 	
 	//计算高度外环控制误差：目标高度 - 实际高度
 	fc.posOuterError.z = fc.posOuterTarget.z - altLpf;
@@ -362,8 +362,8 @@ void PositionInnerControl(void)
 	previousT = GetSysTimeUs();	    
 	
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
-    velLpf.x = velLpf.x * 0.95f + GetCopterVelocity().x * 0.05f;
-    velLpf.y = velLpf.y * 0.95f + GetCopterVelocity().y * 0.05f;
+    velLpf.x = velLpf.x * 0.9f + GetCopterVelocity().x * 0.1f;
+    velLpf.y = velLpf.y * 0.9f + GetCopterVelocity().y * 0.1f;
     
     //计算控制误差
 	fc.posInnerError.x = fc.posInnerTarget.x - velLpf.x;

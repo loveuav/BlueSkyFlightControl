@@ -95,20 +95,11 @@ void VelocityEstimate(void)
     input.y = nav.accel.y * GRAVITY_ACCEL * deltaT * 100;
     input.z = nav.accel.z * GRAVITY_ACCEL * deltaT * 100;
     
-    //测试用
-//    if(GetArmedStatus() == ARMED)
-//    {
-        nav.velocity2.x += input.x;
-        nav.velocity2.y += input.y;
-        nav.velocity2.z += input.z;
-//    }
-//    else
-//    {
-//        nav.velocity2.x = 0;
-//        nav.velocity2.y = 0;
-//        nav.velocity2.z = 0;       
-//    }
-    
+    //纯积分速度值，用于测试对比
+	nav.velocity2.x += input.x;
+	nav.velocity2.y += input.y;
+	nav.velocity2.z += input.z;
+  
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
     input.x += nav.velErrorInt.x * 0.0003f;
     input.y += nav.velErrorInt.y * 0.0003f;
@@ -397,7 +388,11 @@ void NavigationReset(void)
         kalmanPos.status.x = 0;
         kalmanPos.status.y = 0;  
     }    
-    kalmanPos.status.z = BaroGetAlt();    
+    kalmanPos.status.z = BaroGetAlt();   
+
+	nav.velocity2.x = 0;
+	nav.velocity2.y = 0;
+	nav.velocity2.z = 0;	
 }
 
 /**********************************************************************************************************
