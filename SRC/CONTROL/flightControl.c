@@ -202,7 +202,7 @@ void AttitudeOuterControl(void)
 	uint8_t    flightMode;
 	Vector3f_t angle;
 	Vector3f_t attOuterCtlValue;
-	float 	   yawRate = 0.4f;
+	float 	   yawRate = 0.35f;
         
 	//获取当前飞机的姿态角
 	angle = GetCopterAngle();

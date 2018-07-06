@@ -154,8 +154,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         rcCommand.pitch = ApplyDeadbandInt(rcCommand.pitch, rcDeadband);
         
         //摇杆量转为目标速度，低通滤波改变操控手感
-        velCtlTarget.x = velCtlTarget.x * 0.998f + (rcCommand.pitch * velRate) * 0.002f;
-        velCtlTarget.y = velCtlTarget.y * 0.998f + (rcCommand.roll * velRate) * 0.002f;
+        velCtlTarget.x = velCtlTarget.x * 0.998f + ((float)rcCommand.pitch * velRate) * 0.002f;
+        velCtlTarget.y = velCtlTarget.y * 0.998f + ((float)rcCommand.roll * velRate) * 0.002f;
         
         //直接控制速度，禁用位置控制
         SetPosCtlStatus(DISABLE);
@@ -337,7 +337,10 @@ static void AltControl(RCCOMMAND_t rcCommand)
         //直接控制速度，禁用高度控制
         SetAltCtlStatus(DISABLE);
         
-        //更新高度控制目标
+        //更新高度内环控制目标
+        SetAltInnerCtlTarget(velCtlTarget); 
+        
+        //更新高度目标
         posCtlTarget.z = GetCopterPosition().z;
         
         //更新高度控制状态
@@ -350,7 +353,7 @@ static void AltControl(RCCOMMAND_t rcCommand)
     {	
         if(GetAltControlStatus() == ALT_CHANGED)
         {
-            velCtlTarget = GetCopterVelocity().z;
+            //velCtlTarget = GetCopterVelocity().z;
             
             //更新高度控制状态
             SetAltControlStatus(ALT_CHANGED_FINISH);    
@@ -360,30 +363,37 @@ static void AltControl(RCCOMMAND_t rcCommand)
             //油门回中后先缓冲一段时间再进入定高
             if(GetSysTimeMs() - lastTimeAltChanged < 1000)
             {
-                velCtlTarget -= velCtlTarget * 0.08f;
+                velCtlTarget -= velCtlTarget * 0.03f;
             }
             else
             {
                 altHoldChanged = 0;
             }	
 
-            //更新高度控制目标
+            //更新高度目标
             posCtlTarget.z = GetCopterPosition().z;       
-        }        
+        }  
+
+        //更新高度内环控制目标
+        SetAltInnerCtlTarget(velCtlTarget);         
     }
     else
     {       
+        //待机状态下不断刷新高度目标
+        if(GetFlightStatus() == STANDBY)
+        {
+            posCtlTarget.z = GetCopterPosition().z;   
+        }
+        
         //使能高度控制
         SetAltCtlStatus(ENABLE);
         
         //更新高度控制状态
-        SetAltControlStatus(ALT_HOLD);     
-    }   
+        SetAltControlStatus(ALT_HOLD);  
 
-    //更新高度内环控制目标
-    SetAltInnerCtlTarget(velCtlTarget); 
-    //更新高度外环控制目标
-    SetAltOuterCtlTarget(posCtlTarget.z);       
+        //更新高度外环控制目标
+        SetAltOuterCtlTarget(posCtlTarget.z);         
+    }             
 }
 
 
