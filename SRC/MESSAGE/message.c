@@ -112,6 +112,17 @@ void MessageSensorCaliFeedbackEnable(uint8_t type, uint8_t step, uint8_t success
 	sensorCali.step = step;
 }
 
+/**********************************************************************************************************
+*函 数 名: MessageSendEnable
+*功能说明: 消息发送使能
+*形    参: 消息ID
+*返 回 值: 无
+**********************************************************************************************************/
+void MessageSendEnable(uint8_t msgid)
+{
+    sendFlag[msgid] = ENABLE;
+}
+
 //static void DataSendDebug(void)
 //{
 //    static DATA_TYPE_t dataTemp;  
