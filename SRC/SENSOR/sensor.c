@@ -26,7 +26,7 @@ PID_t tempPID;
 **********************************************************************************************************/
 void ImuTempControlInit(void)
 {
-    PID_SetParam(&tempPID, 3, 0.2, 1, 1000, 30);	
+    PID_SetParam(&tempPID, 3, 0.2, 1, 100, 30);	
 }
 
 /**********************************************************************************************************
@@ -43,52 +43,60 @@ void ImuTempControl(float tempMeasure)
     float	deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
 	lastTime = GetSysTimeUs();
     static uint16_t cnt = 0;
+    static uint8_t overPreHeatFLag = 0;
     
-    //检测不到陀螺仪时停止加热并退出该函数
-    if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
+    if(configUSE_SENSORHEAT == 0)
     {
-        TempControlSet(0);
-        return;
+        if(GetInitStatus() < HEAT_FINISH)
+            SetInitStatus(HEAT_FINISH);
     }
-    
-    //计算温度误差
-	tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;	  
-
-	if(tempMeasure < SENSOR_TEMP_KEPT - 8)
-	{
-        //全速加热
-		TempControlSet(1000);
-	}
-	else
-	{
-        //计算PID输出
-		tempPIDTerm = PID_GetPID(&tempPID, tempError, deltaT);
-        //PID输出限幅
-		tempPIDTerm = ConstrainInt32(tempPIDTerm, 0, 1000);
-
-		TempControlSet(tempPIDTerm);
-	}   
-
-	if(GetSysTimeMs() < 8000)
-		PID_ResetI(&tempPID); 
-
-    if(GetInitStatus() < HEAT_FINISH)
+    else
     {
-        //温度接近预定温度
-        if(tempError < 200)
+        //检测不到陀螺仪时停止加热并退出该函数
+        if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
         {
-            cnt++;
-            if(cnt > 5000)
-                SetInitStatus(HEAT_FINISH);
-        }          
-        else
-            SetInitStatus(HEATING); 
-        
-        #if(configUSE_SENSORHEAT == 0)
-        SetInitStatus(HEAT_FINISH);
-        #endif
-    }
+            TempControlSet(0);
+            return;
+        }
 
+        //计算温度误差
+        tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;	  
+
+        //超前预热
+        if(tempMeasure < SENSOR_TEMP_KEPT + 2 && !overPreHeatFLag)
+        {
+            //全速加热
+            TempControlSet(1000);     
+            return;
+        }
+        else
+        {
+            overPreHeatFLag = 1;
+        }
+        
+        //计算PID输出
+        tempPIDTerm = PID_GetPID(&tempPID, tempError, deltaT);
+        //PID输出限幅
+        tempPIDTerm = ConstrainInt32(tempPIDTerm, 0, 1000);
+        //转换控制量为PWM输出
+        TempControlSet(tempPIDTerm);
+        
+        if(GetInitStatus() < HEAT_FINISH)
+        {
+            //温度接近预定温度
+            if(tempError < 200 && overPreHeatFLag)
+            {
+                cnt++;
+                if(cnt > 5000)
+                    SetInitStatus(HEAT_FINISH);
+            }          
+            else
+            {
+                PID_ResetI(&tempPID); 
+                SetInitStatus(HEATING); 
+            }
+        }
+    }
 }
 
 
