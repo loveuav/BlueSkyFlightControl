@@ -37,7 +37,7 @@ void ImuTempControlInit(void)
 **********************************************************************************************************/
 void ImuTempControl(float tempMeasure)
 {
-	static uint32_t lastTime = 0;   
+	static uint64_t lastTime = 0;   
 	int32_t tempError = 0;	//误差变量，使用整型并保留原始数据小数点后两位，避免引入噪声    
     static int32_t tempPIDTerm = 0;
     float	deltaT = (GetSysTimeUs() - lastTime) * 1e-6;

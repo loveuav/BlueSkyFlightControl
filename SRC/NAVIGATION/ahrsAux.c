@@ -82,7 +82,7 @@ int8_t AttitudeAuxInitAlignment(Kalman_t* rollPitch, Vector3f_t acc)
 void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc)
 {
     Vector3f_t deltaAngle;	
-	static uint32_t previousT;
+	static uint64_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
     deltaT = ConstrainFloat(deltaT, 0.0005, 0.002);	
 	previousT = GetSysTimeUs();		  

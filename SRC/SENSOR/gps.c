@@ -176,7 +176,7 @@ static void GpsCalcVelocity(double lat, double lon)
 	double rads;
 	double gpsLngDownScale;	
 	
-	static uint32_t previousT;
+	static uint64_t previousT;
 	float  deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();		
 

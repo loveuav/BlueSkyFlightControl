@@ -299,7 +299,7 @@ void WindEstimate(void)
 	static float tiltAngle;
 	static float lastWindSpeed;
 
-	static uint32_t previousT;
+	static uint64_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();	
 

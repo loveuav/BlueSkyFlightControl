@@ -169,7 +169,7 @@ void SetAltInnerCtlTarget(float target)
 void FlightControlInnerLoop(Vector3f_t gyro)
 {
     //计算函数运行时间间隔
-	static uint32_t previousT;
+	static uint64_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();	    
     
@@ -357,7 +357,7 @@ void PositionInnerControl(void)
     Vector3f_t posInnerCtlOutput;
 
     //计算函数运行时间间隔
-	static uint32_t previousT;
+	static uint64_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();	    
 	

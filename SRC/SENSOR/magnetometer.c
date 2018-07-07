@@ -106,7 +106,7 @@ void MagCalibration(void)
     float earthMag;
     
     //计算时间间隔，用于积分
-	static uint32_t previousT;
+	static uint64_t previousT;
 	float	deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();	
 	

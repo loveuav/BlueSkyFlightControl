@@ -37,7 +37,7 @@ static void BaroDetectCheck(int32_t baroAlt);
 **********************************************************************************************************/
 void BaroDataPreTreat(void)
 {
-	static uint32_t lastTime = 0;
+	static uint64_t lastTime = 0;
 	static uint16_t offset_cnt = 300;
     int32_t baroAltTemp;
     

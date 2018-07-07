@@ -93,7 +93,7 @@ void BoardInit(void);
 void SoftDelayMs(uint32_t ms);
 void SoftDelayUs(uint32_t us);
 
-uint32_t GetSysTimeUs(void);
+uint64_t GetSysTimeUs(void);
 uint32_t GetSysTimeMs(void);
 
 #endif

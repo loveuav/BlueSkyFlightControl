@@ -163,10 +163,10 @@ void SoftDelayUs(uint32_t us)
 *形    参: 无
 *返 回 值: 系统时间
 **********************************************************************************************************/
-uint32_t GetSysTimeUs(void) 
+uint64_t GetSysTimeUs(void) 
 {
-  register uint32_t ms;
-	uint32_t value;
+    uint64_t ms;
+	uint64_t value;
 	ms = xTaskGetTickCount();
 	value = ms * 1000 + (SysTick->LOAD - SysTick->VAL) * 1000 / SysTick->LOAD;
 	return value;

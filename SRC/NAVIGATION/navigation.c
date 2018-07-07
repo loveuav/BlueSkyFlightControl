@@ -48,7 +48,7 @@ void NavigationInit(void)
 **********************************************************************************************************/
 void VelocityEstimate(void)
 {
-	static uint32_t previousT;	
+	static uint64_t previousT;	
 	float deltaT;
 	Vector3f_t gpsVel;	
     Vector3f_t input;
@@ -128,7 +128,7 @@ void VelocityEstimate(void)
 **********************************************************************************************************/
 void PositionEstimate(void)
 {
-	static uint32_t previousT;	
+	static uint64_t previousT;	
 	float deltaT;
 	Vector3f_t velocityEf;
     Vector3f_t input;
