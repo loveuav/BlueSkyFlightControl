@@ -96,13 +96,22 @@ void VelocityEstimate(void)
     input.z = nav.accel.z * GRAVITY_ACCEL * deltaT * 100;
     
     //纯积分速度值，用于测试对比
-	nav.velocity2.x += input.x;
-	nav.velocity2.y += input.y;
-	nav.velocity2.z += input.z;
+    if(GetPosControlStatus() == POS_HOLD)
+    {
+        nav.velocity2.x = nav.velocity.x;
+        nav.velocity2.y = nav.velocity.y;
+        nav.velocity2.z = nav.velocity.z;
+    }
+    else
+    {
+        nav.velocity2.x += input.x;
+        nav.velocity2.y += input.y;
+        nav.velocity2.z += input.z;        
+    }
   
     //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
-    input.x += nav.velErrorInt.x * 0.0003f;
-    input.y += nav.velErrorInt.y * 0.0003f;
+    input.x += nav.velErrorInt.x * 0.0005f;
+    input.y += nav.velErrorInt.y * 0.0005f;
     input.z += nav.velErrorInt.z * 0.0003f;
 
     //卡尔曼滤波器更新

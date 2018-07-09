@@ -17,7 +17,7 @@
 
 //加速度低通滤波截止频率
 //二次低通滤波的加速度数据主要用于计算模值
-#define ACC_LPF_CUT 8
+#define ACC_LPF_CUT 30
 
 //传感器恒温目标值，单位为摄氏度
 #define SENSOR_TEMP_KEPT 50

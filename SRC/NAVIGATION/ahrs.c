@@ -188,7 +188,7 @@ static void KalmanRollPitchInit(void)
 static void KalmanYawInit(void)
 {
     float qMatInit[9] = {0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.001};
-    float rMatInit[9] = {3000, 0,  0, 0, 3000, 0, 0, 0, 3000};
+    float rMatInit[9] = {2000, 0,  0, 0, 2000, 0, 0, 0, 2000};
     float pMatInit[9] = {0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -271,18 +271,11 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 **********************************************************************************************************/
 void AttCovarianceSelfAdaptation(void)
 {  
-	if(GetPosControlStatus() == POS_BRAKE)	
-	{
-        kalmanRollPitch.r[0] = Sq(1000);
-        kalmanRollPitch.r[4] = Sq(1000);	
-        kalmanRollPitch.r[8] = Sq(1000);
-	}
-	else
-	{
-        kalmanRollPitch.r[0] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
-        kalmanRollPitch.r[4] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));	
-        kalmanRollPitch.r[8] = Sq(45 * (1 + ConstrainFloat(abs(1 - GetAccMag()) * 3, 0, 2)));
-	}
+    float accelMag = Pythagorous2(GetCopterAccEfLpf().x, GetCopterAccEfLpf().y);
+    
+    kalmanRollPitch.r[0] = Sq(40 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
+    kalmanRollPitch.r[4] = Sq(40 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));	
+    kalmanRollPitch.r[8] = Sq(40 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
 }
 
 /**********************************************************************************************************
@@ -436,10 +429,10 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         //转换坐标系（西北天）到东北天
         accEf->y = -accEf->y;	
 		
-		//地理系加速度低通滤波（主要用于调试观察）
-		accEfLpf->x = accEfLpf->x * 0.999f + accEf->x * 0.001f;
-		accEfLpf->y = accEfLpf->y * 0.999f + accEf->y * 0.001f;
-		accEfLpf->z = accEfLpf->z * 0.999f + accEf->z * 0.001f;
+		//地理系加速度低通滤波
+		accEfLpf->x = accEfLpf->x * 0.99f + accEf->x * 0.01f;
+		accEfLpf->y = accEfLpf->y * 0.99f + accEf->y * 0.01f;
+		accEfLpf->z = accEfLpf->z * 0.99f + accEf->z * 0.01f; 
     }
     
 	//系统初始化时，计算加速度零偏
