@@ -29,6 +29,7 @@ static void SemiAutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget);
 static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget);
 static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget);
 static void AltControl(RCCOMMAND_t rcCommand);
+static void UpdateMaxBrakeAngle(Vector3f_t velocity);
 
 /**********************************************************************************************************
 *函 数 名: UserControl
@@ -150,8 +151,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     **********************************************************************************************************/    
     if(abs(rcCommand.roll) > rcDeadband || abs(rcCommand.pitch) > rcDeadband)
     {
-        rcCommand.roll  = ApplyDeadbandInt(rcCommand.roll, rcDeadband);
-        rcCommand.pitch = ApplyDeadbandInt(rcCommand.pitch, rcDeadband);
+        rcCommand.roll  = ApplyDeadbandInt(rcCommand.roll, rcDeadband * 0.8f);
+        rcCommand.pitch = ApplyDeadbandInt(rcCommand.pitch, rcDeadband * 0.8f);
         
         //摇杆量转为目标速度，低通滤波改变操控手感
         velCtlTarget.x = velCtlTarget.x * 0.998f + ((float)rcCommand.pitch * velRate) * 0.002f;
@@ -182,6 +183,8 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
             velCtlTarget.y = GetCopterVelocity().y;
             //更新位置控制状态为刹车
             SetPosControlStatus(POS_BRAKE);
+            //根据当前飞行速度更新最大刹车角度
+            UpdateMaxBrakeAngle(GetCopterVelocity());
         }
         else if(GetPosControlStatus() == POS_BRAKE)
         {
@@ -352,9 +355,7 @@ static void AltControl(RCCOMMAND_t rcCommand)
     else if(altHoldChanged)
     {	
         if(GetAltControlStatus() == ALT_CHANGED)
-        {
-            //velCtlTarget = GetCopterVelocity().z;
-            
+        {            
             //更新高度控制状态
             SetAltControlStatus(ALT_CHANGED_FINISH);    
         }
@@ -396,5 +397,32 @@ static void AltControl(RCCOMMAND_t rcCommand)
     }             
 }
 
+/**********************************************************************************************************
+*函 数 名: UpdateMaxBrakeAngle
+*功能说明: 更新最大刹车角度
+*形    参: 飞行速度
+*返 回 值: 无
+**********************************************************************************************************/
+static void UpdateMaxBrakeAngle(Vector3f_t velocity)
+{
+    int16_t velMag = Pythagorous2(velocity.x, velocity.y);
+    int16_t maxAngle;
+    
+    if(velMag > 500)
+    {
+        maxAngle = 25 + (velMag - 500) / 50;
+        maxAngle = ConstrainInt16(maxAngle, 25, 30);
+    }
+    else if(velMag > 300)
+    {
+        maxAngle = 25;
+    }
+    else
+    {
+        maxAngle = 20;
+    }
+      
+    SetMaxBrakeAngle(maxAngle); 
+}
 
 

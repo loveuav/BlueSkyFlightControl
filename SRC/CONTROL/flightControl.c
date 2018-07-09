@@ -41,7 +41,9 @@ void FlightControlInit(void)
 
 	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);		
+	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);	
+
+    fc.maxBrakeAngle = 25;
 }
 
 /**********************************************************************************************************
@@ -376,8 +378,8 @@ void PositionInnerControl(void)
 	//PID控制输出限幅，单位：°（目标角度）
     if(GetPosControlStatus() == POS_BRAKE)
     {
-        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -25, 25);
-        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -25, 25);    
+        posInnerCtlOutput.x = ConstrainFloat(posInnerCtlOutput.x, -fc.maxBrakeAngle, fc.maxBrakeAngle);
+        posInnerCtlOutput.y = ConstrainFloat(posInnerCtlOutput.y, -fc.maxBrakeAngle, fc.maxBrakeAngle);    
     }
     else
     {
@@ -574,4 +576,14 @@ void FcSetPID(uint8_t id, PID_t pid)
    fc.pid[id].kD = pid.kD;
 }
 
+/**********************************************************************************************************
+*函 数 名: SetMaxBrakeAngle
+*功能说明: 设置最大刹车角度
+*形    参: 角度
+*返 回 值: 无
+**********************************************************************************************************/
+void SetMaxBrakeAngle(int16_t angle)
+{
+    fc.maxBrakeAngle = angle;
+}
 
