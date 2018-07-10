@@ -273,9 +273,9 @@ void AttCovarianceSelfAdaptation(void)
 {  
     float accelMag = Pythagorous2(GetCopterAccEfLpf().x, GetCopterAccEfLpf().y);
     
-    kalmanRollPitch.r[0] = Sq(40 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
-    kalmanRollPitch.r[4] = Sq(40 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));	
-    kalmanRollPitch.r[8] = Sq(40 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
+    kalmanRollPitch.r[0] = Sq(45 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
+    kalmanRollPitch.r[4] = Sq(45 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));	
+    kalmanRollPitch.r[8] = Sq(45 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
 }
 
 /**********************************************************************************************************

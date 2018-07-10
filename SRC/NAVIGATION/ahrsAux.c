@@ -109,7 +109,7 @@ void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc)
 static void KalmanAuxInit(void)
 {
     float qMatInit[9] = {0.0001, 0, 0, 0, 0.0001, 0, 0, 0, 0.0001};
-    float rMatInit[9] = {1500, 0,  0, 0, 1500, 0, 0, 0, 1500};
+    float rMatInit[9] = {3500, 0,  0, 0, 3500, 0, 0, 0, 3500};
     float pMatInit[9] = {0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -143,7 +143,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     float dcMat[9];
     static bool fuseFlag = true;
     
-    if(abs(GetAccMag() - 1) > 0.1f)
+    if(abs(GetAccMag() - 1) > 0.15f)
     {
         fuseFlag = false;
     }

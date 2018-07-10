@@ -313,8 +313,8 @@ static void KalmanVelInit(void)
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
     kalmanVel.slidWindowSize = 250;
     kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.status));
-    kalmanVel.fuseDelay.x = 250;    //0.25s延时
-    kalmanVel.fuseDelay.y = 250;    //0.25s延时
+    kalmanVel.fuseDelay.x = 220;    //0.22s延时
+    kalmanVel.fuseDelay.y = 220;    //0.22s延时
     kalmanVel.fuseDelay.z = 200;    //0.2s延时
 }
 
