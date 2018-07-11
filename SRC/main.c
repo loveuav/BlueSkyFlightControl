@@ -3,12 +3,12 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
                                 
- * @版本：	 V0.3.2
+ * @版本：	 V0.3.3
  * @作者：   BlueSky
  * @QQ:      352707983
  * @论坛:    爱无人机 bbs.loveuav.com
  * @Q群:     472648354
- * @编译：   Keil ARM MDK 5.24 @ Win10 64位  
+ * @编译：   Keil ARM MDK 5.25
  
  * 1缩进等于4空格!
  * 文件编码格式为UTF-8
