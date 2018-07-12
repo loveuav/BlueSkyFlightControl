@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "flightControl.h"
 #include "flightStatus.h"
+#include "parameter.h"
 #include "board.h"
 #include "ahrs.h"
 #include "navigation.h"
@@ -19,30 +20,29 @@
 
 FLIGHTCONTROL_t fc;
 
+static void PIDReset(void);
+static bool PIDReadFromFlash(void);
+static void PIDWriteToFlash(void);
+
+/**********************************************************************************************************
+*函 数 名: FlightControlInit
+*功能说明: 控制相关参数初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
 void FlightControlInit(void)
 {
 	//PID参数初始化
-    //对于不同机型，姿态PID参数需要进行调整，高度和位置相关参数无需太大改动
-    //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
+    PIDReset();
     
-    //该参数下姿态控制精度可达0.1°（悬停），测试机架为F330和F450，电调为BLS
-    //电池横放，使重量主要分布在roll轴上，因此roll的参数要稍大一些
-	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.2, 30, 35);
-	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.18, 30, 35);
-	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 30, 35);
-	
-	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
-	
-	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.6, 0, 15, 30);	
-	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.6, 0, 15, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.03, 300, 30);	
-
-	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);	
-
+    //从Flash中读取PID参数
+    if(!PIDReadFromFlash())
+    {
+        //若读出的PID参数为非正常值则重置参数并写入Flash中
+        PIDReset(); 
+        PIDWriteToFlash();
+    }
+    
     fc.maxBrakeAngle = 25;
 }
 
@@ -585,5 +585,116 @@ void FcSetPID(uint8_t id, PID_t pid)
 void SetMaxBrakeAngle(int16_t angle)
 {
     fc.maxBrakeAngle = angle;
+}
+
+/**********************************************************************************************************
+*函 数 名: PIDReset
+*功能说明: PID参数重置
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void PIDReset(void)
+{
+    //对于不同机型，姿态PID参数需要进行调整，高度和位置相关参数无需太大改动
+    //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
+    //该参数下姿态控制精度可达0.1°（悬停），测试机架为F330和F450，电调为BLS
+	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.2, 30, 35);
+	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.18, 30, 35);
+	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 30, 35);	
+	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.6, 0, 15, 30);	
+	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.6, 0, 15, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.03, 300, 30);	
+	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
+	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);	
+}
+
+/**********************************************************************************************************
+*函 数 名: PIDReadFromFlash
+*功能说明: 从Flash中读取PID参数
+*形    参: 无
+*返 回 值: 成功标志位
+**********************************************************************************************************/
+static bool PIDReadFromFlash(void)
+{
+    bool flag = true;
+    
+    //读取姿态PID参数
+	ParamGetData(PARAM_PID_ATT_INNER_X_KP, &fc.pid[ROLL_INNER].kP, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_X_KI, &fc.pid[ROLL_INNER].kI, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_X_KD, &fc.pid[ROLL_INNER].kD, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_Y_KP, &fc.pid[PITCH_INNER].kP, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_Y_KI, &fc.pid[PITCH_INNER].kI, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_Y_KD, &fc.pid[PITCH_INNER].kD, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_Z_KP, &fc.pid[YAW_INNER].kP, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_Z_KI, &fc.pid[YAW_INNER].kI, 4);
+	ParamGetData(PARAM_PID_ATT_INNER_Z_KD, &fc.pid[YAW_INNER].kD, 4);
+	ParamGetData(PARAM_PID_ATT_OUTER_X_KP, &fc.pid[ROLL_OUTER].kP, 4);
+	ParamGetData(PARAM_PID_ATT_OUTER_Y_KP, &fc.pid[PITCH_OUTER].kP, 4);
+	ParamGetData(PARAM_PID_ATT_OUTER_Z_KP, &fc.pid[YAW_OUTER].kP, 4);   
+    //读取位置PID参数
+	ParamGetData(PARAM_PID_POS_INNER_X_KP, &fc.pid[VEL_X].kP, 4);
+	ParamGetData(PARAM_PID_POS_INNER_X_KI, &fc.pid[VEL_X].kI, 4);
+	ParamGetData(PARAM_PID_POS_INNER_X_KD, &fc.pid[VEL_X].kD, 4);
+	ParamGetData(PARAM_PID_POS_INNER_Y_KP, &fc.pid[VEL_Y].kP, 4);
+	ParamGetData(PARAM_PID_POS_INNER_Y_KI, &fc.pid[VEL_Y].kI, 4);
+	ParamGetData(PARAM_PID_POS_INNER_Y_KD, &fc.pid[VEL_Y].kD, 4);
+	ParamGetData(PARAM_PID_POS_INNER_Z_KP, &fc.pid[VEL_Z].kP, 4);
+	ParamGetData(PARAM_PID_POS_INNER_Z_KI, &fc.pid[VEL_Z].kI, 4);
+	ParamGetData(PARAM_PID_POS_INNER_Z_KD, &fc.pid[VEL_Z].kD, 4);
+	ParamGetData(PARAM_PID_POS_OUTER_X_KP, &fc.pid[POS_X].kP, 4);
+	ParamGetData(PARAM_PID_POS_OUTER_Y_KP, &fc.pid[POS_Y].kP, 4);
+	ParamGetData(PARAM_PID_POS_OUTER_Z_KP, &fc.pid[POS_Z].kP, 4); 
+    
+    //判断读出的PID参数是否正常
+    for(uint8_t i=0; i<PIDNUM; i++)
+    {
+        if(isnan(fc.pid[i].kP) || fc.pid[i].kP < 0 || fc.pid[i].kP > 1000)
+        {
+            flag = false;
+        }
+    }
+    
+    return flag;
+}
+
+/**********************************************************************************************************
+*函 数 名: PIDWriteToFlash
+*功能说明: 将PID参数写入Flash
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void PIDWriteToFlash(void)
+{
+    //写入姿态PID参数
+	ParamUpdateData(PARAM_PID_ATT_INNER_X_KP, &fc.pid[ROLL_INNER].kP);
+	ParamUpdateData(PARAM_PID_ATT_INNER_X_KI, &fc.pid[ROLL_INNER].kI);
+	ParamUpdateData(PARAM_PID_ATT_INNER_X_KD, &fc.pid[ROLL_INNER].kD);
+	ParamUpdateData(PARAM_PID_ATT_INNER_Y_KP, &fc.pid[PITCH_INNER].kP);
+	ParamUpdateData(PARAM_PID_ATT_INNER_Y_KI, &fc.pid[PITCH_INNER].kI);
+	ParamUpdateData(PARAM_PID_ATT_INNER_Y_KD, &fc.pid[PITCH_INNER].kD);
+	ParamUpdateData(PARAM_PID_ATT_INNER_Z_KP, &fc.pid[YAW_INNER].kP);
+	ParamUpdateData(PARAM_PID_ATT_INNER_Z_KI, &fc.pid[YAW_INNER].kI);
+	ParamUpdateData(PARAM_PID_ATT_INNER_Z_KD, &fc.pid[YAW_INNER].kD);
+	ParamUpdateData(PARAM_PID_ATT_OUTER_X_KP, &fc.pid[ROLL_OUTER].kP);
+	ParamUpdateData(PARAM_PID_ATT_OUTER_Y_KP, &fc.pid[PITCH_OUTER].kP);
+	ParamUpdateData(PARAM_PID_ATT_OUTER_Z_KP, &fc.pid[YAW_OUTER].kP);
+    
+    //写入位置PID参数
+	ParamUpdateData(PARAM_PID_POS_INNER_X_KP, &fc.pid[VEL_X].kP);
+	ParamUpdateData(PARAM_PID_POS_INNER_X_KI, &fc.pid[VEL_X].kI);
+	ParamUpdateData(PARAM_PID_POS_INNER_X_KD, &fc.pid[VEL_X].kD);
+	ParamUpdateData(PARAM_PID_POS_INNER_Y_KP, &fc.pid[VEL_Y].kP);
+	ParamUpdateData(PARAM_PID_POS_INNER_Y_KI, &fc.pid[VEL_Y].kI);
+	ParamUpdateData(PARAM_PID_POS_INNER_Y_KD, &fc.pid[VEL_Y].kD);
+	ParamUpdateData(PARAM_PID_POS_INNER_Z_KP, &fc.pid[VEL_Z].kP);
+	ParamUpdateData(PARAM_PID_POS_INNER_Z_KI, &fc.pid[VEL_Z].kI);
+	ParamUpdateData(PARAM_PID_POS_INNER_Z_KD, &fc.pid[VEL_Z].kD);
+	ParamUpdateData(PARAM_PID_POS_OUTER_X_KP, &fc.pid[POS_X].kP);
+	ParamUpdateData(PARAM_PID_POS_OUTER_Y_KP, &fc.pid[POS_Y].kP);
+	ParamUpdateData(PARAM_PID_POS_OUTER_Z_KP, &fc.pid[POS_Z].kP); 
 }
 
