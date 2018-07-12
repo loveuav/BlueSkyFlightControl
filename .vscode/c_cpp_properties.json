@@ -17,7 +17,7 @@
                 "${workspaceFolder}/STMLIB/include",
                 "${workspaceFolder}/STMLIB/CORE",
                 "${workspaceFolder}/SRC/CONTROL",
-                "${workspaceFolder}/SRC/DATA",
+                "${workspaceFolder}/SRC/MESSAGE",
                 "${workspaceFolder}/SRC/DRIVER",
                 "${workspaceFolder}/SRC/MATH",
                 "${workspaceFolder}/SRC/MODULE",
