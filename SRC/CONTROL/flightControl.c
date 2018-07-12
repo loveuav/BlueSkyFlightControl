@@ -652,7 +652,7 @@ static bool PIDReadFromFlash(void)
     //判断读出的PID参数是否正常
     for(uint8_t i=0; i<PIDNUM; i++)
     {
-        if(isnan(fc.pid[i].kP) || fc.pid[i].kP < 0 || fc.pid[i].kP > 1000)
+        if(isnan(fc.pid[i].kP) || fc.pid[i].kP <= 0 || fc.pid[i].kP > 1000)
         {
             flag = false;
         }
