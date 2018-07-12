@@ -142,6 +142,10 @@ static void BsklinkDecodeSetAttPid(BSKLINK_PAYLOAD_PID_ATT_t payload)
 {
     PID_t pid;
     
+    //解锁状态下不允许修改PID参数
+    if(GetArmedStatus() == ARMED)
+        return;
+    
     //横滚角速度PID
     pid.kP = payload.roll_kp;
     pid.kI = payload.roll_ki;
@@ -179,6 +183,10 @@ static void BsklinkDecodeSetAttPid(BSKLINK_PAYLOAD_PID_ATT_t payload)
 static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload)
 {
     PID_t pid;
+
+    //解锁状态下不允许修改PID参数
+    if(GetArmedStatus() == ARMED)
+        return;
     
     //X轴速度PID
     pid.kP = payload.velX_kp;
