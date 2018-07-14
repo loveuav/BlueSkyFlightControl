@@ -30,15 +30,18 @@
 
 - 代码逐行注释，功能模块化且尽可能降低各模块之间的耦合程度，方便新手理解及代码移植
 
-# 作者
-BlueSky
+# 下载与编译
+- 使用git克隆项目到本地
 
-QQ:352707983
+- 安装Keil MDK 5.25，编译飞控工程
+
+[详细图文说明](http://bbs.loveuav.com/thread-11422-1-1.html)
+
 
 # 天穹V3-飞控硬件配置
 主控：STM32F405RGT6
 
-陀螺仪：ICM20689 （独立模块带恒温）
+陀螺仪：ICM20689 （带硬件恒温）
 
 气压计：MS5611
 
@@ -52,16 +55,16 @@ GPS：u-blox M8N
 
 飞控正在测试中，敬请期待......
 
-![天穹V3](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/%E5%A4%A9%E7%A9%B9V3-%E6%AD%A3%E9%9D%A2.png)
-
-![天穹V3](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/%E5%A4%A9%E7%A9%B9V3-%E8%83%8C%E9%9D%A2.png)
-
 # 天穹地面站
 
 正在开发中
 
 ![天穹地面站](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/BlueSkyPilot.jpg)
 
+# 作者
+BlueSky
+
+QQ:352707983
 
 # 【深入浅出多旋翼飞控开发】
 本人以个人的一些浅陋经验，结合本飞控项目，编写的一系列教程，持续更新中。
@@ -82,7 +85,7 @@ GPS：u-blox M8N
 
 预备篇：三.飞行器组装
 
-预备篇：四.软件开发环境搭建
+[预备篇：四.飞控代码下载与编译](http://bbs.loveuav.com/thread-11422-1-1.html)
 
 预备篇：五.单片机开发及RTOS移植
 
