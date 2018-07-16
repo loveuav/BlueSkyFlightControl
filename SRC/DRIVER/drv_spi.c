@@ -4,7 +4,7 @@
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     drv_spi.c
  * @说明     SPI驱动
- * @版本  	 V1.0
+ * @版本  	 V1.0.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
  * @日期     2018.05 
@@ -85,7 +85,7 @@ void Spi_Open(uint8_t deviceNum)
 		GPIO_InitStructure.GPIO_Pin = SPI2_PIN_MOSI;
 		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);
 		GPIO_InitStructure.GPIO_Pin =  SPI2_PIN_MISO;
-		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);
+		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);
 		GPIO_InitStructure.GPIO_Pin =  SPI2_PIN_SCK;
 		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);	  
         
