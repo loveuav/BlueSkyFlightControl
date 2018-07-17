@@ -31,12 +31,22 @@ void GyroPreTreatInit(void)
 	ParamGetData(PARAM_GYRO_OFFSET_X, &gyro.cali.offset.x, 4);
 	ParamGetData(PARAM_GYRO_OFFSET_Y, &gyro.cali.offset.y, 4);
 	ParamGetData(PARAM_GYRO_OFFSET_Z, &gyro.cali.offset.z, 4);
+	ParamGetData(PARAM_GYRO_SCALE_X, &gyro.cali.scale.x, 4);
+	ParamGetData(PARAM_GYRO_SCALE_Y, &gyro.cali.scale.y, 4);
+	ParamGetData(PARAM_GYRO_SCALE_Z, &gyro.cali.scale.z, 4);
     
     if(isnan(gyro.cali.offset.x) || isnan(gyro.cali.offset.y) || isnan(gyro.cali.offset.z))
     {
         gyro.cali.offset.x = 0;
         gyro.cali.offset.y = 0;
         gyro.cali.offset.z = 0;
+    }
+    
+    if(abs(gyro.cali.scale.x - 1) > 0.1f || abs(gyro.cali.scale.y - 1) > 0.1f || abs(gyro.cali.scale.z - 1) > 0.1f)
+    {
+        gyro.cali.scale.x = 1;
+        gyro.cali.scale.y = 1;
+        gyro.cali.scale.z = 1;
     }
     
 	//陀螺仪低通滤波系数计算
@@ -60,9 +70,9 @@ void GyroDataPreTreat(Vector3f_t gyroRaw, float temperature, Vector3f_t* gyroDat
 	gyro.temperature = temperature;
 	
 	//零偏误差校准
-	gyro.data.x -= gyro.cali.offset.x;
-	gyro.data.y -= gyro.cali.offset.y;	
-	gyro.data.z -= gyro.cali.offset.z;	
+	gyro.data.x = (gyro.data.x - gyro.cali.offset.x) * gyro.cali.scale.x;
+	gyro.data.y = (gyro.data.y - gyro.cali.offset.y) * gyro.cali.scale.y;	
+	gyro.data.z = (gyro.data.z - gyro.cali.offset.z) * gyro.cali.scale.z;	
 	
 	//安装误差校准
     gyro.data = VectorRotate(gyro.data, GetLevelCalibraData());
@@ -139,6 +149,9 @@ void GyroCalibration(Vector3f_t gyroRaw)
 			ParamUpdateData(PARAM_GYRO_OFFSET_X, &gyro.cali.offset.x);
 			ParamUpdateData(PARAM_GYRO_OFFSET_Y, &gyro.cali.offset.y);
 			ParamUpdateData(PARAM_GYRO_OFFSET_Z, &gyro.cali.offset.z);
+			ParamUpdateData(PARAM_GYRO_SCALE_X, &gyro.cali.scale.x);
+			ParamUpdateData(PARAM_GYRO_SCALE_Y, &gyro.cali.scale.y);
+			ParamUpdateData(PARAM_GYRO_SCALE_Z, &gyro.cali.scale.z);
 		}
 		
 		staticFlag = 0;		
