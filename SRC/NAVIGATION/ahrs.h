@@ -5,13 +5,13 @@
 
 typedef struct{
 	Vector3f_t angle;	
+    Vector3f_t angleError;	
+    
 	Vector3f_t vectorRollPitch;
-	Vector3f_t vectorRollPitchError;
 	Vector3f_t vectorRollPitchErrorInt;
     float      vectorRollPitchKI;
     
 	Vector3f_t vectorYaw; 	
-	Vector3f_t vectorYawError; 	
 	Vector3f_t vectorYawErrorInt;
     float      vectorYawKI;	
     

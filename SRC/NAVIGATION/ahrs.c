@@ -257,10 +257,9 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	ahrs.vectorRollPitchErrorInt.y = ConstrainFloat(ahrs.vectorRollPitchErrorInt.y, -0.5f, 0.5f);
 	ahrs.vectorRollPitchErrorInt.z = ConstrainFloat(ahrs.vectorRollPitchErrorInt.z, -0.3f, 0.3f);    
 	
-    //表示姿态误差
-	ahrs.vectorRollPitchError.x = ahrs.vectorRollPitchError.x * 0.999f + (acc.x - ahrs.vectorRollPitch.x) * 0.001f;
-	ahrs.vectorRollPitchError.y = ahrs.vectorRollPitchError.y * 0.999f + (acc.y - ahrs.vectorRollPitch.y) * 0.001f;
-	ahrs.vectorRollPitchError.z = ahrs.vectorRollPitchError.z * 0.999f + (acc.z - ahrs.vectorRollPitch.z) * 0.001f;	    
+    //表示横滚和俯仰角误差
+	ahrs.angleError.x = ahrs.angleError.x * 0.999f + (ahrs.angle.x - Degrees(atan2f(acc.y, Pythagorous2(acc.x, acc.z)))) * 0.001f;
+	ahrs.angleError.y = ahrs.angleError.y * 0.999f + (ahrs.angle.y - Degrees(atan2f(-acc.x, acc.z))) * 0.001f;  
 }
 
 /**********************************************************************************************************
@@ -342,10 +341,13 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	ahrs.vectorYawErrorInt.y = ConstrainFloat(ahrs.vectorYawErrorInt.y, -0.1f, 0.1f);
 	ahrs.vectorYawErrorInt.z = ConstrainFloat(ahrs.vectorYawErrorInt.z, -0.1f, 0.1f);    
 	
-    //表示航向误差
-	ahrs.vectorYawError.x = ahrs.vectorYawError.x * 0.999f + (mag.x - ahrs.vectorYaw.x) * 0.001f;
-	ahrs.vectorYawError.y = ahrs.vectorYawError.y * 0.999f + (mag.y - ahrs.vectorYaw.y) * 0.001f;
-	ahrs.vectorYawError.z = ahrs.vectorYawError.z * 0.999f + (mag.z - ahrs.vectorYaw.z) * 0.001f;	 
+    //表示偏航角误差	
+    Vector3f_t magEf;
+    float yawAngle;    
+    BodyFrameToEarthFrame(ahrs.angle, mag, &magEf);
+    yawAngle = Degrees(atan2f(magEf.y, magEf.x)) - GetMagDeclination();  
+    yawAngle = WrapDegree360(yawAngle);
+    ahrs.angleError.z = ahrs.angleError.z * 0.999f + (ahrs.angle.z - yawAngle) * 0.001f;  
 }
 
 /**********************************************************************************************************
