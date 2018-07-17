@@ -265,8 +265,8 @@ void PosCovarianceSelfAdaptation(void)
 	{ 
         kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
         
-        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.002f, 10, 200);
-        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.002f, 10, 200);
+        kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.002f, 10, 100);
+        kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.002f, 10, 100);
         kalmanPos.r[0] = Sq(kalmanPos.r[0]);
         kalmanPos.r[4] = Sq(kalmanPos.r[4]);    
 	}

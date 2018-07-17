@@ -212,9 +212,9 @@ void AttitudeOuterControl(void)
 	flightMode = GetFlightMode();
 
     //对姿态测量值进行低通滤波，减少数据噪声对控制器的影响
-    fc.angleLpf.x = fc.angleLpf.x * 0.9f + angle.x * 0.1f;
-    fc.angleLpf.y = fc.angleLpf.y * 0.9f + angle.y * 0.1f;    
-    fc.angleLpf.z = fc.angleLpf.z * 0.9f + angle.z * 0.1f;
+    fc.angleLpf.x = fc.angleLpf.x * 0.92f + angle.x * 0.08f;
+    fc.angleLpf.y = fc.angleLpf.y * 0.92f + angle.y * 0.08f;    
+    fc.angleLpf.z = fc.angleLpf.z * 0.92f + angle.z * 0.08f;
     
     //保留小数点后两位，减小数据误差对控制器的干扰（貌似没什么用）	
     fc.angleLpf.x = (float)((int32_t)(fc.angleLpf.x * 100)) * 0.01f;
@@ -242,23 +242,23 @@ void AttitudeOuterControl(void)
     //同时限制各种位置控制状态下的角速度，提升飞行过程中的控制感观
     if(flightMode == MANUAL || flightMode == SEMIAUTO || GpsGetFixStatus() == false)	
 	{
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -220, 220);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -220, 220);
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -200, 200);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -200, 200);
     }
     else if(GetPosControlStatus() == POS_CHANGED)
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -150, 150);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -150, 150);        
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -100, 100);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -100, 100);        
     }
     else if(GetPosControlStatus() == POS_BRAKE)
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -120, 120);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -120, 120);        
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -100, 100);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -100, 100);        
     }
     else
     {
-        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -120, 120);
-        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -120, 120);    
+        attOuterCtlValue.x = ConstrainFloat(attOuterCtlValue.x, -100, 100);
+        attOuterCtlValue.y = ConstrainFloat(attOuterCtlValue.y, -100, 100);    
     }
     
 	//若航向锁定被失能则直接将摇杆数值作为目标角速度
@@ -364,8 +364,8 @@ void PositionInnerControl(void)
 	previousT = GetSysTimeUs();	    
 	
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
-    velLpf.x = velLpf.x * 0.9f + GetCopterVelocity().x * 0.1f;
-    velLpf.y = velLpf.y * 0.9f + GetCopterVelocity().y * 0.1f;
+    velLpf.x = velLpf.x * 0.95f + GetCopterVelocity().x * 0.05f;
+    velLpf.y = velLpf.y * 0.95f + GetCopterVelocity().y * 0.05f;
     
     //计算控制误差
 	fc.posInnerError.x = fc.posInnerTarget.x - velLpf.x;
@@ -598,15 +598,15 @@ static void PIDReset(void)
     //对于不同机型，姿态PID参数需要进行调整，高度和位置相关参数无需太大改动
     //参数大小和电调型号有较大关系（电机电调的综合响应速度影响了PID参数）
     //该参数下姿态控制精度可达0.1°（悬停），测试机架为F330和F450，电调为BLS
-	PID_SetParam(&fc.pid[ROLL_INNER],  5.5, 10.0, 0.2, 30, 35);
-	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.18, 30, 35);
+	PID_SetParam(&fc.pid[ROLL_INNER],  5.0, 8.0, 0.2, 30, 35);
+	PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 8.0, 0.2, 30, 35);
 	PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 30, 35);	
 	PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
-	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.6, 0, 15, 30);	
-	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.6, 0, 15, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.03, 300, 30);	
+	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.5, 0, 10, 30);	
+	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.5, 0, 10, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.01, 300, 30);	
 	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);	
