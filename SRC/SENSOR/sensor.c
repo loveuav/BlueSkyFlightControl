@@ -84,7 +84,7 @@ void ImuTempControl(float tempMeasure)
         if(GetInitStatus() < HEAT_FINISH)
         {
             //温度接近预定温度
-            if(tempError < 200 && overPreHeatFLag)
+            if(abs(tempError) < 80 && overPreHeatFLag)
             {
                 cnt++;
                 if(cnt > 5000)
