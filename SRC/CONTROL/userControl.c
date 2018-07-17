@@ -132,14 +132,17 @@ static void SemiAutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 **********************************************************************************************************/
 static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 {
+    static Vector3f_t velCtlTarget, lastVelCtlTarget; 
+    
     static int32_t lastTimePosChanged = 0;
     static int32_t lastTimePosBrake   = 0;
-    static int16_t rcDeadband     = 50;
-	static float velRate          = (float)HORIZON_SPEED_MAX / MAXRCDATA;
-    static uint8_t posHoldChanged = 0;
-    static float brakeFilter = 0;
-    static Vector3f_t velCtlTarget;  
-
+    static uint8_t posHoldChanged     = 0;
+    
+    const  int16_t rcDeadband         = 50;
+	static float   velRate            = (float)HORIZON_SPEED_MAX / MAXRCDATA;
+    static float   brakeFilter        = 0;
+    const  float   velTargetIncMax    = 0.7;      //摇杆增速限幅值
+    
     //航向控制
     YawControl(rcCommand, rcTarget);
     
@@ -154,10 +157,36 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         rcCommand.roll  = ApplyDeadbandInt(rcCommand.roll, rcDeadband * 0.8f);
         rcCommand.pitch = ApplyDeadbandInt(rcCommand.pitch, rcDeadband * 0.8f);
         
-        //摇杆量转为目标速度，低通滤波改变操控手感
-        velCtlTarget.x = velCtlTarget.x * 0.998f + ((float)rcCommand.pitch * velRate) * 0.002f;
-        velCtlTarget.y = velCtlTarget.y * 0.998f + ((float)rcCommand.roll * velRate) * 0.002f;
+        //摇杆量转为目标速度，低通滤波改变操作手感
+        velCtlTarget.x = velCtlTarget.x * 0.996f + ((float)rcCommand.pitch * velRate) * 0.004f;
+        velCtlTarget.y = velCtlTarget.y * 0.996f + ((float)rcCommand.roll * velRate) * 0.004f;
         
+        //目标速度增量限幅，以实现近似匀加速的效果
+        if(rcCommand.pitch > 0)
+        {
+            if(velCtlTarget.x - lastVelCtlTarget.x > velTargetIncMax)
+                velCtlTarget.x = lastVelCtlTarget.x + velTargetIncMax;
+        }
+        else
+        {
+             if(velCtlTarget.x - lastVelCtlTarget.x < -velTargetIncMax)
+                velCtlTarget.x = lastVelCtlTarget.x - velTargetIncMax;           
+        }  
+        if(rcCommand.roll > 0)
+        {
+            if(velCtlTarget.y - lastVelCtlTarget.y > velTargetIncMax)
+                velCtlTarget.y = lastVelCtlTarget.y + velTargetIncMax;
+        }
+        else
+        {
+             if(velCtlTarget.y - lastVelCtlTarget.y < -velTargetIncMax)
+                velCtlTarget.y = lastVelCtlTarget.y - velTargetIncMax;           
+        }
+        
+        //保存本次速度目标值
+        lastVelCtlTarget.x = velCtlTarget.x; 
+        lastVelCtlTarget.y = velCtlTarget.y; 
+    
         //直接控制速度，禁用位置控制
         SetPosCtlStatus(DISABLE);
         
@@ -176,24 +205,29 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
     }
     else if(posHoldChanged)
     {
+        //重置历史速度目标值
+        lastVelCtlTarget.x = 0;
+        lastVelCtlTarget.y = 0;
+        
         //进入刹车状态时先初始化目标速度
         if(GetPosControlStatus() == POS_CHANGED)
-        {
-            velCtlTarget.x = GetCopterVelocity().x;
-            velCtlTarget.y = GetCopterVelocity().y;
+        {            
+            //计算减速速度（斜率）
+            brakeFilter = Pythagorous2(velCtlTarget.x, velCtlTarget.y) / (500 * 1.2f);  //500Hz运行频率，1.2s刹车时间
+            brakeFilter = ConstrainFloat(brakeFilter, 0.3, 2);
+            
             //更新位置控制状态为刹车
             SetPosControlStatus(POS_BRAKE);
             //根据当前飞行速度更新最大刹车角度
             UpdateMaxBrakeAngle(GetCopterVelocity());
         }
         else if(GetPosControlStatus() == POS_BRAKE)
-        {
-            brakeFilter += 0.000015f;
-			brakeFilter = ConstrainFloat(brakeFilter, 0.002f, 0.01f);
-            
-            //减速刹车
-            velCtlTarget.x -= velCtlTarget.x * brakeFilter;
-            velCtlTarget.y -= velCtlTarget.y * brakeFilter;
+        {    
+            //匀减速刹车
+            if(abs(velCtlTarget.x) > 0)
+                velCtlTarget.x -= brakeFilter * (velCtlTarget.x / abs(velCtlTarget.x));
+            if(abs(velCtlTarget.y) > 0)
+                velCtlTarget.y -= brakeFilter * (velCtlTarget.y / abs(velCtlTarget.y));
 	        
             //飞机速度小于一定值或超出一定时间则认为刹车完成
             if((abs(GetCopterVelocity().x) < 20 && abs(GetCopterVelocity().y) < 20) || GetSysTimeMs() - lastTimePosChanged > 3000)
@@ -209,15 +243,13 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
             //刹车完成后再缓冲一小段时间便切换为自动悬停
             if(GetSysTimeMs() - lastTimePosBrake < 1500)
             {
-                velCtlTarget.x -= velCtlTarget.x * 0.02f;
-                velCtlTarget.y -= velCtlTarget.y * 0.02f;
+                velCtlTarget.x -= velCtlTarget.x * 0.03f;
+                velCtlTarget.y -= velCtlTarget.y * 0.03f;
             }
             else
             {
                 posHoldChanged = 0;
             }
-            
-            brakeFilter = 0;
         }
         
         //更新位置内环控制目标    
@@ -255,7 +287,7 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 **********************************************************************************************************/
 static void YawControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
 {
-    static int16_t rcDeadband = 50;
+    static int16_t rcDeadband = 80;
     static uint8_t yawHoldChanged = 0;
     static int32_t lastTimeyawChanged = 0;
     
