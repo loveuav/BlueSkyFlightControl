@@ -130,7 +130,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
 
     //限制待机状态下的油门输出
     if(GetFlightStatus() == STANDBY)
-        fc.posInnerTarget.z = -150;
+        fc.posInnerTarget.z = -300;
     
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
     velLpf = velLpf * 0.95f + velZ * 0.05f;
@@ -542,6 +542,7 @@ void FlightControlReset(void)
     PID_ResetI(&fc.pid[YAW_INNER]);
     PID_ResetI(&fc.pid[VEL_X]);
     PID_ResetI(&fc.pid[VEL_Y]);
+    PID_ResetI(&fc.pid[VEL_Z]);
     
     //高度控制目标复位为当前高度
     SetAltOuterCtlTarget(GetCopterPosition().z);
@@ -606,7 +607,7 @@ static void PIDReset(void)
 	PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);	
 	PID_SetParam(&fc.pid[VEL_X],	   2.0, 0.5, 0, 10, 30);	
 	PID_SetParam(&fc.pid[VEL_Y],       2.0, 0.5, 0, 10, 30);	
-	PID_SetParam(&fc.pid[VEL_Z],       3.0, 2.0, 0.01, 300, 30);	
+	PID_SetParam(&fc.pid[VEL_Z],       2.0, 1.5, 0.01, 500, 30);	
 	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);	
