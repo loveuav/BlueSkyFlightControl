@@ -96,6 +96,11 @@ void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc)
 	deltaAngle.y = Radians(gyro.y * deltaT); 
 	deltaAngle.z = Radians(gyro.z * deltaT);	    
     
+    //补偿向心加速度误差
+    acc.x -= GetCentripetalAccBf().x;
+    acc.y -= GetCentripetalAccBf().y;
+    acc.z -= GetCentripetalAccBf().z;
+    
     //俯仰横滚角估计
     AttitudeEstimateRollPitch(deltaAngle, acc);
 }

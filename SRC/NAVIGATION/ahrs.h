@@ -36,6 +36,7 @@ Vector3f_t GetCopterAngle(void);
 Vector3f_t GetCopterAccEf(void);
 Vector3f_t GetCopterAccEfLpf(void);
 Vector3f_t GetCentripetalAcc(void);
+Vector3f_t GetCentripetalAccBf(void);
 
 #endif
 

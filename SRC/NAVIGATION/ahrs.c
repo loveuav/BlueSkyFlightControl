@@ -126,7 +126,7 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     //向心加速度误差补偿
     accCompensate.x -= ahrs.centripetalAccBf.x;
     accCompensate.y -= ahrs.centripetalAccBf.y;
-    //accCompensate.z -= ahrs.centripetalAcc.z;
+    accCompensate.z -= ahrs.centripetalAccBf.z;
     
     //俯仰横滚角估计
     AttitudeEstimateRollPitch(deltaAngle, accCompensate);
@@ -582,5 +582,16 @@ Vector3f_t GetCopterAngle(void)
 Vector3f_t GetCentripetalAcc(void)
 {
     return ahrs.centripetalAcc;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetCentripetalAccBf
+*功能说明: 获取机体系向心加速度误差
+*形    参: 无
+*返 回 值: 向心加速度
+**********************************************************************************************************/
+Vector3f_t GetCentripetalAccBf(void)
+{
+    return ahrs.centripetalAccBf;
 }
 
