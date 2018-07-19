@@ -488,6 +488,11 @@ void FlightStatusUpdate(void)
         
         //重置落地震动检测标志位
         landVibraFlag = 0;
+        
+        landCheckTime[0] = GetSysTimeMs();
+        landCheckTime[1] = GetSysTimeMs();
+        landCheckTime[2] = GetSysTimeMs();
+        landCheckTime[3] = GetSysTimeMs();
     }
     /********************************************降落***********************************************/
     else if(GetFlightStatus() == LANDING)

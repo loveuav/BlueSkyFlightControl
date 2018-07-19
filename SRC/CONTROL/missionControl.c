@@ -110,7 +110,7 @@ void AutoLand(void)
     //在没有对地测距传感器的情况下，只能大致判断高度，提前进行减速
     if(alttitude < 500)
     {
-        velCtlTarget = velCtlTarget * 0.99f - 65.0f * 0.01f; 
+        velCtlTarget = velCtlTarget * 0.99f - 70.0f * 0.01f; 
     }
     else if(alttitude < 1000)
     {
@@ -123,7 +123,10 @@ void AutoLand(void)
     else
     {
         velCtlTarget = velCtlTarget * 0.99f - 250.0f * 0.01f;         
-    }    
+    }   
+
+    //更新高度内环控制目标
+    SetAltInnerCtlTarget(velCtlTarget);     
 }
 
 /**********************************************************************************************************
@@ -198,8 +201,10 @@ void ReturnToHome(void)
             //若当前高度小于返航高度，则更新高度控制目标，反之保持当前高度
             if(position.z < rthHeight)
             {
+                //使能高度控制
+                SetAltCtlStatus(ENABLE);
                 //设置高度目标为返航高度
-                SetAltOuterCtlTarget(posCtlTarget.z); 
+                SetAltOuterCtlTarget(rthHeight); 
             }
 
             //到达目标高度后进入下一步骤
