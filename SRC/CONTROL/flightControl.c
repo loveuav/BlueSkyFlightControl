@@ -133,7 +133,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
         fc.posInnerTarget.z = -300;
     
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
-    velLpf = velLpf * 0.95f + velZ * 0.05f;
+    velLpf = velLpf * 0.9f + velZ * 0.1f;
     
     //计算控制误差
 	fc.posInnerError.z = fc.posInnerTarget.z - velLpf;
@@ -364,8 +364,8 @@ void PositionInnerControl(void)
 	previousT = GetSysTimeUs();	    
 	
     //对速度测量值进行低通滤波，减少数据噪声对控制器的影响
-    velLpf.x = velLpf.x * 0.95f + GetCopterVelocity().x * 0.05f;
-    velLpf.y = velLpf.y * 0.95f + GetCopterVelocity().y * 0.05f;
+    velLpf.x = velLpf.x * 0.9f + GetCopterVelocity().x * 0.1f;
+    velLpf.y = velLpf.y * 0.9f + GetCopterVelocity().y * 0.1f;
     
     //计算控制误差
 	fc.posInnerError.x = fc.posInnerTarget.x - velLpf.x;
@@ -610,7 +610,7 @@ static void PIDReset(void)
 	PID_SetParam(&fc.pid[VEL_Z],       2.0, 1.5, 0.01, 500, 30);	
 	PID_SetParam(&fc.pid[POS_X],       2.0, 0, 0, 0, 0);
 	PID_SetParam(&fc.pid[POS_Y],       2.0, 0, 0, 0, 0);
-	PID_SetParam(&fc.pid[POS_Z],       3.0, 0, 0, 0, 0);	
+	PID_SetParam(&fc.pid[POS_Z],       1.5, 0, 0, 0, 0);	
 }
 
 /**********************************************************************************************************

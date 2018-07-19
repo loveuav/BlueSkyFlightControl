@@ -93,7 +93,10 @@ void ParamSaveToFlash(void)
     
     //解锁后不得保存参数
     if(GetArmedStatus() == ARMED)
+    {
+        param_save_cnt = 0;
         return;
+    }
     
     if(param_save_cnt == 1)
     {

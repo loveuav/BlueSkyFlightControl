@@ -27,7 +27,7 @@
 #define BARO_TYPE            _2SMPB         //气压计型号
 #define MAG_TYPE             QMC5883        //罗盘型号
 
-#define configUSE_SENSORHEAT 0              //是否使用传感器恒温
+#define configUSE_SENSORHEAT 1              //是否使用传感器恒温
 
 #define GYRO_SPI             1              //陀螺仪SPI配置
 #define GYRO_CS_GPIO         GPIOC
@@ -56,8 +56,8 @@
 
 #define TEMP_TIM_FREQ        500000         //传感器恒温PWM输出定时器配置
 #define TEMP_TIM_PERIOD      5000
-#define TEMP_TIM             2
-#define TEMP_CH              2
+#define TEMP_TIM             4
+#define TEMP_CH              4
 
 #define PWM_TIM_FREQ         21000000       //电机输出PWM输出定时器配置
 #define PWM_TIM_PERIOD       52499 
@@ -152,11 +152,11 @@
 #define configUSE_TIM3_CH2   0
 #define configUSE_TIM3_CH3   1
 #define configUSE_TIM3_CH4   0
-#define configUSE_TIM4       0
+#define configUSE_TIM4       1
 #define configUSE_TIM4_CH1   0
 #define configUSE_TIM4_CH2   0
 #define configUSE_TIM4_CH3   0
-#define configUSE_TIM4_CH4   0
+#define configUSE_TIM4_CH4   1
 
 /**********************************************************************************************************
 *串口引脚及参数配置
@@ -317,11 +317,11 @@
 	#define TIM3_CH4_PINSOURCE        GPIO_PinSource5
 #endif	
 
-#define TIM4_CLOCK                    PPM_TIM_FREQ
-#define TIM4_PERIOD                   PPM_TIM_PERIOD
+#define TIM4_CLOCK                    TEMP_TIM_FREQ
+#define TIM4_PERIOD                   TEMP_TIM_PERIOD
 #define TIM4_IRQ_PRIORITY 			  3
-#define TIM4_PWM_OUT                  0
-#define TIM4_PPM_IN                   1		
+#define TIM4_PWM_OUT                  1
+#define TIM4_PPM_IN                   0		
 #if(configUSE_TIM4_CH1 == 1)
 	#define TIM4_CH1_GPIO             GPIOA
 	#define TIM4_CH1_PIN              GPIO_Pin_7
@@ -338,9 +338,9 @@
 	#define TIM4_CH3_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM4_CH4 == 1)
-	#define TIM4_CH4_GPIO             GPIOA
-	#define TIM4_CH4_PIN              GPIO_Pin_7
-	#define TIM4_CH4_PINSOURCE        GPIO_PinSource5
+	#define TIM4_CH4_GPIO             GPIOD
+	#define TIM4_CH4_PIN              GPIO_Pin_15
+	#define TIM4_CH4_PINSOURCE        GPIO_PinSource15
 #endif	
 
 

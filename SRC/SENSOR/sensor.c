@@ -47,8 +47,11 @@ void ImuTempControl(float tempMeasure)
     
     if(configUSE_SENSORHEAT == 0)
     {
-        if(GetInitStatus() < HEAT_FINISH)
-            SetInitStatus(HEAT_FINISH);
+        if(GetSysTimeMs() > 8000)
+        {
+            if(GetInitStatus() < HEAT_FINISH)
+                SetInitStatus(HEAT_FINISH);
+        }
     }
     else
     {
