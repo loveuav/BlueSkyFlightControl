@@ -246,7 +246,7 @@ void ReturnToHome(void)
             SetMaxPosOuterCtl(800);
             
             //计算XY轴位置控制同步速率 
-            if(posCtlTarget.x > posCtlTarget.y)
+            if(abs(posCtlTarget.x) > abs(posCtlTarget.y))
             {
                 syncRatio.x = 1;
                 syncRatio.y = abs(posCtlTarget.y / posCtlTarget.x);       
