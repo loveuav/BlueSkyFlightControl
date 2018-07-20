@@ -44,6 +44,8 @@ void FlightControlInit(void)
     }
     
     fc.maxBrakeAngle = 25;
+    fc.maxPosOuterCtl = 150;     
+    fc.maxAltOuterCtl = 200;  
 }
 
 /**********************************************************************************************************
@@ -328,7 +330,7 @@ void AltitudeOuterControl(void)
 	altOuterCtlValue = PID_GetP(&fc.pid[POS_Z], fc.posOuterError.z);
 	
 	//PID控制输出限幅
-	altOuterCtlValue = ConstrainFloat(altOuterCtlValue, -200, 500);
+	altOuterCtlValue = ConstrainFloat(altOuterCtlValue, -fc.maxAltOuterCtl, fc.maxAltOuterCtl);
 
     //将高度外环控制量作为高度内环的控制目标
     //若当前高度控制被禁用则不输出
@@ -430,8 +432,8 @@ void PositionOuterControl(void)
     TransVelToBodyFrame(posOuterCtlValue, &posOuterCtlValue, GetCopterAngle().z);
     
 	//PID控制输出限幅
-	posOuterCtlValue.x = ConstrainFloat(posOuterCtlValue.x, -150, 150);
-	posOuterCtlValue.y = ConstrainFloat(posOuterCtlValue.y, -150, 150);
+	posOuterCtlValue.x = ConstrainFloat(posOuterCtlValue.x, -fc.maxPosOuterCtl, fc.maxPosOuterCtl);
+	posOuterCtlValue.y = ConstrainFloat(posOuterCtlValue.y, -fc.maxPosOuterCtl, fc.maxPosOuterCtl);
 
     //将位置外环控制量作为位置内环的控制目标
     //若当前位置控制被禁用则不输出
@@ -586,6 +588,28 @@ void FcSetPID(uint8_t id, PID_t pid)
 void SetMaxBrakeAngle(int16_t angle)
 {
     fc.maxBrakeAngle = angle;
+}
+
+/**********************************************************************************************************
+*函 数 名: SetMaxPosOuterCtl
+*功能说明: 设置位置环控制最大输出
+*形    参: 速度
+*返 回 值: 无
+**********************************************************************************************************/
+void SetMaxPosOuterCtl(int16_t vel)
+{
+    fc.maxPosOuterCtl = vel;
+}
+
+/**********************************************************************************************************
+*函 数 名: SetMaxAltOuterCtl
+*功能说明: 设置高度环控制最大输出
+*形    参: 速度
+*返 回 值: 无
+**********************************************************************************************************/
+void SetMaxAltOuterCtl(int16_t vel)
+{
+    fc.maxAltOuterCtl = vel;
 }
 
 /**********************************************************************************************************

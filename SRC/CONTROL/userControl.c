@@ -276,6 +276,9 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         
         //更新位置外环控制目标
         SetPosOuterCtlTarget(posCtlTarget);
+        
+        //设置位置环控制最大输出：cm/s
+        SetMaxPosOuterCtl(150);          
     }     
 }
 
@@ -425,7 +428,10 @@ static void AltControl(RCCOMMAND_t rcCommand)
         SetAltControlStatus(ALT_HOLD);  
 
         //更新高度外环控制目标
-        SetAltOuterCtlTarget(posCtlTarget.z);         
+        SetAltOuterCtlTarget(posCtlTarget.z);     
+
+        //设置高度环控制最大输出：cm/s
+        SetMaxAltOuterCtl(200);            
     }             
 }
 

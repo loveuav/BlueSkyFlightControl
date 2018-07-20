@@ -4,10 +4,10 @@
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     missionControl.c
  * @说明     自主控制功能，如自动下降、自动起飞、自动返航、自动航线等
- * @版本  	 V1.0
+ * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.07 
 **********************************************************************************************************/
 #include "missionControl.h"
 #include "flightStatus.h"
@@ -20,9 +20,9 @@
 
 static Vector3f_t posCtlTarget;
 
-static uint8_t rthStep;
+uint8_t rthStep;
 static float rthHeight   = 3000;  //预设返航高度 单位：cm
-static float rthWaitTime = 1000;  //返航回到Home点后的悬停等待时间 单位：ms
+static float rthWaitTime = 2000;  //返航回到Home点后的悬停等待时间 单位：ms
 
 void AutoLand(void);
 void ReturnToHome(void);
@@ -50,11 +50,19 @@ void MissionControl(void)
     {
         //自动降落
         AutoLand();
+        
+        //锁定状态下转为自动模式
+        if(GetArmedStatus() == DISARMED)
+            SetFlightMode(AUTO);
     }
     else if(flightMode == RETURNTOHOME)  
     {
         //自动返航     
         ReturnToHome();
+        
+        //未起飞时转为自动降落
+        if(GetFlightStatus() < IN_AIR)
+            SetFlightMode(AUTOLAND);
     }
     else
     {
@@ -123,10 +131,10 @@ void AutoLand(void)
     else
     {
         velCtlTarget = velCtlTarget * 0.99f - 250.0f * 0.01f;         
-    }   
-
+    }    
+    
     //更新高度内环控制目标
-    SetAltInnerCtlTarget(velCtlTarget);     
+    SetAltInnerCtlTarget(velCtlTarget); 
 }
 
 /**********************************************************************************************************
@@ -139,22 +147,22 @@ void ReturnToHome(void)
 {
     /********************************************自动返航控制逻辑**********************************************
     
-    1.先判断当前Home点距离，若小于一定值，则直接转入自动降落模式
+    1.先判断当前Home点距离，若小于一定值，则直接转入步骤4
     2.记录当前飞机航向，然后更改航向目标为Home方向（机头朝Home点）
     3.判断当前高度，若小于返航高度则上升，反之进入下一步
-    4.转为控速模式，开始返航，根据Home点距离调节飞行速度
-    5.Home点距离小于一定值时转为位置控制模式
-    6.到达Home点上方，将航向目标变为初始记录值，并等待一定时间（预设值），转入自动降落模式，返航完毕
+    4.设定位置控制目标为Home点，开始返航，根据Home点距离调节飞行速度
+    5.到达Home点上方，将航向目标变为初始记录值，并等待一定时间（预设值），转入自动降落模式，返航完毕
     
     全程检测GPS定位状态，若失去定位则转入自动降落模式
     **********************************************************************************************************/
     
-    static uint32_t waitTime;
+    static uint32_t timeRecord[8];
     static float originYaw;
     static float distanceToHome;
     static float directionToHome;
     Vector3f_t position;
-    static Vector3f_t velCtlTarget; 
+    static float velCtlTargert;
+    Vector3f_t syncRatio;
     
     //获取当前位置
     position = GetCopterPosition();
@@ -169,22 +177,27 @@ void ReturnToHome(void)
             //记录起始航向
             originYaw = GetCopterAngle().z; 
             
-            //判断当前Home点距离，小于一定值则转入步骤5或直接进入自动降落模式
-            if(distanceToHome < 555)
-                SetFlightMode(AUTOLAND); 
-			else if(distanceToHome < 3000)
-			{
-				//更新位置控制目标
-				posCtlTarget = GetCopterPosition(); 
-				//转入步骤5
-				rthStep = RTH_STEP_FLIGHT_POS;
-				break;
-			}
+            //初始化飞行速度
+            velCtlTargert = 0;
 				
             //使能位置控制
             SetPosCtlStatus(ENABLE);  
-              
-            rthStep = RTH_STEP_TURN;
+            //设置位置控制目标
+            SetPosOuterCtlTarget(posCtlTarget);
+            //更新位置控制状态
+        	SetPosControlStatus(POS_HOLD);
+
+            //判断当前Home点距离，小于一定值则转入步骤4
+			if(distanceToHome < 1000)
+			{
+				//更新位置控制目标
+				posCtlTarget = GetCopterPosition(); 
+				//转入步骤4
+				rthStep = RTH_STEP_FLIGHT;
+				break;
+			}
+            
+            rthStep = RTH_STEP_TURN;   
             break;
         
         case RTH_STEP_TURN:
@@ -194,15 +207,23 @@ void ReturnToHome(void)
             if(abs(directionToHome - GetCopterAngle().z) < 3)
             {
                 rthStep = RTH_STEP_CLIMB;
+                posCtlTarget.z = GetCopterPosition().z;
             }
+            
+            timeRecord[RTH_STEP_TURN] = GetSysTimeMs();
             break;
  
         case RTH_STEP_CLIMB:
+            //等待1秒
+            if(GetSysTimeMs() - timeRecord[RTH_STEP_TURN] < 1000)
+                break;
+            
             //若当前高度小于返航高度，则更新高度控制目标，反之保持当前高度
             if(position.z < rthHeight)
             {
                 //使能高度控制
                 SetAltCtlStatus(ENABLE);
+
                 //设置高度目标为返航高度
                 SetAltOuterCtlTarget(rthHeight); 
             }
@@ -210,89 +231,95 @@ void ReturnToHome(void)
             //到达目标高度后进入下一步骤
             if(position.z - rthHeight > -50)
             {
-                rthStep = RTH_STEP_FLIGHT_VEL;
+                rthStep = RTH_STEP_FLIGHT;      
             }
+            
+            timeRecord[RTH_STEP_CLIMB] = GetSysTimeMs();
             break;
             
-        case RTH_STEP_FLIGHT_VEL:
-            //位置控制失能
-            SetPosCtlStatus(DISABLE);  
+        case RTH_STEP_FLIGHT:
+            //等待1秒
+            if(GetSysTimeMs() - timeRecord[RTH_STEP_CLIMB] < 1000)
+                break;
+           
+            //设置位置控制环最大输出
+            SetMaxPosOuterCtl(800);
             
-            //不断更新航向目标为Home方向
-            SetYawCtlTarget(directionToHome);   
-            
-            //根据Home点距离调整返航飞行速度
-            if(distanceToHome < 1500)
-                velCtlTarget.x = velCtlTarget.x * 0.99f + 150.0f * 0.01f;	
-            else if(distanceToHome < 2000)
-                velCtlTarget.x = velCtlTarget.x * 0.99f + 200.0f * 0.01f;	
-            else if(distanceToHome < 3000)
-                velCtlTarget.x = velCtlTarget.x * 0.99f + 300.0f * 0.01f;	
-            else if(distanceToHome < 8000)
-                velCtlTarget.x = velCtlTarget.x * 0.99f + 500.0f * 0.01f;				
-            else
-                velCtlTarget.x = velCtlTarget.x * 0.993f + 800.0f * 0.007f;
-            
-            velCtlTarget.y = 0;
-            
-            //更新速度控制目标    
-            SetPosInnerCtlTarget(velCtlTarget);  
-
-            //Home点距离小于10m时，转入位置控制模式
-            if(distanceToHome < 1000)
+            //计算XY轴位置控制同步速率 
+            if(posCtlTarget.x > posCtlTarget.y)
             {
-                rthStep = RTH_STEP_FLIGHT_POS;
-                
-                //更新位置控制目标
-                posCtlTarget = GetCopterPosition();     
+                syncRatio.x = 1;
+                syncRatio.y = abs(posCtlTarget.y / posCtlTarget.x);       
             }
+            else
+            {
+                syncRatio.x = abs(posCtlTarget.x / posCtlTarget.y);
+                syncRatio.y = 1;
+            }
+            
+            //根据Home点距离调整返航飞行速度  
+            if(distanceToHome < 1500)
+                velCtlTargert = velCtlTargert * 0.999f + (100.0f / 500) * 0.001f;   //1m/s
+            else if(distanceToHome < 2000)
+                velCtlTargert = velCtlTargert * 0.999f + (200.0f / 500) * 0.001f;   //2m/s
+            else if(distanceToHome < 3000)
+                velCtlTargert = velCtlTargert * 0.999f + (300.0f / 500) * 0.001f;   //3m/s            
+            else if(distanceToHome < 8000)
+                velCtlTargert = velCtlTargert * 0.999f + (500.0f / 500) * 0.001f;   //5m/s
+            else 
+                velCtlTargert = velCtlTargert * 0.999f + (800.0f / 500) * 0.001f;   //8m/s
+            
+            //计算位置控制目标，目标值以一定速率匀速变化               
+            if(abs(posCtlTarget.x) > 1)
+                posCtlTarget.x -= velCtlTargert * syncRatio.x * (posCtlTarget.x / abs(posCtlTarget.x)); 
+            if(abs(posCtlTarget.y) > 1)
+                posCtlTarget.y -= velCtlTargert * syncRatio.y * (posCtlTarget.y / abs(posCtlTarget.y)); 
+            
+            //设置位置控制目标
+            SetPosOuterCtlTarget(posCtlTarget);
 
-			//更新位置控制状态
-        	SetPosControlStatus(POS_CHANGED);
-            break;
-
-        case RTH_STEP_FLIGHT_POS:
-            posCtlTarget.x -= posCtlTarget.x * 0.01f;
-            posCtlTarget.y -= posCtlTarget.y * 0.01f;
+            if(distanceToHome > 1000)
+            {
+                //不断更新航向目标为Home方向
+                SetYawCtlTarget(directionToHome);   
+            }
           
-            //Home点距离小于1m则进入下一步
-            if(distanceToHome < 100)
+            //Home点距离小于50cm则进入下一步
+            if(distanceToHome < 50)
             {
                 rthStep = RTH_STEP_TURN_BACK;
                 posCtlTarget.x = 0;
                 posCtlTarget.y = 0;
             }
  
-			//使能位置控制
-            SetPosCtlStatus(ENABLE); 
-            
-            //设置位置控制目标
-            SetPosOuterCtlTarget(posCtlTarget);
-
-			//更新位置控制状态
-        	SetPosControlStatus(POS_HOLD);
+            timeRecord[RTH_STEP_FLIGHT] = GetSysTimeMs();
             break;
             
         case RTH_STEP_TURN_BACK:
+            //等待1秒
+            if(GetSysTimeMs() - timeRecord[RTH_STEP_FLIGHT] < 1000)
+                break;
+            
             //将航向控制目标设为初始记录值
             SetYawCtlTarget(originYaw);   
-            
+           
             if(abs(originYaw - GetCopterAngle().z) < 3)
             {
                 rthStep = RTH_STEP_LOITER;
-                waitTime = GetSysTimeMs();
             }
+            
+            timeRecord[RTH_STEP_TURN_BACK] = GetSysTimeMs();
             break;
 
         case RTH_STEP_LOITER:    
             //等待预定的时间
-            if(GetSysTimeMs() - waitTime > rthWaitTime)
-            {
-                //返航完毕，转入自动降落模式
-                SetFlightMode(AUTOLAND); 
-                //重置返航步骤标志位
-                rthStep = RTH_STEP_START;
-            }
+            if(GetSysTimeMs() - timeRecord[RTH_STEP_TURN_BACK] < rthWaitTime)
+                break;
+            
+            //返航完毕，转入自动降落模式
+            SetFlightMode(AUTOLAND); 
+            //重置返航步骤标志位
+            rthStep = RTH_STEP_START;
             break;
             
         default:

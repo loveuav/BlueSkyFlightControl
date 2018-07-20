@@ -57,6 +57,8 @@ typedef struct
     uint8_t    yawHoldFlag;         //航向锁定控制使能标志位
     
     int16_t    maxBrakeAngle;       //最大刹车角度
+    int16_t    maxPosOuterCtl;      //位置控制的最大输出
+    int16_t    maxAltOuterCtl;      //高度控制的最大输出
 }FLIGHTCONTROL_t;
 
 void FlightControlInit(void);
@@ -87,7 +89,10 @@ Vector3f_t GetPosOuterCtlError(void);
 void FlightControlReset(void);
 PID_t FcGetPID(uint8_t id);
 void FcSetPID(uint8_t id, PID_t pid);
+
 void SetMaxBrakeAngle(int16_t angle);
+void SetMaxPosOuterCtl(int16_t vel);
+void SetMaxAltOuterCtl(int16_t vel);
 
 #endif
 
