@@ -55,6 +55,7 @@ void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
 {
     int16_t maxMotorValue;
     uint8_t escCaliFlag = 0;
+    static int16_t motorResetPWM[8];
     
     //电机动力分配
     for(u8 i=0; i<motorType.motorNum; i++)
@@ -101,14 +102,19 @@ void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
     {
         for (u8 i=0; i<motorType.motorNum; i++)
         {
+            //输出PWM
             MotorPWMSet(i+1, motorPWM[i]);
+            //记录当前PWM值
+            motorResetPWM[i] = motorPWM[i];
         }   
     }    
     else
     {
         for (u8 i=0; i<motorType.motorNum; i++)
         {
-            MotorPWMSet(i+1, 0);
+            //电机逐步减速，防止电机刹车引发射桨
+            motorResetPWM[i] -= motorResetPWM[i] * 0.003f;
+            MotorPWMSet(i+1, motorResetPWM[i]);
         }               
     }
 }
