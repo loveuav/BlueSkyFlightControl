@@ -337,7 +337,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,__TARGET_FPU_VFP,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,ARM_MATH_CM4,__CC_ARM,__FPU_PRESENT,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\USBHID;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB\USBStack\INC;..\STMLIB;..\SRC\MESSAGE</IncludePath>
+              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -712,6 +712,11 @@
               <FilePath>..\SRC\DRIVER\drv_usart.c</FilePath>
             </File>
             <File>
+              <FileName>drv_usb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\DRIVER\drv_usb.c</FilePath>
+            </File>
+            <File>
               <FileName>drv_i2c_soft.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_i2c_soft.c</FilePath>
@@ -730,11 +735,6 @@
               <FileName>drv_sbus.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_sbus.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_usbhid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SRC\DRIVER\drv_usbhid.c</FilePath>
             </File>
             <File>
               <FileName>drv_ppm.c</FileName>
@@ -854,37 +854,52 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>USBHID</GroupName>
+          <GroupName>USB</GroupName>
           <Files>
+            <File>
+              <FileName>usb_core.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STMLIB\USB\STM32_USB_OTG_Driver\src\usb_core.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_dcd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STMLIB\USB\STM32_USB_OTG_Driver\src\usb_dcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_dcd_int.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STMLIB\USB\STM32_USB_OTG_Driver\src\usb_dcd_int.c</FilePath>
+            </File>
             <File>
               <FileName>usbd_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\STMLIB\USBStack\SRC\usbd_core.c</FilePath>
+              <FilePath>..\STMLIB\USB\STM32_USB_Device_Library\Core\src\usbd_core.c</FilePath>
             </File>
             <File>
-              <FileName>usbd_core_hid.c</FileName>
+              <FileName>usbd_ioreq.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\STMLIB\USBStack\SRC\usbd_core_hid.c</FilePath>
+              <FilePath>..\STMLIB\USB\STM32_USB_Device_Library\Core\src\usbd_ioreq.c</FilePath>
             </File>
             <File>
-              <FileName>usbd_hid.c</FileName>
+              <FileName>usbd_req.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\STMLIB\USBStack\SRC\usbd_hid.c</FilePath>
+              <FilePath>..\STMLIB\USB\STM32_USB_Device_Library\Core\src\usbd_req.c</FilePath>
             </File>
             <File>
-              <FileName>version.c</FileName>
+              <FileName>usbd_cdc_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\STMLIB\USBStack\SRC\version.c</FilePath>
+              <FilePath>..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\src\usbd_cdc_core.c</FilePath>
             </File>
             <File>
-              <FileName>usb_config.c</FileName>
+              <FileName>usb_bsp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\STMLIB\usb_config.c</FilePath>
+              <FilePath>..\STMLIB\USB\usb_bsp.c</FilePath>
             </File>
             <File>
-              <FileName>usbd_STM32F4xx_FS.c</FileName>
+              <FileName>usbd_desc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\STMLIB\usbd_STM32F4xx_FS.c</FilePath>
+              <FilePath>..\STMLIB\USB\usbd_desc.c</FilePath>
             </File>
           </Files>
         </Group>

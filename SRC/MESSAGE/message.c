@@ -13,7 +13,7 @@
 #include "messageSend.h"
 #include "messageDecode.h"
 #include "drv_usart.h"
-#include "drv_usbhid.h"
+#include "drv_usb.h"
 #include "bsklink.h"
 
 #include "ahrs.h"
@@ -46,7 +46,8 @@ void MessageInit(void)
 {
     //设置数据通信串口接收中断回调函数
     Usart_SetIRQCallback(DATA_UART, MessageDecode);
-    
+    Usb_SetRecvCallback(MessageDecode);
+     
     //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
     sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 15;
     sendFreq[BSKLINK_MSG_ID_SENSOR]             = 5; 
@@ -280,8 +281,9 @@ void DataSend(uint8_t *data , uint8_t length)
 {
     //串口发送
     Usart_SendData(DATA_UART, data, length);
-    //USB HID发送
-    UsbHid_Send(data, length);
+    
+    //USB转串口发送
+    Usb_Send(data, length);
 }
 
 

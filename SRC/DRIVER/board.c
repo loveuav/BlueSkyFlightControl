@@ -19,7 +19,7 @@
 #include "drv_i2c_soft.h"
 #include "drv_pwm.h"
 #include "drv_sbus.h"
-#include "drv_usbhid.h"
+#include "drv_usb.h"
 #include "drv_adc.h"
 #include "drv_ppm.h"
 
@@ -71,8 +71,8 @@ void BoardInit(void)
 	else if(RC_PROTOCOL == PPM)
         PPM_Init();
 
-	//USB HID初始化
-	UsbHid_Init();
+	//USB转串口初始化
+	Usb_Init();
 	
 	//ADC初始化
 	Adc_Init();
