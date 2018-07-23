@@ -33,7 +33,7 @@ void USB_OTG_BSP_DisableInterrupt(void)
     
 }
 
-void USB_OTG_BSP_uDelay (uint32_t usec)
+void USB_OTG_BSP_uDelay(uint32_t usec)
 { 
 	uint32_t us_cnt; 
 	for(; usec!= 0; usec--)
@@ -46,7 +46,7 @@ void USB_OTG_BSP_uDelay (uint32_t usec)
     }  
 }
 
-void USB_OTG_BSP_mDelay (uint32_t msec)
+void USB_OTG_BSP_mDelay(uint32_t msec)
 {  
 	uint32_t us_cnt; 
 	for(; msec!= 0; msec--)
