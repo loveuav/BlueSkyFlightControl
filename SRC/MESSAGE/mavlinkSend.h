@@ -3,7 +3,8 @@
 
 #include "mathTool.h"
 
-void MavlinkSendHeartbeat(void);
+void MavlinkSendHeartbeat(uint8_t* sendFlag);
+void MavlinkSendAttitude(uint8_t* sendFlag);
 
 #endif
 

@@ -13,6 +13,7 @@
 #include "bsklinkSend.h"
 #include "bsklinkDecode.h"
 #include "mavlinkSend.h"
+#include "mavlinkDecode.h"
 #include "drv_usart.h"
 #include "drv_usb.h"
 #include "bsklink.h"
@@ -28,8 +29,11 @@
 #include "gps.h"
 
 /***************通信协议选择***************/
-#define BSKLINK
-//#define MAVLINK
+//#define BSKLINK
+#define MAVLINK
+/******************************************/
+
+#define MAVLINK_MSG_ID_HEARTBEAT2   180    //mavlink中心跳包ID为0，无法参与发送列表排序，故为其重新定义一个ID（仅用于参与排序）
 
 uint8_t sendFlag[0xFF];	            //发送标志位
 uint8_t sendFreq[0xFF];	            //发送频率
@@ -50,9 +54,16 @@ void SendListCreate(void);
 void MessageInit(void)
 {
     //设置数据通信串口接收中断回调函数
+    #ifdef BSKLINK
     Usart_SetIRQCallback(DATA_UART, BsklinkDecode);
     Usb_SetRecvCallback(BsklinkDecode);
-     
+    #endif
+
+    #ifdef MAVLINK
+    Usart_SetIRQCallback(DATA_UART, MavlinkDecode);
+    Usb_SetRecvCallback(MavlinkDecode);
+    #endif
+    
     //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
     #ifdef BSKLINK
     sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 15;
@@ -67,6 +78,8 @@ void MessageInit(void)
     #endif
     
     #ifdef MAVLINK 
+    sendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 15;
+    sendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;
     #endif
     
     //生成发送列表
@@ -110,16 +123,11 @@ void MessageSendLoop(void)
     #endif
     
     #ifdef MAVLINK 
-    if(i % MAX_SEND_FREQ == 0)
-    {
-        //心跳包发送频率为固定1Hz
-        MavlinkSendHeartbeat();
-    }
-    else
-    {
-        //根据发送列表来使能对应的数据帧发送标志位
-        sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE;  
-    }
+    //根据发送列表来使能对应的数据帧发送标志位
+    sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE;  
+    
+    MavlinkSendAttitude(&sendFlag[MAVLINK_MSG_ID_ATTITUDE]);
+    MavlinkSendHeartbeat(&sendFlag[MAVLINK_MSG_ID_HEARTBEAT2]);         //心跳包
     #endif
 }
 
