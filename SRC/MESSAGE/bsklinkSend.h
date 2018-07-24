@@ -1,5 +1,5 @@
-#ifndef _MESSAGESEND_H_
-#define _MESSAGESEND_H_
+#ifndef _BSKLINKSEND_H_
+#define _BSKLINKSEND_H_
 
 #include "mathTool.h"
 

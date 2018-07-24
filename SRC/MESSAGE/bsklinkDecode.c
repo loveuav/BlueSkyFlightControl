@@ -2,14 +2,14 @@
                                 天穹飞控 —— 致力于打造中国最好的多旋翼开源飞控
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
- * @文件     messageDecoded.c
- * @说明     接收数据解析
- * @版本  	 V1.0
+ * @文件     bsklinkDecoded.c
+ * @说明     bsklink协议解析
+ * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.06
+ * @日期     2018.07
 **********************************************************************************************************/
-#include "messageDecode.h"
+#include "bsklinkDecode.h"
 #include "message.h"
 #include "bsklink.h"
 #include <string.h>
@@ -35,18 +35,18 @@ static void BsklinkDecodeSetAttPid(BSKLINK_PAYLOAD_PID_ATT_t payload);
 static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload);
 
 /**********************************************************************************************************
-*函 数 名: MessageDecode
+*函 数 名: BsklinkDecode
 *功能说明: 消息解析
 *形    参: 接收数据
 *返 回 值: 无
 **********************************************************************************************************/
-void MessageDecode(uint8_t data)
+void BsklinkDecode(uint8_t data)
 {
     static BSKLINK_MSG_t msg;
     static uint32_t i=0;
     
     //对接收到的字节数据进行帧解析，接收完一帧时再继续对帧数据进行解析
-    if(BsklinkDecode(&msg, data) == false)
+    if(BsklinkParseChar(&msg, data) == false)
         return;
     
     if(msg.msgid == BSKLINK_MSG_ID_FLIGHT_DATA)

@@ -2,14 +2,14 @@
                                 天穹飞控 —— 致力于打造中国最好的多旋翼开源飞控
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
- * @文件     dataSend.c
- * @说明     飞控数据发送
- * @版本  	 V1.0
+ * @文件     bsklinkSend.c
+ * @说明     bsklink数据帧发送
+ * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.06
+ * @日期     2018.07
 **********************************************************************************************************/
-#include "messageSend.h"
+#include "bsklinkSend.h"
 #include "message.h"
 #include "bsklink.h"
 

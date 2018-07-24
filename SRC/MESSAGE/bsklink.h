@@ -222,7 +222,7 @@ typedef struct
 
 void BsklinkMsgCalculateSum(BSKLINK_MSG_t* msg);
 void BsklinkMsgFormat(BSKLINK_MSG_t msg, uint8_t* msgTemp);
-bool BsklinkDecode(BSKLINK_MSG_t* msg, uint8_t data);
+bool BsklinkParseChar(BSKLINK_MSG_t* msg, uint8_t data);
 
 #endif
 

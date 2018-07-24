@@ -81,12 +81,12 @@ void BsklinkMsgFormat(BSKLINK_MSG_t msg, uint8_t* msgTemp)
 }
 
 /**********************************************************************************************************
-*函 数 名: BsklinkDecode
-*功能说明: 帧解析
+*函 数 名: BsklinkParseChar
+*功能说明: 单字节解析
 *形    参: 消息结构体指针 输入数据
 *返 回 值: 标志位 一帧接收完成返回true
 **********************************************************************************************************/
-bool BsklinkDecode(BSKLINK_MSG_t* msg, uint8_t data)
+bool BsklinkParseChar(BSKLINK_MSG_t* msg, uint8_t data)
 {     
     switch(msg->recvStatus)
     {

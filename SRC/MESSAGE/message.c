@@ -10,11 +10,13 @@
  * @日期     2018.05 
 **********************************************************************************************************/
 #include "message.h"
-#include "messageSend.h"
-#include "messageDecode.h"
+#include "bsklinkSend.h"
+#include "bsklinkDecode.h"
+#include "mavlinkSend.h"
 #include "drv_usart.h"
 #include "drv_usb.h"
 #include "bsklink.h"
+#include "common/mavlink.h"
 
 #include "ahrs.h"
 #include "flightControl.h"
@@ -25,6 +27,10 @@
 #include "motor.h"
 #include "gps.h"
 
+/***************通信协议选择***************/
+#define BSKLINK
+//#define MAVLINK
+
 uint8_t sendFlag[0xFF];	            //发送标志位
 uint8_t sendFreq[0xFF];	            //发送频率
 uint8_t sortResult[0xFF];           
@@ -32,7 +38,6 @@ uint8_t sendList[MAX_SEND_FREQ];    //发送列表
 
 BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t sensorCali;
 
-//static void DataSendDebug(void);
 void SendFreqSort(void);
 void SendListCreate(void);
 
@@ -45,10 +50,11 @@ void SendListCreate(void);
 void MessageInit(void)
 {
     //设置数据通信串口接收中断回调函数
-    Usart_SetIRQCallback(DATA_UART, MessageDecode);
-    Usb_SetRecvCallback(MessageDecode);
+    Usart_SetIRQCallback(DATA_UART, BsklinkDecode);
+    Usb_SetRecvCallback(BsklinkDecode);
      
     //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
+    #ifdef BSKLINK
     sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 15;
     sendFreq[BSKLINK_MSG_ID_SENSOR]             = 5; 
     sendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1; 
@@ -58,6 +64,10 @@ void MessageInit(void)
     sendFreq[BSKLINK_MSG_ID_GPS]                = 2; 
     sendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;  
     sendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
+    #endif
+    
+    #ifdef MAVLINK 
+    #endif
     
     //生成发送列表
     SendFreqSort();
@@ -74,6 +84,7 @@ void MessageSendLoop(void)
 {    
     static uint32_t i = 0;
     
+    #ifdef BSKLINK
     //根据需求发送的数据帧
 	if(sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] == ENABLE) 						//传感器校准反馈 
         BsklinkSendSensorCaliCmd(&sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD], sensorCali.type, sensorCali.step, sensorCali.successFlag);                  
@@ -96,6 +107,20 @@ void MessageSendLoop(void)
         BsklinkSendGps(&sendFlag[BSKLINK_MSG_ID_GPS]);                         //GPS数据
         BsklinkSendHeartBeat(&sendFlag[BSKLINK_MSG_ID_HEARTBEAT]);             //心跳包
     }
+    #endif
+    
+    #ifdef MAVLINK 
+    if(i % MAX_SEND_FREQ == 0)
+    {
+        //心跳包发送频率为固定1Hz
+        MavlinkSendHeartbeat();
+    }
+    else
+    {
+        //根据发送列表来使能对应的数据帧发送标志位
+        sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE;  
+    }
+    #endif
 }
 
 /**********************************************************************************************************
@@ -123,57 +148,6 @@ void MessageSendEnable(uint8_t msgid)
 {
     sendFlag[msgid] = ENABLE;
 }
-
-//static void DataSendDebug(void)
-//{
-//    static DATA_TYPE_t dataTemp;  
-//    static uint8_t dataToSend[50];
-//	uint8_t _cnt=0;
-
-//	dataToSend[_cnt++] = 0xAA;
-//	dataToSend[_cnt++] = 0xAA;
-//	dataToSend[_cnt++] = 0x02;
-//	dataToSend[_cnt++] = 0;
-//	
-//	dataTemp.i16 = GetCopterAngle().x * 10;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetCopterAngle().y * 10;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetCopterAngle().z * 10;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetPosInnerCtlError().z;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetPosOuterCtlError().z;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetCopterVelocity().z;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = nav.accelLpf.z * 4000;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = nav.accel.x * 500;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-//	dataTemp.i16 = GetCopterVelocity().x;
-//	dataToSend[_cnt++] = dataTemp.byte[1];
-//	dataToSend[_cnt++] = dataTemp.byte[0];
-
-//	dataToSend[3] = _cnt-4;
-//	
-//	uint8_t sum = 0;
-//	for(u8 i=0;i<_cnt;i++)
-//		sum += dataToSend[i];
-//	
-//	dataToSend[_cnt++]=sum;
-//	
-//	DataSend(dataToSend, _cnt);    
-//}
-
 
 /**********************************************************************************************************
 *函 数 名: SendFreqSort
