@@ -4,7 +4,7 @@
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     drv_usb.c
  * @说明     usb转串口驱动
- * @版本  	 V1.0
+ * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
  * @日期     2018.07
@@ -15,6 +15,8 @@
 #include "usbd_desc.h"
 #include "usb_conf.h" 
 #include "usbd_cdc_core.h"
+
+uint32_t connectCheckTime = 0;
 
 USB_OTG_CORE_HANDLE  USB_OTG_dev;
 
@@ -50,8 +52,11 @@ void Usb_Init(void)
 **********************************************************************************************************/
 void Usb_Send(uint8_t *dataToSend, uint8_t length)
 {
+    if(GetSysTimeMs() < 3000 || GetSysTimeMs() - connectCheckTime > 2000)
+        return;
+    
     DCD_EP_Tx(&USB_OTG_dev, 1, dataToSend, length);
-	DCD_SetEPStatus(&USB_OTG_dev ,1 , USB_OTG_EP_TX_VALID);
+    DCD_SetEPStatus(&USB_OTG_dev ,1 , USB_OTG_EP_TX_VALID);
 }
 
 /**********************************************************************************************************
@@ -73,6 +78,8 @@ void Usb_SetRecvCallback(UsbCallback usbCallback)
 **********************************************************************************************************/
 void Usb_Receive(uint8_t *buf, uint8_t len)
 {
+    connectCheckTime = GetSysTimeMs();
+    
     for(u8 i = 0; i<len; i++)
     {
         if(usbCallbackFunc != 0)
@@ -114,7 +121,7 @@ void USBD_USR_DeviceSuspended(void)
 } 
 
 void USBD_USR_DeviceResumed(void)
-{ 
+{  
 }
 
 void USBD_USR_DeviceConnected (void)
