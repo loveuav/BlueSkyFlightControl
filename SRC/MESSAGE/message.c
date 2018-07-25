@@ -14,6 +14,7 @@
 #include "bsklinkDecode.h"
 #include "mavlinkSend.h"
 #include "mavlinkDecode.h"
+#include "mavlinkParam.h"
 #include "drv_usart.h"
 #include "drv_usb.h"
 #include "bsklink.h"
@@ -100,6 +101,8 @@ void MessageInit(void)
     //生成mavlink发送列表    
     SendFreqSort(mavlinkSortResult, mavlinkSendFreq);
     SendListCreate(mavlinkSendFreq, mavlinkSortResult, mavlinkSendList);
+    
+    MavParamSetDefault();
 }
 
 /**********************************************************************************************************

@@ -10,7 +10,7 @@ void MavlinkSendGpsRawInt(uint8_t* sendFlag);
 void MavlinkSendScaledImu(uint8_t* sendFlag);
 void MavlinkSendAttitude(uint8_t* sendFlag);
 
-void MavlinkCurrentParamNumReset(void);
+void MavlinkCurrentParamSet(uint16_t num, uint8_t flag);
 
 #endif
 

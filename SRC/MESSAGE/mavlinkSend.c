@@ -12,6 +12,7 @@
 #include "mavlinkSend.h"
 #include "message.h"
 #include "common/mavlink.h"
+#include "mavlinkParam.h"
 
 #include "board.h"
 #include "FreeRTOS.h"
@@ -32,6 +33,7 @@
 #include "parameter.h"
 
 static uint16_t currentParamNum = 0;
+static uint8_t sendParamListFlag = 0;
 
 /**********************************************************************************************************
 *函 数 名: MavlinkSendHeartbeat
@@ -56,7 +58,7 @@ void MavlinkSendHeartbeat(uint8_t* sendFlag)
     heartbeat.autopilot     = MAV_AUTOPILOT_PX4;    //设置飞控类型为PX4，以便能使用QGroudControl地面站
     heartbeat.base_mode     = 0;
     heartbeat.custom_mode   = 0;
-    heartbeat.system_status = 0;
+    heartbeat.system_status = MAV_STATE_STANDBY;
 
     //mavlink组帧
     mavlink_msg_heartbeat_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &heartbeat);
@@ -117,18 +119,31 @@ void MavlinkSendParamValue(uint8_t* sendFlag)
     if(*sendFlag == DISABLE)
         return;
 
-    if(currentParamNum == PARAM_NUM - 2)
+    if(currentParamNum == MAV_PARAM_NUM)
+    {
         *sendFlag = DISABLE;
+        sendParamListFlag = 0;
+    }
     
     //消息负载赋值
-    ParamGetData(currentParamNum+2, &param_value.param_value, 4);
-    param_value.param_count = PARAM_NUM - 2;
+    param_value.param_value = MavParamGetValue(currentParamNum);
+    param_value.param_count = MAV_PARAM_NUM;
     param_value.param_index = currentParamNum;   
     memset(param_value.param_id, 0, 16);
-    memcpy(param_value.param_id, ParamGetString(currentParamNum), strlen(ParamGetString(currentParamNum)));
+    memcpy(param_value.param_id, MavParamGetString(currentParamNum), strlen(MavParamGetString(currentParamNum)));
     param_value.param_type = MAVLINK_TYPE_FLOAT;
-    currentParamNum++;
     
+    //判断是发送参数列表还是单一参数
+    if(sendParamListFlag)
+    {
+        currentParamNum++;
+    }
+    else
+    {
+        currentParamNum = 0;
+        *sendFlag = DISABLE;
+    }
+   
     //mavlink组帧
     mavlink_msg_param_value_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &param_value);
     //消息帧格式化
@@ -138,14 +153,15 @@ void MavlinkSendParamValue(uint8_t* sendFlag)
 }
 
 /**********************************************************************************************************
-*函 数 名: MavlinkCurrentParamNumReset
-*功能说明: 重置飞控参数发送计数值
-*形    参: 无
+*函 数 名: MavlinkCurrentParamSet
+*功能说明: 设置飞控参数发送计数值
+*形    参: 发送参数起始序号 列表发送标志
 *返 回 值: 无
 **********************************************************************************************************/
-void MavlinkCurrentParamNumReset(void)
+void MavlinkCurrentParamSet(uint16_t num, uint8_t flag)
 {
-    currentParamNum = 0;
+    currentParamNum = num;
+    sendParamListFlag = flag;
 }
 
 /**********************************************************************************************************

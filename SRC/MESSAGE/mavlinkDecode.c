@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "mavlinkDecode.h"
 #include "mavlinkSend.h"
+#include "mavlinkParam.h"
 #include "message.h"
 #include "common/mavlink.h"
 #include <string.h>
@@ -30,7 +31,6 @@
 #include "rc.h"
 #include "ublox.h"
 #include "flightStatus.h"
-
 
 /**********************************************************************************************************
 *函 数 名: MavlinkDecode
@@ -56,13 +56,35 @@ void MavlinkDecode(uint8_t data)
     {
         i++;
     }
-    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_LIST)
+    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_LIST)        
     {
         //请求发送飞控参数列表
         if(MAVLINK_SYSTEM_ID == mavlink_msg_param_request_list_get_target_system(&msg))
         {
-            MavlinkCurrentParamNumReset();
+            MavlinkCurrentParamSet(0, 1);
             MavlinkSendEnable(MAVLINK_MSG_ID_PARAM_VALUE);
+        }
+    }
+    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_SET)                 
+    {
+        //设置飞控参数
+        if(MAVLINK_SYSTEM_ID == mavlink_msg_param_set_get_target_system(&msg))
+        {
+            int paramIndex = -1;
+            static mavlink_param_set_t param_set;
+            
+            //帧解析
+            mavlink_msg_param_set_decode(&msg, &param_set);
+            //根据参数标识符获取参数ID
+            paramIndex = MavParamGetIdByName((char*)param_set.param_id);
+
+            if (paramIndex >= 0 && paramIndex < MAV_PARAM_NUM) 
+            {
+                MavParamSetValue(paramIndex, param_set.param_value);  
+                //返回参数给地面站
+                MavlinkCurrentParamSet(paramIndex, 0);
+                MavlinkSendEnable(MAVLINK_MSG_ID_PARAM_VALUE);
+            }
         }
     }
 }

@@ -546,6 +546,11 @@
               <FileType>1</FileType>
               <FilePath>..\SRC\MESSAGE\mavlinkDecode.c</FilePath>
             </File>
+            <File>
+              <FileName>mavlinkParam.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MESSAGE\mavlinkParam.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
