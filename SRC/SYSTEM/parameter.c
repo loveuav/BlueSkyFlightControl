@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     parameter.c
- * @说明     飞控参数存储
+ * @说明     飞控参数
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -13,6 +13,57 @@
 #include "drv_flash.h"
 #include "mathTool.h"
 #include "flightStatus.h"
+
+//参数字符标识，不能超过16个字符
+const char* paramStrings[] = 
+{
+    "GYRO_OFFSET_X",
+    "GYRO_OFFSET_Y",
+    "GYRO_OFFSET_Z",
+    "GYRO_SCALE_X",
+    "GYRO_SCALE_Y",
+    "GYRO_SCALE_Z",
+    "ACC_OFFSET_X",
+    "ACC_OFFSET_Y",
+    "ACC_OFFSET_Z",
+    "ACC_SCALE_X",
+    "ACC_SCALE_Y",
+    "ACC_SCALE_Z",
+    "MAG_OFFSET_X",
+    "MAG_OFFSET_Y",
+    "MAG_OFFSET_Z",
+    "MAG_SCALE_X",
+    "MAG_SCALE_Y",
+    "MAG_SCALE_Z",
+    "MAG_EARTH_MAG",
+    "IMU_LEVEL_X",
+    "IMU_LEVEL_Y",
+    "IMU_LEVEL_Z",	
+    "ATT_INNER_X_KP",
+    "ATT_INNER_X_KI",
+    "ATT_INNER_X_KD",   
+    "ATT_INNER_Y_KP",
+    "ATT_INNER_Y_KI",
+    "ATT_INNER_Y_KD",   
+    "ATT_INNER_Z_KP",
+    "ATT_INNER_Z_KI",
+    "ATT_INNER_Z_KD", 
+    "ATT_OUTER_X_KP",
+    "ATT_OUTER_Y_KP",
+    "ATT_OUTER_Z_KP",     
+    "POS_INNER_X_KP",
+    "POS_INNER_X_KI",
+    "POS_INNER_X_KD",   
+    "POS_INNER_Y_KP",
+    "POS_INNER_Y_KI",
+    "POS_INNER_Y_KD",   
+    "POS_INNER_Z_KP",
+    "POS_INNER_Z_KI",
+    "POS_INNER_Z_KD", 
+    "POS_OUTER_X_KP",
+    "POS_OUTER_Y_KP",
+    "POS_OUTER_Z_KP"
+};
 
 static void ParamReadFromFlash(void);
 
@@ -142,5 +193,15 @@ void ParamGetData(uint16_t dataNum, void *data, uint8_t length)
 	memcpy(data, param_data+dataNum*4, length);
 }
 
+/**********************************************************************************************************
+*函 数 名: ParamGetString
+*功能说明: 获取参数标识符
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+const char* ParamGetString(uint8_t paramNum)
+{
+	return paramStrings[paramNum];
+}
 
 

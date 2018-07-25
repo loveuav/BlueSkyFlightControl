@@ -64,7 +64,7 @@ void BsklinkDecode(uint8_t data)
         if(msg.length == 0)
         {
             //往地面站发送PID参数
-            MessageSendEnable(BSKLINK_MSG_ID_PID_ATT);
+            BsklinkSendEnable(BSKLINK_MSG_ID_PID_ATT);
         }
         else
         {
@@ -79,7 +79,7 @@ void BsklinkDecode(uint8_t data)
         if(msg.length == 0)
         {
             //往地面站发送PID参数
-            MessageSendEnable(BSKLINK_MSG_ID_PID_POS);
+            BsklinkSendEnable(BSKLINK_MSG_ID_PID_POS);
         }
         else
         {

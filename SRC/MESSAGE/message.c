@@ -36,7 +36,13 @@ enum MESSAGE_TYPE
     MAVLINK = 2
 };
 
-//mavlink中心跳包ID为0，无法参与发送列表排序，故为其重新定义一个ID（仅用于参与排序）
+/*
+mavlink协议参考
+http://mavlink.org/messages/common
+https://mavlink.io/en/messages/common.html
+*/
+
+//mavlink的心跳包ID为0，无法参与发送列表排序，故为其重新定义一个ID（仅用于参与排序）
 #define MAVLINK_MSG_ID_HEARTBEAT2   180     
 
 uint8_t bsklinkSendFlag[0xFF];	            //发送标志位
@@ -82,8 +88,11 @@ void MessageInit(void)
     bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;  
     bsklinkSendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
     //mavlink发送频率
+    mavlinkSendFreq[MAVLINK_MSG_ID_SYS_STATUS]         = 1;
+    mavlinkSendFreq[MAVLINK_MSG_ID_GPS_RAW_INT]        = 1;
     mavlinkSendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 15;
-    mavlinkSendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;
+    mavlinkSendFreq[MAVLINK_MSG_ID_SCALED_IMU]         = 5;
+    mavlinkSendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;     //心跳包发送频率为固定1Hz
     
     //生成bsklink发送列表
     SendFreqSort(bsklinkSortResult, bsklinkSendFreq);
@@ -130,11 +139,19 @@ void MessageSendLoop(void)
     }
     else if(messageType == MAVLINK)
     {
-        //根据发送列表来使能对应的数据帧发送标志位
-        mavlinkSendFlag[mavlinkSendList[(i++) % MAX_SEND_FREQ]] = ENABLE;  
-        
-        MavlinkSendAttitude(&mavlinkSendFlag[MAVLINK_MSG_ID_ATTITUDE]);                    //姿态角度和角速度
-        MavlinkSendHeartbeat(&mavlinkSendFlag[MAVLINK_MSG_ID_HEARTBEAT2]);                 //心跳包
+        if(mavlinkSendFlag[MAVLINK_MSG_ID_PARAM_VALUE])
+            MavlinkSendParamValue(&mavlinkSendFlag[MAVLINK_MSG_ID_PARAM_VALUE]);               //飞控参数
+        else
+        {
+            //根据发送列表来使能对应的数据帧发送标志位
+            mavlinkSendFlag[mavlinkSendList[(i++) % MAX_SEND_FREQ]] = ENABLE;  
+            
+            MavlinkSendSysStatus(&mavlinkSendFlag[MAVLINK_MSG_ID_SYS_STATUS]);                 //系统状态
+            MavlinkSendGpsRawInt(&mavlinkSendFlag[MAVLINK_MSG_ID_GPS_RAW_INT]);                //GPS原始数据
+            MavlinkSendAttitude(&mavlinkSendFlag[MAVLINK_MSG_ID_ATTITUDE]);                    //姿态角度和角速度
+            MavlinkSendScaledImu(&mavlinkSendFlag[MAVLINK_MSG_ID_SCALED_IMU]);                 //IMU原始数据
+            MavlinkSendHeartbeat(&mavlinkSendFlag[MAVLINK_MSG_ID_HEARTBEAT2]);                 //心跳包
+        }
     }
 }
 
@@ -189,14 +206,25 @@ void MessageSensorCaliFeedbackEnable(uint8_t type, uint8_t step, uint8_t success
 }
 
 /**********************************************************************************************************
-*函 数 名: MessageSendEnable
-*功能说明: 消息发送使能
+*函 数 名: BsklinkSendEnable
+*功能说明: bsklink消息发送使能
 *形    参: 消息ID
 *返 回 值: 无
 **********************************************************************************************************/
-void MessageSendEnable(uint8_t msgid)
+void BsklinkSendEnable(uint8_t msgid)
 {
     bsklinkSendFlag[msgid] = ENABLE;
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendEnable
+*功能说明: mavlink消息发送使能
+*形    参: 消息ID
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendEnable(uint8_t msgid)
+{
+    mavlinkSendFlag[msgid] = ENABLE;
 }
 
 /**********************************************************************************************************

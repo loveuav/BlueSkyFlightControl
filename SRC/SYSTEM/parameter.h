@@ -66,6 +66,7 @@ void ParamInit(void);
 void ParamSaveToFlash(void);
 void ParamUpdateData(uint16_t dataNum, const void * data);
 void ParamGetData(uint16_t dataNum, void *data, uint8_t length);
+const char* ParamGetString(uint8_t paramNum);
 
 #endif
 

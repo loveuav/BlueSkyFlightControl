@@ -10,6 +10,7 @@
  * @日期     2018.07
 **********************************************************************************************************/
 #include "mavlinkDecode.h"
+#include "mavlinkSend.h"
 #include "message.h"
 #include "common/mavlink.h"
 #include <string.h>
@@ -50,6 +51,19 @@ void MavlinkDecode(uint8_t data)
     if(msg.msgid == MAVLINK_MSG_ID_HEARTBEAT)
     {
         i++;
+    }
+    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_READ)
+    {
+        i++;
+    }
+    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_LIST)
+    {
+        //请求发送飞控参数列表
+        if(MAVLINK_SYSTEM_ID == mavlink_msg_param_request_list_get_target_system(&msg))
+        {
+            MavlinkCurrentParamNumReset();
+            MavlinkSendEnable(MAVLINK_MSG_ID_PARAM_VALUE);
+        }
     }
 }
 
