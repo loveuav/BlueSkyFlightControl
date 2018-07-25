@@ -32,6 +32,8 @@
 #include "ublox.h"
 #include "flightStatus.h"
 
+static void MavlinkDecodeCommand(mavlink_command_long_t command);
+    
 /**********************************************************************************************************
 *函 数 名: MavlinkDecode
 *功能说明: 消息解析
@@ -42,7 +44,6 @@ void MavlinkDecode(uint8_t data)
 {
     static mavlink_message_t msg;
     static mavlink_status_t  status;
-    static uint32_t i=0;
     
     //对接收到的字节数据进行帧解析，接收完一帧时再继续对帧数据进行解析   
     if(mavlink_parse_char(0, data, &msg, &status) == false)
@@ -50,11 +51,9 @@ void MavlinkDecode(uint8_t data)
     
     if(msg.msgid == MAVLINK_MSG_ID_HEARTBEAT)
     {
-        i++;
     }
     else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_READ)
     {
-        i++;
     }
     else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_LIST)        
     {
@@ -72,7 +71,6 @@ void MavlinkDecode(uint8_t data)
         {
             int paramIndex = -1;
             static mavlink_param_set_t param_set;
-            
             //帧解析
             mavlink_msg_param_set_decode(&msg, &param_set);
             //根据参数标识符获取参数ID
@@ -87,6 +85,70 @@ void MavlinkDecode(uint8_t data)
             }
         }
     }
+    else if(msg.msgid == MAVLINK_MSG_ID_COMMAND_LONG)
+    {
+        if (MAVLINK_SYSTEM_ID == mavlink_msg_command_long_get_target_system(&msg))
+        {
+            static mavlink_command_long_t command;
+            //帧解析
+            mavlink_msg_command_long_decode(&msg, &command); 
+            //命令解析
+            MavlinkDecodeCommand(command);           
+        }
+    }
 }
 
-
+/**********************************************************************************************************
+*函 数 名: MavlinkDecodeCommand
+*功能说明: 命令解析
+*形    参: 接收数据
+*返 回 值: 无
+**********************************************************************************************************/
+static void MavlinkDecodeCommand(mavlink_command_long_t command)
+{
+    switch(command.command)
+    {
+        /*传感器校准*/
+        case MAV_CMD_PREFLIGHT_CALIBRATION:
+            if(GetArmedStatus() == DISARMED)
+            { 
+                if(command.param1 == 1)          //校准陀螺仪
+                {
+                    GyroCalibrateEnable();
+                }
+                else if(command.param2 == 1)     //校准罗盘
+                {
+                    
+                }
+                else if(command.param5 == 1)     //校准加速度计
+                {
+                    
+                }
+                else if(command.param5 == 2)     //校准水平
+                {
+                    
+                }
+            
+                MavlinkSetCommandAck(MAV_CMD_PREFLIGHT_CALIBRATION, MAV_CMD_ACK_OK);
+            }
+            else
+            {
+                MavlinkSetCommandAck(MAV_CMD_PREFLIGHT_CALIBRATION, MAV_CMD_ACK_ERR_FAIL);
+            }
+            
+            MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);
+            break;
+            
+        /*请求协议版本，如果不支持mavlink2则不回应*/
+        case MAV_CMD_REQUEST_PROTOCOL_VERSION:
+            break;
+        
+        case MAV_CMD_REQUEST_AUTOPILOT_CAPABILITIES:
+            MavlinkSetCommandAck(MAV_CMD_REQUEST_AUTOPILOT_CAPABILITIES, MAV_CMD_ACK_OK);
+            MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);            
+            break;
+        
+        default:
+            break;
+    }
+}

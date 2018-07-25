@@ -35,6 +35,8 @@
 static uint16_t currentParamNum = 0;
 static uint8_t sendParamListFlag = 0;
 
+mavlink_command_ack_t commandAck;
+
 /**********************************************************************************************************
 *函 数 名: MavlinkSendHeartbeat
 *功能说明: 发送心跳包
@@ -123,6 +125,7 @@ void MavlinkSendParamValue(uint8_t* sendFlag)
     {
         *sendFlag = DISABLE;
         sendParamListFlag = 0;
+        return;
     }
     
     //消息负载赋值
@@ -269,6 +272,72 @@ void MavlinkSendAttitude(uint8_t* sendFlag)
     
     //mavlink组帧
     mavlink_msg_attitude_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &attitude);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendCommandAck
+*功能说明: 发送命令回应
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendCommandAck(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //mavlink组帧
+    mavlink_msg_command_ack_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &commandAck);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkCurrentParamSet
+*功能说明: 设置飞控参数发送计数值
+*形    参: 发送参数起始序号 列表发送标志
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSetCommandAck(uint16_t command, uint8_t result)
+{
+    commandAck.command = command;
+    commandAck.result  = result;
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendAttitude
+*功能说明: 发送角度及角速度
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendStatusText(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_statustext_t statustext;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+
+    
+    //mavlink组帧
+    mavlink_msg_statustext_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &statustext);
     //消息帧格式化
     msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
     //发送消息帧

@@ -115,16 +115,15 @@ void MessageSendLoop(void)
 {    
     static uint32_t i = 0;
     
+    /*bsklink发送循环*/
     if(messageType == BSKLINK)
     {
-        //根据需求发送的数据帧
         if(bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] == ENABLE) 					   //传感器校准反馈 
             BsklinkSendSensorCaliCmd(&bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD], sensorCali.type, sensorCali.step, sensorCali.successFlag);                  
         else if(bsklinkSendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
             BsklinkSendPidAtt(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_ATT]);                   //姿态PID    
         else if(bsklinkSendFlag[BSKLINK_MSG_ID_PID_POS] == ENABLE)
             BsklinkSendPidPos(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_POS]);                   //位置PID
-        //循环发送的数据
         else
         {
             //根据发送列表来使能对应的数据帧发送标志位
@@ -140,10 +139,13 @@ void MessageSendLoop(void)
             BsklinkSendHeartBeat(&bsklinkSendFlag[BSKLINK_MSG_ID_HEARTBEAT]);              //心跳包
         }
     }
+    /*mavlink发送循环*/
     else if(messageType == MAVLINK)
     {
         if(mavlinkSendFlag[MAVLINK_MSG_ID_PARAM_VALUE])
             MavlinkSendParamValue(&mavlinkSendFlag[MAVLINK_MSG_ID_PARAM_VALUE]);               //飞控参数
+        else if(mavlinkSendFlag[MAVLINK_MSG_ID_COMMAND_ACK])
+            MavlinkSendCommandAck(&mavlinkSendFlag[MAVLINK_MSG_ID_COMMAND_ACK]);               //命令响应
         else
         {
             //根据发送列表来使能对应的数据帧发送标志位
