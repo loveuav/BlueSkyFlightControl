@@ -3,11 +3,11 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     message.c
- * @说明     飞控数据通信，所有通信采用小端模式
- * @版本  	 V1.0
+ * @说明     飞控数据通信，所有通信采用小端模式。通信协议自适应，根据第一次接收到的数据帧决定使用bsklink或mavlink
+ * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.07
 **********************************************************************************************************/
 #include "message.h"
 #include "bsklinkSend.h"
@@ -28,22 +28,35 @@
 #include "motor.h"
 #include "gps.h"
 
-/***************通信协议选择***************/
-//#define BSKLINK
-#define MAVLINK
-/******************************************/
+//通信协议类型
+enum MESSAGE_TYPE
+{
+    UNKNOWN = 0,
+    BSKLINK = 1,
+    MAVLINK = 2
+};
 
-#define MAVLINK_MSG_ID_HEARTBEAT2   180    //mavlink中心跳包ID为0，无法参与发送列表排序，故为其重新定义一个ID（仅用于参与排序）
+//mavlink中心跳包ID为0，无法参与发送列表排序，故为其重新定义一个ID（仅用于参与排序）
+#define MAVLINK_MSG_ID_HEARTBEAT2   180     
 
-uint8_t sendFlag[0xFF];	            //发送标志位
-uint8_t sendFreq[0xFF];	            //发送频率
-uint8_t sortResult[0xFF];           
-uint8_t sendList[MAX_SEND_FREQ];    //发送列表
+uint8_t bsklinkSendFlag[0xFF];	            //发送标志位
+uint8_t bsklinkSendFreq[0xFF];	            //发送频率
+uint8_t bsklinkSortResult[0xFF];            //发送频率排序
+uint8_t bsklinkSendList[MAX_SEND_FREQ];     //发送列表
+
+uint8_t mavlinkSendFlag[0xFF];	            //发送标志位
+uint8_t mavlinkSendFreq[0xFF];	            //发送频率
+uint8_t mavlinkSortResult[0xFF];            //发送频率排序
+uint8_t mavlinkSendList[MAX_SEND_FREQ];     //发送列表
+
+//定义通信协议类型，根据接收到的数据帧进行自动检测
+enum MESSAGE_TYPE messageType = UNKNOWN;
 
 BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t sensorCali;
 
-void SendFreqSort(void);
-void SendListCreate(void);
+static void MessageProtocolTypeDetect(uint8_t data);
+static void SendFreqSort(uint8_t* sortResult, uint8_t* sendFreq);
+static void SendListCreate(uint8_t* sendFreq, uint8_t* sortResult, uint8_t* sendList);
 
 /**********************************************************************************************************
 *函 数 名: MessageInit
@@ -53,38 +66,31 @@ void SendListCreate(void);
 **********************************************************************************************************/
 void MessageInit(void)
 {
-    //设置数据通信串口接收中断回调函数
-    #ifdef BSKLINK
-    Usart_SetIRQCallback(DATA_UART, BsklinkDecode);
-    Usb_SetRecvCallback(BsklinkDecode);
-    #endif
-
-    #ifdef MAVLINK
-    Usart_SetIRQCallback(DATA_UART, MavlinkDecode);
-    Usb_SetRecvCallback(MavlinkDecode);
-    #endif
+    //初始化通信协议检测函数为数据接收中断回调函数
+    Usart_SetIRQCallback(DATA_UART, MessageProtocolTypeDetect);
+    Usb_SetRecvCallback(MessageProtocolTypeDetect);
     
-    //初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ
-    #ifdef BSKLINK
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 15;
-    sendFreq[BSKLINK_MSG_ID_SENSOR]             = 5; 
-    sendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1; 
-    sendFreq[BSKLINK_MSG_ID_RC_DATA]            = 5; 
-	sendFreq[BSKLINK_MSG_ID_MOTOR]              = 0; 
-    sendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS]      = 1;
-    sendFreq[BSKLINK_MSG_ID_GPS]                = 2; 
-    sendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;  
-    sendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
-    #endif
+    /*初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ*/
+    //bsklink发送频率
+    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 15;
+    bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR]             = 5; 
+    bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1; 
+    bsklinkSendFreq[BSKLINK_MSG_ID_RC_DATA]            = 5; 
+	bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = 0; 
+    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS]      = 1;
+    bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = 2; 
+    bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;  
+    bsklinkSendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
+    //mavlink发送频率
+    mavlinkSendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 15;
+    mavlinkSendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;
     
-    #ifdef MAVLINK 
-    sendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 15;
-    sendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;
-    #endif
-    
-    //生成发送列表
-    SendFreqSort();
-    SendListCreate();
+    //生成bsklink发送列表
+    SendFreqSort(bsklinkSortResult, bsklinkSendFreq);
+    SendListCreate(bsklinkSendFreq, bsklinkSortResult, bsklinkSendList);
+    //生成mavlink发送列表    
+    SendFreqSort(mavlinkSortResult, mavlinkSendFreq);
+    SendListCreate(mavlinkSendFreq, mavlinkSortResult, mavlinkSendList);
 }
 
 /**********************************************************************************************************
@@ -97,38 +103,74 @@ void MessageSendLoop(void)
 {    
     static uint32_t i = 0;
     
-    #ifdef BSKLINK
-    //根据需求发送的数据帧
-	if(sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] == ENABLE) 						//传感器校准反馈 
-        BsklinkSendSensorCaliCmd(&sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD], sensorCali.type, sensorCali.step, sensorCali.successFlag);                  
-    else if(sendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
-        BsklinkSendPidAtt(&sendFlag[BSKLINK_MSG_ID_PID_ATT]);                   //姿态PID    
-    else if(sendFlag[BSKLINK_MSG_ID_PID_POS] == ENABLE)
-        BsklinkSendPidPos(&sendFlag[BSKLINK_MSG_ID_PID_POS]);                   //位置PID
-    //循环发送的数据
-    else
+    if(messageType == BSKLINK)
+    {
+        //根据需求发送的数据帧
+        if(bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] == ENABLE) 					   //传感器校准反馈 
+            BsklinkSendSensorCaliCmd(&bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD], sensorCali.type, sensorCali.step, sensorCali.successFlag);                  
+        else if(bsklinkSendFlag[BSKLINK_MSG_ID_PID_ATT] == ENABLE)
+            BsklinkSendPidAtt(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_ATT]);                   //姿态PID    
+        else if(bsklinkSendFlag[BSKLINK_MSG_ID_PID_POS] == ENABLE)
+            BsklinkSendPidPos(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_POS]);                   //位置PID
+        //循环发送的数据
+        else
+        {
+            //根据发送列表来使能对应的数据帧发送标志位
+            bsklinkSendFlag[bsklinkSendList[(i++) % MAX_SEND_FREQ]] = ENABLE; 
+            
+            BsklinkSendFlightData(&bsklinkSendFlag[BSKLINK_MSG_ID_FLIGHT_DATA]);           //基本飞行数据
+            BsklinkSendFlightStatus(&bsklinkSendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS]);       //飞行状态信息
+            BsklinkSendSensor(&bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR]);                    //传感器数据
+            BsklinkSendSensorCaliData(&bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR_CALI_DATA]);  //传感器校准数据
+            BsklinkSendRcData(&bsklinkSendFlag[BSKLINK_MSG_ID_RC_DATA]);                   //遥控通道数据
+            BsklinkSendMotor(&bsklinkSendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
+            BsklinkSendGps(&bsklinkSendFlag[BSKLINK_MSG_ID_GPS]);                          //GPS数据
+            BsklinkSendHeartBeat(&bsklinkSendFlag[BSKLINK_MSG_ID_HEARTBEAT]);              //心跳包
+        }
+    }
+    else if(messageType == MAVLINK)
     {
         //根据发送列表来使能对应的数据帧发送标志位
-        sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE; 
+        mavlinkSendFlag[mavlinkSendList[(i++) % MAX_SEND_FREQ]] = ENABLE;  
         
-        BsklinkSendFlightData(&sendFlag[BSKLINK_MSG_ID_FLIGHT_DATA]);          //基本飞行数据
-        BsklinkSendFlightStatus(&sendFlag[BSKLINK_MSG_ID_FLIGHT_STATUS]);      //飞行状态信息
-        BsklinkSendSensor(&sendFlag[BSKLINK_MSG_ID_SENSOR]);                   //传感器数据
-        BsklinkSendSensorCaliData(&sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_DATA]); //传感器校准数据
-        BsklinkSendRcData(&sendFlag[BSKLINK_MSG_ID_RC_DATA]);                  //遥控通道数据
-		BsklinkSendMotor(&sendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
-        BsklinkSendGps(&sendFlag[BSKLINK_MSG_ID_GPS]);                         //GPS数据
-        BsklinkSendHeartBeat(&sendFlag[BSKLINK_MSG_ID_HEARTBEAT]);             //心跳包
+        MavlinkSendAttitude(&mavlinkSendFlag[MAVLINK_MSG_ID_ATTITUDE]);                    //姿态角度和角速度
+        MavlinkSendHeartbeat(&mavlinkSendFlag[MAVLINK_MSG_ID_HEARTBEAT2]);                 //心跳包
     }
-    #endif
-    
-    #ifdef MAVLINK 
-    //根据发送列表来使能对应的数据帧发送标志位
-    sendFlag[sendList[(i++) % MAX_SEND_FREQ]] = ENABLE;  
-    
-    MavlinkSendAttitude(&sendFlag[MAVLINK_MSG_ID_ATTITUDE]);
-    MavlinkSendHeartbeat(&sendFlag[MAVLINK_MSG_ID_HEARTBEAT2]);         //心跳包
-    #endif
+}
+
+/**********************************************************************************************************
+*函 数 名: MessageProtocolTypeDetect
+*功能说明: 通信协议检测
+*形    参: 接收数据
+*返 回 值: 无
+**********************************************************************************************************/
+static void MessageProtocolTypeDetect(uint8_t data)
+{
+    static BSKLINK_MSG_t bskMsg;
+    static mavlink_message_t mavMsg;
+    static mavlink_status_t  mavStatus;  
+  
+    //检测bsklink协议
+    if(BsklinkParseChar(&bskMsg, data) == true)  
+    {
+        //设置协议类型为bsklink
+        messageType = BSKLINK;
+        
+        //重新设置数据接收中断回调函数
+        Usart_SetIRQCallback(DATA_UART, BsklinkDecode);
+        Usb_SetRecvCallback(BsklinkDecode);
+    }  
+
+    //检测mavlink协议
+    if(mavlink_parse_char(0, data, &mavMsg, &mavStatus) == true)
+    {
+        //设置协议类型为mavlink
+        messageType = MAVLINK;
+        
+        //重新设置数据接收中断回调函数
+        Usart_SetIRQCallback(DATA_UART, MavlinkDecode);
+        Usb_SetRecvCallback(MavlinkDecode);  
+    }
 }
 
 /**********************************************************************************************************
@@ -139,7 +181,7 @@ void MessageSendLoop(void)
 **********************************************************************************************************/
 void MessageSensorCaliFeedbackEnable(uint8_t type, uint8_t step, uint8_t success)
 {
-	sendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] = ENABLE;
+	bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR_CALI_CMD] = ENABLE;
 	
 	sensorCali.type = type;
 	sensorCali.successFlag = success;
@@ -154,16 +196,16 @@ void MessageSensorCaliFeedbackEnable(uint8_t type, uint8_t step, uint8_t success
 **********************************************************************************************************/
 void MessageSendEnable(uint8_t msgid)
 {
-    sendFlag[msgid] = ENABLE;
+    bsklinkSendFlag[msgid] = ENABLE;
 }
 
 /**********************************************************************************************************
 *函 数 名: SendFreqSort
 *功能说明: 根据消息发送频率来给消息ID排序
-*形    参: 无
+*形    参: 排序结果数组指针 发送频率数组指针
 *返 回 值: 无
 **********************************************************************************************************/
-void SendFreqSort(void)
+static void SendFreqSort(uint8_t* sortResult, uint8_t* sendFreq)
 {
     uint8_t i = 0, j = 0;
     uint8_t temp;
@@ -207,10 +249,10 @@ void SendFreqSort(void)
 /**********************************************************************************************************
 *函 数 名: SendListCreate
 *功能说明: 根据各消息帧的发送频率自动生成发送列表
-*形    参: 无
+*形    参: 发送频率数组指针 排序结果数组指针 发送列表数组指针
 *返 回 值: 无
 **********************************************************************************************************/
-void SendListCreate(void)
+static void SendListCreate(uint8_t* sendFreq, uint8_t* sortResult, uint8_t* sendList)
 {
     uint8_t sendNum = 0;
     uint8_t i, j;
