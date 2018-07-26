@@ -10,9 +10,12 @@
  * @日期     2018.05 
 **********************************************************************************************************/
 #include "accelerometer.h"
+#include "flightStatus.h"
+#include "sensor.h"
 #include "parameter.h"
 #include "gaussNewton.h"
 #include "message.h"
+#include "mavlinkSend.h"
 
 ACCELEROMETER_t acc;
 
@@ -102,39 +105,197 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 void AccCalibration(Vector3f_t accRaw)
 {
     static uint16_t samples_count = 0;
+    static uint8_t orientationCaliFlag[6];
+    static uint8_t currentOrientation;
 	static Vector3f_t new_offset;
 	static Vector3f_t new_scale;
     static Vector3f_t samples[6];
+    static uint8_t caliFlag = 0;
+    static uint32_t caliCnt = 0;
     
-	if(acc.cali.should_cali)
-	{
-		acc.cali.step++;
-		acc.cali.should_cali = 0;
-		samples_count = 0;		
-	}
+	if(!acc.cali.should_cali)
+        return;
     
-    //分别采集加速度计六个方向的数据，顺序随意，每个方向取100个样本求平均值
- 	if(acc.cali.step)
+    /*********************************检测IMU放置方向************************************/
+    if(GetImuOrientation() == ORIENTATION_UP && !orientationCaliFlag[ORIENTATION_UP])
+    {
+        //判断IMU是否处于静止状态
+        if(GetPlaceStatus() == STATIC)
+            caliCnt++;
+        else
+            caliCnt = 0;
+        
+        if(caliCnt > 1000)
+        {
+            caliFlag = 1;
+            orientationCaliFlag[ORIENTATION_UP] = 1;
+            samples_count = 0;
+            acc.cali.step++;
+            currentOrientation = ORIENTATION_UP;
+            //mavlink发送检测提示
+            MavlinkSendNoticeEnable(CAL_UP_DETECTED);
+        }
+    }
+
+    if(GetImuOrientation() == ORIENTATION_DOWN && !orientationCaliFlag[ORIENTATION_DOWN])
+    {
+        //判断IMU是否处于静止状态
+        if(GetPlaceStatus() == STATIC)
+            caliCnt++;
+        else
+            caliCnt = 0;
+        
+        if(caliCnt > 1000)
+        {
+            caliFlag = 1;
+            orientationCaliFlag[ORIENTATION_DOWN] = 1;
+            samples_count = 0;
+            acc.cali.step++;
+            currentOrientation = ORIENTATION_DOWN;
+            //mavlink发送检测提示
+            MavlinkSendNoticeEnable(CAL_DOWN_DETECTED);
+        }
+    }
+
+    if(GetImuOrientation() == ORIENTATION_FRONT && !orientationCaliFlag[ORIENTATION_FRONT])
+    {
+        //判断IMU是否处于静止状态
+        if(GetPlaceStatus() == STATIC)
+            caliCnt++;
+        else
+            caliCnt = 0;
+        
+        if(caliCnt > 1000)
+        {
+            caliFlag = 1;
+            orientationCaliFlag[ORIENTATION_FRONT] = 1;           
+            samples_count = 0;
+            acc.cali.step++;
+            currentOrientation = ORIENTATION_FRONT;
+            //mavlink发送检测提示
+            MavlinkSendNoticeEnable(CAL_FRONT_DETECTED);
+        }
+    }
+
+    if(GetImuOrientation() == ORIENTATION_BACK && !orientationCaliFlag[ORIENTATION_BACK])
+    {
+        //判断IMU是否处于静止状态
+        if(GetPlaceStatus() == STATIC)
+            caliCnt++;
+        else
+            caliCnt = 0;
+        
+        if(caliCnt > 1000)
+        {
+            caliFlag = 1;
+            orientationCaliFlag[ORIENTATION_BACK] = 1;              
+            samples_count = 0;
+            acc.cali.step++;
+            currentOrientation = ORIENTATION_BACK;
+            //mavlink发送检测提示
+            MavlinkSendNoticeEnable(CAL_BACK_DETECTED);
+        }
+    }
+
+    if(GetImuOrientation() == ORIENTATION_LEFT && !orientationCaliFlag[ORIENTATION_LEFT])
+    {
+        //判断IMU是否处于静止状态
+        if(GetPlaceStatus() == STATIC)
+            caliCnt++;
+        else
+            caliCnt = 0;
+        
+        if(caliCnt > 1000)
+        {
+            caliFlag = 1;
+            orientationCaliFlag[ORIENTATION_LEFT] = 1;              
+            samples_count = 0;
+            acc.cali.step++;
+            currentOrientation = ORIENTATION_LEFT;
+            //mavlink发送检测提示
+            MavlinkSendNoticeEnable(CAL_LEFT_DETECTED);                    
+        }
+    }
+
+    if(GetImuOrientation() == ORIENTATION_RIGHT && !orientationCaliFlag[ORIENTATION_RIGHT])
+    {
+        //判断IMU是否处于静止状态
+        if(GetPlaceStatus() == STATIC)
+            caliCnt++;
+        else
+            caliCnt = 0;
+        
+        if(caliCnt > 1000)
+        {
+            caliFlag = 1;
+            orientationCaliFlag[ORIENTATION_RIGHT] = 1;              
+            samples_count = 0;
+            acc.cali.step++;
+            currentOrientation = ORIENTATION_RIGHT;
+            //mavlink发送检测提示
+            MavlinkSendNoticeEnable(CAL_RIGHT_DETECTED);                      
+        }
+    }
+    /****************************************************************************************/
+    
+    //分别采集加速度计六个方向的数据，顺序随意，每个方向取500个样本求平均值
+ 	if(caliFlag)
 	{
-		if(samples_count < 100)
+		if(samples_count < 500)
 		{
 			samples[acc.cali.step - 1].x += accRaw.x;
 			samples[acc.cali.step - 1].y += accRaw.y;
 			samples[acc.cali.step - 1].z += accRaw.z;
 			samples_count++;
 		}
-		else if(samples_count == 100)
+		else if(samples_count == 500)
 		{   
-			samples[acc.cali.step - 1].x /= 100;
-			samples[acc.cali.step - 1].y /= 100;
-			samples[acc.cali.step - 1].z /= 100;
+			samples[acc.cali.step - 1].x /= 500;
+			samples[acc.cali.step - 1].y /= 500;
+			samples[acc.cali.step - 1].z /= 500;
 			samples_count++;
-            //发送当前校准步骤
-            MessageSensorCaliFeedbackEnable(ACC, acc.cali.step, acc.cali.success);            
+            
+            caliFlag = 0;
+            caliCnt  = 0;
+            
+            //bsklink发送当前校准步骤
+            MessageSensorCaliFeedbackEnable(ACC, acc.cali.step, acc.cali.success);  
+
+            //mavlink发送当前校准步骤
+            switch(currentOrientation)
+            {
+                case ORIENTATION_UP:
+                    MavlinkSendNoticeEnable(CAL_UP_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    break;
+                case ORIENTATION_DOWN:
+                    MavlinkSendNoticeEnable(CAL_DOWN_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    break;
+                case ORIENTATION_FRONT:
+                    MavlinkSendNoticeEnable(CAL_FRONT_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    break;
+                case ORIENTATION_BACK:
+                    MavlinkSendNoticeEnable(CAL_BACK_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    break;
+                case ORIENTATION_LEFT:
+                    MavlinkSendNoticeEnable(CAL_LEFT_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    break;
+                case ORIENTATION_RIGHT:
+                    MavlinkSendNoticeEnable(CAL_RIGHT_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    break;
+                default:
+                    break;
+            }
+                         
 		}		
 	}
 
-	if(acc.cali.step == 6 && samples_count == 101)
+	if(acc.cali.step == 6 && samples_count == 501)
 	{		
 		//高斯牛顿法求解误差方程
 		GaussNewtonCalibrate(samples, &new_offset, &new_scale, 1, 20);
@@ -172,15 +333,22 @@ void AccCalibration(Vector3f_t accRaw)
 			ParamUpdateData(PARAM_ACC_SCALE_X, &acc.cali.scale.x);
 			ParamUpdateData(PARAM_ACC_SCALE_Y, &acc.cali.scale.y);
 			ParamUpdateData(PARAM_ACC_SCALE_Z, &acc.cali.scale.z);
+            
+            //mavlink发送校准结果
+            MavlinkSendNoticeEnable(CAL_DONE);
 		}
         else
         {
-            
+            //mavlink发送校准结果
+            MavlinkSendNoticeEnable(CAL_FAILED);
         }
 		
 		//发送校准结果
 		MessageSensorCaliFeedbackEnable(ACC, acc.cali.step, acc.cali.success);
+        acc.cali.should_cali = 0;
         acc.cali.step = 0;
+        for(uint8_t i=0; i<6; i++)
+            orientationCaliFlag[i] = 0;
 	}       
 }
 
@@ -242,6 +410,9 @@ void ImuLevelCalibration(void)
 		acc_sum[2] += acc.data.z;
 	}
 	count++;
+
+    //mavlink发送校准进度
+    MavlinkSendNoticeProgress(((float)count / CALIBRATING_ACC_LEVEL_CYCLES) * 10);
 	
 	acc.levelCali.step = 1;
 	
@@ -272,10 +443,16 @@ void ImuLevelCalibration(void)
 			ParamUpdateData(PARAM_IMU_LEVEL_X, &acc.levelCali.scale.x);
 			ParamUpdateData(PARAM_IMU_LEVEL_Y, &acc.levelCali.scale.y);
 			ParamUpdateData(PARAM_IMU_LEVEL_Z, &acc.levelCali.scale.z);
+            
+            //mavlink发送校准结果
+            MavlinkSendNoticeEnable(CAL_DONE);
 		}
 		else
 		{
 			acc.levelCali.success = 0;
+            
+            //bsklink发送校准结果
+            MavlinkSendNoticeEnable(CAL_FAILED);
 		}
 		
 		//发送校准结果
