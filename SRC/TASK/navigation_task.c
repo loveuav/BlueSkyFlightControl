@@ -98,6 +98,9 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
 		//环境风速估计
 		WindEstimate();
         
+        //传感器方向检测（用于校准时的判断）
+        ImuOrientationDetect();
+        
         //睡眠10ms
 		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
 	}

@@ -33,6 +33,17 @@ enum
     ESC
 };
 
+//飞控放置方向
+enum ORIENTATION_STATUS
+{
+	ORIENTATION_UP,
+	ORIENTATION_DOWN,
+	ORIENTATION_LEFT,
+	ORIENTATION_RIGHT,
+	ORIENTATION_FRONT,
+	ORIENTATION_BACK,
+};
+
 typedef struct
 {
 	Vector3f_t offset;	    //零偏误差
@@ -44,6 +55,8 @@ typedef struct
 
 void ImuTempControlInit(void);
 void ImuTempControl(float tempMeasure);
+void ImuOrientationDetect(void);
+enum ORIENTATION_STATUS GetImuOrientation(void);
 
 #endif
 
