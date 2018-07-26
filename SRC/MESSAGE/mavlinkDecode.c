@@ -130,20 +130,22 @@ static void MavlinkDecodeCommand(mavlink_command_long_t command)
             { 
                 if(command.param1 == 1)          //校准陀螺仪
                 {
-                    MavlinkSendNotice(CAL_START);
+                    MavlinkSendNoticeEnable(CAL_START_GYRO);
                     GyroCalibrateEnable();
                 }
                 else if(command.param2 == 1)     //校准罗盘
                 {
-                    
+                    MavlinkSendNoticeEnable(CAL_START_MAG);
                 }
                 else if(command.param5 == 1)     //校准加速度计
                 {
-                    
+                    MavlinkSendNoticeEnable(CAL_START_ACC);
+                    AccCalibrateEnable();
                 }
                 else if(command.param5 == 2)     //校准水平
                 {
-                    
+                    MavlinkSendNoticeEnable(CAL_START_LEVEL);
+                    LevelCalibrateEnable();
                 }
             
                 MavlinkSetCommandAck(MAV_CMD_PREFLIGHT_CALIBRATION, MAV_CMD_ACK_OK);

@@ -240,14 +240,14 @@ void MavParamSetDefault(void)
     mavParam[MAV_BROADCAST] = 0;  
     
     mavParam[CAL_BOARD_ID] = 0; 
-    mavParam[CAL_GYRO0_ID] = 0; 
+    mavParam[CAL_GYRO0_ID] = 125; 
     mavParam[CAL_GYRO0_XOFF] = 0; 
     mavParam[CAL_GYRO0_YOFF] = 0; 
     mavParam[CAL_GYRO0_ZOFF] = 0; 
     mavParam[CAL_GYRO0_XSCALE] = 1; 
     mavParam[CAL_GYRO0_YSCALE] = 1; 
     mavParam[CAL_GYRO0_ZSCALE] = 1; 
-    mavParam[CAL_MAG0_ID] = 396553; 
+    mavParam[CAL_MAG0_ID] = 130; 
     mavParam[CAL_MAG0_ROT] = 16; 
     mavParam[CAL_MAG0_XOFF] = 0; 
     mavParam[CAL_MAG0_YOFF] = 0; 
@@ -255,7 +255,7 @@ void MavParamSetDefault(void)
     mavParam[CAL_MAG0_XSCALE] = 1; 
     mavParam[CAL_MAG0_YSCALE] = 1; 
     mavParam[CAL_MAG0_ZSCALE] = 1; 
-    mavParam[CAL_ACC0_ID] = 0; 
+    mavParam[CAL_ACC0_ID] = 120; 
     mavParam[CAL_ACC0_XOFF] = 0; 
     mavParam[CAL_ACC0_YOFF] = 0; 
     mavParam[CAL_ACC0_ZOFF] = 0; 
@@ -270,7 +270,7 @@ void MavParamSetDefault(void)
     mavParam[CAL_GYRO1_XSCALE] = 1; 
     mavParam[CAL_GYRO1_YSCALE] = 1; 
     mavParam[CAL_GYRO1_ZSCALE] = 1; 
-    mavParam[CAL_MAG1_ID] = 263178; 
+    mavParam[CAL_MAG1_ID] = 0; 
     mavParam[CAL_MAG1_ROT] = -1; 
     mavParam[CAL_MAG1_XOFF] = 0; 
     mavParam[CAL_MAG1_YOFF] = 0; 
@@ -309,10 +309,10 @@ void MavParamSetDefault(void)
     mavParam[CAL_ACC2_YSCALE] = 1; 
     mavParam[CAL_ACC2_ZSCALE] = 1;    
     
-    mavParam[CAL_ACC_PRIME] = 0;
-    mavParam[CAL_GYRO_PRIME] = 0;
-    mavParam[CAL_MAG_PRIME] = 396553;
-    mavParam[CAL_MAG_SIDES] = 34;
+    mavParam[CAL_ACC_PRIME] = 120;
+    mavParam[CAL_GYRO_PRIME] = 125;
+    mavParam[CAL_MAG_PRIME] = 130;
+    mavParam[CAL_MAG_SIDES] = 63;
     mavParam[CAL_BARO_PRIME] = 0;
     mavParam[SENS_DPRES_OFF] = 0;
     mavParam[SENS_DPRES_ANSC] = 0;

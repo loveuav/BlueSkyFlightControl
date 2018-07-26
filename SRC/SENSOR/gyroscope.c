@@ -109,6 +109,9 @@ void GyroCalibration(Vector3f_t gyroRaw)
 	gyro_sum[2] += gyro_raw_temp.z;
 	count++;
     
+    //mavlink发送校准进度
+    MavlinkSendNoticeProgress(((float)count / CALIBRATING_GYRO_CYCLES) * 10);
+    
     gyro.cali.step = 1;
     
 	//陀螺仪校准过程中如果检测到飞机不是静止状态则认为校准失败
@@ -155,12 +158,12 @@ void GyroCalibration(Vector3f_t gyroRaw)
 			ParamUpdateData(PARAM_GYRO_SCALE_Z, &gyro.cali.scale.z);
             
             //mavlink发送校准结果
-            MavlinkSendNotice(CAL_DONE);
+            MavlinkSendNoticeEnable(CAL_DONE);
 		}
 		else
         {
             //mavlink发送校准结果
-            MavlinkSendNotice(CAL_FAILED);
+            MavlinkSendNoticeEnable(CAL_FAILED);
         }
         
 		staticFlag = 0;		

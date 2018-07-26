@@ -35,14 +35,19 @@
 static int16_t currentParamNum = 0;
 
 mavlink_command_ack_t commandAck;
+uint8_t statusTextSendFlag[STATUS_TEXT_NUM];
 char noticeText[50];
 
 //提示文本字符串，单个字符串长度不能超过50个字符
 const char* mavNoticeStrings[] = 
 {
-    "[cal] calibration started:",
+    "[cal] calibration started: 2 gyro",
+    "[cal] calibration started: 2 accel",
+    "[cal] calibration started: 2 mag",
+    "[cal] calibration started: 2 level",
     "[cal] calibration done:",
     "[cal] calibration failed:",
+    "[cal] progress <0>",
     "[cal] progress <10>",
     "[cal] progress <20>",
     "[cal] progress <30>",
@@ -358,10 +363,102 @@ void MavlinkSendStatusText(uint8_t* sendFlag)
 	DataSend(msgBuffer, msgLength);  
 }
 
+/**********************************************************************************************************
+*函 数 名: MavlinkSendNotice
+*功能说明: 发送状态文本
+*形    参: 文本序号
+*返 回 值: 无
+**********************************************************************************************************/
 void MavlinkSendNotice(uint16_t noticeNum)
 {
     MavlinkSendEnable(MAVLINK_MSG_ID_STATUSTEXT);
     memset(noticeText, 0, 50);
     memcpy(noticeText, mavNoticeStrings[noticeNum], strlen(mavNoticeStrings[noticeNum]));
 }
+
+/**********************************************************************************************************
+*函 数 名: MavStatusTextSendCheck
+*功能说明: 状态文本发送检查
+*形    参: 无
+*返 回 值: 状态
+**********************************************************************************************************/
+bool MavStatusTextSendCheck(void)
+{
+    static uint32_t i = 0;
+    uint8_t flag;
+    
+    if(statusTextSendFlag[i % STATUS_TEXT_NUM] == 1)
+    {
+        MavlinkSendNotice(i % STATUS_TEXT_NUM);
+        statusTextSendFlag[i % STATUS_TEXT_NUM] = 0;
+        flag = true;
+    }
+    else
+    {
+        flag = false;
+    }
+    
+    i++;
+    
+    return flag;
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendNoticeEnable
+*功能说明: 状态文本发送使能
+*形    参: 文本序号
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendNoticeEnable(uint16_t noticeNum)
+{
+    statusTextSendFlag[noticeNum] = 1;
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendNoticeProgress
+*功能说明: 发送进度提示
+*形    参: 文本序号
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendNoticeProgress(uint8_t progress)
+{
+    switch(progress)
+    {
+        case 0:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_0);
+            break;  
+        case 1:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_10);
+            break;          
+        case 2:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_20);
+            break;
+        case 3:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_30);
+            break;         
+        case 4:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_40);
+            break;  
+        case 5:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_50);
+            break;          
+        case 6:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_60);
+            break;   
+        case 7:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_70);
+            break; 
+        case 8:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_80);
+            break;   
+        case 9:
+            MavlinkSendNoticeEnable(CAL_PROGRESS_90);
+            break; 
+        default:
+            break;
+    }
+}
+
+
+
 

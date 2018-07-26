@@ -5,9 +5,13 @@
 
 enum
 {
-    CAL_START,
+    CAL_START_GYRO,
+    CAL_START_ACC,
+    CAL_START_MAG,
+    CAL_START_LEVEL,
     CAL_DONE,
     CAL_FAILED,
+    CAL_PROGRESS_0,
     CAL_PROGRESS_10,
     CAL_PROGRESS_20,
     CAL_PROGRESS_30,
@@ -30,6 +34,7 @@ enum
     CAL_RIGHT_DONE,
     CAL_FRONT_DONE,
     CAL_BACK_DONE,
+    STATUS_TEXT_NUM
 };
 
 void MavlinkSendHeartbeat(uint8_t* sendFlag);
@@ -43,7 +48,10 @@ void MavlinkSendStatusText(uint8_t* sendFlag);
 
 void MavlinkCurrentParamSet(uint16_t num);
 void MavlinkSetCommandAck(uint16_t command, uint8_t result);
+bool MavStatusTextSendCheck(void);
+void MavlinkSendNoticeEnable(uint16_t noticeNum);
 void MavlinkSendNotice(uint16_t noticeNum);
+void MavlinkSendNoticeProgress(uint8_t progress);
 
 #endif
 
