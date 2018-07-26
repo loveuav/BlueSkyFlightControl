@@ -261,6 +261,7 @@ enum
     BAT_V_CHARGED,
     BAT_LOW_THR,
     BAT_CRIT_THR,
+    BAT_EMERGEN_THR,
     BAT_V_LOAD_DROP,
     BAT_N_CELLS,
     BAT_CAPACITY,
@@ -272,7 +273,21 @@ enum
     RTL_DESCEND_ALT,
     RTL_LAND_DELAY,
     RTL_MIN_DIST,
-    
+    /*Miscellaneous*/
+    COM_FLTMODE1,
+    COM_FLTMODE2,
+    COM_FLTMODE3,
+    COM_FLTMODE4,
+    COM_FLTMODE5,
+    COM_FLTMODE6,
+    /*Geofence*/
+    GF_ACTION,
+    GF_ALTMODE,
+    GF_SOURCE,
+    GF_COUNT,
+    GF_MAX_HOR_DIST,
+    GF_MAX_VER_DIST,
+    GF_FENCE_SW,
     
     MAV_PARAM_NUM
 };
@@ -284,6 +299,6 @@ float MavParamGetValue(uint16_t num);
 void MavParamSetValue(uint16_t num, float value);
 int MavParamGetIdByName(char *name);
 void MavParamSetDefault(void);
-const char* MavParamGetString(uint8_t num);
+const char* MavParamGetString(uint16_t num);
 
 #endif

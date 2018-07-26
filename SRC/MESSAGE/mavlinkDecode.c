@@ -136,6 +136,7 @@ static void MavlinkDecodeCommand(mavlink_command_long_t command)
                 else if(command.param2 == 1)     //校准罗盘
                 {
                     MavlinkSendNoticeEnable(CAL_START_MAG);
+                    MagCalibrateEnable();
                 }
                 else if(command.param5 == 1)     //校准加速度计
                 {

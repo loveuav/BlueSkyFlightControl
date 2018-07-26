@@ -13,6 +13,9 @@
 #include "mavlinkSend.h"
 #include <string.h>
 
+#include "board.h"
+#include "rotation.h"
+
 float mavParam[MAV_PARAM_NUM];
 
 uint8_t mavParamSendFlag[MAV_PARAM_NUM];
@@ -269,6 +272,7 @@ const char* mavParamStrings[] =
     "BAT_V_CHARGED",
     "BAT_LOW_THR",
     "BAT_CRIT_THR",
+    "BAT_EMERGEN_THR",
     "BAT_V_LOAD_DROP",
     "BAT_N_CELLS",
     "BAT_CAPACITY",
@@ -278,6 +282,19 @@ const char* mavParamStrings[] =
     "RTL_DESCEND_ALT",
     "RTL_LAND_DELAY",
     "RTL_MIN_DIST",
+    "COM_FLTMODE1",
+    "COM_FLTMODE2",
+    "COM_FLTMODE3",
+    "COM_FLTMODE4",
+    "COM_FLTMODE5",
+    "COM_FLTMODE6",
+    "GF_ACTION",
+    "GF_ALTMODE",
+    "GF_SOURCE",
+    "GF_COUNT",
+    "GF_MAX_HOR_DIST",
+    "GF_MAX_VER_DIST",
+    "GF_FENCE_SW",
 };
 
 /**********************************************************************************************************
@@ -358,7 +375,7 @@ void MavParamSetValue(uint16_t num, float value)
 *形    参: 参数序号
 *返 回 值: 字符指针
 **********************************************************************************************************/
-const char* MavParamGetString(uint8_t num)
+const char* MavParamGetString(uint16_t num)
 {
 	return mavParamStrings[num];
 }
@@ -412,7 +429,7 @@ void MavParamSetDefault(void)
     mavParam[CAL_GYRO0_YSCALE] = 1; 
     mavParam[CAL_GYRO0_ZSCALE] = 1; 
     mavParam[CAL_MAG0_ID] = 130; 
-    mavParam[CAL_MAG0_ROT] = 16; 
+    mavParam[CAL_MAG0_ROT] = MAG_ROTATION; 
     mavParam[CAL_MAG0_XOFF] = 0; 
     mavParam[CAL_MAG0_YOFF] = 0; 
     mavParam[CAL_MAG0_ZOFF] = 0; 
@@ -481,7 +498,7 @@ void MavParamSetDefault(void)
     mavParam[SENS_DPRES_OFF] = 0;
     mavParam[SENS_DPRES_ANSC] = 0;
     mavParam[SENS_BARO_QNH] = 1013.25;
-    mavParam[SENS_BOARD_ROT] = 0;
+    mavParam[SENS_BOARD_ROT] = GYRO_ROTATION;
     mavParam[SENS_FLOW_ROT] = 0;
     mavParam[SENS_BOARD_X_OFF] = 0;
     mavParam[SENS_BOARD_Y_OFF] = 0;
@@ -647,6 +664,7 @@ void MavParamSetDefault(void)
     mavParam[BAT_V_CHARGED] = 4.2;
     mavParam[BAT_LOW_THR] = 0.2;
     mavParam[BAT_CRIT_THR] = 0.1;
+    mavParam[BAT_EMERGEN_THR] = 0.05;
     mavParam[BAT_V_LOAD_DROP] = 0.3;
     mavParam[BAT_N_CELLS] = 4;
     mavParam[BAT_CAPACITY] = -1;  
@@ -658,6 +676,21 @@ void MavParamSetDefault(void)
     mavParam[RTL_DESCEND_ALT] = 30;
     mavParam[RTL_LAND_DELAY] = 3;
     mavParam[RTL_MIN_DIST] = 0.5;
+    
+    mavParam[COM_FLTMODE1] = 0;
+    mavParam[COM_FLTMODE2] = 1;
+    mavParam[COM_FLTMODE3] = 2;
+    mavParam[COM_FLTMODE4] = 4;
+    mavParam[COM_FLTMODE5] = 5;
+    mavParam[COM_FLTMODE6] = 5;
+    
+    mavParam[GF_ACTION] = 1;
+    mavParam[GF_ALTMODE] = 0;
+    mavParam[GF_SOURCE] = 0;
+    mavParam[GF_COUNT] = -1;
+    mavParam[GF_MAX_HOR_DIST] = -1;
+    mavParam[GF_MAX_VER_DIST] = -1;
+    mavParam[GF_FENCE_SW] = 1;
 }
 
 

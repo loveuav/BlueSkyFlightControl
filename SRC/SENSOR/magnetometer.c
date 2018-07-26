@@ -16,6 +16,7 @@
 #include "gaussNewton.h"
 #include "faultDetect.h"
 #include "message.h"
+#include "mavlinkSend.h"
 
 enum{
     MaxX,
@@ -170,13 +171,21 @@ void MagCalibration(void)
 				samples[MinZ] = magRaw;
 			}
 			
+            //mavlink发送当前校准进度
+            if(mag.cali.step == 1)
+                MavlinkSendNoticeProgress(abs(cali_rotate_angle) / 72);
+            else if(mag.cali.step == 2)
+                MavlinkSendNoticeProgress((abs(cali_rotate_angle) + 360) / 72);
+            
 			//水平旋转一圈
-			if(mag.cali.step == 1 && abs(cali_rotate_angle ) > 360)
+			if(mag.cali.step == 1 && abs(cali_rotate_angle) > 360)
 			{
 				mag.cali.step = 2;
 				cali_rotate_angle  = 0;
-				//发送当前校准步骤
-				MessageSensorCaliFeedbackEnable(MAG, mag.cali.step, mag.cali.success);
+				//bsklink发送当前校准步骤
+				MessageSensorCaliFeedbackEnable(MAG, mag.cali.step, mag.cali.success);  
+                //msklink发送当前校准步骤
+                MavlinkSendNoticeEnable(CAL_DOWN_DONE); 
 			}
             //竖直旋转一圈
 			if(mag.cali.step == 2 && abs(cali_rotate_angle ) > 360)
@@ -185,7 +194,7 @@ void MagCalibration(void)
 				mag.cali.should_cali = 0;
 				mag.cali.step = 3;
 				cali_rotate_angle  = 0;
-				
+                
                 //计算当地地磁场强度模值均值
                 for(u8 i=0;i<6;i++)
                 {
@@ -224,12 +233,17 @@ void MagCalibration(void)
                     ParamUpdateData(PARAM_MAG_SCALE_Y, &mag.cali.scale.y);
                     ParamUpdateData(PARAM_MAG_SCALE_Z, &mag.cali.scale.z);
                     ParamUpdateData(PARAM_MAG_EARTH_MAG, &mag.earthMag);
+                    
+                    //mavlink发送校准结果
+                    MavlinkSendNoticeEnable(CAL_DONE);
                 }
                 else
                 {
+                    //mavlink发送校准结果
+                    MavlinkSendNoticeEnable(CAL_FAILED);
                 }
 				
-				//发送校准结果
+				//bsklink发送校准结果
 				MessageSensorCaliFeedbackEnable(MAG, mag.cali.step, mag.cali.success);
 				
 				mag.cali.step = 0;

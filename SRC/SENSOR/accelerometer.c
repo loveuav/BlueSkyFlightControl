@@ -133,7 +133,7 @@ void AccCalibration(Vector3f_t accRaw)
             acc.cali.step++;
             currentOrientation = ORIENTATION_UP;
             //mavlink发送检测提示
-            MavlinkSendNoticeEnable(CAL_UP_DETECTED);
+            MavlinkSendNoticeEnable(CAL_DOWN_DETECTED);
         }
     }
 
@@ -153,7 +153,7 @@ void AccCalibration(Vector3f_t accRaw)
             acc.cali.step++;
             currentOrientation = ORIENTATION_DOWN;
             //mavlink发送检测提示
-            MavlinkSendNoticeEnable(CAL_DOWN_DETECTED);
+            MavlinkSendNoticeEnable(CAL_UP_DETECTED);
         }
     }
 
@@ -265,28 +265,28 @@ void AccCalibration(Vector3f_t accRaw)
             switch(currentOrientation)
             {
                 case ORIENTATION_UP:
-                    MavlinkSendNoticeEnable(CAL_UP_DONE); 
-                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    MavlinkSendNoticeEnable(CAL_DOWN_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.6f);
                     break;
                 case ORIENTATION_DOWN:
-                    MavlinkSendNoticeEnable(CAL_DOWN_DONE); 
-                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    MavlinkSendNoticeEnable(CAL_UP_DONE); 
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.6f);
                     break;
                 case ORIENTATION_FRONT:
                     MavlinkSendNoticeEnable(CAL_FRONT_DONE); 
-                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.6f);
                     break;
                 case ORIENTATION_BACK:
                     MavlinkSendNoticeEnable(CAL_BACK_DONE); 
-                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.6f);
                     break;
                 case ORIENTATION_LEFT:
                     MavlinkSendNoticeEnable(CAL_LEFT_DONE); 
-                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.6f);
                     break;
                 case ORIENTATION_RIGHT:
                     MavlinkSendNoticeEnable(CAL_RIGHT_DONE); 
-                    MavlinkSendNoticeProgress(acc.cali.step * 1.5f);
+                    MavlinkSendNoticeProgress(acc.cali.step * 1.6f);
                     break;
                 default:
                     break;
@@ -388,7 +388,7 @@ void AccScaleCalibrate(Vector3f_t* acc)
 **********************************************************************************************************/
 void ImuLevelCalibration(void)
 {
-	const int16_t CALIBRATING_ACC_LEVEL_CYCLES = 500;	
+	const int16_t CALIBRATING_ACC_LEVEL_CYCLES = 3000;	
 	static float acc_sum[3] = {0, 0, 0};
 	Vector3f_t accAverage;
 	Vector3f_t caliTemp;
