@@ -49,52 +49,68 @@ void MavlinkDecode(uint8_t data)
     if(mavlink_parse_char(0, data, &msg, &status) == false)
         return;
     
-    if(msg.msgid == MAVLINK_MSG_ID_HEARTBEAT)
+    switch(msg.msgid)
     {
-    }
-    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_READ)
-    {
-    }
-    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_REQUEST_LIST)        
-    {
-        //请求发送飞控参数列表
-        if(MAVLINK_SYSTEM_ID == mavlink_msg_param_request_list_get_target_system(&msg))
-        {
-            MavlinkCurrentParamSet(0, 1);
-            MavlinkSendEnable(MAVLINK_MSG_ID_PARAM_VALUE);
-        }
-    }
-    else if(msg.msgid == MAVLINK_MSG_ID_PARAM_SET)                 
-    {
-        //设置飞控参数
-        if(MAVLINK_SYSTEM_ID == mavlink_msg_param_set_get_target_system(&msg))
-        {
-            int paramIndex = -1;
-            static mavlink_param_set_t param_set;
-            //帧解析
-            mavlink_msg_param_set_decode(&msg, &param_set);
-            //根据参数标识符获取参数ID
-            paramIndex = MavParamGetIdByName((char*)param_set.param_id);
-
-            if (paramIndex >= 0 && paramIndex < MAV_PARAM_NUM) 
+        case MAVLINK_MSG_ID_HEARTBEAT:              //心跳包
+            break;
+        
+        case MAVLINK_MSG_ID_PARAM_REQUEST_READ:     //请求发送飞控单个参数
+            if(MAVLINK_SYSTEM_ID == mavlink_msg_param_request_read_get_target_system(&msg)) 
             {
-                MavParamSetValue(paramIndex, param_set.param_value);  
-                //返回参数给地面站
-                MavlinkCurrentParamSet(paramIndex, 0);
-                MavlinkSendEnable(MAVLINK_MSG_ID_PARAM_VALUE);
+                static uint16_t paramIndex;
+                static mavlink_param_request_read_t request_read;
+                //帧解析
+                mavlink_msg_param_request_read_decode(&msg, &request_read);
+                //根据参数标识符获取参数ID
+                paramIndex = MavParamGetIdByName((char*)request_read.param_id);
+                if(paramIndex< MAV_PARAM_NUM)
+                {
+                    //发送单个参数
+                    MavParamSendEnable(paramIndex);
+                }
             }
-        }
-    }
-    else if(msg.msgid == MAVLINK_MSG_ID_COMMAND_LONG)
-    {
-        if (MAVLINK_SYSTEM_ID == mavlink_msg_command_long_get_target_system(&msg))
-        {
-            static mavlink_command_long_t command;
-            //帧解析
-            mavlink_msg_command_long_decode(&msg, &command); 
-            //命令解析
-            MavlinkDecodeCommand(command);           
-        }
+            break;
+        
+        case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:     //请求发送飞控参数列表
+            if(MAVLINK_SYSTEM_ID == mavlink_msg_param_request_list_get_target_system(&msg))
+            {
+                //发送全部参数
+                MavParamSendEnableAll();
+            }
+            break;
+            
+        case MAVLINK_MSG_ID_PARAM_SET:              //设置飞控参数           
+            if(MAVLINK_SYSTEM_ID == mavlink_msg_param_set_get_target_system(&msg))
+            {
+                int paramIndex = -1;
+                static mavlink_param_set_t param_set;
+                //帧解析
+                mavlink_msg_param_set_decode(&msg, &param_set);
+                //根据参数标识符获取参数ID
+                paramIndex = MavParamGetIdByName((char*)param_set.param_id);
+
+                if (paramIndex >= 0 && paramIndex < MAV_PARAM_NUM) 
+                {
+                    MavParamSetValue(paramIndex, param_set.param_value);  
+                    //返回参数给地面站
+                    MavParamSendEnable(paramIndex);
+                }
+            }
+            break;
+            
+        case MAVLINK_MSG_ID_COMMAND_LONG:           //命令
+            if (MAVLINK_SYSTEM_ID == mavlink_msg_command_long_get_target_system(&msg))
+            {
+                static mavlink_command_long_t command;
+                //帧解析
+                mavlink_msg_command_long_decode(&msg, &command); 
+                //命令解析
+                MavlinkDecodeCommand(command);           
+            }
+            break;
+            
+        default:
+            break;
     }
 }
 
@@ -114,6 +130,7 @@ static void MavlinkDecodeCommand(mavlink_command_long_t command)
             { 
                 if(command.param1 == 1)          //校准陀螺仪
                 {
+                    MavlinkSendNotice(CAL_START);
                     GyroCalibrateEnable();
                 }
                 else if(command.param2 == 1)     //校准罗盘

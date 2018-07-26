@@ -10,9 +10,12 @@
  * @日期     2018.07 
 **********************************************************************************************************/
 #include "mavlinkParam.h"
+#include "mavlinkSend.h"
 #include <string.h>
 
 float mavParam[MAV_PARAM_NUM];
+
+uint8_t mavParamSendFlag[MAV_PARAM_NUM];
 
 //参数字符标识，不能超过16个字符
 const char* mavParamStrings[] = 
@@ -112,6 +115,56 @@ const char* mavParamStrings[] =
     "SENS_EXT_MAG_ROT",
     "SENS_EXT_MAG",
 };
+
+/**********************************************************************************************************
+*函 数 名: MavParamSendCheck
+*功能说明: 参数发送检查
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+bool MavParamSendCheck(void)
+{
+    static uint32_t i = 0;
+    uint8_t flag;
+    
+    if(mavParamSendFlag[i % MAV_PARAM_NUM] == 1)
+    {
+        MavlinkCurrentParamSet(i % MAV_PARAM_NUM);
+        mavParamSendFlag[i % MAV_PARAM_NUM] = 0;
+        flag = true;
+    }
+    else
+    {
+        flag = false;
+    }
+    
+    i++;
+    
+    return flag;
+}
+
+/**********************************************************************************************************
+*函 数 名: MavParamSendEnable
+*功能说明: 参数发送使能
+*形    参: 参数序号
+*返 回 值: 无
+**********************************************************************************************************/
+void MavParamSendEnable(int16_t num)
+{
+    mavParamSendFlag[num] = 1;
+}
+
+/**********************************************************************************************************
+*函 数 名: MavParamSendEnableAll
+*功能说明: 发送全部参数
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void MavParamSendEnableAll(void)
+{
+    for(uint8_t i=0; i<MAV_PARAM_NUM; i++)
+        mavParamSendFlag[i] = 1;
+}
 
 /**********************************************************************************************************
 *函 数 名: MavParamGetValue

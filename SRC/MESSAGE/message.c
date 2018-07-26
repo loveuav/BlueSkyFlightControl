@@ -142,10 +142,15 @@ void MessageSendLoop(void)
     /*mavlink发送循环*/
     else if(messageType == MAVLINK)
     {
-        if(mavlinkSendFlag[MAVLINK_MSG_ID_PARAM_VALUE])
+        if(MavParamSendCheck())
+        {            
+            mavlinkSendFlag[MAVLINK_MSG_ID_PARAM_VALUE] = ENABLE;
             MavlinkSendParamValue(&mavlinkSendFlag[MAVLINK_MSG_ID_PARAM_VALUE]);               //飞控参数
+        }
         else if(mavlinkSendFlag[MAVLINK_MSG_ID_COMMAND_ACK])
             MavlinkSendCommandAck(&mavlinkSendFlag[MAVLINK_MSG_ID_COMMAND_ACK]);               //命令响应
+        else if(mavlinkSendFlag[MAVLINK_MSG_ID_STATUSTEXT])                             
+            MavlinkSendStatusText(&mavlinkSendFlag[MAVLINK_MSG_ID_STATUSTEXT]);                //状态文本
         else
         {
             //根据发送列表来使能对应的数据帧发送标志位

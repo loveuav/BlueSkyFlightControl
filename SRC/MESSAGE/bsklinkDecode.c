@@ -43,51 +43,54 @@ static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload);
 void BsklinkDecode(uint8_t data)
 {
     static BSKLINK_MSG_t msg;
-    static uint32_t i=0;
     
     //对接收到的字节数据进行帧解析，接收完一帧时再继续对帧数据进行解析
     if(BsklinkParseChar(&msg, data) == false)
         return;
     
-    if(msg.msgid == BSKLINK_MSG_ID_FLIGHT_DATA)
+    switch(msg.msgid)
     {
-        i++;
-    }
-    else if(msg.msgid == BSKLINK_MSG_ID_SENSOR_CALI_CMD)    //传感器校准命令解析
-    {
-        BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload;
-        memcpy(&payload, msg.payload, msg.length);
-        BsklinkDecodeSensorCaliCmd(payload);
-    }
-    else if(msg.msgid == BSKLINK_MSG_ID_PID_ATT)            //姿态PID解析
-    {
-        if(msg.length == 0)
+        case BSKLINK_MSG_ID_FLIGHT_DATA:
+            break;
+        
+        case BSKLINK_MSG_ID_SENSOR_CALI_CMD:        //传感器校准命令解析
         {
-            //往地面站发送PID参数
-            BsklinkSendEnable(BSKLINK_MSG_ID_PID_ATT);
-        }
-        else
-        {
-            BSKLINK_PAYLOAD_PID_ATT_t payload;
+            BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload;
             memcpy(&payload, msg.payload, msg.length);
-            //设置姿态PID参数
-            BsklinkDecodeSetAttPid(payload);                
+            BsklinkDecodeSensorCaliCmd(payload);
+            break;
         }
-    }
-    else if(msg.msgid == BSKLINK_MSG_ID_PID_POS)            //位置PID解析
-    {
-        if(msg.length == 0)
-        {
-            //往地面站发送PID参数
-            BsklinkSendEnable(BSKLINK_MSG_ID_PID_POS);
-        }
-        else
-        {
-            BSKLINK_PAYLOAD_PID_POS_t payload;
-            memcpy(&payload, msg.payload, msg.length);
-            //设置位置PID参数
-            BsklinkDecodeSetPosPid(payload);                
-        }
+        case BSKLINK_MSG_ID_PID_ATT:                //姿态PID解析
+            if(msg.length == 0)
+            {
+                //往地面站发送PID参数
+                BsklinkSendEnable(BSKLINK_MSG_ID_PID_ATT);
+            }
+            else
+            {
+                BSKLINK_PAYLOAD_PID_ATT_t payload;
+                memcpy(&payload, msg.payload, msg.length);
+                //设置姿态PID参数
+                BsklinkDecodeSetAttPid(payload);                
+            }
+            break;
+        case BSKLINK_MSG_ID_PID_POS:                //位置PID解析
+            if(msg.length == 0)
+            {
+                //往地面站发送PID参数
+                BsklinkSendEnable(BSKLINK_MSG_ID_PID_POS);
+            }
+            else
+            {
+                BSKLINK_PAYLOAD_PID_POS_t payload;
+                memcpy(&payload, msg.payload, msg.length);
+                //设置位置PID参数
+                BsklinkDecodeSetPosPid(payload);                
+            }
+            break;
+            
+        default:
+            break;
     }
 }
 
@@ -99,36 +102,41 @@ void BsklinkDecode(uint8_t data)
 **********************************************************************************************************/
 static void BsklinkDecodeSensorCaliCmd(BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload)
 {
-    if(payload.type == GYRO)			//陀螺仪
+    switch(payload.type)
     {
-        if(payload.caliFlag == true)
-        {
-            GyroCalibrateEnable();
-        }
-    }
-    else if(payload.type == ACC)		//加速度计
-    {
-		if(payload.caliFlag == true)
-        {
-			AccCalibrateEnable();
-		}
-    }
-    else if(payload.type == MAG)		//磁力计
-    {
-        if(payload.caliFlag == true)
-        {
-            MagCalibrateEnable();
-        }
-    }
-    else if(payload.type == ANGLE)		//水平
-    {
-		if(payload.caliFlag == true)
-        {
-			LevelCalibrateEnable();
-		}
-    }
-    else if(payload.type == ESC)		//电调
-    {
+        case GYRO:			//陀螺仪
+            if(payload.caliFlag == true)
+            {
+                GyroCalibrateEnable();
+            }
+            break;
+   
+        case ACC:		    //加速度计
+            if(payload.caliFlag == true)
+            {
+                AccCalibrateEnable();
+            }
+            break;
+            
+        case MAG:   		//磁力计
+            if(payload.caliFlag == true)
+            {
+                MagCalibrateEnable();
+            }
+            break;
+
+        case ANGLE: 		//水平
+            if(payload.caliFlag == true)
+            {
+                LevelCalibrateEnable();
+            }
+            break;
+
+        case ESC:   		//电调
+            break;
+        
+        default:
+            break;
     }
 }
 

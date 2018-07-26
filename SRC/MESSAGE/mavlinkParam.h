@@ -106,6 +106,9 @@ enum
     MAV_PARAM_NUM
 };
 
+bool MavParamSendCheck(void);
+void MavParamSendEnable(int16_t num);
+void MavParamSendEnableAll(void);
 float MavParamGetValue(uint16_t num);
 void MavParamSetValue(uint16_t num, float value);
 int MavParamGetIdByName(char *name);

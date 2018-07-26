@@ -32,10 +32,40 @@
 #include "flightStatus.h"
 #include "parameter.h"
 
-static uint16_t currentParamNum = 0;
-static uint8_t sendParamListFlag = 0;
+static int16_t currentParamNum = 0;
 
 mavlink_command_ack_t commandAck;
+char noticeText[50];
+
+//提示文本字符串，单个字符串长度不能超过50个字符
+const char* mavNoticeStrings[] = 
+{
+    "[cal] calibration started:",
+    "[cal] calibration done:",
+    "[cal] calibration failed:",
+    "[cal] progress <10>",
+    "[cal] progress <20>",
+    "[cal] progress <30>",
+    "[cal] progress <40>",
+    "[cal] progress <50>",
+    "[cal] progress <60>",
+    "[cal] progress <70>",
+    "[cal] progress <80>",
+    "[cal] progress <90>",
+    "[cal] progress <100>",
+    "[cal] up orientation detected",
+    "[cal] down orientation detected",
+    "[cal] left orientation detected",
+    "[cal] right orientation detected",
+    "[cal] front orientation detected",
+    "[cal] back orientation detected",
+    "[cal] up side done, rotate to a different side",
+    "[cal] down side done, rotate to a different side",
+    "[cal] left side done, rotate to a different side",
+    "[cal] right side done, rotate to a different side",
+    "[cal] front side done, rotate to a different side",
+    "[cal] back side done, rotate to a different side",
+};
 
 /**********************************************************************************************************
 *函 数 名: MavlinkSendHeartbeat
@@ -89,9 +119,9 @@ void MavlinkSendSysStatus(uint8_t* sendFlag)
         *sendFlag = DISABLE;
     
     //消息负载赋值
-    status.onboard_control_sensors_present = 0xFFFFFFFF;
-    status.onboard_control_sensors_enabled = 0xFFFFFFFF;
-    status.onboard_control_sensors_health  = 0xFFFFFFFF;
+    status.onboard_control_sensors_present = 0;
+    status.onboard_control_sensors_enabled = 0;
+    status.onboard_control_sensors_health  = 0;
     status.load = Get_OSCPUusage() * 10;
     status.voltage_battery = GetBatteryVoltage() * 10;
     status.current_battery = GetBatteryCurrent() * 10;
@@ -120,13 +150,8 @@ void MavlinkSendParamValue(uint8_t* sendFlag)
 
     if(*sendFlag == DISABLE)
         return;
-
-    if(currentParamNum == MAV_PARAM_NUM)
-    {
-        *sendFlag = DISABLE;
-        sendParamListFlag = 0;
-        return;
-    }
+    else
+       *sendFlag = DISABLE;
     
     //消息负载赋值
     param_value.param_value = MavParamGetValue(currentParamNum);
@@ -135,17 +160,6 @@ void MavlinkSendParamValue(uint8_t* sendFlag)
     memset(param_value.param_id, 0, 16);
     memcpy(param_value.param_id, MavParamGetString(currentParamNum), strlen(MavParamGetString(currentParamNum)));
     param_value.param_type = MAVLINK_TYPE_FLOAT;
-    
-    //判断是发送参数列表还是单一参数
-    if(sendParamListFlag)
-    {
-        currentParamNum++;
-    }
-    else
-    {
-        currentParamNum = 0;
-        *sendFlag = DISABLE;
-    }
    
     //mavlink组帧
     mavlink_msg_param_value_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &param_value);
@@ -158,13 +172,12 @@ void MavlinkSendParamValue(uint8_t* sendFlag)
 /**********************************************************************************************************
 *函 数 名: MavlinkCurrentParamSet
 *功能说明: 设置飞控参数发送计数值
-*形    参: 发送参数起始序号 列表发送标志
+*形    参: 发送参数起始序号
 *返 回 值: 无
 **********************************************************************************************************/
-void MavlinkCurrentParamSet(uint16_t num, uint8_t flag)
+void MavlinkCurrentParamSet(uint16_t num)
 {
     currentParamNum = num;
-    sendParamListFlag = flag;
 }
 
 /**********************************************************************************************************
@@ -316,8 +329,8 @@ void MavlinkSetCommandAck(uint16_t command, uint8_t result)
 }
 
 /**********************************************************************************************************
-*函 数 名: MavlinkSendAttitude
-*功能说明: 发送角度及角速度
+*函 数 名: MavlinkSendStatusText
+*功能说明: 发送状态文本
 *形    参: 发送标志指针
 *返 回 值: 无
 **********************************************************************************************************/
@@ -334,7 +347,8 @@ void MavlinkSendStatusText(uint8_t* sendFlag)
         *sendFlag = DISABLE;
     
     //消息负载赋值
-
+    statustext.severity = 0;
+    memcpy(statustext.text, noticeText, 50);
     
     //mavlink组帧
     mavlink_msg_statustext_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &statustext);
@@ -344,5 +358,10 @@ void MavlinkSendStatusText(uint8_t* sendFlag)
 	DataSend(msgBuffer, msgLength);  
 }
 
-
+void MavlinkSendNotice(uint16_t noticeNum)
+{
+    MavlinkSendEnable(MAVLINK_MSG_ID_STATUSTEXT);
+    memset(noticeText, 0, 50);
+    memcpy(noticeText, mavNoticeStrings[noticeNum], strlen(mavNoticeStrings[noticeNum]));
+}
 
