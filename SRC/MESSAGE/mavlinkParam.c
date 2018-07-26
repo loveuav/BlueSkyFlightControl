@@ -114,6 +114,166 @@ const char* mavParamStrings[] =
     "SENS_BOARD_Z_OFF",
     "SENS_EXT_MAG_ROT",
     "SENS_EXT_MAG",
+    "TRIM_ROLL",
+    "TRIM_PITCH",
+    "TRIM_YAW",
+    "RC1_MIN",
+    "RC1_TRIM",
+    "RC1_MAX",
+    "RC1_REV",
+    "RC1_DZ",
+    "RC2_MIN",
+    "RC2_TRIM",
+    "RC2_MAX",
+    "RC2_REV",
+    "RC2_DZ",
+    "RC3_MIN",
+    "RC3_TRIM",
+    "RC3_MAX",
+    "RC3_REV",
+    "RC3_DZ",
+    "RC4_MIN",
+    "RC4_TRIM",
+    "RC4_MAX",
+    "RC4_REV",
+    "RC4_DZ",    
+    "RC5_MIN",
+    "RC5_TRIM",
+    "RC5_MAX",
+    "RC5_REV",
+    "RC5_DZ",
+    "RC6_MIN",
+    "RC6_TRIM",
+    "RC6_MAX",
+    "RC6_REV",
+    "RC6_DZ",
+    "RC7_MIN",
+    "RC7_TRIM",
+    "RC7_MAX",
+    "RC7_REV",
+    "RC7_DZ",
+    "RC8_MIN",
+    "RC8_TRIM",
+    "RC8_MAX",
+    "RC8_REV",
+    "RC8_DZ",
+    "RC9_MIN",
+    "RC9_TRIM",
+    "RC9_MAX",
+    "RC9_REV",
+    "RC9_DZ",
+    "RC10_MIN",
+    "RC10_TRIM",
+    "RC10_MAX",
+    "RC10_REV",
+    "RC10_DZ",
+    "RC11_MIN",
+    "RC11_TRIM",
+    "RC11_MAX",
+    "RC11_REV",
+    "RC11_DZ",
+    "RC12_MIN",
+    "RC12_TRIM",
+    "RC12_MAX",
+    "RC12_REV",
+    "RC12_DZ",
+    "RC13_MIN",
+    "RC13_TRIM",
+    "RC13_MAX",
+    "RC13_REV",
+    "RC13_DZ",
+    "RC14_MIN",
+    "RC14_TRIM",
+    "RC14_MAX",
+    "RC14_REV",
+    "RC14_DZ",
+    "RC15_MIN",
+    "RC15_TRIM",
+    "RC15_MAX",
+    "RC15_REV",
+    "RC15_DZ",
+    "RC16_MIN",
+    "RC16_TRIM",
+    "RC16_MAX",
+    "RC16_REV",
+    "RC16_DZ",
+    "RC17_MIN",
+    "RC17_TRIM",
+    "RC17_MAX",
+    "RC17_REV",
+    "RC17_DZ",
+    "RC18_MIN",
+    "RC18_TRIM",
+    "RC18_MAX",
+    "RC18_REV",
+    "RC18_DZ",
+    "RC_MAP_ROLL",
+    "RC_MAP_PITCH",
+    "RC_MAP_YAW",
+    "RC_MAP_THROTTLE",
+    "RC_MAP_FAILSAFE",
+    "RC_MAP_MODE_SW",
+    "RC_MAP_RETURN_SW",
+    "RC_MAP_FLAPS",
+    "RC_MAP_RATT_SW",
+    "RC_MAP_POSCTL_SW",
+    "RC_MAP_LOITER_SW",
+    "RC_MAP_ACRO_SW",
+    "RC_MAP_OFFB_SW",
+    "RC_MAP_KILL_SW",
+    "RC_MAP_AUX1",
+    "RC_MAP_AUX2",
+    "RC_MAP_AUX3",
+    "RC_MAP_AUX4",
+    "RC_MAP_AUX5",
+    "RC_MAP_PARAM1",
+    "RC_MAP_PARAM2",
+    "RC_MAP_PARAM3",
+    "RC_MAP_FLTMODE",
+    "RC_FAILS_THR",
+    "RC_ASSIST_TH",
+    "RC_AUTO_TH",
+    "RC_RATT_TH",
+    "RC_POSCTL_TH",
+    "RC_RETURN_TH",
+    "RC_LOITER_TH",
+    "RC_ACRO_TH",
+    "RC_OFFB_TH",
+    "RC_KILLSWITCH_TH",
+    "RC_CHAN_CNT",
+    "RC_TH_USER",
+    "COM_DL_LOSS_T",
+    "COM_DL_REG_T",
+    "COM_EF_THROT",
+    "COM_EF_C2T",
+    "COM_EF_TIME",
+    "COM_RC_LOSS_T",
+    "COM_HOME_H_T",
+    "COM_HOME_V_T",
+    "COM_AUTOS_PAR",
+    "COM_RC_IN_MODE",
+    "COM_RC_ARM_HYST",
+    "COM_DISARM_LAND",
+    "COM_LOW_BAT_ACT",
+    "BAT_H_CURR",
+    "BAT_V_CURR",
+    "BAT_C_SAFE",
+    "BAT_C_SAFE_UB",
+    "BAT_V_SCALE_IO",
+    "BAT_CNT_V_VOLT",
+    "BAT_CNT_V_CURR",
+    "BAT_V_OFFS_CURR",
+    "BAT_V_DIV",
+    "BAT_A_PER_V",
+    "BAT_V_EMPTY",
+    "BAT_V_CHARGED",
+    "BAT_LOW_THR",
+    "BAT_CRIT_THR",
+    "BAT_V_LOAD_DROP",
+    "BAT_N_CELLS",
+    "BAT_CAPACITY",
+    "NAV_DLL_ACT",
+    "NAV_RCL_ACT",
 };
 
 /**********************************************************************************************************
@@ -324,6 +484,171 @@ void MavParamSetDefault(void)
     mavParam[SENS_BOARD_Z_OFF] = 0;
     mavParam[SENS_EXT_MAG_ROT] = 0;
     mavParam[SENS_EXT_MAG] = 0;
+
+    mavParam[TRIM_ROLL] = 0;
+    mavParam[TRIM_PITCH] = 0;
+    mavParam[TRIM_YAW] = 0;
+    mavParam[RC1_MIN] = 1000;
+    mavParam[RC1_TRIM] = 1500;
+    mavParam[RC1_MAX] = 2000;
+    mavParam[RC1_REV] = 1;
+    mavParam[RC1_DZ] = 50;
+    mavParam[RC2_MIN] = 1000;
+    mavParam[RC2_TRIM] = 1500;
+    mavParam[RC2_MAX] = 2000;
+    mavParam[RC2_REV] = 1;
+    mavParam[RC2_DZ] = 50;
+    mavParam[RC3_MIN] = 1000;
+    mavParam[RC3_TRIM] = 1500;
+    mavParam[RC3_MAX] = 2000;
+    mavParam[RC3_REV] = 1;
+    mavParam[RC3_DZ] = 50;
+    mavParam[RC4_MIN] = 1000;
+    mavParam[RC4_TRIM] = 1500;
+    mavParam[RC4_MAX] = 2000;
+    mavParam[RC4_REV] = 1;
+    mavParam[RC4_DZ] = 50;   
+    mavParam[RC5_MIN] = 1000;
+    mavParam[RC5_TRIM] = 1500;
+    mavParam[RC5_MAX] = 2000;
+    mavParam[RC5_REV] = 1;
+    mavParam[RC5_DZ] = 50;
+    mavParam[RC6_MIN] = 1000;
+    mavParam[RC6_TRIM] = 1500;
+    mavParam[RC6_MAX] = 2000;
+    mavParam[RC6_REV] = 1;
+    mavParam[RC6_DZ] = 50;
+    mavParam[RC7_MIN] = 1000;
+    mavParam[RC7_TRIM] = 1500;
+    mavParam[RC7_MAX] = 2000;
+    mavParam[RC7_REV] = 1;
+    mavParam[RC7_DZ] = 50;
+    mavParam[RC8_MIN] = 1000;
+    mavParam[RC8_TRIM] = 1500;
+    mavParam[RC8_MAX] = 2000;
+    mavParam[RC8_REV] = 1;
+    mavParam[RC8_DZ] = 50;
+    mavParam[RC9_MIN] = 1000;
+    mavParam[RC9_TRIM] = 1500;
+    mavParam[RC9_MAX] = 2000;
+    mavParam[RC9_REV] = 1;
+    mavParam[RC9_DZ] = 50;
+    mavParam[RC10_MIN] = 1000;
+    mavParam[RC10_TRIM] = 1500;
+    mavParam[RC10_MAX] = 2000;
+    mavParam[RC10_REV] = 1;
+    mavParam[RC10_DZ] = 50;
+    mavParam[RC11_MIN] = 1000;
+    mavParam[RC11_TRIM] = 1500;
+    mavParam[RC11_MAX] = 2000;
+    mavParam[RC11_REV] = 1;
+    mavParam[RC11_DZ] = 50;
+    mavParam[RC12_MIN] = 1000;
+    mavParam[RC12_TRIM] = 1500;
+    mavParam[RC12_MAX] = 2000;
+    mavParam[RC12_REV] = 1;
+    mavParam[RC12_DZ] = 50;
+    mavParam[RC13_MIN] = 1000;
+    mavParam[RC13_TRIM] = 1500;
+    mavParam[RC13_MAX] = 2000;
+    mavParam[RC13_REV] = 1;
+    mavParam[RC13_DZ] = 50;
+    mavParam[RC14_MIN] = 1000;
+    mavParam[RC14_TRIM] = 1500;
+    mavParam[RC14_MAX] = 2000;
+    mavParam[RC14_REV] = 1;
+    mavParam[RC14_DZ] = 50;
+    mavParam[RC15_MIN] = 1000;
+    mavParam[RC15_TRIM] = 1500;
+    mavParam[RC15_MAX] = 2000;
+    mavParam[RC15_REV] = 1;
+    mavParam[RC15_DZ] = 50;
+    mavParam[RC16_MIN] = 1000;
+    mavParam[RC16_TRIM] = 1500;
+    mavParam[RC16_MAX] = 2000;
+    mavParam[RC16_REV] = 1;
+    mavParam[RC16_DZ] = 50;
+    mavParam[RC17_MIN] = 1000;
+    mavParam[RC17_TRIM] = 1500;
+    mavParam[RC17_MAX] = 2000;
+    mavParam[RC17_REV] = 1;
+    mavParam[RC17_DZ] = 50;
+    mavParam[RC18_MIN] = 1000;
+    mavParam[RC18_TRIM] = 1500;
+    mavParam[RC18_MAX] = 2000;
+    mavParam[RC18_REV] = 1;
+    mavParam[RC18_DZ] = 0;
+    
+    mavParam[RC_MAP_ROLL] = 1;
+    mavParam[RC_MAP_PITCH] = 2;
+    mavParam[RC_MAP_YAW] = 4;
+    mavParam[RC_MAP_THROTTLE] = 3;
+    mavParam[RC_MAP_FAILSAFE] = 0;
+    mavParam[RC_MAP_MODE_SW] = 5;
+    mavParam[RC_MAP_RETURN_SW] = 7;
+    mavParam[RC_MAP_FLAPS] = 0;
+    mavParam[RC_MAP_RATT_SW] = 0;
+    mavParam[RC_MAP_POSCTL_SW] = 0;
+    mavParam[RC_MAP_LOITER_SW] = 0;
+    mavParam[RC_MAP_ACRO_SW] = 0;
+    mavParam[RC_MAP_OFFB_SW] = 0;
+    mavParam[RC_MAP_KILL_SW] = 9;
+    mavParam[RC_MAP_AUX1] = 5;
+    mavParam[RC_MAP_AUX2] = 6;
+    mavParam[RC_MAP_AUX3] = 7;
+    mavParam[RC_MAP_AUX4] = 8;
+    mavParam[RC_MAP_AUX5] = 0;
+    mavParam[RC_MAP_PARAM1] = 0;
+    mavParam[RC_MAP_PARAM2] = 0;
+    mavParam[RC_MAP_PARAM3] = 0;
+    mavParam[RC_MAP_FLTMODE] = 0;
+    mavParam[RC_FAILS_THR] = 0;
+    mavParam[RC_ASSIST_TH] = 0.25;
+    mavParam[RC_AUTO_TH] = 0.75;
+    mavParam[RC_RATT_TH] = 0.5;
+    mavParam[RC_POSCTL_TH] = 0.5;
+    mavParam[RC_RETURN_TH] = 0.5;
+    mavParam[RC_LOITER_TH] = 0.5;
+    mavParam[RC_ACRO_TH] = 0.5;
+    mavParam[RC_OFFB_TH] = 0.5;
+    mavParam[RC_KILLSWITCH_TH] = 0.7;
+    mavParam[RC_CHAN_CNT] = 0;
+    mavParam[RC_TH_USER] = 1;
+    
+    mavParam[COM_DL_LOSS_T] = 10;
+    mavParam[COM_DL_REG_T] = 0;
+    mavParam[COM_EF_THROT] = 0.5;
+    mavParam[COM_EF_C2T] = 5;
+    mavParam[COM_EF_TIME] = 10;
+    mavParam[COM_RC_LOSS_T] = 0.5;
+    mavParam[COM_HOME_H_T] = 5;
+    mavParam[COM_HOME_V_T] = 10;
+    mavParam[COM_AUTOS_PAR] = 1;
+    mavParam[COM_RC_IN_MODE] = 0;
+    mavParam[COM_RC_ARM_HYST] = 1000;
+    mavParam[COM_DISARM_LAND] = 2;
+    mavParam[COM_LOW_BAT_ACT] = 1;
+    
+    mavParam[BAT_H_CURR] = 12;
+    mavParam[BAT_V_CURR] = 10;
+    mavParam[BAT_C_SAFE] = 700;
+    mavParam[BAT_C_SAFE_UB] = 1500;
+    mavParam[BAT_V_SCALE_IO] = 100;
+    mavParam[BAT_CNT_V_VOLT] = -1;
+    mavParam[BAT_CNT_V_CURR] = -1;
+    mavParam[BAT_V_OFFS_CURR] = 0;
+    mavParam[BAT_V_DIV] = 10.19699955;
+    mavParam[BAT_A_PER_V] = -1;
+    mavParam[BAT_V_EMPTY] = 3.2;
+    mavParam[BAT_V_CHARGED] = 4.2;
+    mavParam[BAT_LOW_THR] = 0.2;
+    mavParam[BAT_CRIT_THR] = 0.1;
+    mavParam[BAT_V_LOAD_DROP] = 0.3;
+    mavParam[BAT_N_CELLS] = 4;
+    mavParam[BAT_CAPACITY] = -1;  
+
+    mavParam[NAV_DLL_ACT] = 0;
+    mavParam[NAV_RCL_ACT] = 2;
 }
 
 
