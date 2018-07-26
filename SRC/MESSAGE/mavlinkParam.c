@@ -274,6 +274,10 @@ const char* mavParamStrings[] =
     "BAT_CAPACITY",
     "NAV_DLL_ACT",
     "NAV_RCL_ACT",
+    "RTL_RETURN_ALT",
+    "RTL_DESCEND_ALT",
+    "RTL_LAND_DELAY",
+    "RTL_MIN_DIST",
 };
 
 /**********************************************************************************************************
@@ -322,7 +326,7 @@ void MavParamSendEnable(int16_t num)
 **********************************************************************************************************/
 void MavParamSendEnableAll(void)
 {
-    for(uint8_t i=0; i<MAV_PARAM_NUM; i++)
+    for(uint16_t i=0; i<MAV_PARAM_NUM; i++)
         mavParamSendFlag[i] = 1;
 }
 
@@ -472,7 +476,7 @@ void MavParamSetDefault(void)
     mavParam[CAL_ACC_PRIME] = 120;
     mavParam[CAL_GYRO_PRIME] = 125;
     mavParam[CAL_MAG_PRIME] = 130;
-    mavParam[CAL_MAG_SIDES] = 63;
+    mavParam[CAL_MAG_SIDES] = 34;
     mavParam[CAL_BARO_PRIME] = 0;
     mavParam[SENS_DPRES_OFF] = 0;
     mavParam[SENS_DPRES_ANSC] = 0;
@@ -649,6 +653,11 @@ void MavParamSetDefault(void)
 
     mavParam[NAV_DLL_ACT] = 0;
     mavParam[NAV_RCL_ACT] = 2;
+    
+    mavParam[RTL_RETURN_ALT] = 15;
+    mavParam[RTL_DESCEND_ALT] = 30;
+    mavParam[RTL_LAND_DELAY] = 3;
+    mavParam[RTL_MIN_DIST] = 0.5;
 }
 
 
