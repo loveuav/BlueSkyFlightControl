@@ -16,6 +16,7 @@
 #include "gaussNewton.h"
 #include "message.h"
 #include "mavlinkSend.h"
+#include "mavlinkParam.h"
 
 ACCELEROMETER_t acc;
 
@@ -333,6 +334,13 @@ void AccCalibration(Vector3f_t accRaw)
 			ParamUpdateData(PARAM_ACC_SCALE_X, &acc.cali.scale.x);
 			ParamUpdateData(PARAM_ACC_SCALE_Y, &acc.cali.scale.y);
 			ParamUpdateData(PARAM_ACC_SCALE_Z, &acc.cali.scale.z);
+            //更新mavlink参数
+            MavParamSetValue(CAL_ACC0_XOFF, acc.cali.offset.x);
+            MavParamSetValue(CAL_ACC0_YOFF, acc.cali.offset.y);
+            MavParamSetValue(CAL_ACC0_ZOFF, acc.cali.offset.z);
+            MavParamSetValue(CAL_ACC0_XSCALE, acc.cali.scale.x);
+            MavParamSetValue(CAL_ACC0_YSCALE, acc.cali.scale.y);
+            MavParamSetValue(CAL_ACC0_XSCALE, acc.cali.scale.z);
             
             //mavlink发送校准结果
             MavlinkSendNoticeEnable(CAL_DONE);
@@ -443,6 +451,10 @@ void ImuLevelCalibration(void)
 			ParamUpdateData(PARAM_IMU_LEVEL_X, &acc.levelCali.scale.x);
 			ParamUpdateData(PARAM_IMU_LEVEL_Y, &acc.levelCali.scale.y);
 			ParamUpdateData(PARAM_IMU_LEVEL_Z, &acc.levelCali.scale.z);
+            //更新mavlink参数
+            MavParamSetValue(SENS_BOARD_X_OFF, Degrees(acc.levelCali.scale.x));
+            MavParamSetValue(SENS_BOARD_Y_OFF, Degrees(acc.levelCali.scale.y));
+            MavParamSetValue(SENS_BOARD_Z_OFF, Degrees(acc.levelCali.scale.z));
             
             //mavlink发送校准结果
             MavlinkSendNoticeEnable(CAL_DONE);

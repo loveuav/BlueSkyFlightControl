@@ -16,6 +16,7 @@
 #include "flightStatus.h"
 #include "message.h"
 #include "mavlinkSend.h"
+#include "mavlinkParam.h"
 
 GYROSCOPE_t gyro;
 
@@ -156,6 +157,13 @@ void GyroCalibration(Vector3f_t gyroRaw)
 			ParamUpdateData(PARAM_GYRO_SCALE_X, &gyro.cali.scale.x);
 			ParamUpdateData(PARAM_GYRO_SCALE_Y, &gyro.cali.scale.y);
 			ParamUpdateData(PARAM_GYRO_SCALE_Z, &gyro.cali.scale.z);
+            //更新mavlink参数
+            MavParamSetValue(CAL_GYRO0_XOFF, gyro.cali.offset.x);
+            MavParamSetValue(CAL_GYRO0_YOFF, gyro.cali.offset.y);
+            MavParamSetValue(CAL_GYRO0_ZOFF, gyro.cali.offset.z);
+            MavParamSetValue(CAL_GYRO0_XSCALE, gyro.cali.scale.x);
+            MavParamSetValue(CAL_GYRO0_YSCALE, gyro.cali.scale.y);
+            MavParamSetValue(CAL_GYRO0_XSCALE, gyro.cali.scale.z);
             
             //mavlink发送校准结果
             MavlinkSendNoticeEnable(CAL_DONE);

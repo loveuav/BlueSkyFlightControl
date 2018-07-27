@@ -41,12 +41,8 @@ void BoardInit(void)
 	
 	//SPI初始化
     Spi_GPIO_Init();
-	#if (configUSE_SPI1 == 1)
-		Spi_Open(1);
-	#endif
-	#if (configUSE_SPI2 == 1)
-		Spi_Open(2);
-	#endif
+    Spi_Open(GYRO_SPI);
+    Spi_Open(BARO_SPI);
     
     //串口初始化
 	Usart_Open(GPS_UART, GPS_BAUDRATE);
@@ -55,12 +51,7 @@ void BoardInit(void)
 	Usart_Open(SBUS_UART, SBUS_BAUDRATE);
     
     //软件I2C初始化
-    #if (configUSE_SOFT_I2C1 == 1)
-		Soft_I2c_Open(1);
-	#endif    
-    #if (configUSE_SOFT_I2C2 == 1)
-		Soft_I2c_Open(2);
-	#endif 
+	Soft_I2c_Open(MAG_I2C);
 
     //定时器PWM输出初始化
     PWM_Init();

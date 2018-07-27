@@ -127,16 +127,6 @@
 /**********************************************************************************************************
 *外设使能配置
 **********************************************************************************************************/
-#define configUSE_ADC1       1
-#define configUSE_ADC2       0
-#define configUSE_ADC3       0
-
-#define configUSE_SPI1       1
-#define configUSE_SPI2       0
-
-#define configUSE_SOFT_I2C1  1
-#define configUSE_SOFT_I2C2  0
-
 #define configUSE_TIM1       1
 #define configUSE_TIM1_CH1   1
 #define configUSE_TIM1_CH2   0

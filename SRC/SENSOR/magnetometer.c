@@ -17,6 +17,7 @@
 #include "faultDetect.h"
 #include "message.h"
 #include "mavlinkSend.h"
+#include "mavlinkParam.h"
 
 enum{
     MaxX,
@@ -233,6 +234,13 @@ void MagCalibration(void)
                     ParamUpdateData(PARAM_MAG_SCALE_Y, &mag.cali.scale.y);
                     ParamUpdateData(PARAM_MAG_SCALE_Z, &mag.cali.scale.z);
                     ParamUpdateData(PARAM_MAG_EARTH_MAG, &mag.earthMag);
+                    //更新mavlink参数
+                    MavParamSetValue(CAL_MAG0_XOFF, mag.cali.offset.x);
+                    MavParamSetValue(CAL_MAG0_YOFF, mag.cali.offset.y);
+                    MavParamSetValue(CAL_MAG0_ZOFF, mag.cali.offset.z);
+                    MavParamSetValue(CAL_MAG0_XSCALE, mag.cali.scale.x);
+                    MavParamSetValue(CAL_MAG0_YSCALE, mag.cali.scale.y);
+                    MavParamSetValue(CAL_MAG0_XSCALE, mag.cali.scale.z);
                     
                     //mavlink发送校准结果
                     MavlinkSendNoticeEnable(CAL_DONE);

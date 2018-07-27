@@ -27,7 +27,7 @@
 #define BARO_TYPE            _2SMPB         //气压计型号
 #define MAG_TYPE             QMC5883        //罗盘型号
 
-#define configUSE_SENSORHEAT 1              //是否使用传感器恒温
+#define configUSE_SENSORHEAT 0              //是否使用传感器恒温
 
 #define GYRO_SPI             1              //陀螺仪SPI配置
 #define GYRO_CS_GPIO         GPIOC
@@ -127,16 +127,6 @@
 /**********************************************************************************************************
 *外设使能配置
 **********************************************************************************************************/
-#define configUSE_ADC1       1
-#define configUSE_ADC2       1
-#define configUSE_ADC3       0
-
-#define configUSE_SPI1       1
-#define configUSE_SPI2       0
-
-#define configUSE_SOFT_I2C1  1
-#define configUSE_SOFT_I2C2  1
-
 #define configUSE_TIM1       1
 #define configUSE_TIM1_CH1   1
 #define configUSE_TIM1_CH2   1

@@ -15,6 +15,7 @@
 
 #include "board.h"
 #include "rotation.h"
+#include "parameter.h"
 
 float mavParam[MAV_PARAM_NUM];
 
@@ -26,7 +27,6 @@ const char* mavParamStrings[] =
     "SYS_AUTOSTART",
     "SYS_AUTOCONFIG",
     "SYS_PARAM_VER",
-    "SYS_SW_VER",
     "MAV_SYS_ID",
     "MAV_COMP_ID",
     "MAV_PROTO_VER",
@@ -44,7 +44,11 @@ const char* mavParamStrings[] =
     "CAL_GYRO0_YSCALE",
     "CAL_GYRO0_ZSCALE",
     "CAL_MAG0_ID",
+    "CAL_MAG1_ID",
+    "CAL_MAG2_ID",
     "CAL_MAG0_ROT",
+    "CAL_MAG1_ROT",
+    "CAL_MAG2_ROT",
     "CAL_MAG0_XOFF",
     "CAL_MAG0_YOFF",
     "CAL_MAG0_ZOFF",
@@ -58,50 +62,6 @@ const char* mavParamStrings[] =
     "CAL_ACC0_XSCALE",
     "CAL_ACC0_YSCALE",
     "CAL_ACC0_ZSCALE",
-    "CAL_GYRO1_ID",
-    "CAL_GYRO1_XOFF",
-    "CAL_GYRO1_YOFF",
-    "CAL_GYRO1_ZOFF",
-    "CAL_GYRO1_XSCALE",
-    "CAL_GYRO1_YSCALE",
-    "CAL_GYRO1_ZSCALE",
-    "CAL_MAG1_ID",
-    "CAL_MAG1_ROT",
-    "CAL_MAG1_XOFF",
-    "CAL_MAG1_YOFF",
-    "CAL_MAG1_ZOFF",
-    "CAL_MAG1_XSCALE",
-    "CAL_MAG1_YSCALE",
-    "CAL_MAG1_ZSCALE",
-    "CAL_ACC1_ID",
-    "CAL_ACC1_XOFF",
-    "CAL_ACC1_YOFF",
-    "CAL_ACC1_ZOFF",
-    "CAL_ACC1_XSCALE",
-    "CAL_ACC1_YSCALE",
-    "CAL_ACC1_ZSCALE",
-    "CAL_GYRO2_ID",
-    "CAL_GYRO2_XOFF",
-    "CAL_GYRO2_YOFF",
-    "CAL_GYRO2_ZOFF",
-    "CAL_GYRO2_XSCALE",
-    "CAL_GYRO2_YSCALE",
-    "CAL_GYRO2_ZSCALE",
-    "CAL_MAG2_ID",
-    "CAL_MAG2_ROT",
-    "CAL_MAG2_XOFF",
-    "CAL_MAG2_YOFF",
-    "CAL_MAG2_ZOFF",
-    "CAL_MAG2_XSCALE",
-    "CAL_MAG2_YSCALE",
-    "CAL_MAG2_ZSCALE",
-    "CAL_ACC2_ID",
-    "CAL_ACC2_XOFF",
-    "CAL_ACC2_YOFF",
-    "CAL_ACC2_ZOFF",
-    "CAL_ACC2_XSCALE",
-    "CAL_ACC2_YSCALE",
-    "CAL_ACC2_ZSCALE",
     "CAL_ACC_PRIME",
     "CAL_GYRO_PRIME",
     "CAL_MAG_PRIME",
@@ -295,6 +255,33 @@ const char* mavParamStrings[] =
     "GF_MAX_HOR_DIST",
     "GF_MAX_VER_DIST",
     "GF_FENCE_SW",
+    "MC_ROLL_TC",
+    "MC_PITCH_TC",
+    "MC_ROLL_P",
+    "MC_ROLLRATE_P",
+    "MC_ROLLRATE_I",
+    "MC_ROLLRATE_D",
+    "MC_PITCH_P",
+    "MC_PITCHRATE_P",
+    "MC_PITCHRATE_I",
+    "MC_PITCHRATE_D",
+    "MC_YAW_P",
+    "MC_YAWRATE_P",
+    "MC_YAWRATE_I",
+    "MC_YAWRATE_D",
+    "MPC_THR_MIN",
+    "MPC_THR_HOVER",
+    "MPC_THR_MAX",
+    "MPC_MANTHR_MIN",
+    "MPC_MANTHR_MAX",
+    "MPC_Z_P",
+    "MPC_Z_VEL_P",
+    "MPC_Z_VEL_I",
+    "MPC_Z_VEL_D",
+    "MPC_XY_P",
+    "MPC_XY_VEL_P",
+    "MPC_XY_VEL_I",
+    "MPC_XY_VEL_D",    
 };
 
 /**********************************************************************************************************
@@ -409,7 +396,6 @@ void MavParamSetDefault(void)
     mavParam[SYS_AUTOSTART] = 4001;
     mavParam[SYS_AUTOCONFIG] = 0; 
     mavParam[SYS_PARAM_VER] = 0.2;
-    mavParam[SYS_SW_VER] = 0.3;
     
     mavParam[MAV_SYS_ID] = 1; 
     mavParam[MAV_COMP_ID] = 1; 
@@ -422,73 +408,31 @@ void MavParamSetDefault(void)
     
     mavParam[CAL_BOARD_ID] = 0; 
     mavParam[CAL_GYRO0_ID] = 125; 
-    mavParam[CAL_GYRO0_XOFF] = 0; 
-    mavParam[CAL_GYRO0_YOFF] = 0; 
-    mavParam[CAL_GYRO0_ZOFF] = 0; 
-    mavParam[CAL_GYRO0_XSCALE] = 1; 
-    mavParam[CAL_GYRO0_YSCALE] = 1; 
-    mavParam[CAL_GYRO0_ZSCALE] = 1; 
+    ParamGetData(PARAM_GYRO_OFFSET_X, &mavParam[CAL_GYRO0_XOFF], 4);
+	ParamGetData(PARAM_GYRO_OFFSET_Y, &mavParam[CAL_GYRO0_YOFF], 4);
+	ParamGetData(PARAM_GYRO_OFFSET_Z, &mavParam[CAL_GYRO0_ZOFF], 4);
+	ParamGetData(PARAM_GYRO_SCALE_X, &mavParam[CAL_GYRO0_XSCALE], 4);
+	ParamGetData(PARAM_GYRO_SCALE_Y, &mavParam[CAL_GYRO0_YSCALE], 4);
+	ParamGetData(PARAM_GYRO_SCALE_Z, &mavParam[CAL_GYRO0_ZSCALE], 4);
     mavParam[CAL_MAG0_ID] = 130; 
+    mavParam[CAL_MAG1_ID] = 0;
+    mavParam[CAL_MAG2_ID] = 0;
     mavParam[CAL_MAG0_ROT] = MAG_ROTATION; 
-    mavParam[CAL_MAG0_XOFF] = 0; 
-    mavParam[CAL_MAG0_YOFF] = 0; 
-    mavParam[CAL_MAG0_ZOFF] = 0; 
-    mavParam[CAL_MAG0_XSCALE] = 1; 
-    mavParam[CAL_MAG0_YSCALE] = 1; 
-    mavParam[CAL_MAG0_ZSCALE] = 1; 
+    mavParam[CAL_MAG1_ROT] = 0;
+    mavParam[CAL_MAG2_ROT] = 0;
+    ParamGetData(PARAM_MAG_OFFSET_X, &mavParam[CAL_MAG0_XOFF], 4);
+	ParamGetData(PARAM_MAG_OFFSET_Y, &mavParam[CAL_MAG0_YOFF], 4);
+	ParamGetData(PARAM_MAG_OFFSET_Z, &mavParam[CAL_MAG0_ZOFF], 4);
+	ParamGetData(PARAM_MAG_SCALE_X, &mavParam[CAL_MAG0_XSCALE], 4);
+	ParamGetData(PARAM_MAG_SCALE_Y, &mavParam[CAL_MAG0_YSCALE], 4);
+	ParamGetData(PARAM_MAG_SCALE_Z, &mavParam[CAL_MAG0_ZSCALE], 4);
     mavParam[CAL_ACC0_ID] = 120; 
-    mavParam[CAL_ACC0_XOFF] = 0; 
-    mavParam[CAL_ACC0_YOFF] = 0; 
-    mavParam[CAL_ACC0_ZOFF] = 0; 
-    mavParam[CAL_ACC0_XSCALE] = 1; 
-    mavParam[CAL_ACC0_YSCALE] = 1; 
-    mavParam[CAL_ACC0_ZSCALE] = 1; 
-    
-    mavParam[CAL_GYRO1_ID] = 0; 
-    mavParam[CAL_GYRO1_XOFF] = 0; 
-    mavParam[CAL_GYRO1_YOFF] = 0; 
-    mavParam[CAL_GYRO1_ZOFF] = 0; 
-    mavParam[CAL_GYRO1_XSCALE] = 1; 
-    mavParam[CAL_GYRO1_YSCALE] = 1; 
-    mavParam[CAL_GYRO1_ZSCALE] = 1; 
-    mavParam[CAL_MAG1_ID] = 0; 
-    mavParam[CAL_MAG1_ROT] = -1; 
-    mavParam[CAL_MAG1_XOFF] = 0; 
-    mavParam[CAL_MAG1_YOFF] = 0; 
-    mavParam[CAL_MAG1_ZOFF] = 0; 
-    mavParam[CAL_MAG1_XSCALE] = 1; 
-    mavParam[CAL_MAG1_YSCALE] = 1; 
-    mavParam[CAL_MAG1_ZSCALE] = 1; 
-    mavParam[CAL_ACC1_ID] = 0; 
-    mavParam[CAL_ACC1_XOFF] = 0; 
-    mavParam[CAL_ACC1_YOFF] = 0; 
-    mavParam[CAL_ACC1_ZOFF] = 0; 
-    mavParam[CAL_ACC1_XSCALE] = 1; 
-    mavParam[CAL_ACC1_YSCALE] = 1; 
-    mavParam[CAL_ACC1_ZSCALE] = 1;   
-
-    mavParam[CAL_GYRO2_ID] = 0; 
-    mavParam[CAL_GYRO2_XOFF] = 0; 
-    mavParam[CAL_GYRO2_YOFF] = 0; 
-    mavParam[CAL_GYRO2_ZOFF] = 0; 
-    mavParam[CAL_GYRO2_XSCALE] = 1; 
-    mavParam[CAL_GYRO2_YSCALE] = 1; 
-    mavParam[CAL_GYRO2_ZSCALE] = 1; 
-    mavParam[CAL_MAG2_ID] = 0; 
-    mavParam[CAL_MAG2_ROT] = -1; 
-    mavParam[CAL_MAG2_XOFF] = 0; 
-    mavParam[CAL_MAG2_YOFF] = 0; 
-    mavParam[CAL_MAG2_ZOFF] = 0; 
-    mavParam[CAL_MAG2_XSCALE] = 1; 
-    mavParam[CAL_MAG2_YSCALE] = 1; 
-    mavParam[CAL_MAG2_ZSCALE] = 1; 
-    mavParam[CAL_ACC2_ID] = 0; 
-    mavParam[CAL_ACC2_XOFF] = 0; 
-    mavParam[CAL_ACC2_YOFF] = 0; 
-    mavParam[CAL_ACC2_ZOFF] = 0; 
-    mavParam[CAL_ACC2_XSCALE] = 1; 
-    mavParam[CAL_ACC2_YSCALE] = 1; 
-    mavParam[CAL_ACC2_ZSCALE] = 1;    
+    ParamGetData(PARAM_ACC_OFFSET_X, &mavParam[CAL_ACC0_XOFF], 4);
+	ParamGetData(PARAM_ACC_OFFSET_Y, &mavParam[CAL_ACC0_YOFF], 4);
+	ParamGetData(PARAM_ACC_OFFSET_Z, &mavParam[CAL_ACC0_ZOFF], 4);
+	ParamGetData(PARAM_ACC_SCALE_X, &mavParam[CAL_ACC0_XSCALE], 4);
+	ParamGetData(PARAM_ACC_SCALE_Y, &mavParam[CAL_ACC0_YSCALE], 4);
+	ParamGetData(PARAM_ACC_SCALE_Z, &mavParam[CAL_ACC0_ZSCALE], 4);
     
     mavParam[CAL_ACC_PRIME] = 120;
     mavParam[CAL_GYRO_PRIME] = 125;
@@ -500,9 +444,12 @@ void MavParamSetDefault(void)
     mavParam[SENS_BARO_QNH] = 1013.25;
     mavParam[SENS_BOARD_ROT] = GYRO_ROTATION;
     mavParam[SENS_FLOW_ROT] = 0;
-    mavParam[SENS_BOARD_X_OFF] = 0;
-    mavParam[SENS_BOARD_Y_OFF] = 0;
-    mavParam[SENS_BOARD_Z_OFF] = 0;
+    ParamGetData(PARAM_IMU_LEVEL_X, &mavParam[SENS_BOARD_X_OFF], 4);
+	ParamGetData(PARAM_IMU_LEVEL_Y, &mavParam[SENS_BOARD_Y_OFF], 4);
+	ParamGetData(PARAM_IMU_LEVEL_Z, &mavParam[SENS_BOARD_Z_OFF], 4);
+    mavParam[SENS_BOARD_X_OFF] = Degrees(mavParam[SENS_BOARD_X_OFF]);
+    mavParam[SENS_BOARD_Y_OFF] = Degrees(mavParam[SENS_BOARD_Y_OFF]);
+    mavParam[SENS_BOARD_Z_OFF] = Degrees(mavParam[SENS_BOARD_Z_OFF]);
     mavParam[SENS_EXT_MAG_ROT] = 0;
     mavParam[SENS_EXT_MAG] = 0;
 
@@ -691,6 +638,35 @@ void MavParamSetDefault(void)
     mavParam[GF_MAX_HOR_DIST] = -1;
     mavParam[GF_MAX_VER_DIST] = -1;
     mavParam[GF_FENCE_SW] = 1;
+    
+    mavParam[MC_ROLL_TC] = 0.1;
+    mavParam[MC_PITCH_TC] = 0.1;
+    mavParam[MC_ROLL_P] = 0;
+    mavParam[MC_ROLLRATE_P] = 0;
+    mavParam[MC_ROLLRATE_I] = 0;
+    mavParam[MC_ROLLRATE_D] = 0;
+    mavParam[MC_PITCH_P] = 0;
+    mavParam[MC_PITCHRATE_P] = 0;
+    mavParam[MC_PITCHRATE_I] = 0;
+    mavParam[MC_PITCHRATE_D] = 0;
+    mavParam[MC_YAW_P] = 0;
+    mavParam[MC_YAWRATE_P] = 0;
+    mavParam[MC_YAWRATE_I] = 0;
+    mavParam[MC_YAWRATE_D] = 0;
+
+    mavParam[MPC_THR_MIN] = 0.15;
+    mavParam[MPC_THR_HOVER] = 0.5;
+    mavParam[MPC_THR_MAX] = 0.9;
+    mavParam[MPC_MANTHR_MIN] = 0.15;
+    mavParam[MPC_MANTHR_MAX] = 0.9;
+    mavParam[MPC_Z_P] = 0;
+    mavParam[MPC_Z_VEL_P] = 0;
+    mavParam[MPC_Z_VEL_I] = 0;
+    mavParam[MPC_Z_VEL_D] = 0;
+    mavParam[MPC_XY_P] = 0;
+    mavParam[MPC_XY_VEL_P] = 0;
+    mavParam[MPC_XY_VEL_I] = 0;
+    mavParam[MPC_XY_VEL_D] = 0;    
 }
 
 
