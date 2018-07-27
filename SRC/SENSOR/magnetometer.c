@@ -53,6 +53,9 @@ void MagCaliDataInit(void)
 
     if(isnan(mag.cali.offset.x) || isnan(mag.cali.offset.y) || isnan(mag.cali.offset.z) || \
        isnan(mag.cali.scale.x) || isnan(mag.cali.scale.y) || isnan(mag.cali.scale.z) ||    \
+       abs(mag.cali.scale.x) < 0.3f || abs(mag.cali.scale.x) > 2 || \
+       abs(mag.cali.scale.y) < 0.3f || abs(mag.cali.scale.y) > 2 || \
+       abs(mag.cali.scale.z) < 0.3f || abs(mag.cali.scale.z) > 2 || \
        mag.cali.scale.x == 0 || mag.cali.scale.y == 0 || mag.cali.scale.z == 0)
     {
         mag.cali.offset.x = 0;
@@ -105,7 +108,7 @@ void MagCalibration(void)
     static Vector3f_t new_offset;
     static Vector3f_t new_scale;
 	Vector3f_t magRaw;
-    float earthMag;
+    static float earthMag = 0;
     
     //计算时间间隔，用于积分
 	static uint64_t previousT;
@@ -116,7 +119,7 @@ void MagCalibration(void)
 	{
         //读取罗盘数据
         MagSensorRead(&magRaw);
-
+        
         //校准分两个阶段：1.水平旋转 2.机头朝上或朝下然后水平旋转
         //两个阶段分别对飞机的z轴和x轴陀螺仪数据进行积分，记录旋转过的角度
         if(mag.cali.step == 1)
@@ -139,6 +142,8 @@ void MagCalibration(void)
 		}
 		else if(cnt_m == 1)
         {
+            earthMag = Pythagorous3(magRaw.x, magRaw.y, magRaw.z);
+            
 			samples[MaxX] = samples[MinX] = magRaw;
 			samples[MaxY] = samples[MinY] = magRaw;
 			samples[MaxZ] = samples[MinZ] = magRaw;
@@ -146,32 +151,42 @@ void MagCalibration(void)
 		}		
 		else
         {
-            //找到每个轴的最大最小值
-			if(magRaw.x > samples[MaxX].x)
-			{
-				samples[MaxX] = magRaw;
-			}			
-			if(magRaw.x < samples[MinX].x)
-			{
-				samples[MinX] = magRaw;
-			}		
-			if(magRaw.y > samples[MaxY].y)
-			{
-				samples[MaxY] = magRaw;
-			}			
-			if(magRaw.y < samples[MinY].y)
-			{
-				samples[MinY] = magRaw;
-			}
-			if(magRaw.z > samples[MaxZ].z)
-			{
-				samples[MaxZ] = magRaw;
-			}
-			if(magRaw.z < samples[MinZ].z)
-			{
-				samples[MinZ] = magRaw;
-			}
-			
+            //实时计算磁场强度模值
+            earthMag = earthMag * 0.998f + Pythagorous3(magRaw.x, magRaw.y, magRaw.z) * 0.002f;
+            
+            //找到每个轴的最大最小值，并对采样值进行一阶低通滤波
+            if(Pythagorous3(magRaw.x, magRaw.y, magRaw.z) < earthMag * 1.45f)
+            {
+                if(magRaw.x > samples[MaxX].x)
+                { 
+                    LowPassFilter1st(&samples[MaxX], magRaw, 0.5);
+                }			
+                if(magRaw.x < samples[MinX].x)
+                {
+                    LowPassFilter1st(&samples[MinX], magRaw, 0.5);
+                }		
+                if(magRaw.y > samples[MaxY].y)
+                {
+                    LowPassFilter1st(&samples[MaxY], magRaw, 0.5);
+                }			
+                if(magRaw.y < samples[MinY].y)
+                {
+                    LowPassFilter1st(&samples[MinY], magRaw, 0.5);
+                }
+                if(magRaw.z > samples[MaxZ].z)
+                {
+                    LowPassFilter1st(&samples[MaxZ], magRaw, 0.5);
+                }
+                if(magRaw.z < samples[MinZ].z)
+                {
+                    LowPassFilter1st(&samples[MinZ], magRaw, 0.5);
+                }
+            }
+            else
+            {
+                earthMag = earthMag;
+            }
+            
             //mavlink发送当前校准进度
             if(mag.cali.step == 1)
                 MavlinkSendNoticeProgress(abs(cali_rotate_angle) / 72);
@@ -195,6 +210,7 @@ void MagCalibration(void)
 				mag.cali.should_cali = 0;
 				mag.cali.step = 3;
 				cali_rotate_angle  = 0;
+                earthMag = 0;
                 
                 //计算当地地磁场强度模值均值
                 for(u8 i=0;i<6;i++)
@@ -207,7 +223,11 @@ void MagCalibration(void)
                 GaussNewtonCalibrate(samples, &new_offset, &new_scale, earthMag, 20);
                 
                 //判断校准参数是否正常
-                if(fabsf(new_scale.x-1.0f) > 0.8f || fabsf(new_scale.y-1.0f) > 0.8f || fabsf(new_scale.z-1.0f) > 0.8f) 
+                if(isnan(new_scale.x) || isnan(new_scale.y) || isnan(new_scale.z))
+                {
+                    mag.cali.success = false;
+                }
+                else if(fabsf(new_scale.x-1.0f) > 0.8f || fabsf(new_scale.y-1.0f) > 0.8f || fabsf(new_scale.z-1.0f) > 0.8f) 
                 {
                     mag.cali.success = false;
                 }
@@ -255,6 +275,7 @@ void MagCalibration(void)
 				MessageSensorCaliFeedbackEnable(MAG, mag.cali.step, mag.cali.success);
 				
 				mag.cali.step = 0;
+                earthMag = 0;
 			}
 		}
 	}
