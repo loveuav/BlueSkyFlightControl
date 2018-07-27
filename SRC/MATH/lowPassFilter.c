@@ -3,13 +3,26 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     lowPassFilter.c
- * @说明     低通滤波器，目前只使用了二阶IIR低通滤波
- * @版本  	 V1.0
+ * @说明     低通滤波器
+ * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.07 
 **********************************************************************************************************/
 #include "lowPassFilter.h"
+
+/**********************************************************************************************************
+*函 数 名: LowPassFilter1st
+*功能说明: 一阶低通滤波器
+*形    参: 数据指针 新数据 滤波系数(新数据权重）
+*返 回 值: 无
+**********************************************************************************************************/
+void LowPassFilter1st(Vector3f_t* data, Vector3f_t newData, float coff)
+{
+    data->x = data->x * (1 - coff) + newData.x * coff;
+    data->y = data->y * (1 - coff) + newData.y * coff;
+    data->z = data->z * (1 - coff) + newData.z * coff;
+}
 
 /**********************************************************************************************************
 *函 数 名: LowPassFilter2ndFactorCal
