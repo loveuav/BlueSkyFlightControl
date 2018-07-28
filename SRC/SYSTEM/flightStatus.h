@@ -73,7 +73,7 @@ uint8_t GetAltControlStatus(void);
 void SetPosControlStatus(uint8_t status);
 uint8_t GetPosControlStatus(void);
 
-void SetArmedStatus(uint8_t status);
+bool SetArmedStatus(uint8_t status);
 uint8_t GetArmedStatus(void);
 
 void PlaceStausCheck(Vector3f_t gyro);

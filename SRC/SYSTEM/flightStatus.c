@@ -51,7 +51,7 @@ bool ArmedCheck(void)
 *形    参: 状态
 *返 回 值: 无
 **********************************************************************************************************/
-void SetArmedStatus(uint8_t status)
+bool SetArmedStatus(uint8_t status)
 {
 	if(status == DISARMED)	//上锁
 	{
@@ -59,12 +59,14 @@ void SetArmedStatus(uint8_t status)
         NavigationReset();
         
 		flyStatus.armed = DISARMED;
+        
+        return true;
 	}
 	else if(status == ARMED)	//解锁
 	{	
         //解锁检查
         if(!ArmedCheck())
-            return;
+            return false;
 		
 		//不使用恒温的话，每次解锁时校准一下陀螺仪
 		#if(configUSE_SENSORHEAT == 0)
@@ -77,6 +79,8 @@ void SetArmedStatus(uint8_t status)
         NavigationReset();
         
 		flyStatus.armed = ARMED;
+        
+        return true;
 	}
 }
 
@@ -265,7 +269,7 @@ void SetFlightMode(uint8_t mode)
             //flyStatus.mode = AUTOCIRCLE;		//自动环绕
             break;
         case    AUTOPILOT:
-            //flyStatus.mode = AUTOPILOT;		//自动航线
+            flyStatus.mode = AUTOPILOT;		//自动航线
             break;
         case    FOLLOWME:
             //flyStatus.mode = FOLLOWME;		//自动跟随
