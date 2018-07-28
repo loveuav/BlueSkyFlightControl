@@ -94,8 +94,40 @@ void MavlinkSendHeartbeat(uint8_t* sendFlag)
     //消息负载赋值
     heartbeat.type          = MAV_TYPE_QUADROTOR;
     heartbeat.autopilot     = MAV_AUTOPILOT_PX4;    //设置飞控类型为PX4，以便能使用QGroudControl地面站
-    heartbeat.base_mode     = 0;
-    heartbeat.custom_mode   = 0;
+    heartbeat.base_mode     = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
+    
+    if(GetArmedStatus() == ARMED)
+    {
+        heartbeat.base_mode |= MAV_MODE_MANUAL_ARMED;
+    }
+    else
+    {
+        heartbeat.base_mode |= MAV_MODE_MANUAL_DISARMED;        
+    }
+    
+    switch(GetFlightMode())
+    {
+        case MANUAL:
+            heartbeat.custom_mode   = 0x0001 << 16;
+            break;
+        
+        case SEMIAUTO:
+            heartbeat.custom_mode   = 0x0002 << 16;
+            break;
+        
+        case AUTO:
+            heartbeat.custom_mode   = 0x0003 << 16;
+            break;
+        
+        case AUTOPILOT:
+            heartbeat.custom_mode   = 0x0404 << 16;
+            break;
+        
+        default:
+            heartbeat.custom_mode   = 0x0003 << 16;
+            break;
+    }
+    
     heartbeat.system_status = MAV_STATE_STANDBY;
 
     //mavlink组帧

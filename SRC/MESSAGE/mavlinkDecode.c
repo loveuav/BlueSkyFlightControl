@@ -34,7 +34,8 @@
 #include "waypointControl.h"
 
 static void MavlinkDecodeCommand(mavlink_command_long_t command);
-    
+static void MavlinkSetFlightMode(mavlink_set_mode_t set_mode);  
+
 /**********************************************************************************************************
 *函 数 名: MavlinkDecode
 *功能说明: 消息解析
@@ -52,10 +53,21 @@ void MavlinkDecode(uint8_t data)
     
     switch(msg.msgid)
     {
-        case MAVLINK_MSG_ID_HEARTBEAT:              //心跳包
+        /*心跳包*/
+        case MAVLINK_MSG_ID_HEARTBEAT:      
             break;
         
-        case MAVLINK_MSG_ID_PARAM_REQUEST_READ:     //请求发送飞控单个参数
+        /*设置飞行模式*/
+        case MAVLINK_MSG_ID_SET_MODE:
+        {
+            static mavlink_set_mode_t set_mode;
+            mavlink_msg_set_mode_decode(&msg, &set_mode);
+            MavlinkSetFlightMode(set_mode);  
+            break;
+        }
+                
+        /*请求发送飞控单个参数*/
+        case MAVLINK_MSG_ID_PARAM_REQUEST_READ:     
             if(MAVLINK_SYSTEM_ID == mavlink_msg_param_request_read_get_target_system(&msg)) 
             {
                 static uint16_t paramIndex;
@@ -71,8 +83,9 @@ void MavlinkDecode(uint8_t data)
                 }
             }
             break;
-        
-        case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:     //请求发送飞控参数列表
+            
+        /*请求发送飞控参数列表*/
+        case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:     
             if(MAVLINK_SYSTEM_ID == mavlink_msg_param_request_list_get_target_system(&msg))
             {
                 //发送全部参数
@@ -80,7 +93,8 @@ void MavlinkDecode(uint8_t data)
             }
             break;
             
-        case MAVLINK_MSG_ID_PARAM_SET:              //设置飞控参数           
+        /*设置飞控参数*/   
+        case MAVLINK_MSG_ID_PARAM_SET:                        
             if(MAVLINK_SYSTEM_ID == mavlink_msg_param_set_get_target_system(&msg))
             {
                 int paramIndex = -1;
@@ -98,8 +112,9 @@ void MavlinkDecode(uint8_t data)
                 }
             }
             break;
-            
-        case MAVLINK_MSG_ID_COMMAND_LONG:           //命令
+        
+        /*命令*/            
+        case MAVLINK_MSG_ID_COMMAND_LONG:          
             if (MAVLINK_SYSTEM_ID == mavlink_msg_command_long_get_target_system(&msg))
             {
                 static mavlink_command_long_t command;
@@ -110,14 +125,16 @@ void MavlinkDecode(uint8_t data)
             }
             break;
             
-        case MAVLINK_MSG_ID_MISSION_COUNT:          //航点数量
+        /*航点数量*/    
+        case MAVLINK_MSG_ID_MISSION_COUNT:         
             SetWaypointCount(mavlink_msg_mission_count_get_count(&msg));
             SetWaypointRecvCount(0);
             //开始请求航点信息
             MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_REQUEST);
             break;
             
-        case MAVLINK_MSG_ID_MISSION_ITEM:           //航点信息
+        /*航点信息*/
+        case MAVLINK_MSG_ID_MISSION_ITEM:           
         {
             static mavlink_mission_item_t item;
             //帧解析
@@ -132,24 +149,27 @@ void MavlinkDecode(uint8_t data)
                 //航点接收完毕，发送应答
                 MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_ACK);
             }
-        }
             break;
+        }
         
-        case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:   //请求读取飞控航点信息
+        /*请求读取飞控航点信息*/
+        case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:   
             //发送航点数量
             MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_COUNT);
             break;
         
+        /*发送航点信息*/
         case MAVLINK_MSG_ID_MISSION_REQUEST:
-            //发送航点信息
             SetWaypointSendCount(mavlink_msg_mission_request_get_seq(&msg));
             MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_ITEM);
             break;
         
+        /*航点任务响应*/
         case MAVLINK_MSG_ID_MISSION_ACK:
             break;
         
-        case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:      //清除所有航点信息
+        /*清除所有航点信息*/
+        case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:      
             ClearAllWaypointItem();
             MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_ACK);
             break;
@@ -169,6 +189,30 @@ static void MavlinkDecodeCommand(mavlink_command_long_t command)
 {
     switch(command.command)
     {
+        /*返航*/
+        case MAV_CMD_NAV_RETURN_TO_LAUNCH:
+            MavlinkSetCommandAck(MAV_CMD_NAV_RETURN_TO_LAUNCH, MAV_CMD_ACK_OK);
+            MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);  
+            break;
+        
+        /*降落*/
+        case MAV_CMD_NAV_LAND:
+            MavlinkSetCommandAck(MAV_CMD_NAV_LAND, MAV_CMD_ACK_OK);
+            MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);  
+            break;
+        
+        /*起飞*/
+        case MAV_CMD_NAV_TAKEOFF:
+            MavlinkSetCommandAck(MAV_CMD_NAV_TAKEOFF, MAV_CMD_ACK_OK | MAV_CMD_ACK_ENUM_END);
+            MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);  
+            break;        
+        
+        /*开始航点任务*/
+        case MAV_CMD_MISSION_START:
+            MavlinkSetCommandAck(MAV_CMD_MISSION_START, MAV_CMD_ACK_OK);
+            MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);  
+            break;   
+        
         /*传感器校准*/
         case MAV_CMD_PREFLIGHT_CALIBRATION:
             if(GetArmedStatus() == DISARMED)
@@ -213,7 +257,65 @@ static void MavlinkDecodeCommand(mavlink_command_long_t command)
             MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);            
             break;
         
+        /*电机解锁*/
+        case MAV_CMD_COMPONENT_ARM_DISARM:
+            if(command.param1 == 1)  
+            {                
+                if(SetArmedStatus(ARMED))   //解锁
+                    MavlinkSetCommandAck(MAV_CMD_COMPONENT_ARM_DISARM, MAV_CMD_ACK_OK | MAV_CMD_ACK_ENUM_END);
+                else
+                    MavlinkSetCommandAck(MAV_CMD_COMPONENT_ARM_DISARM, MAV_CMD_ACK_ERR_FAIL);
+            }
+            else if(command.param1 == 0)
+            {
+                SetArmedStatus(DISARMED);   //上锁
+                MavlinkSetCommandAck(MAV_CMD_COMPONENT_ARM_DISARM, MAV_CMD_ACK_OK | MAV_CMD_ACK_ENUM_END);
+            }
+
+            MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);    
+            break;
+        
         default:
             break;
     }
 }
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSetFlightMode
+*功能说明: 设置飞行模式
+*形    参: 接收数据
+*返 回 值: 无
+**********************************************************************************************************/
+static void MavlinkSetFlightMode(mavlink_set_mode_t set_mode)
+{
+    switch(set_mode.custom_mode)
+    {
+        case 0x00010000:
+            SetFlightMode(MANUAL);
+            break;
+
+        case 0x00020000:
+            SetFlightMode(SEMIAUTO);
+            break;
+
+        case 0x00030000:
+            SetFlightMode(AUTO);
+            break;
+        
+        case 0x04040000:
+            SetFlightMode(AUTOPILOT);
+            break;            
+
+        case 0x05040000:
+            SetFlightMode(RETURNTOHOME);
+            break;       
+        
+        default:
+            break;
+    }        
+}
+
+
+
+
+
