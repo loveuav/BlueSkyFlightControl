@@ -506,6 +506,11 @@
               <FileType>1</FileType>
               <FilePath>..\SRC\CONTROL\missionControl.c</FilePath>
             </File>
+            <File>
+              <FileName>waypointControl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\CONTROL\waypointControl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -722,6 +727,11 @@
               <FilePath>..\SRC\DRIVER\drv_spi.c</FilePath>
             </File>
             <File>
+              <FileName>drv_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\DRIVER\drv_adc.c</FilePath>
+            </File>
+            <File>
               <FileName>drv_usart.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_usart.c</FilePath>
@@ -755,11 +765,6 @@
               <FileName>drv_ppm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_ppm.c</FilePath>
-            </File>
-            <File>
-              <FileName>drv_adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SRC\DRIVER\drv_adc.c</FilePath>
             </File>
           </Files>
         </Group>

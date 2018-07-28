@@ -153,6 +153,14 @@ void MessageSendLoop(void)
         }
         else if(mavlinkSendFlag[MAVLINK_MSG_ID_COMMAND_ACK])
             MavlinkSendCommandAck(&mavlinkSendFlag[MAVLINK_MSG_ID_COMMAND_ACK]);               //命令响应
+        else if(mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_REQUEST])
+            MavlinkSendMissionRequest(&mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_REQUEST]);       //航点信息请求 
+        else if(mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_ACK])
+            MavlinkSendMissionAck(&mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_ACK]);               //航点接收完毕应答 
+        else if(mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_COUNT])        
+            MavlinkSendMissionCount(&mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_COUNT]);           //航点数量
+        else if(mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_ITEM])        
+            MavlinkSendMissionItem(&mavlinkSendFlag[MAVLINK_MSG_ID_MISSION_ITEM]);             //航点信息
         else
         {
             //根据发送列表来使能对应的数据帧发送标志位

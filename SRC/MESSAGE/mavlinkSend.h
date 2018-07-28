@@ -44,6 +44,10 @@ void MavlinkSendGpsRawInt(uint8_t* sendFlag);
 void MavlinkSendScaledImu(uint8_t* sendFlag);
 void MavlinkSendAttitude(uint8_t* sendFlag);
 void MavlinkSendCommandAck(uint8_t* sendFlag);
+void MavlinkSendMissionRequest(uint8_t* sendFlag);
+void MavlinkSendMissionAck(uint8_t* sendFlag);
+void MavlinkSendMissionCount(uint8_t* sendFlag);
+void MavlinkSendMissionItem(uint8_t* sendFlag);
 void MavlinkSendStatusText(uint8_t* sendFlag);
 
 void MavlinkCurrentParamSet(uint16_t num);

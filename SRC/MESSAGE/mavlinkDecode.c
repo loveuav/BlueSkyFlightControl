@@ -31,6 +31,7 @@
 #include "rc.h"
 #include "ublox.h"
 #include "flightStatus.h"
+#include "waypointControl.h"
 
 static void MavlinkDecodeCommand(mavlink_command_long_t command);
     
@@ -109,6 +110,50 @@ void MavlinkDecode(uint8_t data)
             }
             break;
             
+        case MAVLINK_MSG_ID_MISSION_COUNT:          //航点数量
+            SetWaypointCount(mavlink_msg_mission_count_get_count(&msg));
+            SetWaypointRecvCount(0);
+            //开始请求航点信息
+            MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_REQUEST);
+            break;
+            
+        case MAVLINK_MSG_ID_MISSION_ITEM:           //航点信息
+        {
+            static mavlink_mission_item_t item;
+            //帧解析
+            mavlink_msg_mission_item_decode(&msg, &item);
+            //设置航点信息
+            SetWaypointItem(item.seq, item);
+            //请求下一个航点信息
+            if(item.seq < GetWaypointCount() - 1)
+                MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_REQUEST);
+            else
+            {
+                //航点接收完毕，发送应答
+                MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_ACK);
+            }
+        }
+            break;
+        
+        case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:   //请求读取飞控航点信息
+            //发送航点数量
+            MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_COUNT);
+            break;
+        
+        case MAVLINK_MSG_ID_MISSION_REQUEST:
+            //发送航点信息
+            SetWaypointSendCount(mavlink_msg_mission_request_get_seq(&msg));
+            MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_ITEM);
+            break;
+        
+        case MAVLINK_MSG_ID_MISSION_ACK:
+            break;
+        
+        case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:      //清除所有航点信息
+            ClearAllWaypointItem();
+            MavlinkSendEnable(MAVLINK_MSG_ID_MISSION_ACK);
+            break;
+        
         default:
             break;
     }

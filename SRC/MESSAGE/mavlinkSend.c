@@ -31,6 +31,7 @@
 #include "battery.h"
 #include "flightStatus.h"
 #include "parameter.h"
+#include "waypointControl.h"
 
 static int16_t currentParamNum = 0;
 
@@ -331,6 +332,128 @@ void MavlinkSetCommandAck(uint16_t command, uint8_t result)
 {
     commandAck.command = command;
     commandAck.result  = result;
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendMissionRequest
+*功能说明: 发送航点请求
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendMissionRequest(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_mission_request_t request;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+    request.seq = GetWaypointRecvCount();
+    request.target_component = MAVLINK_SYSTEM_ID;
+    request.target_system    = MAVLINK_COMPONENT_ID;
+    
+    //mavlink组帧
+    mavlink_msg_mission_request_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &request);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendMissionAck
+*功能说明: 发送航点接收应答
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendMissionAck(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_mission_ack_t ack;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+    ack.type = MAV_MISSION_ACCEPTED;
+    ack.target_component = MAVLINK_SYSTEM_ID;
+    ack.target_system    = MAVLINK_COMPONENT_ID;
+    
+    //mavlink组帧
+    mavlink_msg_mission_ack_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &ack);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendMissionCount
+*功能说明: 发送航点数量
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendMissionCount(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_mission_count_t count;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+    count.count = GetWaypointCount();
+    count.target_component = MAVLINK_SYSTEM_ID;
+    count.target_system    = MAVLINK_COMPONENT_ID;
+    
+    //mavlink组帧
+    mavlink_msg_mission_count_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &count);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendMissionItem
+*功能说明: 发送航点信息
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendMissionItem(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_mission_item_t item;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+    item = GetWaypointItem(GetWaypointSendCount());
+    
+    //mavlink组帧
+    mavlink_msg_mission_item_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &item);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
 }
 
 /**********************************************************************************************************
