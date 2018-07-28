@@ -15,7 +15,11 @@
                 "${workspaceFolder}/STMLIB",
                 "${workspaceFolder}/STMLIB/inc",
                 "${workspaceFolder}/STMLIB/include",
-                "${workspaceFolder}/STMLIB/CORE",
+				"${workspaceFolder}/STMLIB/CORE",
+				"${workspaceFolder}/STMLIB/USB",
+				"${workspaceFolder}/STMLIB/USB/STM32_USB_OTG_Driver/inc",
+				"${workspaceFolder}/STMLIB/USB/STM32_USB_Device_Library/Core/inc",
+				"${workspaceFolder}/STMLIB/USB/STM32_USB_Device_Library/Class/cdc/inc",
                 "${workspaceFolder}/SRC/CONTROL",
                 "${workspaceFolder}/SRC/MESSAGE",
                 "${workspaceFolder}/SRC/DRIVER",
@@ -24,7 +28,8 @@
                 "${workspaceFolder}/SRC/NAVIGATION",
                 "${workspaceFolder}/SRC/SENSOR",
                 "${workspaceFolder}/SRC/SYSTEM",
-                "${workspaceFolder}/SRC/TASK"
+				"${workspaceFolder}/SRC/TASK",
+				"${workspaceFolder}/MAVLINK"
             ],
             "defines": [
                 "_DEBUG",

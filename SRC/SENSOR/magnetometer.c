@@ -112,7 +112,7 @@ void MagCalibration(void)
     
     //计算时间间隔，用于积分
 	static uint64_t previousT;
-	float	deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
+	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
 	previousT = GetSysTimeUs();	
 	
 	if(mag.cali.should_cali)
@@ -142,8 +142,9 @@ void MagCalibration(void)
 		}
 		else if(cnt_m == 1)
         {
+            //初始化磁场强度模值
             earthMag = Pythagorous3(magRaw.x, magRaw.y, magRaw.z);
-            
+            //初始化采样点
 			samples[MaxX] = samples[MinX] = magRaw;
 			samples[MaxY] = samples[MinY] = magRaw;
 			samples[MaxZ] = samples[MinZ] = magRaw;
@@ -159,27 +160,27 @@ void MagCalibration(void)
             {
                 if(magRaw.x > samples[MaxX].x)
                 { 
-                    LowPassFilter1st(&samples[MaxX], magRaw, 0.5);
+                    LowPassFilter1st(&samples[MaxX], magRaw, 0.3);
                 }			
                 if(magRaw.x < samples[MinX].x)
                 {
-                    LowPassFilter1st(&samples[MinX], magRaw, 0.5);
+                    LowPassFilter1st(&samples[MinX], magRaw, 0.3);
                 }		
                 if(magRaw.y > samples[MaxY].y)
                 {
-                    LowPassFilter1st(&samples[MaxY], magRaw, 0.5);
+                    LowPassFilter1st(&samples[MaxY], magRaw, 0.3);
                 }			
                 if(magRaw.y < samples[MinY].y)
                 {
-                    LowPassFilter1st(&samples[MinY], magRaw, 0.5);
+                    LowPassFilter1st(&samples[MinY], magRaw, 0.3);
                 }
                 if(magRaw.z > samples[MaxZ].z)
                 {
-                    LowPassFilter1st(&samples[MaxZ], magRaw, 0.5);
+                    LowPassFilter1st(&samples[MaxZ], magRaw, 0.3);
                 }
                 if(magRaw.z < samples[MinZ].z)
                 {
-                    LowPassFilter1st(&samples[MinZ], magRaw, 0.5);
+                    LowPassFilter1st(&samples[MinZ], magRaw, 0.3);
                 }
             }
             else
@@ -220,7 +221,7 @@ void MagCalibration(void)
                 earthMag /= 6;
                 
                 //高斯牛顿法求解误差方程
-                GaussNewtonCalibrate(samples, &new_offset, &new_scale, earthMag, 20);
+                GaussNewtonCalibrate(samples, &new_offset, &new_scale, earthMag, 30);
                 
                 //判断校准参数是否正常
                 if(isnan(new_scale.x) || isnan(new_scale.y) || isnan(new_scale.z))
