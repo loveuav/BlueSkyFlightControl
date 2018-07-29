@@ -76,7 +76,7 @@ void MavlinkDecode(uint8_t data)
                 mavlink_msg_param_request_read_decode(&msg, &request_read);
                 //根据参数标识符获取参数ID
                 paramIndex = MavParamGetIdByName((char*)request_read.param_id);
-                if(paramIndex< MAV_PARAM_NUM)
+                if(paramIndex < MAV_PARAM_NUM)
                 {
                     //发送单个参数
                     MavParamSendEnable(paramIndex);

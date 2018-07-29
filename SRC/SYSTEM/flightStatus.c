@@ -64,6 +64,9 @@ bool SetArmedStatus(uint8_t status)
 	}
 	else if(status == ARMED)	//解锁
 	{	
+        if(flyStatus.armed == ARMED)
+            return true;
+        
         //解锁检查
         if(!ArmedCheck())
             return false;
