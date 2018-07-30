@@ -556,6 +556,11 @@
               <FileType>1</FileType>
               <FilePath>..\SRC\MESSAGE\mavlinkParam.c</FilePath>
             </File>
+            <File>
+              <FileName>mavlinkNotice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MESSAGE\mavlinkNotice.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

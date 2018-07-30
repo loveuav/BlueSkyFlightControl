@@ -23,6 +23,7 @@ void MessageSensorCaliFeedbackEnable(uint8_t type, uint8_t step, uint8_t success
 void BsklinkSendEnable(uint8_t msgid);
 void MavlinkSendEnable(uint8_t msgid);
 void DataSend(uint8_t *data , uint8_t length);
+bool GetMessageStatus(void);
 
 #endif
 

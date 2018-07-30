@@ -8,7 +8,7 @@
 **********************************************************************************************************/
 #define SOFTWARE_VERSION_HIGH   0
 #define SOFTWARE_VERSION_LOW    4
-#define SOFTWARE_VERSION_MID    7
+#define SOFTWARE_VERSION_MID    8
 
 /**********************************************************************************************************
 *飞控硬件类型
@@ -92,6 +92,7 @@ enum
 void BoardInit(void);
 void SoftDelayMs(uint32_t ms);
 void SoftDelayUs(uint32_t us);
+void OsDelayMs(uint32_t ms);
 
 uint64_t GetSysTimeUs(void);
 uint32_t GetSysTimeMs(void);

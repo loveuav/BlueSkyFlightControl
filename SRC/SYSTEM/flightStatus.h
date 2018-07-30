@@ -68,6 +68,8 @@ enum
 	FOLLOWME				//自动跟随
 };
 
+void SystemInitCheck(void);
+
 void SetAltControlStatus(uint8_t status);
 uint8_t GetAltControlStatus(void);
 void SetPosControlStatus(uint8_t status);

@@ -32,6 +32,42 @@ void ImuTempControlInit(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: SensorCheckStatus
+*功能说明: 检查传感器状态
+*形    参: 无 
+*返 回 值: 状态
+**********************************************************************************************************/
+bool SensorCheckStatus(void)
+{
+    bool status = true;
+    
+    //检测陀螺仪状态
+    if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
+        status = false;    
+
+    //检测磁力计状态
+    if(FaultDetectGetErrorStatus(MAG_UNDETECTED))
+        status = false;     
+
+    //检测气压计状态
+    if(FaultDetectGetErrorStatus(BARO_UNDETECTED))
+        status = false;      
+     
+    return status;
+}
+
+/**********************************************************************************************************
+*函 数 名: SensorHealthCheck
+*功能说明: 检查传感器健康状态
+*形    参: 无 
+*返 回 值: 无
+**********************************************************************************************************/
+void SensorHealthCheck(void)
+{
+    
+}
+
+/**********************************************************************************************************
 *函 数 名: ImuTempControl
 *功能说明: IMU传感器恒温控制
 *形    参: 温度测量值
@@ -45,11 +81,11 @@ void ImuTempControl(float tempMeasure)
     float	deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
 	lastTime = GetSysTimeUs();
     static uint16_t cnt = 0;
-    static uint8_t overPreHeatFLag = 0;
+    static uint8_t overPreHeatFLag = 0; 
     
     if(configUSE_SENSORHEAT == 0)
     {
-        if(GetSysTimeMs() > 8000)
+        if(GetSysTimeMs() > 8000 && SensorCheckStatus())
         {
             if(GetInitStatus() < HEAT_FINISH)
                 SetInitStatus(HEAT_FINISH);
@@ -86,7 +122,7 @@ void ImuTempControl(float tempMeasure)
         //转换控制量为PWM输出
         TempControlSet(tempPIDTerm);
         
-        if(GetInitStatus() < HEAT_FINISH)
+        if(GetInitStatus() < HEAT_FINISH  && SensorCheckStatus())
         {
             //温度接近预定温度
             if(abs(tempError) < 80 && overPreHeatFLag)

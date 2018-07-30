@@ -13,6 +13,7 @@
 #include "message.h"
 #include "common/mavlink.h"
 #include "mavlinkParam.h"
+#include "mavlinkNotice.h"
 
 #include "board.h"
 #include "FreeRTOS.h"
@@ -36,42 +37,9 @@
 static int16_t currentParamNum = 0;
 
 mavlink_command_ack_t commandAck;
-uint8_t statusTextSendFlag[STATUS_TEXT_NUM];
-char noticeText[50];
+mavlink_statustext_t  statustext;
 
-//提示文本字符串，单个字符串长度不能超过50个字符
-const char* mavNoticeStrings[] = 
-{
-    "[cal] calibration started: 2 gyro",
-    "[cal] calibration started: 2 accel",
-    "[cal] calibration started: 2 mag",
-    "[cal] calibration started: 2 level",
-    "[cal] calibration done:",
-    "[cal] calibration failed:",
-    "[cal] progress <0>",
-    "[cal] progress <10>",
-    "[cal] progress <20>",
-    "[cal] progress <30>",
-    "[cal] progress <40>",
-    "[cal] progress <50>",
-    "[cal] progress <60>",
-    "[cal] progress <70>",
-    "[cal] progress <80>",
-    "[cal] progress <90>",
-    "[cal] progress <100>",
-    "[cal] up orientation detected",
-    "[cal] down orientation detected",
-    "[cal] left orientation detected",
-    "[cal] right orientation detected",
-    "[cal] front orientation detected",
-    "[cal] back orientation detected",
-    "[cal] up side done, rotate to a different side",
-    "[cal] down side done, rotate to a different side",
-    "[cal] left side done, rotate to a different side",
-    "[cal] right side done, rotate to a different side",
-    "[cal] front side done, rotate to a different side",
-    "[cal] back side done, rotate to a different side",
-};
+uint8_t statusTextSendFlag[MAV_NOTICE_NUM];
 
 /**********************************************************************************************************
 *函 数 名: MavlinkSendHeartbeat
@@ -330,6 +298,92 @@ void MavlinkSendAttitude(uint8_t* sendFlag)
 }
 
 /**********************************************************************************************************
+*函 数 名: MavlinkSendLocalPositionNed
+*功能说明: 发送位置信息
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendLocalPositionNed(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_local_position_ned_t position;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+    position.time_boot_ms = GetSysTimeMs();
+    position.x            = GetCopterPosition().x;
+    position.x            = GetCopterPosition().y;
+    position.x            = -GetCopterPosition().z;
+    Vector3f_t velEf;
+    TransVelToEarthFrame(GetCopterVelocity(), &velEf, GetCopterAngle().z);
+    position.vx           = velEf.x;
+    position.vy           = velEf.y;
+    position.vz           = -velEf.z;
+    
+    //mavlink组帧
+    mavlink_msg_local_position_ned_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &position);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
+*函 数 名: MavlinkSendRcChannels
+*功能说明: 发送遥控通道数据
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendRcChannels(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_rc_channels_t rc;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+    rc.time_boot_ms = GetSysTimeMs();
+    rc.chancount    = 16;
+    rc.chan1_raw    = GetRcData().roll;
+    rc.chan2_raw    = GetRcData().pitch;
+    rc.chan3_raw    = GetRcData().throttle;
+    rc.chan4_raw    = GetRcData().yaw;
+    rc.chan5_raw    = GetRcData().aux1;
+    rc.chan6_raw    = GetRcData().aux2;
+    rc.chan7_raw    = GetRcData().aux3;
+    rc.chan8_raw    = GetRcData().aux4;
+    rc.chan9_raw    = GetRcData().aux5;
+    rc.chan10_raw   = GetRcData().aux6;
+    rc.chan11_raw   = GetRcData().aux7;
+    rc.chan12_raw   = GetRcData().aux8;
+    rc.chan13_raw   = GetRcData().aux9;
+    rc.chan14_raw   = GetRcData().aux10;
+    rc.chan15_raw   = GetRcData().aux11;
+    rc.chan16_raw   = GetRcData().aux12;
+    rc.chan17_raw   = 0xFFFF;
+    rc.chan18_raw   = 0xFFFF;
+    rc.rssi         = 0xFF;
+    
+    //mavlink组帧
+    mavlink_msg_rc_channels_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &rc);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
 *函 数 名: MavlinkSendCommandAck
 *功能说明: 发送命令回应
 *形    参: 发送标志指针
@@ -497,7 +551,6 @@ void MavlinkSendMissionItem(uint8_t* sendFlag)
 void MavlinkSendStatusText(uint8_t* sendFlag)
 {
     mavlink_message_t msg;
-    mavlink_statustext_t statustext;
     uint8_t msgLength;
     uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
 
@@ -505,10 +558,6 @@ void MavlinkSendStatusText(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
-    //消息负载赋值
-    statustext.severity = 0;
-    memcpy(statustext.text, noticeText, 50);
     
     //mavlink组帧
     mavlink_msg_statustext_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &statustext);
@@ -527,8 +576,9 @@ void MavlinkSendStatusText(uint8_t* sendFlag)
 void MavlinkSendNotice(uint16_t noticeNum)
 {
     MavlinkSendEnable(MAVLINK_MSG_ID_STATUSTEXT);
-    memset(noticeText, 0, 50);
-    memcpy(noticeText, mavNoticeStrings[noticeNum], strlen(mavNoticeStrings[noticeNum]));
+    statustext.severity = GetMavNoticeValue(noticeNum).severity;
+    memset(statustext.text, 0, 50);
+    memcpy(statustext.text, GetMavNoticeValue(noticeNum).strings, strlen(GetMavNoticeValue(noticeNum).strings));
 }
 
 /**********************************************************************************************************
@@ -542,10 +592,10 @@ bool MavStatusTextSendCheck(void)
     static uint32_t i = 0;
     uint8_t flag;
     
-    if(statusTextSendFlag[i % STATUS_TEXT_NUM] == 1)
+    if(statusTextSendFlag[i % MAV_NOTICE_NUM] == 1)
     {
-        MavlinkSendNotice(i % STATUS_TEXT_NUM);
-        statusTextSendFlag[i % STATUS_TEXT_NUM] = 0;
+        MavlinkSendNotice(i % MAV_NOTICE_NUM);
+        statusTextSendFlag[i % MAV_NOTICE_NUM] = 0;
         flag = true;
     }
     else

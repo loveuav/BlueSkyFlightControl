@@ -89,6 +89,9 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
     
 	for(;;)
 	{
+        //系统初始化检测
+        SystemInitCheck();
+        
         //飞行器放置状态检测
         PlaceStausCheck(GyroLpfGetData());
         

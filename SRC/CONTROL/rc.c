@@ -55,6 +55,24 @@ void RcInit(void)
 	else if(RC_PROTOCOL == PPM)
         PPM_SetRcDataCallback(RcDataUpdate);
     
+    //遥控通道数据初始化
+    rcData.roll = 1500;
+    rcData.pitch = 1500;
+    rcData.throttle = 1500;
+    rcData.yaw      = 1500;
+    rcData.aux1     = 1500;
+    rcData.aux2     = 1500;
+    rcData.aux3     = 1500;
+    rcData.aux4     = 1500;
+    rcData.aux5     = 1500;
+    rcData.aux6     = 1500;
+    rcData.aux7     = 1500;
+    rcData.aux8     = 1500;
+    rcData.aux9     = 1500;
+    rcData.aux10     = 1500;
+    rcData.aux11     = 1500;
+    rcData.aux12     = 1500;
+    
     //设置各辅助通道对应的飞行模式
     rcAuxMode[AUX1][LOW]  = MANUAL;
     rcAuxMode[AUX1][MID]  = SEMIAUTO;

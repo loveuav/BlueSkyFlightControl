@@ -91,8 +91,10 @@ void MessageInit(void)
     //mavlink发送频率
     mavlinkSendFreq[MAVLINK_MSG_ID_SYS_STATUS]         = 1;
     mavlinkSendFreq[MAVLINK_MSG_ID_GPS_RAW_INT]        = 1;
-    mavlinkSendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 15;
-    mavlinkSendFreq[MAVLINK_MSG_ID_SCALED_IMU]         = 5;
+    mavlinkSendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 20;
+    mavlinkSendFreq[MAVLINK_MSG_ID_LOCAL_POSITION_NED] = 20;
+    mavlinkSendFreq[MAVLINK_MSG_ID_SCALED_IMU]         = 20;
+    mavlinkSendFreq[MAVLINK_MSG_ID_RC_CHANNELS]        = 5;
     mavlinkSendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;     //心跳包发送频率为固定1Hz
     
     //生成bsklink发送列表
@@ -169,7 +171,9 @@ void MessageSendLoop(void)
             MavlinkSendSysStatus(&mavlinkSendFlag[MAVLINK_MSG_ID_SYS_STATUS]);                 //系统状态
             MavlinkSendGpsRawInt(&mavlinkSendFlag[MAVLINK_MSG_ID_GPS_RAW_INT]);                //GPS原始数据
             MavlinkSendAttitude(&mavlinkSendFlag[MAVLINK_MSG_ID_ATTITUDE]);                    //姿态角度和角速度
+            MavlinkSendLocalPositionNed(&mavlinkSendFlag[MAVLINK_MSG_ID_LOCAL_POSITION_NED]);  //位置和速度
             MavlinkSendScaledImu(&mavlinkSendFlag[MAVLINK_MSG_ID_SCALED_IMU]);                 //IMU原始数据
+            MavlinkSendRcChannels(&mavlinkSendFlag[MAVLINK_MSG_ID_RC_CHANNELS]);               //遥控通道数据
             MavlinkSendHeartbeat(&mavlinkSendFlag[MAVLINK_MSG_ID_HEARTBEAT2]);                 //心跳包
         }
     }
@@ -358,5 +362,17 @@ void DataSend(uint8_t *data , uint8_t length)
     Usb_Send(data, length);
 }
 
-
+/**********************************************************************************************************
+*函 数 名: GetMessageStatus
+*功能说明: 获取消息接收状态
+*形    参: 无
+*返 回 值: 状态
+**********************************************************************************************************/
+bool GetMessageStatus(void)
+{
+    if(messageType == UNKNOWN)
+        return false;
+    else
+        return true;
+}
 

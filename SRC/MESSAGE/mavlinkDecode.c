@@ -12,6 +12,7 @@
 #include "mavlinkDecode.h"
 #include "mavlinkSend.h"
 #include "mavlinkParam.h"
+#include "mavlinkNotice.h"
 #include "message.h"
 #include "common/mavlink.h"
 #include <string.h>
@@ -238,11 +239,11 @@ static void MavlinkDecodeCommand(mavlink_command_long_t command)
                     LevelCalibrateEnable();
                 }
             
-                MavlinkSetCommandAck(MAV_CMD_PREFLIGHT_CALIBRATION, MAV_CMD_ACK_OK);
+                MavlinkSetCommandAck(MAV_CMD_PREFLIGHT_CALIBRATION, MAV_CMD_ACK_OK | MAV_CMD_ACK_ENUM_END);
             }
             else
             {
-                MavlinkSetCommandAck(MAV_CMD_PREFLIGHT_CALIBRATION, MAV_CMD_ACK_ERR_FAIL);
+                MavlinkSetCommandAck(MAV_CMD_PREFLIGHT_CALIBRATION, MAV_CMD_ACK_ERR_FAIL | MAV_CMD_ACK_ENUM_END);
             }
             
             MavlinkSendEnable(MAVLINK_MSG_ID_COMMAND_ACK);

@@ -10,11 +10,14 @@
  * @日期     2018.05 
 **********************************************************************************************************/
 #include "flightStatus.h"
+#include "faultDetect.h"
 #include "rc.h"
 #include "navigation.h"
 #include "ahrs.h"
 #include "board.h"
 #include "gyroscope.h"
+#include "message.h"
+#include "mavlinkSend.h"
 
 typedef struct
 {
@@ -30,6 +33,145 @@ typedef struct
 
 FLIGHT_STATUS_t flyStatus;
 float windSpeed, windSpeedAcc;
+
+/**********************************************************************************************************
+*函 数 名: SystemInitCheck
+*功能说明: 系统初始化检查
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void SystemInitCheck(void)
+{
+    static uint8_t initStep = 0;
+    
+    switch(initStep)
+    {
+        case 0:
+            if(GetMessageStatus())
+            {
+                OsDelayMs(3000); 
+                initStep = 1;
+            }
+            break;
+
+        /*欢迎信息*/
+        case 1:
+            MavlinkSendNoticeEnable(INIT_WELCOME);
+            OsDelayMs(1000);
+            initStep++;
+            break;
+
+        /*开始初始化*/
+        case 2:
+            MavlinkSendNoticeEnable(INIT_INIT_START);
+            OsDelayMs(1000);
+            initStep++;
+            break;
+
+        /*开始传感器检查*/            
+        case 3:
+            MavlinkSendNoticeEnable(SENSOR_CHECK_START);
+            OsDelayMs(1000);
+            initStep++;
+            break;
+        
+        /*传感器检查*/
+        case 4:
+            //检测陀螺仪状态
+            if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
+                MavlinkSendNoticeEnable(SENSOR_GYRO_UNDETECTED);
+            else if(FaultDetectGetErrorStatus(GYRO_UNCALIBRATED))
+                MavlinkSendNoticeEnable(SENSOR_GYRO_UNCALI);
+            else
+                MavlinkSendNoticeEnable(SENSOR_GYRO_OK);    
+            
+            //检测加速度计状态
+            if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
+                ;
+            else if(FaultDetectGetErrorStatus(ACC_UNCALIBRATED))
+                MavlinkSendNoticeEnable(SENSOR_ACC_UNCALI);
+            else
+                MavlinkSendNoticeEnable(SENSOR_ACC_OK);  
+            
+            //检测磁力计状态
+            if(FaultDetectGetErrorStatus(MAG_UNDETECTED))
+                MavlinkSendNoticeEnable(SENSOR_MAG_UNDETECTED); 
+            else if(FaultDetectGetErrorStatus(MAG_UNCALIBRATED))
+                MavlinkSendNoticeEnable(SENSOR_MAG_UNCALI);            
+            else
+                MavlinkSendNoticeEnable(SENSOR_MAG_OK); 
+            
+            //检测气压计状态
+            if(FaultDetectGetErrorStatus(BARO_UNDETECTED))
+                MavlinkSendNoticeEnable(SENSOR_BARO_UNDETECTED);    
+            else
+                MavlinkSendNoticeEnable(SENSOR_BARO_OK); 
+            
+            //检测GPS状态
+            if(FaultDetectGetErrorStatus(GPS_UNDETECTED))
+                MavlinkSendNoticeEnable(SENSOR_GPS_UNDETECTED);    
+            else
+                MavlinkSendNoticeEnable(SENSOR_GPS_OK); 
+            
+            OsDelayMs(1000);
+            initStep++;
+            break;
+
+        /*传感器检查结束*/
+        case 5:
+            if(SensorCheckStatus())
+            {
+                MavlinkSendNoticeEnable(SENSOR_CHECK_FINISH);
+                OsDelayMs(1000);
+                initStep++;
+            }
+            else
+            {
+                MavlinkSendNoticeEnable(SENSOR_CHECK_ERROR);
+                initStep = 0xFF;                
+            }
+            break;
+        
+        /*开始加热*/
+        case 6:
+            if(configUSE_SENSORHEAT == 1)
+            {
+                MavlinkSendNoticeEnable(INIT_HEATING);
+                OsDelayMs(1000);
+                initStep++;
+            }
+            else
+            {
+                MavlinkSendNoticeEnable(INIT_HEAT_DISABLE);
+                OsDelayMs(1000);
+                initStep = 5;
+            }
+            break;
+
+        /*加热完成*/
+        case 7:
+            if(flyStatus.init >= HEAT_FINISH)
+            {
+                MavlinkSendNoticeEnable(INIT_HEAT_FINISH);
+                OsDelayMs(1000);
+                initStep++;
+            }
+            break;
+        
+        /*初始化完成*/            
+        case 8:
+            if(flyStatus.init >= INIT_FINISH)
+            {
+                MavlinkSendNoticeEnable(INIT_INIT_FINISH);
+                OsDelayMs(1000);
+                initStep++;
+            }
+            break;
+        
+        default:
+            break;
+    }
+}
 
 /**********************************************************************************************************
 *函 数 名: ArmedCheck
@@ -66,7 +208,7 @@ bool SetArmedStatus(uint8_t status)
 	{	
         if(flyStatus.armed == ARMED)
             return true;
-        
+           
         //解锁检查
         if(!ArmedCheck())
             return false;
@@ -74,7 +216,7 @@ bool SetArmedStatus(uint8_t status)
 		//不使用恒温的话，每次解锁时校准一下陀螺仪
 		#if(configUSE_SENSORHEAT == 0)
 		GyroCalibrateEnable();
-		SoftDelayMs(100);
+		OsDelayMs(100);
 		while(GetGyroCaliStatus()){}
 		#endif
         
@@ -85,6 +227,8 @@ bool SetArmedStatus(uint8_t status)
         
         return true;
 	}
+    else
+        return false;
 }
 
 /**********************************************************************************************************

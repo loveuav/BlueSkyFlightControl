@@ -54,6 +54,7 @@ typedef struct
 } SENSOR_CALI_t;
 
 void ImuTempControlInit(void);
+bool SensorCheckStatus(void);
 void ImuTempControl(float tempMeasure);
 void ImuOrientationDetect(void);
 enum ORIENTATION_STATUS GetImuOrientation(void);
