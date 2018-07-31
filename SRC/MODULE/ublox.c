@@ -4,90 +4,15 @@
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     ublox.c
  * @说明     GPS数据协议解析，目前只支持UBLOX协议，后续增加对NMEA协议的支持        
- * @版本  	 V1.0
+ * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.07 
 **********************************************************************************************************/
 #include "ublox.h"
 #include "drv_usart.h"
 
-//只对POSLLH、SOL、VELNED这3帧进行解析
-/*
-POSLLH: 	B5 62 01 02 1C 00  		头数据，数据长度28，最后2字节校验
-SOL	  :		B5 62 01 06 34 00 		数据长度52，最后2字节校验
-VELNED:		B5 62 01 12 24 00		数据长度36，最后2字节校验
-*/
 //UBLOX协议参考：lindi.iki.fi/lindi/gps/ubx.html
-
-enum{
-    POSLLH,
-    SOL,
-    VELNED
-};
-
-typedef struct{
-	uint32_t  iTOW;     //GPS Millisecond Time of Week
-	int32_t	  lon;      //Longitude
-	int32_t	  lat;      //Latitude
-	int32_t	  height;   //Height above Ellipsoid
-	int32_t	  hMSL;     //Height above mean sea level
-	uint32_t  hAcc;     //Horizontal Accuracy Estimate
-	uint32_t  vAcc;     //Vertical Accuracy Estimate
-	uint16_t  check;
-}POSLLH_t;
-
-typedef struct{
-	uint32_t   timeofweek;  //GPS Millisecond Time of Week
-	int32_t    fTOW;        //Fractional Nanoseconds remainder of rounded ms above, range -500000 .. 500000
-	int16_t    week;        //GPS week (GPS time)
-	int8_t     gpsFix;      //GPSfix Type, range 0..4
-	int8_t     flags;       //Fix Status Flags
-	int32_t    ecefX;       //ECEF X coordinate
-	int32_t    ecefY;       //ECEF Y velocity
-	int32_t    ecefZ;       //ECEF Z velocity
-	uint32_t   pAcc;        //3D Position Accuracy Estimate
-	int32_t    ecefVX;      //ECEF X velocity
-	int32_t    ecefVY;      //ECEF Y velocity
-	int32_t    ecefVZ;      //ECEF Z velocity
-	uint32_t   sAcc;        //Speed Accuracy Estimate
-	uint16_t   pDOP;        //Position DOP
-	uint8_t    res1;        //reserved
-	uint8_t    numSV;       //Number of SVs used in Nav Solution
-	uint32_t   res2;        //reserved
-	uint16_t   check;
-}SOL_t;
-
-typedef struct{
-	uint32_t   timeofweek;	//GPS Millisecond Time of Week	ms
-	int32_t    velN;        //NED north velocity	cm/s
-	int32_t    velE;        //NED east velocity		cm/s
-	int32_t    velD;        //NED down velocity		cm/s
-	uint32_t   speed;		//Speed (3-D)			cm/s
-	uint32_t   gSpeed;		//Ground Speed (2-D)	cm/s
-	int32_t    heading;		//Heading 2-D			deg
-	uint32_t   sAcc;		//Speed Accuracy Estimate	cm/s
-	uint32_t   cAcc;		//Course / Heading Accuracy Estimate deg
-	uint16_t   check;
-}VELNED_t;
-
-union 
-{
-	POSLLH_t data;
-	uint8_t temp[30];
-}PosllhData;
-
-union
-{
-	SOL_t data;
-	uint8_t temp[54];
-}SolData;	
-
-union 
-{
-	VELNED_t data;
-	uint8_t temp[38];
-}VelnedData;	
 
 UBLOX_t ublox;
 
@@ -106,6 +31,48 @@ void Ublox_Init(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: Ublox_PayloadDecode
+*功能说明: ublox数据负载解析
+*形    参: 输入数据
+*返 回 值: 无
+**********************************************************************************************************/
+static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
+{
+    if(ubloxRawData.class == UBLOX_NAV_CLASS)
+    {
+        switch(ubloxRawData.id)
+        {
+            case UBLOX_NAV_POSLLH:
+                ublox.time      = (float)ubloxRawData.payload.posllh.iTOW / 1000;
+                ublox.longitude = (double)ubloxRawData.payload.posllh.lat * (double)1e-7;
+                ublox.latitude  = (double)ubloxRawData.payload.posllh.lon * (double)1e-7;
+                ublox.altitude  = (float)ubloxRawData.payload.posllh.hMSL * 0.001f;
+                ublox.hAcc      = (float)ubloxRawData.payload.posllh.hAcc * 0.001f;
+                ublox.vAcc      = (float)ubloxRawData.payload.posllh.vAcc * 0.001f;
+                break;
+            
+            case UBLOX_NAV_VALNED:
+                ublox.velN    = ubloxRawData.payload.velned.velN;          
+                ublox.velE    = ubloxRawData.payload.velned.velE;         
+                ublox.velD    = ubloxRawData.payload.velned.velD;     
+                ublox.speed   = ubloxRawData.payload.velned.gSpeed;   
+                ublox.heading = ubloxRawData.payload.velned.heading * 1e-5f;
+                ublox.sAcc    = ubloxRawData.payload.velned.sAcc * 0.01f;     
+                ublox.cAcc    = ubloxRawData.payload.velned.cAcc * 1e-5f;
+                break;
+
+            case UBLOX_NAV_SOL:
+                ublox.numSV     = ubloxRawData.payload.sol.numSV;
+                ublox.fixStatus = ubloxRawData.payload.sol.gpsFix;
+                break;
+            
+            default:
+                break;
+        }
+    }
+}
+
+/**********************************************************************************************************
 *函 数 名: Ublox_Decode
 *功能说明: ublox协议解析
 *形    参: 输入数据
@@ -113,165 +80,118 @@ void Ublox_Init(void)
 **********************************************************************************************************/
 static void Ublox_Decode(uint8_t data)
 {
-    static uint8_t gps_data_status = 0;
-    static uint8_t gps_data_temp_cnt = 0;
-    uint8_t i;
+    static UBLOX_t_RAW_t ubloxRaw;
     
-    switch(gps_data_status)
+    switch (ubloxRaw.state) 
     {
-        case 0:
-            if(data == 0xB5)
-            gps_data_status = 1;
+        /*帧头1*/
+        case UBLOX_WAIT_SYNC1:
+            if (data == UBLOX_SYNC1)
+                ubloxRaw.state = UBLOX_WAIT_SYNC2;
             break;
-        case 1:
-            if(data == 0x62)
-                gps_data_status = 2;
-            else
-                gps_data_status = 0;
+           
+        /*帧头2*/
+        case UBLOX_WAIT_SYNC2:
+            if (data == UBLOX_SYNC2)
+                ubloxRaw.state = UBLOX_WAIT_CLASS;
+            else			
+                ubloxRaw.state = UBLOX_WAIT_SYNC1;
             break;
-        case 2:
-            if(data == 0x01)
-                gps_data_status = 3;
-            else
-                gps_data_status = 0;
+        
+        /*消息类型*/            
+        case UBLOX_WAIT_CLASS:
+            ubloxRaw.class = data;
+            //校验值初始化
+            ubloxRaw.ubloxRxCK_A = 0;
+            ubloxRaw.ubloxRxCK_B = 0;
+            //校验值计算
+            ubloxRaw.ubloxRxCK_A += data;
+            ubloxRaw.ubloxRxCK_B += ubloxRaw.ubloxRxCK_A;
+            ubloxRaw.state = UBLOX_WAIT_ID;
             break;
-        case 3:
-            if(data == 0x02)		//POSLLH
-                gps_data_status = 11;
-            else if(data == 0x06)	//SOL
-                gps_data_status = 21;
-            else if(data == 0x12)	//VELNED
-                gps_data_status = 31;						
-            else
-                gps_data_status = 0;
+
+        /*消息ID*/  
+        case UBLOX_WAIT_ID:
+            ubloxRaw.id = data;
+            //校验值计算
+            ubloxRaw.ubloxRxCK_A += data;
+            ubloxRaw.ubloxRxCK_B += ubloxRaw.ubloxRxCK_A;
+            ubloxRaw.state = UBLOX_WAIT_LEN1;
             break;
-        case 11:
-            if(data == 0x1C)
-                gps_data_status = 12;
-            else
-                gps_data_status = 0;
+
+        /*消息长度低8位*/  
+        case UBLOX_WAIT_LEN1:
+            ubloxRaw.length = data;
+            //校验值计算
+            ubloxRaw.ubloxRxCK_A += data;
+            ubloxRaw.ubloxRxCK_B += ubloxRaw.ubloxRxCK_A;
+            ubloxRaw.state = UBLOX_WAIT_LEN2;
             break;
-        case 12:
-            if(data == 0x00)
+
+        /*消息长度高8位*/ 
+        case UBLOX_WAIT_LEN2:
+            ubloxRaw.length += (data << 8);
+            //校验值计算
+            ubloxRaw.ubloxRxCK_A += data;
+            ubloxRaw.ubloxRxCK_B += ubloxRaw.ubloxRxCK_A;
+            if (ubloxRaw.length >= (UBLOX_MAX_PAYLOAD-1))
             {
-                gps_data_temp_cnt = 0;
-                gps_data_status = 13;
+                ubloxRaw.length = 0;
+                ubloxRaw.state = UBLOX_WAIT_SYNC1;
+            } 
+            else if (ubloxRaw.length > 0) 
+            {
+                ubloxRaw.count = 0;
+                ubloxRaw.state = UBLOX_PAYLOAD;
             }
-            else
-                gps_data_status = 0;
-            break;
-        case 13:		//POSLLH
-            PosllhData.temp[gps_data_temp_cnt++] = data;
-            if(gps_data_temp_cnt == 30)		//接收完毕
+            else 
             {
-                uint8_t ck_a=0,ck_b=0;
-                gps_data_status = 0;
-                ck_a += 1;
-                ck_b += ck_a;
-                ck_a += 2;
-                ck_b += ck_a;
-                ck_a += 0x1C;
-                ck_b += ck_a;
-                ck_b += ck_a;
-                for(i=0;i<28;i++)			//数据校验
-                {
-                    ck_a += PosllhData.temp[i];
-                    ck_b += ck_a;
-                }
-                if(ck_a == PosllhData.temp[28] && ck_b == PosllhData.temp[29])	//校验通过
-                {
-                    ublox.time = (float)PosllhData.data.iTOW / 1000;
-                    ublox.longitude = (double)PosllhData.data.lon / 10000000;
-                    ublox.latitude = PosllhData.data.lat;
-                    ublox.latitude = (double)PosllhData.data.lat / 10000000;
-                    ublox.altitude = (float)PosllhData.data.height / 1000;
-                    ublox.hAcc = (float)PosllhData.data.hAcc / 1000;
-                    ublox.vAcc = (float)PosllhData.data.vAcc / 1000;
-                }
+                ubloxRaw.state = UBLOX_CHECK1;
             }
             break;
-        case 21:		//SOL
-            if(data == 0x34)
-                gps_data_status = 22;
-            else
-                gps_data_status = 0;
-            break;
-        case 22:
-            if(data == 0x00)
+
+        /*消息负载*/
+        case UBLOX_PAYLOAD:
+            *((char *)(&ubloxRaw.payload) + ubloxRaw.count) = data;
+            if (++ubloxRaw.count == ubloxRaw.length)
             {
-                gps_data_temp_cnt = 0;
-                gps_data_status = 23;
+                ubloxRaw.state = UBLOX_CHECK1;
+            } 
+            //校验值计算           
+            ubloxRaw.ubloxRxCK_A += data;
+            ubloxRaw.ubloxRxCK_B += ubloxRaw.ubloxRxCK_A;
+            break;
+
+        /*CKA校验位对比*/    
+        case UBLOX_CHECK1:
+            if (data == ubloxRaw.ubloxRxCK_A) 
+            {
+                ubloxRaw.state = UBLOX_CHECK2;
             }
-            else
-                gps_data_status = 0;
-            break;
-        case 23:
-            SolData.temp[gps_data_temp_cnt++] = data;
-            if(gps_data_temp_cnt==54)		//接收完毕
+            else 
             {
-                uint8_t ck_a=0,ck_b=0;
-                gps_data_status = 0;
-                ck_a += 1;
-                ck_b += ck_a;
-                ck_a += 6;
-                ck_b += ck_a;
-                ck_a += 0x34;
-                ck_b += ck_a;
-                ck_b += ck_a;
-                for(i=0;i<52;i++)			//数据校验
-                {
-                    ck_a += SolData.temp[i];
-                    ck_b += ck_a;
-                }
-                if(ck_a == SolData.temp[52] && ck_b == SolData.temp[53])	//校验通过
-                {
-                    ublox.fixStatus = SolData.data.gpsFix;
-                    ublox.numSV = SolData.data.numSV;														
-                }
+                ubloxRaw.state = UBLOX_WAIT_SYNC1;
+                ubloxRaw.checksumErrors++;
             }
             break;
-        case 31:		//VELNED
-            if(data==0x24)
-                gps_data_status = 32;
-            else
-                gps_data_status = 0;
-            break;
-        case 32:
-            if(data==0x00)
+            
+        /*CKB校验位对比*/
+        case UBLOX_CHECK2:
+            ubloxRaw.state = UBLOX_WAIT_SYNC1;
+            if (data == ubloxRaw.ubloxRxCK_B) 
             {
-                gps_data_temp_cnt = 0;
-                gps_data_status = 33;
+                //接收完毕，解析数据负载
+                Ublox_PayloadDecode(ubloxRaw);
             }
-            else
-                gps_data_status = 0;
-            break;
-        case 33:
-            VelnedData.temp[gps_data_temp_cnt++] = data;
-            if(gps_data_temp_cnt == 38)		//接收完毕
+            else 
             {
-                uint8_t ck_a=0,ck_b=0;
-                gps_data_status = 0;
-                ck_a += 1;
-                ck_b += ck_a;
-                ck_a += 0x12;
-                ck_b += ck_a;
-                ck_a += 0x24;
-                ck_b += ck_a;
-                ck_b += ck_a;
-                for(i=0;i<36;i++)			//数据校验
-                {
-                    ck_a += VelnedData.temp[i];
-                    ck_b += ck_a;
-                }
-                if(ck_a == VelnedData.temp[36] && ck_b == VelnedData.temp[37])	//校验通过
-                {
-                    ublox.velN = VelnedData.data.velN;
-                    ublox.velE = VelnedData.data.velE;
-                    ublox.velD = VelnedData.data.velD;
-                }
+                ubloxRaw.checksumErrors++;
             }
             break;
-    }	
+
+        default:  
+            break;
+    }
 }
 
 UBLOX_t Ublox_GetData(void)
