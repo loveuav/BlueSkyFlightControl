@@ -4,6 +4,8 @@
 #include "mathTool.h"
 #include "common/mavlink.h"
 
+void WaypointControl(void);
+
 uint16_t GetWaypointCount(void);
 void SetWaypointCount(uint16_t count);
 uint16_t GetWaypointRecvCount(void);

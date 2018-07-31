@@ -10,11 +10,85 @@
  * @日期     2018.07 
 **********************************************************************************************************/
 #include "waypointControl.h"
+#include "flightStatus.h"
+#include "flightControl.h"
+#include "board.h"
+#include "navigation.h"
+
+/*
+航点飞行中的航向控制模式
+0：航向不变
+1：始终朝向下一个航点
+*/
+const uint8_t WP_YAW_MODE = 1;
 
 mavlink_mission_item_t wpItem[0xFF];    //航点信息  
+Vector3f_t wpPosition[0xFF];            //航点位置（本地NED坐标系）
+
 uint16_t wpCount = 0;                   //航点数量
+uint16_t wpCurrentCount = 0;            //当前正在执行的航点序号
 uint16_t wpRecvCount = 0;               //航点接收序号
 uint16_t wpSendCount = 0;               //航点发送序号
+
+uint8_t firstPointArriveFlag = 0;
+
+/**********************************************************************************************************
+*函 数 名: WaypointControl
+*功能说明: 自动航线飞行
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void WaypointControl(void)
+{
+    static uint8_t wpStep = 0;
+    //float disToNextPoint;
+    static float directToNextPoint;
+    
+    if(GetArmedStatus() == DISARMED)
+        return;
+    
+//    if(firstPointArriveFlag == 0)    
+//        disToNextPoint = Pythagorous2(GetCopterPosition().x - wpPosition[0].x, GetCopterPosition().y - wpPosition[0].y);
+//    else
+//        disToNextPoint = Pythagorous2(wpPosition[wpCurrentCount].x - wpPosition[wpCurrentCount+1].x, 
+//                         wpPosition[wpCurrentCount].y - wpPosition[wpCurrentCount+1].y);
+    
+    switch(wpStep)
+    {
+        case 0:
+            //计算下一个航点的方向
+//            if(firstPointArriveFlag == 0)
+//                directToNextPoint = GetDirectionOfTwoPoint(GetCopterPosition(), point2);
+//            else
+//                directToNextPoint = GetDirectionOfTwoPoint(point1, point2);
+            
+            if(WP_YAW_MODE)
+            {
+                //设置机头朝向下一个航点
+                SetYawCtlTarget(directToNextPoint);  
+            }
+            
+            wpStep++;
+            break;
+        
+        case 1:    
+            break;
+        
+        default:
+            break;
+    }
+    
+    //使能高度控制
+    SetAltCtlStatus(ENABLE);
+    //更新高度控制状态
+    SetAltControlStatus(ALT_HOLD);  
+    //使能位置控制
+    SetPosCtlStatus(ENABLE);  
+    //更新位置控制状态
+    SetPosControlStatus(POS_HOLD);
+    //使能航向锁定
+    SetYawHoldStatus(ENABLE);    
+}
 
 /**********************************************************************************************************
 *函 数 名: GetWaypointCount
@@ -120,6 +194,16 @@ mavlink_mission_item_t GetWaypointItem(uint16_t count)
     return wpItem[count];
 }
 
+/**********************************************************************************************************
+*函 数 名: WaypointPositionUpdate
+*功能说明: 更新航点位置信息（本地NED坐标系）
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void WaypointPositionUpdate(void)
+{
+    
+}
 
 
 

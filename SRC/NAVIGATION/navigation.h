@@ -28,6 +28,7 @@ Vector3f_t GetCopterPosition(void);
 Vector3f_t GetCopterPosMeasure(void);
 
 float GetDirectionToHome(Vector3f_t position);
+float GetDirectionOfTwoPoint(Vector3f_t point1, Vector3f_t point2);
 
 void NavigationReset(void);
 

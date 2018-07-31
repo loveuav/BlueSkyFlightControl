@@ -10,6 +10,7 @@
  * @日期     2018.07 
 **********************************************************************************************************/
 #include "missionControl.h"
+#include "waypointControl.h"
 #include "flightStatus.h"
 #include "flightControl.h"
 #include "board.h"
@@ -63,6 +64,11 @@ void MissionControl(void)
         //未起飞时转为自动降落
         if(GetFlightStatus() < IN_AIR)
             SetFlightMode(AUTOLAND);
+    }
+    else if(flightMode == AUTOPILOT)  
+    {
+        //自动航线     
+        WaypointControl();
     }
     else
     {
