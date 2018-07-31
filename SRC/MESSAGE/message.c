@@ -95,6 +95,7 @@ void MessageInit(void)
     mavlinkSendFreq[MAVLINK_MSG_ID_LOCAL_POSITION_NED] = 20;
     mavlinkSendFreq[MAVLINK_MSG_ID_SCALED_IMU]         = 20;
     mavlinkSendFreq[MAVLINK_MSG_ID_RC_CHANNELS]        = 5;
+    mavlinkSendFreq[MAVLINK_MSG_ID_HOME_POSITION]      = 1;
     mavlinkSendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;     //心跳包发送频率为固定1Hz
     
     //生成bsklink发送列表
@@ -174,6 +175,7 @@ void MessageSendLoop(void)
             MavlinkSendLocalPositionNed(&mavlinkSendFlag[MAVLINK_MSG_ID_LOCAL_POSITION_NED]);  //位置和速度
             MavlinkSendScaledImu(&mavlinkSendFlag[MAVLINK_MSG_ID_SCALED_IMU]);                 //IMU原始数据
             MavlinkSendRcChannels(&mavlinkSendFlag[MAVLINK_MSG_ID_RC_CHANNELS]);               //遥控通道数据
+            MavlinkSendHomePosition(&mavlinkSendFlag[MAVLINK_MSG_ID_HOME_POSITION]);           //Home点位置
             MavlinkSendHeartbeat(&mavlinkSendFlag[MAVLINK_MSG_ID_HEARTBEAT2]);                 //心跳包
         }
     }
