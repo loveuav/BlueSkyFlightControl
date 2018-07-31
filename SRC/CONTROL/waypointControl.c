@@ -14,6 +14,7 @@
 #include "flightControl.h"
 #include "board.h"
 #include "navigation.h"
+#include "gps.h"
 
 /*
 航点飞行中的航向控制模式
@@ -23,7 +24,6 @@
 const uint8_t WP_YAW_MODE = 1;
 
 mavlink_mission_item_t wpItem[0xFF];    //航点信息  
-Vector3f_t wpPosition[0xFF];            //航点位置（本地NED坐标系）
 
 uint16_t wpCount = 0;                   //航点数量
 uint16_t wpCurrentCount = 0;            //当前正在执行的航点序号
@@ -41,6 +41,7 @@ uint8_t firstPointArriveFlag = 0;
 void WaypointControl(void)
 {
     static uint8_t wpStep = 0;
+    //static Vector3f_t currentPointPos, nextPointPos;
     //float disToNextPoint;
     static float directToNextPoint;
     
@@ -56,11 +57,21 @@ void WaypointControl(void)
     switch(wpStep)
     {
         case 0:
+            //判断命令类型，如果是航点命令则进入下一步，其它命令暂时先忽略
+            if(wpItem[wpCurrentCount].command == MAV_CMD_NAV_WAYPOINT)
+            {
+                wpStep++;
+            }
+            else
+            {
+                wpCurrentCount++;
+            }
+            break; 
+        
+        case 1:   
             //计算下一个航点的方向
 //            if(firstPointArriveFlag == 0)
 //                directToNextPoint = GetDirectionOfTwoPoint(GetCopterPosition(), point2);
-//            else
-//                directToNextPoint = GetDirectionOfTwoPoint(point1, point2);
             
             if(WP_YAW_MODE)
             {
@@ -68,12 +79,12 @@ void WaypointControl(void)
                 SetYawCtlTarget(directToNextPoint);  
             }
             
-            wpStep++;
+            wpStep++;         
             break;
         
-        case 1:    
+        case 2:
             break;
-        
+            
         default:
             break;
     }
@@ -193,18 +204,4 @@ mavlink_mission_item_t GetWaypointItem(uint16_t count)
 {
     return wpItem[count];
 }
-
-/**********************************************************************************************************
-*函 数 名: WaypointPositionUpdate
-*功能说明: 更新航点位置信息（本地NED坐标系）
-*形    参: 无
-*返 回 值: 无
-**********************************************************************************************************/
-void WaypointPositionUpdate(void)
-{
-    
-}
-
-
-
 

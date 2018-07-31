@@ -162,6 +162,24 @@ static void GpsCalcPositionChanged(Vector3f_t* deltaDis, double lat1, double lon
 }
 
 /**********************************************************************************************************
+*函 数 名: GetPositionToOrigin
+*功能说明: 将经纬度数据转换为本地坐标系位置
+*形    参: 纬度 经度 
+*返 回 值: 距离值 
+**********************************************************************************************************/
+Vector3f_t GetPositionToOrigin(double lat, double lon)
+{
+	double rads = Radians(abs(lat));
+	double gpsLngDownScale = cosf(rads);
+    Vector3f_t position;
+    
+	position.y = (int32_t)((lon - gps.homePosition[LON]) * gpsLngDownScale * 11131950);
+	position.x = (int32_t)((lat - gps.homePosition[LAT]) * 11131950);	
+    
+    return position;
+}
+
+/**********************************************************************************************************
 *函 数 名: GpsCalcVelocity
 *功能说明: 计算GPS速度 单位：cm/s
 *形    参: 纬度坐标 经度坐标
