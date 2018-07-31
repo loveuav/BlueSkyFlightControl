@@ -82,6 +82,8 @@ void SystemInitCheck(void)
                 MavlinkSendNoticeEnable(SENSOR_GYRO_UNDETECTED);
             else if(FaultDetectGetErrorStatus(GYRO_UNCALIBRATED))
                 MavlinkSendNoticeEnable(SENSOR_GYRO_UNCALI);
+            else if(GetGyroHealthStatus() == SENSOR_UNHEALTH)
+                MavlinkSendNoticeEnable(SENSOR_GYRO_NEED_CALI);
             else
                 MavlinkSendNoticeEnable(SENSOR_GYRO_OK);    
             
@@ -90,6 +92,8 @@ void SystemInitCheck(void)
                 ;
             else if(FaultDetectGetErrorStatus(ACC_UNCALIBRATED))
                 MavlinkSendNoticeEnable(SENSOR_ACC_UNCALI);
+            else if(GetAccHealthStatus() == SENSOR_UNHEALTH)
+                MavlinkSendNoticeEnable(SENSOR_ACC_NEED_CALI);
             else
                 MavlinkSendNoticeEnable(SENSOR_ACC_OK);  
             
@@ -283,7 +287,7 @@ void PlaceStausCheck(Vector3f_t gyro)
     gyroDiff.z = gyro.z - lastGyro.z;
     lastGyro = gyro;
     
-    if(count < 100)
+    if(count < 30)
     {
         count++;
         //陀螺仪数值变化大于阈值
@@ -295,7 +299,7 @@ void PlaceStausCheck(Vector3f_t gyro)
     else
     {
         //陀螺仪数据抖动次数大于一定值时认为飞机不处于静止状态
-        if(checkNum > 30)
+        if(checkNum > 10)
             flyStatus.placement = MOTIONAL;
         else
             flyStatus.placement = STATIC;

@@ -125,6 +125,9 @@ portTASK_FUNCTION(vOtherSensorTask, pvParameters)
             GpsDataPreTreat();
         }
         
+        //传感器健康状态检测
+        SensorHealthCheck();
+        
 		count++;
         
         //睡眠5ms

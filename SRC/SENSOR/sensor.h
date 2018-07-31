@@ -44,6 +44,13 @@ enum ORIENTATION_STATUS
 	ORIENTATION_BACK,
 };
 
+//传感器健康状态
+enum SENSOR_HEALTH
+{
+    SENSOR_NORMAL,
+    SENSOR_UNHEALTH
+};
+
 typedef struct
 {
 	Vector3f_t offset;	    //零偏误差
@@ -53,11 +60,25 @@ typedef struct
     uint8_t step;           //步骤标志位
 } SENSOR_CALI_t;
 
+typedef struct
+{
+    float gyro_offset;
+    float acc_offset;
+    float mag_offset;
+    enum SENSOR_HEALTH gyro;
+    enum SENSOR_HEALTH acc;
+    enum SENSOR_HEALTH mag;
+} SENSOR_HEALTH_t;
+
 void ImuTempControlInit(void);
 bool SensorCheckStatus(void);
+void SensorHealthCheck(void);
 void ImuTempControl(float tempMeasure);
 void ImuOrientationDetect(void);
+
 enum ORIENTATION_STATUS GetImuOrientation(void);
+enum SENSOR_HEALTH GetGyroHealthStatus(void);
+enum SENSOR_HEALTH GetAccHealthStatus(void);
 
 #endif
 

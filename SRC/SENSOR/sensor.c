@@ -16,9 +16,11 @@
 #include "flightStatus.h"
 #include "faultDetect.h"
 #include "accelerometer.h"
+#include "gyroscope.h"
 
 PID_t tempPID;
 enum ORIENTATION_STATUS orientationStatus;
+SENSOR_HEALTH_t sensorHealth;
 
 /**********************************************************************************************************
 *函 数 名: ImuTempControlInit
@@ -64,7 +66,58 @@ bool SensorCheckStatus(void)
 **********************************************************************************************************/
 void SensorHealthCheck(void)
 {
+    static uint16_t period_cnt = 0;
+    static float gyro_offset, acc_offset;
+    static float gyro_offset_temp, acc_offset_temp;
+    static uint8_t staticFlag = 0;
     
+    //5秒一个检测周期
+    if(period_cnt < 1000)
+    {
+        //陀螺仪零偏累加
+        gyro_offset_temp += abs(GyroGetData().x) + abs(GyroGetData().y) + abs(GyroGetData().z);
+        //加速度零偏累加
+        acc_offset_temp  += abs(GetAccMag() - 1);
+        
+        //检测期间飞控出现抖动则放弃此次数据
+        if(GetPlaceStatus() != STATIC)
+        {
+            staticFlag = 1;
+        }
+        
+        period_cnt++;
+    }
+    else
+    {
+        if(!staticFlag)
+        { 
+            //计算陀螺仪零偏平均值
+            gyro_offset = gyro_offset_temp / 1000;
+            //计算加速度零偏平均值
+            acc_offset  = acc_offset_temp / 1000;
+            
+            //计算陀螺仪零偏百分比
+            sensorHealth.gyro_offset = ConstrainFloat(ApplyDeadbandFloat(gyro_offset, 0.1) / 1, 0.01, 1);
+            //计算加速度零偏百分比
+            sensorHealth.acc_offset  = ConstrainFloat(ApplyDeadbandFloat(acc_offset, 0.01) / 0.1f, 0.01, 1);
+
+            //判断陀螺仪健康状态
+            if(sensorHealth.gyro_offset > 0.35f)
+                sensorHealth.gyro = SENSOR_UNHEALTH;
+            else
+                sensorHealth.gyro = SENSOR_NORMAL;
+            //判断加速度计健康状态
+            if(sensorHealth.acc_offset > 0.35f)
+                sensorHealth.acc = SENSOR_UNHEALTH;
+            else
+                sensorHealth.acc = SENSOR_NORMAL;
+        }
+        
+        gyro_offset_temp = 0;
+        acc_offset_temp  = 0;
+        staticFlag = 0;
+        period_cnt = 0;
+    }
 }
 
 /**********************************************************************************************************
@@ -83,6 +136,7 @@ void ImuTempControl(float tempMeasure)
     static uint16_t cnt = 0;
     static uint8_t overPreHeatFLag = 0; 
     
+    /*加热功能关闭*/
     if(configUSE_SENSORHEAT == 0)
     {
         if(GetSysTimeMs() > 8000 && SensorCheckStatus())
@@ -91,6 +145,7 @@ void ImuTempControl(float tempMeasure)
                 SetInitStatus(HEAT_FINISH);
         }
     }
+    /*加热功能开启*/
     else
     {
         //检测不到陀螺仪时停止加热并退出该函数
@@ -104,7 +159,7 @@ void ImuTempControl(float tempMeasure)
         tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;	  
 
         //超前预热
-        if(tempMeasure < SENSOR_TEMP_KEPT + 2 && !overPreHeatFLag)
+        if(tempMeasure < SENSOR_TEMP_KEPT && !overPreHeatFLag)
         {
             //全速加热
             TempControlSet(1000);     
@@ -210,4 +265,27 @@ enum ORIENTATION_STATUS GetImuOrientation(void)
 {
     return orientationStatus;
 }
+
+/**********************************************************************************************************
+*函 数 名: GetGyroHealthStatus
+*功能说明: 获取陀螺仪健康状态
+*形    参: 无
+*返 回 值: 状态
+**********************************************************************************************************/
+enum SENSOR_HEALTH GetGyroHealthStatus(void)
+{
+    return sensorHealth.gyro;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetAccHealthStatus
+*功能说明: 获取加速度计健康状态
+*形    参: 无
+*返 回 值: 状态
+**********************************************************************************************************/
+enum SENSOR_HEALTH GetAccHealthStatus(void)
+{
+    return sensorHealth.acc;
+}
+
 
