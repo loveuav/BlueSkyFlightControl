@@ -350,52 +350,6 @@ static void KalmanPosInit(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: GetDirectionToHome
-*功能说明: 计算Home点方向
-*形    参: 无
-*返 回 值: 方向
-**********************************************************************************************************/
-float GetDirectionToHome(Vector3f_t position)
-{
-	float direction;
-	
-	direction = Degrees(atan2f(abs(position.y) , abs(position.x)));
-	
-	if(position.y<0 && position.x<0)
-		direction = direction;
-	else if(position.y<0 && position.x>0)
-		direction = (90 - direction) + 90;
-	else if(position.y>0 && position.x>0)
-		direction += 180;	
-	else if(position.y>0 && position.x<0)
-		direction = (90 - direction) + 270;	
-	else
-		direction = direction;	
-	
-	return direction;
-}
-
-/**********************************************************************************************************
-*函 数 名: GetDirectionOfTwoPoint
-*功能说明: 计算两个坐标点之间的方向
-*形    参: 无
-*返 回 值: 方向
-**********************************************************************************************************/
-float GetDirectionOfTwoPoint(Vector3f_t point1, Vector3f_t point2)
-{
-	float direction;
-	float deltaDisX, deltaDisY;
-	
-	deltaDisX = point2.x - point1.x;
-	deltaDisY = point2.y - point1.y;
-	
-	direction = Degrees(atan2f(deltaDisY, deltaDisX)) - 90;
-	direction = 360 - WrapDegree360(direction);
-    
-	return direction;
-}
-
-/**********************************************************************************************************
 *函 数 名: NavigationReset
 *功能说明: 导航相关数据复位
 *形    参: 无

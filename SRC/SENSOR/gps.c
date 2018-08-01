@@ -29,6 +29,7 @@ typedef struct{
 	double longitude;
 	
 	double homePosition[2];
+    double originPosition[2];
 	float magDeclination;
 	
 	Vector3f_t velocity;
@@ -37,7 +38,7 @@ typedef struct{
 }GPS_t;
 
 static uint8_t GpsCheckStatus(uint8_t satNum, float acc);
-static void GpsSetHomePosition(void);
+static void GpsSetOriginPosition(void);
 static void GpsCalcPositionChanged(Vector3f_t* deltaDis, double lat1, double lon1, double lat2, double lon2);
 void TransVelToBodyFrame(Vector3f_t velEf, Vector3f_t* velBf, float yaw);
 void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw);
@@ -71,9 +72,9 @@ void GpsDataPreTreat(void)
     //若GPS已经定位，则
     if(gps.status)
     {
-        //以Home点为坐标原点计算GPS位置（cm）
-        GpsCalcPositionChanged(&gps.position, gps.latitude, gps.longitude, gps.homePosition[LAT], gps.homePosition[LON]);	 
-
+        //将gps经纬度坐标转换为本地坐标系位置（cm） 
+        GpsTransToLocalPosition(&gps.position, gps.latitude, gps.longitude);
+        
         //通过坐标变化计算移动速度
         //如果直接从GPS模块获取速度值则无需调用此函数
         #ifdef USE_VELNED
@@ -114,8 +115,12 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
 				if(!firstFix)
                 {
 					firstFix = 1;
-					//设置Home点坐标
-					GpsSetHomePosition();
+                    
+                    //设置坐标系原点坐标
+                    GpsSetOriginPosition();
+                    
+					//重置Home点坐标
+					GpsResetHomePosition();                    
 				}		
 				gpsFixCnt = 0;
 			}
@@ -123,7 +128,7 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
 	}
 	else
     {
-		if(satNum <= 4 || acc > 3.5f || FaultDetectGetErrorStatus(GPS_UNDETECTED))
+		if(satNum <= 4 || acc > 5.0f || FaultDetectGetErrorStatus(GPS_UNDETECTED))
         {
 			status = 0;
 		}
@@ -133,15 +138,30 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
 }
 
 /**********************************************************************************************************
-*函 数 名: GpsSetHomePosition
-*功能说明: 设置Home点坐标 并计算当地磁偏角
+*函 数 名: GpsResetHomePosition
+*功能说明: 重置Home点坐标
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-static void GpsSetHomePosition(void)
+void GpsResetHomePosition(void)
 {	
-    gps.homePosition[LAT] = gps.latitude;
-    gps.homePosition[LON] = gps.longitude;		
+    if(gps.status)
+    {
+        gps.homePosition[LAT] = gps.latitude;
+        gps.homePosition[LON] = gps.longitude;
+    }		
+}
+
+/**********************************************************************************************************
+*函 数 名: GpsSetHomePosition
+*功能说明: 设置本地坐标系坐标原点位置，并计算当地磁偏角
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void GpsSetOriginPosition(void)
+{	
+    gps.originPosition[LAT] = gps.latitude;
+    gps.originPosition[LON] = gps.longitude;		
     //使用经纬度坐标计算磁偏角
     gps.magDeclination = CompassGetDeclination(gps.latitude, gps.longitude);
 }
@@ -162,21 +182,14 @@ static void GpsCalcPositionChanged(Vector3f_t* deltaDis, double lat1, double lon
 }
 
 /**********************************************************************************************************
-*函 数 名: GetPositionToOrigin
-*功能说明: 将经纬度数据转换为本地坐标系位置
-*形    参: 纬度 经度 
-*返 回 值: 距离值 
+*函 数 名: GpsTransToLocalPosition
+*功能说明: 将经纬度坐标转换为本地坐标系位置
+*形    参: 位置 纬度 经度
+*返 回 值: 无
 **********************************************************************************************************/
-Vector3f_t GetPositionToOrigin(double lat, double lon)
+void GpsTransToLocalPosition(Vector3f_t* position, double lat, double lon)
 {
-	double rads = Radians(abs(lat));
-	double gpsLngDownScale = cosf(rads);
-    Vector3f_t position;
-    
-	position.y = (int32_t)((lon - gps.homePosition[LON]) * gpsLngDownScale * 11131950);
-	position.x = (int32_t)((lat - gps.homePosition[LAT]) * 11131950);	
-    
-    return position;
+	GpsCalcPositionChanged(position, lat, lon, gps.originPosition[LAT], gps.originPosition[LON]);	
 }
 
 /**********************************************************************************************************
@@ -244,6 +257,70 @@ void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw)
 	velEf->x = velBf.x * cosYaw - velBf.y * sinYaw;
 	velEf->y = velBf.x * sinYaw + velBf.y * cosYaw;			
 	velEf->z = velBf.z;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetDirectionOfTwoPoint
+*功能说明: 计算两个坐标点之间的方向
+*形    参: 无
+*返 回 值: 方向
+**********************************************************************************************************/
+float GetDirectionOfTwoPoint(Vector3f_t point1, Vector3f_t point2)
+{
+	float direction;
+	float deltaDisX, deltaDisY;
+	
+	deltaDisX = point2.x - point1.x;
+	deltaDisY = point2.y - point1.y;
+	
+	direction = Degrees(atan2f(deltaDisY, deltaDisX)) - 90;
+	direction = 360 - WrapDegree360(direction);
+    
+	return direction;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetDirectionToHome
+*功能说明: 计算Home点方向
+*形    参: 无
+*返 回 值: 方向
+**********************************************************************************************************/
+float GetDirectionToHome(Vector3f_t position)
+{
+    return GetDirectionOfTwoPoint(position, GetHomePosition());
+}
+
+/**********************************************************************************************************
+*函 数 名: GetDistanceToHome
+*功能说明: 计算Home点距离
+*形    参: 无
+*返 回 值: 距离
+**********************************************************************************************************/
+float GetDistanceToHome(Vector3f_t position)
+{
+    Vector3f_t homePosition;
+    float      distance;
+    
+    homePosition = GetHomePosition();
+    
+    distance = Pythagorous2(position.x - homePosition.x, position.y - homePosition.y);
+    
+    return distance;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetHomePosition
+*功能说明: 获取Home点位置（本地坐标系）
+*形    参: 无
+*返 回 值: 位置
+**********************************************************************************************************/
+Vector3f_t GetHomePosition(void)
+{	
+    Vector3f_t homePosition;
+    
+    GpsTransToLocalPosition(&homePosition, gps.homePosition[LAT], gps.homePosition[LON]);
+    
+    return homePosition;
 }
 
 /**********************************************************************************************************

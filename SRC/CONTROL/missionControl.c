@@ -169,11 +169,13 @@ void ReturnToHome(void)
     Vector3f_t position;
     static float velCtlTargert;
     Vector3f_t syncRatio;
+    Vector3f_t posCtlError;    
+    Vector3f_t homePos;
     
     //获取当前位置
     position = GetCopterPosition();
     //计算Home点距离
-    distanceToHome  = Pythagorous2(position.x, position.y);
+    distanceToHome  = GetDistanceToHome(position);
     //计算Home点方向
     directionToHome = GetDirectionToHome(position);
     
@@ -248,18 +250,22 @@ void ReturnToHome(void)
             if(GetSysTimeMs() - timeRecord[RTH_STEP_CLIMB] < 1000)
                 break;
            
+            homePos = GetHomePosition();       
+            posCtlError.x = posCtlTarget.x - homePos.x;
+            posCtlError.y = posCtlTarget.y - homePos.y;
+            
             //设置位置控制环最大输出
             SetMaxPosOuterCtl(800);
             
             //计算XY轴位置控制同步速率 
-            if(abs(posCtlTarget.x) > abs(posCtlTarget.y))
+            if(abs(posCtlError.x) > abs(posCtlError.y))
             {
                 syncRatio.x = 1;
-                syncRatio.y = abs(posCtlTarget.y / posCtlTarget.x);       
+                syncRatio.y = abs(posCtlError.y / posCtlError.x);       
             }
             else
             {
-                syncRatio.x = abs(posCtlTarget.x / posCtlTarget.y);
+                syncRatio.x = abs(posCtlError.x / posCtlError.y);
                 syncRatio.y = 1;
             }
             
@@ -276,10 +282,10 @@ void ReturnToHome(void)
                 velCtlTargert = velCtlTargert * 0.999f + (800.0f / 500) * 0.001f;   //8m/s
             
             //计算位置控制目标，目标值以一定速率匀速变化               
-            if(abs(posCtlTarget.x) > 1)
-                posCtlTarget.x -= velCtlTargert * syncRatio.x * (posCtlTarget.x / abs(posCtlTarget.x)); 
-            if(abs(posCtlTarget.y) > 1)
-                posCtlTarget.y -= velCtlTargert * syncRatio.y * (posCtlTarget.y / abs(posCtlTarget.y)); 
+            if(abs(posCtlError.x) > 1)
+                posCtlTarget.x -= velCtlTargert * syncRatio.x * (posCtlError.x / abs(posCtlError.x)); 
+            if(abs(posCtlError.y) > 1)
+                posCtlTarget.y -= velCtlTargert * syncRatio.y * (posCtlError.y / abs(posCtlError.y)); 
             
             //设置位置控制目标
             SetPosOuterCtlTarget(posCtlTarget);
@@ -294,8 +300,7 @@ void ReturnToHome(void)
             if(distanceToHome < 50)
             {
                 rthStep = RTH_STEP_TURN_BACK;
-                posCtlTarget.x = 0;
-                posCtlTarget.y = 0;
+                posCtlTarget = homePos;
             }
  
             timeRecord[RTH_STEP_FLIGHT] = GetSysTimeMs();
