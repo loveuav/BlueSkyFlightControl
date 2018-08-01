@@ -89,6 +89,7 @@ Vector3f_t GetPosOuterCtlError(void);
 void FlightControlReset(void);
 PID_t FcGetPID(uint8_t id);
 void FcSetPID(uint8_t id, PID_t pid);
+bool PIDReadFromFlash(void);
 
 void SetMaxBrakeAngle(int16_t angle);
 void SetMaxPosOuterCtl(int16_t vel);

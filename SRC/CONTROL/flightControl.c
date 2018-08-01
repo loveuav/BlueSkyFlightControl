@@ -21,7 +21,6 @@
 FLIGHTCONTROL_t fc;
 
 static void PIDReset(void);
-static bool PIDReadFromFlash(void);
 static void PIDWriteToFlash(void);
 
 /**********************************************************************************************************
@@ -643,7 +642,7 @@ static void PIDReset(void)
 *形    参: 无
 *返 回 值: 成功标志位
 **********************************************************************************************************/
-static bool PIDReadFromFlash(void)
+bool PIDReadFromFlash(void)
 {
     bool flag = true;
     
