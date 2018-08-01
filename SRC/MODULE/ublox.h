@@ -36,6 +36,7 @@
 #define UBLOX_CFG_MSG	    0x01
 #define UBLOX_CFG_TP	    0x07
 #define UBLOX_CFG_RTATE	    0x08
+#define UBLOX_CFG_CFG	    0x09
 #define UBLOX_CFG_SBAS	    0x16
 #define UBLOX_CFG_NAV5	    0x24
 

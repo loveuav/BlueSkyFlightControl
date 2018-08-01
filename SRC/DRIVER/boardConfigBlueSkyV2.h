@@ -40,7 +40,7 @@
 #define MAG_I2C              1              //磁力计I2C配置
 
 #define GPS_UART             4              //GPS串口配置
-#define GPS_BAUDRATE         230400
+#define GPS_BAUDRATE         0              //波特率默认115200，可自动识别并对gps模块进行配置
 #define DATA_UART            0              //数据链串口配置
 #define DATA_BAUDRATE        115200
 #define TOF_UART             0              //TOF模块串口配置

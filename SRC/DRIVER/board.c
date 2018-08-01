@@ -45,7 +45,6 @@ void BoardInit(void)
     Spi_Open(BARO_SPI);
     
     //串口初始化
-	Usart_Open(GPS_UART, GPS_BAUDRATE);
 	Usart_Open(DATA_UART, DATA_BAUDRATE);
 	Usart_Open(TOF_UART, TOF_BAUDRATE);
 	Usart_Open(SBUS_UART, SBUS_BAUDRATE);

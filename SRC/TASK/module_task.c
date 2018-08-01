@@ -81,12 +81,13 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
     MagSensorInit();
     //气压传感器初始化
     BaroSensorInit();
+
+	//唤醒调度器
+	xTaskResumeAll();
+    
     //GPS模块初始化
     GPSModuleInit();
     
-	//唤醒调度器
-	xTaskResumeAll();
-
 	xLastWakeTime = xTaskGetTickCount();
 	for(;;) 
 	{

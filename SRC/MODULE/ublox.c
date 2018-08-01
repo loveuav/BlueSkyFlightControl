@@ -3,7 +3,7 @@
                                 Github: github.com/loveuav/BlueSkyFlightControl
                                 技术讨论：bbs.loveuav.com/forum-68-1.html
  * @文件     ublox.c
- * @说明     GPS数据协议解析，目前只支持UBLOX协议，后续增加对NMEA协议的支持        
+ * @说明     ublox数据协议解析
  * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
@@ -11,15 +11,21 @@
 **********************************************************************************************************/
 #include "ublox.h"
 #include "drv_usart.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 //UBLOX协议参考：lindi.iki.fi/lindi/gps/ubx.html
 
+#define GPS_DEFAULT_BAUDRATE 115200
+
 UBLOX_t ublox;
+static uint8_t recvStatus = 0;
 
 static void Ublox_Decode(uint8_t data);
 static void UbloxEnableMessage(uint8_t class, uint8_t id, uint8_t rate);
 static void UbloxSetRate(uint16_t rate);
 static void UbloxSetPrt(uint32_t baudrate);
+static void UbloxSaveConfig(void);
 
 /**********************************************************************************************************
 *函 数 名: Ublox_Init
@@ -29,27 +35,61 @@ static void UbloxSetPrt(uint32_t baudrate);
 **********************************************************************************************************/
 void Ublox_Init(void)
 {
+    uint32_t gpsBaudrateGroup[5] = {
+        GPS_DEFAULT_BAUDRATE,
+        9600,
+        38400,
+        57600,
+        230400
+    };
+    
     //设置GPS串口接收中断回调函数（即数据协议解析函数）
     Usart_SetIRQCallback(GPS_UART, Ublox_Decode);
     
-    OsDelayMs(20);
-    
-    //使能ublox消息输出
-    UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_POSLLH, 1);
-    OsDelayMs(20);
-    UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_VALNED, 1);
-    OsDelayMs(20);
-    UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_SOL, 1);
-    OsDelayMs(20);
-    UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_DOP, 0);
-    OsDelayMs(20);
+    //搜寻ublox串口波特率
+    for(uint8_t i=0; i<5; i++)
+    {
+        //打开串口
+        Usart_Open(GPS_UART, gpsBaudrateGroup[i]);
+        OsDelayMs(100);
 
-    //设置ublox串口波特率   
-    UbloxSetPrt(115200);
-    OsDelayMs(20);
-    
-    //设置ublox输出速率：ms
-    UbloxSetRate(100);
+        //设置ublox输出速率：ms
+        UbloxSetRate(100);
+        OsDelayMs(30);
+        
+        //使能ublox消息输出
+        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_POSLLH, 1);
+        OsDelayMs(30);
+        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_VALNED, 1);
+        OsDelayMs(30);
+        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_SOL, 1);
+        OsDelayMs(30);
+        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_DOP, 0);
+        OsDelayMs(100);
+        
+        //检测是否已正确解析ublox数据
+        if(recvStatus)
+        {
+            if(i != 0)
+            {
+                //重新设置ublox串口波特率（重要的命令发三遍）
+                UbloxSetPrt(GPS_DEFAULT_BAUDRATE);
+                OsDelayMs(500);
+                UbloxSetPrt(GPS_DEFAULT_BAUDRATE);
+                OsDelayMs(500);
+                UbloxSetPrt(GPS_DEFAULT_BAUDRATE);
+                OsDelayMs(500);
+                
+                //重新打开串口
+                Usart_Open(GPS_UART, GPS_DEFAULT_BAUDRATE);
+                OsDelayMs(100);
+                
+                //保存ublox配置
+                UbloxSaveConfig();
+            }        
+            break;
+        }
+    } 
 }
 
 /**********************************************************************************************************
@@ -98,6 +138,8 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
     else if(ubloxRawData.class == UBLOX_CFG_CLASS)
     {
     }
+    
+    recvStatus = 1;
 }
 
 /**********************************************************************************************************
@@ -305,7 +347,7 @@ static void UbloxSetRate(uint16_t rate)
     ubloxData[dataCnt++] = 0x00;                    //导航周期高八位
     ubloxData[dataCnt++] = 0x01;                    //timeRef 0:UTC, 1:GPS time
     ubloxData[dataCnt++] = 0x00;                    //高八位
-//    
+    
     for(uint8_t i=2; i<dataCnt; i++)
     {
         ck_a += ubloxData[i];
@@ -369,4 +411,54 @@ static void UbloxSetPrt(uint32_t baudrate)
 
     Ublox_SendData(ubloxData, dataCnt);
 }
+
+/**********************************************************************************************************
+*函 数 名: UbloxSaveConfig
+*功能说明: 保存ublox配置
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void UbloxSaveConfig(void) 
+{
+    uint8_t ubloxData[50];
+    uint8_t dataCnt = 0;
+    uint8_t ck_a = 0, ck_b = 0;
+   
+    ubloxData[dataCnt++] = UBLOX_SYNC1;                //帧头1
+    ubloxData[dataCnt++] = UBLOX_SYNC2;                //帧头2
+    ubloxData[dataCnt++] = UBLOX_CFG_CLASS;            //消息类型
+    ubloxData[dataCnt++] = UBLOX_CFG_CFG;              //消息id
+    ubloxData[dataCnt++] = 0x0C;                       //消息负载长度低8位
+    ubloxData[dataCnt++] = 0x00;                       //消息负载长度高8位
+
+    uint32_t clearMask   = 0;
+    uint32_t saveMask    = 0x0001 | 0x0002 | 0x0004 | 0x0008 | 0x0010 | 0x0020 | 0x0400;
+    uint32_t loadMask    = 0;
+    
+    ubloxData[dataCnt++] = (uint8_t)(clearMask);       //配置清除标志位
+    ubloxData[dataCnt++] = (uint8_t)(clearMask >> 8);  //
+    ubloxData[dataCnt++] = (uint8_t)(clearMask >> 16); //
+    ubloxData[dataCnt++] = (uint8_t)(clearMask >> 24); //
+    ubloxData[dataCnt++] = (uint8_t)(saveMask);        //配置保存标志位
+    ubloxData[dataCnt++] = (uint8_t)(saveMask >> 8);   //
+    ubloxData[dataCnt++] = (uint8_t)(saveMask >> 16);  //
+    ubloxData[dataCnt++] = (uint8_t)(saveMask >> 24);  //
+    ubloxData[dataCnt++] = (uint8_t)(loadMask);        //配置加载标志位
+    ubloxData[dataCnt++] = (uint8_t)(loadMask >> 8);   //
+    ubloxData[dataCnt++] = (uint8_t)(loadMask >> 16);  //
+    ubloxData[dataCnt++] = (uint8_t)(loadMask >> 24);  //
+    
+    for(uint8_t i=2; i<dataCnt; i++)
+    {
+        ck_a += ubloxData[i];
+        ck_b += ck_a;
+    }
+    
+    ubloxData[dataCnt++] = ck_a; 
+    ubloxData[dataCnt++] = ck_b; 
+
+    Ublox_SendData(ubloxData, dataCnt);
+}
+
+
 
