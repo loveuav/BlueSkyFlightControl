@@ -807,14 +807,24 @@ void MavParamSetDefault(void)
     mavParam[MPC_THR_MAX] = 0.9;
     mavParam[MPC_MANTHR_MIN] = 0.15;
     mavParam[MPC_MANTHR_MAX] = 0.9;
-    mavParam[MPC_Z_P] = 0;
-    mavParam[MPC_Z_VEL_P] = 0;
-    mavParam[MPC_Z_VEL_I] = 0;
-    mavParam[MPC_Z_VEL_D] = 0;
-    mavParam[MPC_XY_P] = 0;
-    mavParam[MPC_XY_VEL_P] = 0;
-    mavParam[MPC_XY_VEL_I] = 0;
-    mavParam[MPC_XY_VEL_D] = 0;    
+
+	ParamGetData(PARAM_PID_POS_INNER_X_KP, &mavParam[MPC_XY_VEL_P], 4);
+	ParamGetData(PARAM_PID_POS_INNER_X_KI, &mavParam[MPC_XY_VEL_I], 4);
+	ParamGetData(PARAM_PID_POS_INNER_X_KD, &mavParam[MPC_XY_VEL_D], 4);
+	ParamGetData(PARAM_PID_POS_INNER_Z_KP, &mavParam[MPC_Z_VEL_P], 4);
+	ParamGetData(PARAM_PID_POS_INNER_Z_KI, &mavParam[MPC_Z_VEL_I], 4);
+	ParamGetData(PARAM_PID_POS_INNER_Z_KD, &mavParam[MPC_Z_VEL_D], 4);
+	ParamGetData(PARAM_PID_POS_OUTER_X_KP, &mavParam[MPC_XY_P], 4);
+	ParamGetData(PARAM_PID_POS_OUTER_Z_KP, &mavParam[MPC_Z_P], 4); 
+    
+    mavParam[MPC_Z_P]       *= 0.01f;
+    mavParam[MPC_Z_VEL_P]   *= 0.01f;
+    mavParam[MPC_Z_VEL_I]   *= 0.01f;
+    mavParam[MPC_Z_VEL_D]   *= 0.01f;
+    mavParam[MPC_XY_P]      *= 0.01f;
+    mavParam[MPC_XY_VEL_P]  *= 0.01f;
+    mavParam[MPC_XY_VEL_I]  *= 0.01f;
+    mavParam[MPC_XY_VEL_D]  *= 0.01f;   
 }
 
 
