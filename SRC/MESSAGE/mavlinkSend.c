@@ -354,7 +354,7 @@ void MavlinkSendRcChannels(uint8_t* sendFlag)
     
     //消息负载赋值
     rc.time_boot_ms = GetSysTimeMs();
-    rc.chancount    = 16;
+    rc.chancount    = 8;
     rc.chan1_raw    = GetRcData().roll;
     rc.chan2_raw    = GetRcData().pitch;
     rc.chan3_raw    = GetRcData().throttle;

@@ -212,6 +212,9 @@ bool _2SMPB_Detect(void)
 {
     static uint8_t chipID; //0x5C 
 
+    Soft_I2c_Open(2);
+    SoftDelayMs(30);
+    
 	//软件复位
 	_2SMPB_Write_Reg(_2SMPB02_RESET_REG, _2SMPB02_RESET_CODE);
 	SoftDelayMs(10);

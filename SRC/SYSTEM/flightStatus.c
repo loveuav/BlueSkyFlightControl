@@ -15,6 +15,7 @@
 #include "navigation.h"
 #include "ahrs.h"
 #include "board.h"
+#include "gps.h"
 #include "gyroscope.h"
 #include "message.h"
 #include "mavlinkSend.h"
@@ -148,7 +149,7 @@ void SystemInitCheck(void)
             {
                 MavlinkSendNoticeEnable(INIT_HEAT_DISABLE);
                 OsDelayMs(1000);
-                initStep = 5;
+                initStep = 8;
             }
             break;
 
@@ -227,6 +228,9 @@ bool SetArmedStatus(uint8_t status)
         //导航数据复位
         NavigationReset();
         
+        //刷新Home点坐标
+        GpsResetHomePosition();
+            
 		flyStatus.armed = ARMED;
         
         return true;
