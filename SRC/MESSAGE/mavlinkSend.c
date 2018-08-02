@@ -211,8 +211,8 @@ void MavlinkSendGpsRawInt(uint8_t* sendFlag)
     gps.alt       = Ublox_GetData().altitude * 1000;
     gps.eph       = Ublox_GetData().hAcc * 100;
     gps.epv       = Ublox_GetData().vAcc * 100;
-    gps.vel       = Pythagorous2(Ublox_GetData().velN, Ublox_GetData().velE);
-    gps.cog       = 0xFFFF;
+    gps.vel       = Ublox_GetData().speed;
+    gps.cog       = Ublox_GetData().heading * 100;
     gps.fix_type  = Ublox_GetData().fixStatus;
     gps.satellites_visible = Ublox_GetData().numSV;
     
@@ -561,11 +561,14 @@ void MavlinkSendHomePosition(uint8_t* sendFlag)
         *sendFlag = DISABLE;
     
     //消息负载赋值
-    home.latitude  = 225326995;
-    home.longitude = 1139329930;
+    double latitude, longitude;
+    GetHomeLatitudeAndLongitude(&latitude, &longitude);
+    
+    home.latitude  = latitude * (double)1e7;
+    home.longitude = longitude * (double)1e7;
     home.altitude  = 0;
-    home.x         = 0;
-    home.y         = 0;
+    home.x         = GetHomePosition().x;
+    home.y         = GetHomePosition().y;
     home.z         = 0;
     
     //mavlink组帧

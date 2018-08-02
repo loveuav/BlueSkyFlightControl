@@ -19,6 +19,7 @@ float GetDirectionToHome(Vector3f_t position);
 float GetDistanceToHome(Vector3f_t position);
 float GetDirectionOfTwoPoint(Vector3f_t point1, Vector3f_t point2);
 Vector3f_t GetHomePosition(void);
+void GetHomeLatitudeAndLongitude(double* lat, double* lon);
 
 #endif
 

@@ -37,7 +37,7 @@ typedef struct{
 	
 }GPS_t;
 
-static uint8_t GpsCheckStatus(uint8_t satNum, float acc);
+static void GpsCheckStatus(uint8_t* status, uint8_t satNum, float acc);
 static void GpsSetOriginPosition(void);
 static void GpsCalcPositionChanged(Vector3f_t* deltaDis, double lat1, double lon1, double lat2, double lon2);
 void TransVelToBodyFrame(Vector3f_t velEf, Vector3f_t* velBf, float yaw);
@@ -64,7 +64,7 @@ void GpsDataPreTreat(void)
     gps.satNum = gpsRaw.numSV;
     
     //检查GPS状态，判断当前定位精度是否满足使用要求
-    gps.status = GpsCheckStatus(gps.satNum, gps.acc);
+    GpsCheckStatus(&gps.status, gps.satNum, gps.acc);
 
 	gps.latitude = gpsRaw.latitude;
 	gps.longitude = gpsRaw.longitude;  
@@ -93,16 +93,15 @@ void GpsDataPreTreat(void)
 /**********************************************************************************************************
 *函 数 名: GpsCheckStatus
 *功能说明: GPS状态及精度判断
-*形    参: 无
+*形    参: 状态指针 卫星数量 水平定位精度
 *返 回 值: 无
 **********************************************************************************************************/
-static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
+static void GpsCheckStatus(uint8_t* status, uint8_t satNum, float acc)
 {
 	static uint8_t firstFix = 0;
 	static uint16_t gpsFixCnt = 0;
-    static uint8_t status = 0;
 		
-	if(!status)
+	if(*status == 0)
     {
 		if(satNum >= 6 && (acc < 2.5f && acc > 0) )
         {			
@@ -110,7 +109,7 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
 			
 			if(gpsFixCnt > 10)
             {
-				status = 1;
+				*status = 1;
 				
 				if(!firstFix)
                 {
@@ -130,11 +129,9 @@ static uint8_t GpsCheckStatus(uint8_t satNum, float acc)
     {
 		if(satNum <= 4 || acc > 5.0f || FaultDetectGetErrorStatus(GPS_UNDETECTED))
         {
-			status = 0;
+			*status = 0;
 		}
 	}
-    
-    return status;
 }
 
 /**********************************************************************************************************
@@ -262,7 +259,7 @@ void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw)
 /**********************************************************************************************************
 *函 数 名: GetDirectionOfTwoPoint
 *功能说明: 计算两个坐标点之间的方向
-*形    参: 无
+*形    参: 源坐标点 目标坐标点
 *返 回 值: 方向
 **********************************************************************************************************/
 float GetDirectionOfTwoPoint(Vector3f_t point1, Vector3f_t point2)
@@ -273,8 +270,8 @@ float GetDirectionOfTwoPoint(Vector3f_t point1, Vector3f_t point2)
 	deltaDisX = point2.x - point1.x;
 	deltaDisY = point2.y - point1.y;
 	
-	direction = Degrees(atan2f(deltaDisY, deltaDisX)) - 90;
-	direction = 360 - WrapDegree360(direction);
+	direction = Degrees(atan2f(deltaDisY, deltaDisX));
+	direction = WrapDegree360(direction);
     
 	return direction;
 }
@@ -321,6 +318,18 @@ Vector3f_t GetHomePosition(void)
     GpsTransToLocalPosition(&homePosition, gps.homePosition[LAT], gps.homePosition[LON]);
     
     return homePosition;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetHomePosition
+*功能说明: 获取Home点经纬度坐标
+*形    参: 纬度指针 经度指针
+*返 回 值: 无
+**********************************************************************************************************/
+void GetHomeLatitudeAndLongitude(double* lat, double* lon)
+{	
+    *lat = gps.homePosition[LAT];
+    *lon = gps.homePosition[LON];
 }
 
 /**********************************************************************************************************

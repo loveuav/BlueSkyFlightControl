@@ -287,9 +287,6 @@ void ReturnToHome(void)
             if(abs(posCtlError.y) > 1)
                 posCtlTarget.y -= velCtlTargert * syncRatio.y * (posCtlError.y / abs(posCtlError.y)); 
             
-            //设置位置控制目标
-            SetPosOuterCtlTarget(posCtlTarget);
-
             if(distanceToHome > 1000)
             {
                 //不断更新航向目标为Home方向
@@ -303,6 +300,9 @@ void ReturnToHome(void)
                 posCtlTarget = homePos;
             }
  
+            //设置位置控制目标
+            SetPosOuterCtlTarget(posCtlTarget);
+            
             timeRecord[RTH_STEP_FLIGHT] = GetSysTimeMs();
             break;
             
