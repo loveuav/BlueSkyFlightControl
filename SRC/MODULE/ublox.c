@@ -106,8 +106,8 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
         {
             case UBLOX_NAV_POSLLH:
                 ublox.time      = (float)ubloxRawData.payload.posllh.iTOW / 1000;
-                ublox.longitude = (double)ubloxRawData.payload.posllh.lat * (double)1e-7;
-                ublox.latitude  = (double)ubloxRawData.payload.posllh.lon * (double)1e-7;
+                ublox.latitude  = (double)ubloxRawData.payload.posllh.lat * (double)1e-7;
+                ublox.longitude = (double)ubloxRawData.payload.posllh.lon * (double)1e-7;
                 ublox.altitude  = (float)ubloxRawData.payload.posllh.hMSL * 0.001f;
                 ublox.hAcc      = (float)ubloxRawData.payload.posllh.hAcc * 0.001f;
                 ublox.vAcc      = (float)ubloxRawData.payload.posllh.vAcc * 0.001f;
