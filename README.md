@@ -67,9 +67,9 @@ GPS：u-blox M8N
 
 QGroundControl是一个使用QT语言编写的跨平台开源无人机地面站项目，支持windows，linux，android、ios等，使用mavlink协议。
 
->[【天穹飞控】QGroudControl地面站使用教程](http://bbs.loveuav.com/thread-11450-1-1.html)
+>[【天穹飞控】QGroundControl地面站使用教程](http://bbs.loveuav.com/thread-11450-1-1.html)
 
-![QGroudControl](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/QGroudControl.jpg)
+![QGroundControl](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/QGroudControl.jpg)
 
 ## 作者相关
 BlueSky
