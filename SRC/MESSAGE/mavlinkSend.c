@@ -318,8 +318,8 @@ void MavlinkSendLocalPositionNed(uint8_t* sendFlag)
     //消息负载赋值
     position.time_boot_ms = GetSysTimeMs();
     position.x            = GetCopterPosition().x;
-    position.x            = GetCopterPosition().y;
-    position.x            = -GetCopterPosition().z;
+    position.y            = GetCopterPosition().y;
+    position.z            = -GetCopterPosition().z;
     Vector3f_t velEf;
     TransVelToEarthFrame(GetCopterVelocity(), &velEf, GetCopterAngle().z);
     position.vx           = velEf.x;
