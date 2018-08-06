@@ -48,6 +48,7 @@ void TaskStackUseUpdate(void)
 	stackUse[5] = FLIGHT_STATUS_TASK_STACK - GetFlightStatusTaskStackRemain();
 	stackUse[6] = FLIGHTCONTROL_TASK_STACK - GetFlightControlTaskStackRemain();
 	stackUse[7] = MESSAGE_TASK_STACK - GetMessageTaskStackRemain();
+    stackUse[8] = LOG_TASK_STACK - GetLogTaskStackRemain();
 	stackUse[9] = stackUse[9];
 }
 
@@ -102,6 +103,9 @@ portTASK_FUNCTION(vStartTask, pvParameters)
 	
 	//数据通信任务创建
 	MessageTaskCreate();
+    
+    //飞行日志任务创建
+    LogTaskCreate();
     /*************************************************************************/
     
     //删除本任务
