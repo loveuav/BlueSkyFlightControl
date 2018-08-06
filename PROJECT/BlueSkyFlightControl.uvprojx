@@ -337,7 +337,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,__TARGET_FPU_VFP,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,ARM_MATH_CM4,__CC_ARM,__FPU_PRESENT,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common</IncludePath>
+              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common;..\STMLIB\SDIO</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -827,6 +827,11 @@
               <FilePath>..\STMLIB\src\stm32f4xx_rcc.c</FilePath>
             </File>
             <File>
+              <FileName>stm32f4xx_sdio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STMLIB\src\stm32f4xx_sdio.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f4xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STMLIB\stm32f4xx_it.c</FilePath>
@@ -925,6 +930,21 @@
               <FileName>usbd_desc.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STMLIB\USB\usbd_desc.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>SDIO</GroupName>
+          <Files>
+            <File>
+              <FileName>stm32f4_sdio_sd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STMLIB\SDIO\stm32f4_sdio_sd.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4_sdio_sd_LowLevel.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STMLIB\SDIO\stm32f4_sdio_sd_LowLevel.c</FilePath>
             </File>
           </Files>
         </Group>
