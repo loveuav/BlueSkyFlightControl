@@ -335,6 +335,40 @@ void MavlinkSendLocalPositionNed(uint8_t* sendFlag)
 }
 
 /**********************************************************************************************************
+*函 数 名: MavlinkSendVfrHud
+*功能说明: 发送HUD信息
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void MavlinkSendVfrHud(uint8_t* sendFlag)
+{
+    mavlink_message_t msg;
+    mavlink_vfr_hud_t hud;
+    uint8_t msgLength;
+    uint8_t msgBuffer[MAVLINK_MAX_PAYLOAD_LEN+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+    
+    //消息负载赋值
+    hud.airspeed    = 0;
+    hud.groundspeed = (float)Pythagorous2(GetCopterVelocity().x, GetCopterVelocity().y) * 0.01f;
+    hud.alt         = (float)GetCopterPosition().z * 0.01f;
+    hud.climb       = (float)GetCopterVelocity().z * 0.01f;
+    hud.heading     = GetCopterAngle().z;
+    hud.throttle    = 0xFFFF;
+
+    //mavlink组帧
+    mavlink_msg_vfr_hud_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &hud);
+    //消息帧格式化
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    //发送消息帧
+	DataSend(msgBuffer, msgLength);  
+}
+
+/**********************************************************************************************************
 *函 数 名: MavlinkSendRcChannels
 *功能说明: 发送遥控通道数据
 *形    参: 发送标志指针

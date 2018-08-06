@@ -18,6 +18,7 @@ void MavlinkSendMissionAck(uint8_t* sendFlag);
 void MavlinkSendMissionCount(uint8_t* sendFlag);
 void MavlinkSendMissionItem(uint8_t* sendFlag);
 void MavlinkSendHomePosition(uint8_t* sendFlag);
+void MavlinkSendVfrHud(uint8_t* sendFlag);
 void MavlinkSendStatusText(uint8_t* sendFlag);
 
 void MavlinkCurrentParamSet(uint16_t num);

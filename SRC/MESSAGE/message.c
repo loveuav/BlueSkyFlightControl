@@ -91,11 +91,12 @@ void MessageInit(void)
     //mavlink发送频率
     mavlinkSendFreq[MAVLINK_MSG_ID_SYS_STATUS]         = 1;
     mavlinkSendFreq[MAVLINK_MSG_ID_GPS_RAW_INT]        = 1;
-    mavlinkSendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 20;
-    mavlinkSendFreq[MAVLINK_MSG_ID_LOCAL_POSITION_NED] = 20;
-    mavlinkSendFreq[MAVLINK_MSG_ID_SCALED_IMU]         = 20;
+    mavlinkSendFreq[MAVLINK_MSG_ID_ATTITUDE]           = 15;
+    mavlinkSendFreq[MAVLINK_MSG_ID_LOCAL_POSITION_NED] = 10;
+    mavlinkSendFreq[MAVLINK_MSG_ID_SCALED_IMU]         = 10;
     mavlinkSendFreq[MAVLINK_MSG_ID_RC_CHANNELS]        = 5;
     mavlinkSendFreq[MAVLINK_MSG_ID_HOME_POSITION]      = 1;
+    mavlinkSendFreq[MAVLINK_MSG_ID_VFR_HUD]            = 10;
     mavlinkSendFreq[MAVLINK_MSG_ID_HEARTBEAT2]         = 1;     //心跳包发送频率为固定1Hz
     
     //生成bsklink发送列表
@@ -173,6 +174,7 @@ void MessageSendLoop(void)
             MavlinkSendGpsRawInt(&mavlinkSendFlag[MAVLINK_MSG_ID_GPS_RAW_INT]);                //GPS原始数据
             MavlinkSendAttitude(&mavlinkSendFlag[MAVLINK_MSG_ID_ATTITUDE]);                    //姿态角度和角速度
             MavlinkSendLocalPositionNed(&mavlinkSendFlag[MAVLINK_MSG_ID_LOCAL_POSITION_NED]);  //位置和速度
+            MavlinkSendVfrHud(&mavlinkSendFlag[MAVLINK_MSG_ID_VFR_HUD]);                       //HUD信息
             MavlinkSendScaledImu(&mavlinkSendFlag[MAVLINK_MSG_ID_SCALED_IMU]);                 //IMU原始数据
             MavlinkSendRcChannels(&mavlinkSendFlag[MAVLINK_MSG_ID_RC_CHANNELS]);               //遥控通道数据
             MavlinkSendHomePosition(&mavlinkSendFlag[MAVLINK_MSG_ID_HOME_POSITION]);           //Home点位置
