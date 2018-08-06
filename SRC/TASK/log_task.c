@@ -31,21 +31,16 @@ portTASK_FUNCTION(vLogTask, pvParameters)
 	FIL     	file;
 	static FRESULT		fresult;
     TCHAR		filename[16];
-    
+
  	//挂起调度器
 	vTaskSuspendAll();
     
+    //挂载文件系统
     fresult = f_mount(0, &fs);
+    
+    //打开文件
 	sprintf(filename,"0:bluesky.txt");
 	fresult = f_open(&file, filename, FA_OPEN_ALWAYS | FA_WRITE);
-
-    if(fresult == FR_OK)
-    {
-        f_printf(&file,"Welcome to use the BlueSky FlightControl!\n");
-        fresult = f_close(&file);
-    }
-    
-    f_mount(0, NULL);
     
 	//唤醒调度器
 	xTaskResumeAll();   
@@ -53,7 +48,30 @@ portTASK_FUNCTION(vLogTask, pvParameters)
     xLastWakeTime = xTaskGetTickCount();
 	for(;;)
 	{
-
+        /*TF卡写入测试*/
+        static uint16_t count = 30000;
+        
+        if(fresult == FR_OK && count > 0)
+        {
+            //写入数据
+            f_printf(&file,"Welcome to use the BlueSky FlightControl %d!\n", count);       
+            
+            count--;
+            
+            //关闭文件
+            if(count == 0)
+            {
+                fresult = f_close(&file);
+                f_mount(0, NULL);
+            }
+            
+            //刷新缓存
+            if(count % 200 == 0)
+            {                      
+                f_sync(&file);
+            }
+        }
+          
 		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
 	}
 }
