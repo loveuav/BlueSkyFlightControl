@@ -337,7 +337,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,__TARGET_FPU_VFP,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,ARM_MATH_CM4,__CC_ARM,__FPU_PRESENT,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common;..\STMLIB\SDIO;..\FatFs</IncludePath>
+              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common;..\STMLIB\SDIO;..\FatFs;..\SRC\LOG</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -565,6 +565,16 @@
               <FileName>mavlinkNotice.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MESSAGE\mavlinkNotice.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>LOG</GroupName>
+          <Files>
+            <File>
+              <FileName>logger.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\LOG\logger.c</FilePath>
             </File>
           </Files>
         </Group>

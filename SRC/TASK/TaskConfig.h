@@ -35,7 +35,7 @@
 #define FLIGHT_STATUS_TASK_STACK              256
 #define FLIGHTCONTROL_TASK_STACK              256
 #define MESSAGE_TASK_STACK                    512
-#define LOG_TASK_STACK                        1024
+#define LOG_TASK_STACK                        256
 
 //任务优先级
 #define IMU_SENSOR_READ_TASK_PRIORITY         13
@@ -45,9 +45,8 @@
 #define SENSOR_UPDATE_TASK_PRIORITY           8
 #define OTHER_SENSOR_TASK_PRIORITY            7
 #define MESSAGE_TASK_PRIORITY                 6
-#define LOG_TASK_PRIORITY                     5
-#define FLIGHT_STATUS_TASK_PRIORITY           3
-
+#define FLIGHT_STATUS_TASK_PRIORITY           5
+#define LOG_TASK_PRIORITY                     3
 
 enum {
     GYRO_SENSOR_READ,
