@@ -1,4 +1,5 @@
 #include "stm32f4_sdio_sd_LowLevel.h"
+#include "stm32f4_sdio_sd.h"
 
 void SD_NVIC_Configuration(void)
 {
@@ -31,7 +32,7 @@ void SD_LowLevel_DeInit(void)
 
     /* Disable the SDIO APB2 Clock */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SDIO, DISABLE);
-
+    
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_MCO);
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_MCO);
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_MCO);
@@ -67,6 +68,10 @@ void SD_LowLevel_Init(void)
     /* GPIOC and GPIOD Periph clock enable */
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD, ENABLE);
 
+    #ifdef SD_DMA_MODE
+    SD_NVIC_Configuration();
+    #endif
+    
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource8, GPIO_AF_SDIO);
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource9, GPIO_AF_SDIO);
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_SDIO);

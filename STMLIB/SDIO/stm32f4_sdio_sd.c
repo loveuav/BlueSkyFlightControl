@@ -440,11 +440,11 @@ SDCardState SD_GetState(void)
 
     if (SD_SendStatus(&resp1) != SD_OK)
     {
-    return SD_CARD_ERROR;
+        return SD_CARD_ERROR;
     }
     else
     {
-    return (SDCardState)((resp1 >> 9) & 0x0F);
+        return (SDCardState)((resp1 >> 9) & 0x0F);
     }
 }
 
