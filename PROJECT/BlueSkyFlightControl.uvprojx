@@ -337,7 +337,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,__TARGET_FPU_VFP,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,ARM_MATH_CM4,__CC_ARM,__FPU_PRESENT,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common;..\STMLIB\SDIO</IncludePath>
+              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common;..\STMLIB\SDIO;..\FatFs</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -455,6 +455,11 @@
               <FileName>message_task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\TASK\message_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>log_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\TASK\log_task.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -945,6 +950,21 @@
               <FileName>stm32f4_sdio_sd_LowLevel.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STMLIB\SDIO\stm32f4_sdio_sd_LowLevel.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>FatFs</GroupName>
+          <Files>
+            <File>
+              <FileName>ff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FatFs\ff.c</FilePath>
+            </File>
+            <File>
+              <FileName>diskio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FatFs\diskio.c</FilePath>
             </File>
           </Files>
         </Group>
