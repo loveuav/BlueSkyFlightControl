@@ -279,7 +279,7 @@
 #define SD_SINGLE_BUS_SUPPORT           ((uint32_t)0x00010000)
 #define SD_CARD_LOCKED                  ((uint32_t)0x02000000)
 
-#define SD_DATATIMEOUT                  ((uint32_t)0xFFFFFFFF)
+#define SD_DATATIMEOUT                  ((uint32_t)0x0000FFFF)
 #define SD_0TO7BITS                     ((uint32_t)0x000000FF)
 #define SD_8TO15BITS                    ((uint32_t)0x0000FF00)
 #define SD_16TO23BITS                   ((uint32_t)0x00FF0000)
@@ -2206,14 +2206,14 @@ static SD_Error CmdResp1Error(uint8_t cmd)
   SD_Error errorstatus = SD_OK;
   uint32_t status;
   uint32_t response_r1;
-
+    
   status = SDIO->STA;
-
+    
   while (!(status & (SDIO_FLAG_CCRCFAIL | SDIO_FLAG_CMDREND | SDIO_FLAG_CTIMEOUT)))
   {
     status = SDIO->STA;
   }
-
+  
   if (status & SDIO_FLAG_CTIMEOUT)
   {
     errorstatus = SD_CMD_RSP_TIMEOUT;
