@@ -986,6 +986,16 @@
               <FileType>1</FileType>
               <FilePath>..\FatFs\diskio.c</FilePath>
             </File>
+            <File>
+              <FileName>syscall.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FatFs\option\syscall.c</FilePath>
+            </File>
+            <File>
+              <FileName>unicode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FatFs\option\unicode.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
