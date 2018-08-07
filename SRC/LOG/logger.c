@@ -7,13 +7,17 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.07
+ * @日期     2018.08
 **********************************************************************************************************/
 #include "logger.h"
+#include "ulog.h"
 
 #include "ff.h"		
 #include "diskio.h"	
 #include <stdio.h>
+#include <string.h>
+
+#include "board.h"
 
 FATFS fs;
 FIL   file;
@@ -30,7 +34,7 @@ void LoggerTest(void);
 **********************************************************************************************************/
 void LoggerInit(void)
 {
-    FRESULT fresult;
+    static FRESULT fresult;
     TCHAR testName[] = "0:initTest";   
 
     //挂载文件系统
@@ -38,7 +42,7 @@ void LoggerInit(void)
     
     //打开文件
 	fresult = f_open(&file, testName, FA_OPEN_ALWAYS | FA_WRITE);
-
+    
     if(fresult == FR_OK)
     {
         cardExistFlag = 1;
@@ -50,6 +54,12 @@ void LoggerInit(void)
     else
     {
         cardExistFlag = 0;
+    }
+    
+    if(cardExistFlag)
+    {
+        TCHAR fileName[] = "0:bluesky.txt";   
+        fresult = f_open(&file, fileName, FA_OPEN_ALWAYS | FA_WRITE);
     }
 }
 
@@ -64,7 +74,46 @@ void LoggerLoop(void)
     if(!cardExistFlag)
         return;
     
-   LoggerTest();
+    static uint32_t count = 30000;
+    
+    if(count > 0)
+    {
+        //写入数据
+        UlogWriteHeader(); 
+        
+        //刷新缓存
+        if(count-- % 500 == 0)
+        {                      
+            f_sync(&file);
+        }
+        
+        //关闭文件
+        if(count == 0)
+        {
+            f_close(&file);
+        }
+    }
+    
+   //LoggerTest();
+}
+
+/**********************************************************************************************************
+*函 数 名: LoggerWrite
+*功能说明: 往打开的日志文件里写入数据
+*形    参: 数据指针 数据长度
+*返 回 值: 无
+**********************************************************************************************************/
+void LoggerWrite(void *data, uint16_t size)
+{  
+    TCHAR dataTemp[0xFF];
+    
+    memset(dataTemp, 0, 0xFF);
+    
+    if(size <= 0xFF)
+    {
+        memcpy(dataTemp, data, size);
+        f_printf(&file, dataTemp);     
+    }        
 }
 
 void LoggerTest(void)

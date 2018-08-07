@@ -5,6 +5,7 @@
 
 void LoggerInit(void);
 void LoggerLoop(void);
+void LoggerWrite(void *data, uint16_t size);
 
 #endif
 
