@@ -26,13 +26,13 @@ portTASK_FUNCTION(vLogTask, pvParameters)
     portTickType xLastWakeTime;
 
  	//挂起调度器
-	vTaskSuspendAll();
+	//vTaskSuspendAll();
     
     //飞行日志初始化
     LoggerInit();
     
 	//唤醒调度器
-	xTaskResumeAll();   
+	//xTaskResumeAll();   
     
     xLastWakeTime = xTaskGetTickCount();
 	for(;;)
