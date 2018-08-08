@@ -19,13 +19,16 @@
 
 #include "board.h"
 #include "flightStatus.h"
+#include "ublox.h"
+
+#define LOG_NAME_SIZE 23
 
 FATFS fs;
 FIL   file;
 
 uint8_t cardExistFlag = 0;
 
-void LoggerTest(void);
+static void GetLogNameByTime(TCHAR* name);
 
 /**********************************************************************************************************
 *函 数 名: LoggerInit
@@ -65,7 +68,7 @@ void LoggerInit(void)
     else
     {
         cardExistFlag = 0;
-    }
+    }  
 }
 
 /**********************************************************************************************************
@@ -77,7 +80,8 @@ void LoggerInit(void)
 void LoggerLoop(void)
 {  
     FRESULT fresult;
-    static TCHAR fileName[] = "0:ulog/bluesky.ulg";
+    static TCHAR logPath[LOG_NAME_SIZE+10];
+    static TCHAR logName[LOG_NAME_SIZE];
     static uint8_t state = 0;
     static uint32_t cnt = 0;
     
@@ -93,7 +97,16 @@ void LoggerLoop(void)
     {
         /*打开文件*/
         case 1:
-            fresult = f_open(&file, fileName, FA_CREATE_ALWAYS | FA_WRITE);
+            //根据当前时间获取文件名
+            GetLogNameByTime(logName);  
+
+            //连接文件路径与文件名
+            memset(logPath, 0, LOG_NAME_SIZE+10);
+            strcpy(logPath, "0:ulog/");
+            strcat(logPath, logName);
+        
+            fresult = f_open(&file, logPath, FA_CREATE_ALWAYS | FA_WRITE);
+        
             if(fresult == FR_OK)
                 state++;
             else
@@ -110,15 +123,17 @@ void LoggerLoop(void)
             break; 
 
         /*写入飞控数据*/
-        case 3:
+        case 3:	  
             UlogWriteData();
+
             //固定间隔刷新文件缓存
             if(cnt++ % 300 == 0)
-                f_sync(&file); 
+                fresult = f_sync(&file); 
+            
             //上锁后停止记录log并关闭文件
             if(GetArmedStatus() == DISARMED)
             {
-                f_close(&file);
+                fresult = f_close(&file);
                 state = 0;
             }
             break;
@@ -141,5 +156,39 @@ void LoggerWrite(void *data, uint16_t size)
     f_write(&file, data, size, &btw);
 }
 
+/**********************************************************************************************************
+*函 数 名: GetLogNameByTime
+*功能说明: 根据当前时间获取日志文件名
+*形    参: 数据指针 数据长度
+*返 回 值: 无
+**********************************************************************************************************/
+static void GetLogNameByTime(TCHAR* name)
+{  
+    UTC_TIME_t time = GetUTCTime();
+    
+    name[0] = (time.year / 1000) + '0';
+    name[1] = ((time.year / 100) % 10) + '0';
+    name[2] = ((time.year / 10) % 10) + '0';
+    name[3] = (time.year % 10) + '0';
+    name[4] = '-';
+    name[5] = (time.month / 10) + '0';
+    name[6] = (time.month % 10) + '0';
+    name[7] = '-';
+    name[8] = (time.day / 10) + '0';
+    name[9] = (time.day % 10) + '0';
+    name[10] = '-';
+    name[11] = (time.hour / 10) + '0';
+    name[12] = (time.hour % 10) + '0';
+    name[13] = '-';
+    name[14] = (time.min / 10) + '0';
+    name[15] = (time.min % 10) + '0';
+    name[16] = '-';
+    name[17] = (time.sec / 10) + '0';
+    name[18] = (time.sec % 10) + '0';
+    name[19] = '.';
+    name[20] = 'u';
+    name[21] = 'l';
+    name[22] = 'g';
+}
 
 

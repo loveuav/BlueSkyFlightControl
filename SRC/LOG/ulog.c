@@ -176,7 +176,7 @@ void UlogWriteFormat(void)
     memset(&format, 0, sizeof(format));
     
     format.msg_size           = 0;
-    format.msg_type           = 'F';
+    format.msg_type           = FORMAT;
     format.format[dataCnt++]  = 'l';
     format.format[dataCnt++]  = 'o';
     format.format[dataCnt++]  = 'g';
@@ -214,7 +214,7 @@ void UlogWriteAddLogged(void)
     memset(&add_logged, 0, sizeof(add_logged));
     
     add_logged.msg_size = 6;
-    add_logged.msg_type = 'A';
+    add_logged.msg_type = ADD_LOGGED_MSG;
     add_logged.multi_id = 0;
     add_logged.msg_id   = 0;
     add_logged.message_name[0] = 'l';
@@ -236,7 +236,7 @@ void UlogWriteData(void)
     ULOG_DATA_t data;
     
     header.msg_size = sizeof(data) + 2; //消息ID长度包括在内
-    header.msg_type = 'D';
+    header.msg_type = DATA;
     header.msg_id   = 0;
 
     data.timestamp      = GetSysTimeUs();
