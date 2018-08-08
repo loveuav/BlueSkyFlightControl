@@ -194,7 +194,7 @@ DRESULT disk_ioctl (
 	{
 		
 	}
-	return RES_PARERR;
+	return RES_OK;
 }
 #endif
 
