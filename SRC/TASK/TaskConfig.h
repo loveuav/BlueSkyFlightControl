@@ -35,7 +35,7 @@
 #define FLIGHT_STATUS_TASK_STACK              256
 #define FLIGHTCONTROL_TASK_STACK              256
 #define MESSAGE_TASK_STACK                    512
-#define LOG_TASK_STACK                        256
+#define LOG_TASK_STACK                        1024
 
 //任务优先级
 #define IMU_SENSOR_READ_TASK_PRIORITY         13

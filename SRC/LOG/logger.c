@@ -35,13 +35,21 @@ void LoggerTest(void);
 void LoggerInit(void)
 {
     static FRESULT fresult;
-    TCHAR testName[] = "0:initTest";   
+    TCHAR testName[] = "0:init.test";   
 
     //挂载文件系统
     f_mount(0, &fs);
     
     //打开文件
-	fresult = f_open(&file, testName, FA_OPEN_ALWAYS | FA_WRITE);
+    for(uint8_t i=10; i>0; i--)
+    {
+        fresult = f_open(&file, testName, FA_OPEN_ALWAYS | FA_WRITE);
+        
+        if(fresult == FR_OK)
+            break;
+        
+        OsDelayMs(50);
+    }
     
     if(fresult == FR_OK)
     {
@@ -58,7 +66,7 @@ void LoggerInit(void)
     
     if(cardExistFlag)
     {
-        TCHAR fileName[] = "0:bluesky.txt";   
+        TCHAR fileName[] = "0:bluesky.ulg";   
         fresult = f_open(&file, fileName, FA_OPEN_ALWAYS | FA_WRITE);
     }
 }
@@ -74,24 +82,35 @@ void LoggerLoop(void)
     if(!cardExistFlag)
         return;
     
-    static uint32_t count = 30000;
-    
-    if(count > 0)
+    static uint8_t flag = 0;
+    static uint32_t cnt = 0;
+        
+    switch(flag)
     {
-        //写入数据
-        UlogWriteHeader(); 
+        case 0:
+            UlogWriteHeader();
+            UlogWriteFlag();
+            flag++;
+            break;
+
+        case 1:
+            UlogWriteFormat();
+            flag++;
+            break;   
+
+        case 2:
+            UlogWriteAddLogged();
+            flag++;
+            break; 
+
+        case 3:
+            UlogWriteData();
+            if(cnt++ % 300 == 0)
+                f_sync(&file); 
+            break;
         
-        //刷新缓存
-        if(count-- % 500 == 0)
-        {                      
-            f_sync(&file);
-        }
-        
-        //关闭文件
-        if(count == 0)
-        {
-            f_close(&file);
-        }
+        default:
+            break;
     }
     
    //LoggerTest();
@@ -105,48 +124,45 @@ void LoggerLoop(void)
 **********************************************************************************************************/
 void LoggerWrite(void *data, uint16_t size)
 {  
-    TCHAR dataTemp[0xFF];
-    
-    memset(dataTemp, 0, 0xFF);
+    UINT btw;
     
     if(size <= 0xFF)
     {
-        memcpy(dataTemp, data, size);
-        f_printf(&file, dataTemp);     
-    }        
+        f_write(&file, data, size, &btw);
+    }   
 }
 
 void LoggerTest(void)
 {
-    /*TF卡写入测试*/
-    static uint32_t count = 300000;
-    static FRESULT fresult;
-    TCHAR fileName[] = "0:bluesky.txt";   
-    static uint8_t testInit = 0;
-    
-    if(testInit == 0)
-    {
-        fresult = f_open(&file, fileName, FA_OPEN_ALWAYS | FA_WRITE);
-        testInit = 1;
-    }
+//    /*TF卡写入测试*/
+//    static uint32_t count = 300000;
+//    static FRESULT fresult;
+//    TCHAR fileName[] = "0:bluesky.txt";   
+//    static uint8_t testInit = 0;
+//    
+//    if(testInit == 0)
+//    {
+//        fresult = f_open(&file, fileName, FA_OPEN_ALWAYS | FA_WRITE);
+//        testInit = 1;
+//    }
 
-    if(fresult == FR_OK && count > 0)
-    {
-        //写入数据
-        f_printf(&file,"Welcome to use the BlueSky FlightControl %d!\n", count--);       
-        
-        //刷新缓存
-        if(count % 500 == 0)
-        {                      
-            f_sync(&file);
-        }
-        
-        //关闭文件
-        if(count == 0)
-        {
-            fresult = f_close(&file);
-        }
-    }
+//    if(fresult == FR_OK && count > 0)
+//    {
+//        //写入数据
+//        f_printf(&file, "Welcome to use the BlueSky FlightControl %d!\n", count--);       
+//        
+//        //刷新缓存
+//        if(count % 500 == 0)
+//        {                      
+//            f_sync(&file);
+//        }
+//        
+//        //关闭文件
+//        if(count == 0)
+//        {
+//            fresult = f_close(&file);
+//        }
+//    }
 }
 
 
