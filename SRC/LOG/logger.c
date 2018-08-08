@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "board.h"
+#include "flightStatus.h"
 
 FATFS fs;
 FIL   file;
@@ -34,7 +35,7 @@ void LoggerTest(void);
 **********************************************************************************************************/
 void LoggerInit(void)
 {
-    static FRESULT fresult;
+    FRESULT fresult;
     TCHAR testName[] = "0:init.test";   
 
     //挂载文件系统
@@ -58,16 +59,12 @@ void LoggerInit(void)
         fresult = f_close(&file);
         //删除测试文件
         f_unlink(testName);
+        //创建日志文件夹
+        fresult = f_mkdir("ulog");
     }
     else
     {
         cardExistFlag = 0;
-    }
-    
-    if(cardExistFlag)
-    {
-        TCHAR fileName[] = "0:bluesky.ulg";   
-        fresult = f_open(&file, fileName, FA_OPEN_ALWAYS | FA_WRITE);
     }
 }
 
@@ -79,41 +76,56 @@ void LoggerInit(void)
 **********************************************************************************************************/
 void LoggerLoop(void)
 {  
+    FRESULT fresult;
+    static TCHAR fileName[] = "0:ulog/bluesky.ulg";
+    static uint8_t state = 0;
+    static uint32_t cnt = 0;
+    
+    //未检测到tf卡或初始化不成功则退出
     if(!cardExistFlag)
         return;
-    
-    static uint8_t flag = 0;
-    static uint32_t cnt = 0;
-        
-    switch(flag)
-    {
-        case 0:
-            UlogWriteHeader();
-            UlogWriteFlag();
-            flag++;
-            break;
 
+    //解锁后开始记录log
+    if(GetArmedStatus() == ARMED && state == 0)
+        state = 1;
+    
+    switch(state)
+    {
+        /*打开文件*/
         case 1:
-            UlogWriteFormat();
-            flag++;
+            fresult = f_open(&file, fileName, FA_CREATE_ALWAYS | FA_WRITE);
+            if(fresult == FR_OK)
+                state++;
+            else
+                cardExistFlag = 0;
             break;   
 
+        /*写入log头部信息*/
         case 2:
+            UlogWriteHeader();
+            UlogWriteFlag();
+            UlogWriteFormat();
             UlogWriteAddLogged();
-            flag++;
+            state++;
             break; 
 
+        /*写入飞控数据*/
         case 3:
             UlogWriteData();
+            //固定间隔刷新文件缓存
             if(cnt++ % 300 == 0)
                 f_sync(&file); 
+            //上锁后停止记录log并关闭文件
+            if(GetArmedStatus() == DISARMED)
+            {
+                f_close(&file);
+                state = 0;
+            }
             break;
         
         default:
             break;
     }
-    
-   //LoggerTest();
 }
 
 /**********************************************************************************************************
@@ -126,43 +138,7 @@ void LoggerWrite(void *data, uint16_t size)
 {  
     UINT btw;
     
-    if(size <= 0xFF)
-    {
-        f_write(&file, data, size, &btw);
-    }   
-}
-
-void LoggerTest(void)
-{
-//    /*TF卡写入测试*/
-//    static uint32_t count = 300000;
-//    static FRESULT fresult;
-//    TCHAR fileName[] = "0:bluesky.txt";   
-//    static uint8_t testInit = 0;
-//    
-//    if(testInit == 0)
-//    {
-//        fresult = f_open(&file, fileName, FA_OPEN_ALWAYS | FA_WRITE);
-//        testInit = 1;
-//    }
-
-//    if(fresult == FR_OK && count > 0)
-//    {
-//        //写入数据
-//        f_printf(&file, "Welcome to use the BlueSky FlightControl %d!\n", count--);       
-//        
-//        //刷新缓存
-//        if(count % 500 == 0)
-//        {                      
-//            f_sync(&file);
-//        }
-//        
-//        //关闭文件
-//        if(count == 0)
-//        {
-//            fresult = f_close(&file);
-//        }
-//    }
+    f_write(&file, data, size, &btw);
 }
 
 

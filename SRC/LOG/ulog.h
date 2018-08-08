@@ -130,10 +130,24 @@ typedef struct
 
 typedef struct 
 {
-	uint64_t timestamp; 
-	float   angle_roll;
-	float   angle_pitch;
-	float   angle_yaw;
+	uint64_t timestamp;
+	int16_t  roll_rate;
+	int16_t  pitch_rate;
+	int16_t  yaw_rate;   
+	int16_t  roll_rate_sp;
+	int16_t  pitch_rate_sp;
+	int16_t  yaw_rate_sp;     
+	int16_t  roll;
+	int16_t  pitch;
+	int16_t  yaw;
+	int16_t  roll_sp;
+	int16_t  pitch_sp;
+	int16_t  yaw_sp;
+    int16_t  accel[3];
+    int16_t  velocity[3];
+    int16_t  velocity_sp[3];
+    int32_t  position[3];
+    int32_t  position_sp[3];
 }ULOG_DATA_t;
 
 #pragma pack () 

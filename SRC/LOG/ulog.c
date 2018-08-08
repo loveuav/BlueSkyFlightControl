@@ -25,9 +25,23 @@
 enum ULOG_DATA
 {
     TIMESTAMP,
-    ANGLE_ROLL,
-    ANGLE_PITCH,
-    ANGLE_YAW,
+    ROLL_RATE,
+	PITCH_RATE,
+	YAW_RATE,  
+	ROLL_RATE_SP,
+	PITCH_RATE_SP,
+	YAW_RATE_SP,     
+	ROLL,
+	PITCH,
+	YAW,
+	ROLL_SP,
+	PITCH_SP,
+	YAW_SP,
+    ACCEL,
+    VELOCITY,
+    VELOCITY_SP,
+    POSITION,
+    POSITION_SP,
     ULOG_DATA_NUM
 };
 
@@ -38,16 +52,72 @@ ULOG_FORMAT_t ulog_format[ULOG_DATA_NUM] =
         .data_name = "timestamp"
     },    
     {
-        .data_type = "float",
-        .data_name = "angle_roll"
+        .data_type = "int16_t",
+        .data_name = "roll_rate"
     },
     {
-        .data_type = "float",
-        .data_name = "angle_pitch"
+        .data_type = "int16_t",
+        .data_name = "pitch_rate"
     },
     {
-        .data_type = "float",
-        .data_name = "angle_yaw"
+        .data_type = "int16_t",
+        .data_name = "yaw_rate"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "roll_rate_sp"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "pitch_rate_sp"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "yaw_rate_sp"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "roll"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "pitch"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "yaw"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "roll_sp"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "pitch_sp"
+    },
+    {
+        .data_type = "int16_t",
+        .data_name = "yaw_sp"
+    },
+    {
+        .data_type = "int16_t[3]",
+        .data_name = "accel"
+    },
+    {
+        .data_type = "int16_t[3]",
+        .data_name = "velocity"
+    },
+    {
+        .data_type = "int16_t[3]",
+        .data_name = "velocity_sp"
+    },
+    {
+        .data_type = "int32_t[3]",
+        .data_name = "position"
+    },
+    {
+        .data_type = "int32_t[3]",
+        .data_name = "position_sp"
     },
 };
 
@@ -169,11 +239,35 @@ void UlogWriteData(void)
     header.msg_type = 'D';
     header.msg_id   = 0;
 
-    data.timestamp    = GetSysTimeUs();
-    data.angle_roll   = GetCopterAngle().x;
-    data.angle_pitch  = GetCopterAngle().y;   
-    data.angle_yaw    = GetCopterAngle().z;
-
+    data.timestamp      = GetSysTimeUs();
+    data.roll_rate      = Radians(GyroGetData().x) * 1000; 
+    data.pitch_rate     = Radians(GyroGetData().y) * 1000; 
+    data.yaw_rate       = Radians(GyroGetData().z) * 1000;    
+    data.roll_rate_sp   = 0; 
+    data.pitch_rate_sp  = 0; 
+    data.yaw_rate_sp    = 0;        
+    data.roll           = GetCopterAngle().x * 10;
+    data.pitch          = GetCopterAngle().y * 10;   
+    data.yaw            = GetCopterAngle().z * 10;
+    data.roll_sp        = 0; 
+    data.pitch_sp       = 0; 
+    data.yaw_sp         = 0; 
+    data.accel[0]       = GetCopterAccel().x * GRAVITY_ACCEL * 100;
+    data.accel[1]       = GetCopterAccel().y * GRAVITY_ACCEL * 100; 
+    data.accel[2]       = GetCopterAccel().z * GRAVITY_ACCEL * 100;
+    data.velocity[0]    = GetCopterVelocity().x * 100;
+    data.velocity[1]    = GetCopterVelocity().y * 100;
+    data.velocity[2]    = GetCopterVelocity().z * 100;
+    data.velocity_sp[0] = 0;
+    data.velocity_sp[1] = 0;
+    data.velocity_sp[2] = 0;    
+    data.position[0]    = GetCopterPosition().x * 100;
+    data.position[1]    = GetCopterPosition().y * 100;
+    data.position[2]    = GetCopterPosition().z * 100;
+    data.position_sp[0] = 0;
+    data.position_sp[1] = 0;
+    data.position_sp[2] = 0;    
+    
     LoggerWrite(&header, sizeof(header));
     LoggerWrite(&data, sizeof(data));
 }
