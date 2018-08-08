@@ -19,6 +19,7 @@
 #define GPS_DEFAULT_BAUDRATE 115200
 
 UBLOX_t ublox;
+UTC_TIME_t time; 
 static uint8_t recvStatus = 0;
 
 static void Ublox_Decode(uint8_t data);
@@ -26,6 +27,7 @@ static void UbloxEnableMessage(uint8_t class, uint8_t id, uint8_t rate);
 static void UbloxSetRate(uint16_t rate);
 static void UbloxSetPrt(uint32_t baudrate);
 static void UbloxSaveConfig(void);
+static void UTCTimeInit(void);
 
 /**********************************************************************************************************
 *函 数 名: Ublox_Init
@@ -64,7 +66,7 @@ void Ublox_Init(void)
         OsDelayMs(30);
         UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_SOL, 1);
         OsDelayMs(30);
-        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_DOP, 0);
+        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_TIMEUTC, 1);
         OsDelayMs(100);
         
         //检测是否已正确解析ublox数据
@@ -90,6 +92,9 @@ void Ublox_Init(void)
             break;
         }
     } 
+    
+    //UTC时间初始化
+    UTCTimeInit();
 }
 
 /**********************************************************************************************************
@@ -128,7 +133,13 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
                 ublox.fixStatus = ubloxRawData.payload.sol.gpsFix;
                 break;
             
-            case UBLOX_NAV_DOP:
+            case UBLOX_NAV_TIMEUTC:
+                time.year  = ubloxRawData.payload.time.year;
+                time.month = ubloxRawData.payload.time.month;
+                time.day   = ubloxRawData.payload.time.day;
+                time.hour  = ubloxRawData.payload.time.hour;
+                time.min   = ubloxRawData.payload.time.min;
+                time.sec   = ubloxRawData.payload.time.sec;
                 break;
             
             default:
@@ -460,5 +471,30 @@ static void UbloxSaveConfig(void)
     Ublox_SendData(ubloxData, dataCnt);
 }
 
+/**********************************************************************************************************
+*函 数 名: UtcTimeInit
+*功能说明: UTC时间初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+static void UTCTimeInit(void) 
+{
+    time.year  = 2015;
+    time.month = 1;
+    time.day   = 1;
+    time.hour  = 0;
+    time.min   = 0;
+    time.sec   = 0;
+}
 
+/**********************************************************************************************************
+*函 数 名: GetUTCTime
+*功能说明: 获取UTC时间
+*形    参: 无
+*返 回 值: utc时间
+**********************************************************************************************************/
+UTC_TIME_t GetUTCTime(void) 
+{
+    return time;
+}
 
