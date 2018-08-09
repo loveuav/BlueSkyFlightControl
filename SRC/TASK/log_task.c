@@ -34,7 +34,7 @@ portTASK_FUNCTION(vLogTask, pvParameters)
         //记录飞行日志
         LoggerLoop();
           
-        vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
+        vTaskDelayUntil(&xLastWakeTime, ((1000 / LOG_RATE) / portTICK_RATE_MS));
 	}
 }
 

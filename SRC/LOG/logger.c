@@ -134,12 +134,12 @@ void LoggerLoop(void)
             //记录基本飞行数据
             UlogWriteData_Flight();
 
-            //记录GPS数据
-            if(cnt % 10 == 0)
+            //记录GPS数据:10Hz
+            if(cnt % (LOG_RATE / 10) == 0)
                 UlogWriteData_GPS();
         
-            //固定间隔刷新文件缓存
-            if(cnt % 500 == 0)
+            //固定间隔刷新文件缓存:5秒
+            if(cnt % (LOG_RATE * 5) == 0)
                 fresult = f_sync(&file); 
             
             //上锁后停止记录log并关闭文件
