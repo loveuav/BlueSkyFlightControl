@@ -106,6 +106,7 @@ void LoggerLoop(void)
             strcpy(logPath, "0:ulog/");
             strcat(logPath, logName);
         
+            //创建文件
             fresult = f_open(&file, logPath, FA_CREATE_ALWAYS | FA_WRITE);
         
             if(fresult == FR_OK)
@@ -118,14 +119,12 @@ void LoggerLoop(void)
         case 2:
             //头部
             UlogWriteHeader();
-            //标志位
-            UlogWriteFlag();
             //数据格式定义
-            UlogWriteFormat("Flight", ulog_data_flight, ULOG_DATA_FLIGHT_NUM);
-            UlogWriteFormat("GPS", ulog_data_gps, ULOG_DATA_GPS_NUM);
+            UlogWriteFormat("flight", ulog_data_flight, ULOG_DATA_FLIGHT_NUM);
+            UlogWriteFormat("gps", ulog_data_gps, ULOG_DATA_GPS_NUM);
             //订阅数据
-            UlogWriteAddLogged("Flight", ULOG_DATA_FLIGHT_ID);
-            UlogWriteAddLogged("GPS", ULOG_DATA_GPS_ID);
+            UlogWriteAddLogged("flight", ULOG_DATA_FLIGHT_ID);
+            UlogWriteAddLogged("gps", ULOG_DATA_GPS_ID);
             state++;
             break; 
 

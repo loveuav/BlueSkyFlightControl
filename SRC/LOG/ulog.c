@@ -42,7 +42,7 @@ void UlogWriteHeader(void)
 	header.magic[5] = 0x12;
 	header.magic[6] = 0x35;
 	header.magic[7] = 0x01; //版本1
-	header.timestamp = 0;
+	header.timestamp = GetSysTimeUs();
 
     LoggerWrite(&header, sizeof(header));
 }
