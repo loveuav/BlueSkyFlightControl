@@ -31,9 +31,10 @@ portTASK_FUNCTION(vLogTask, pvParameters)
     xLastWakeTime = xTaskGetTickCount();
 	for(;;)
 	{
+        //记录飞行日志
         LoggerLoop();
           
-		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
+        vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
 	}
 }
 

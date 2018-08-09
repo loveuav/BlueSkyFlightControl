@@ -10,6 +10,7 @@
  * @日期     2018.08
 **********************************************************************************************************/
 #include "ulog.h"
+#include "ulog_data.h"
 #include "logger.h"
 #include <string.h>
 
@@ -21,105 +22,7 @@
 #include "magnetometer.h"
 #include "accelerometer.h"
 #include "barometer.h"
-
-enum ULOG_DATA
-{
-    TIMESTAMP,
-    ROLL_RATE,
-	PITCH_RATE,
-	YAW_RATE,  
-	ROLL_RATE_SP,
-	PITCH_RATE_SP,
-	YAW_RATE_SP,     
-	ROLL,
-	PITCH,
-	YAW,
-	ROLL_SP,
-	PITCH_SP,
-	YAW_SP,
-    ACCEL,
-    VELOCITY,
-    VELOCITY_SP,
-    POSITION,
-    POSITION_SP,
-    ULOG_DATA_NUM
-};
-
-ULOG_FORMAT_t ulog_format[ULOG_DATA_NUM] = 
-{
-    {
-        .data_type = "uint64_t",
-        .data_name = "timestamp"
-    },    
-    {
-        .data_type = "int16_t",
-        .data_name = "roll_rate"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "pitch_rate"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "yaw_rate"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "roll_rate_sp"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "pitch_rate_sp"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "yaw_rate_sp"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "roll"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "pitch"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "yaw"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "roll_sp"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "pitch_sp"
-    },
-    {
-        .data_type = "int16_t",
-        .data_name = "yaw_sp"
-    },
-    {
-        .data_type = "int16_t[3]",
-        .data_name = "accel"
-    },
-    {
-        .data_type = "int16_t[3]",
-        .data_name = "velocity"
-    },
-    {
-        .data_type = "int16_t[3]",
-        .data_name = "velocity_sp"
-    },
-    {
-        .data_type = "int32_t[3]",
-        .data_name = "position"
-    },
-    {
-        .data_type = "int32_t[3]",
-        .data_name = "position_sp"
-    },
-};
+#include "ublox.h"
 
 /**********************************************************************************************************
 *函 数 名: UlogWriteHeader
@@ -157,7 +60,7 @@ void UlogWriteFlag(void)
     memset(&flag, 0, sizeof(flag));
     
     flag.msg_size = 40;
-    flag.msg_type = 'B';
+    flag.msg_type = FLAG_BITS;
 
     LoggerWrite(&flag, sizeof(flag));
 }
@@ -165,10 +68,10 @@ void UlogWriteFlag(void)
 /**********************************************************************************************************
 *函 数 名: UlogWriteFormat
 *功能说明: ulog写入数据格式定义
-*形    参: 无
+*形    参: 格式类型 格式内容指针 格式内容数量
 *返 回 值: 无
 **********************************************************************************************************/
-void UlogWriteFormat(void)
+void UlogWriteFormat(char* formatType, ULOG_FORMAT_t* ulog_format, int16_t dataNum)
 {
 	ulog_message_format_s format;
     uint16_t dataCnt = 0;
@@ -177,12 +80,15 @@ void UlogWriteFormat(void)
     
     format.msg_size           = 0;
     format.msg_type           = FORMAT;
-    format.format[dataCnt++]  = 'l';
-    format.format[dataCnt++]  = 'o';
-    format.format[dataCnt++]  = 'g';
+    
+    for(uint8_t i=0; *(formatType + i) != '\0' ;i++)
+    {
+        format.format[dataCnt++] = *(formatType + i);
+    }
+
     format.format[dataCnt++]  = ':';
     
-    for(uint8_t i=0; i<ULOG_DATA_NUM; i++)
+    for(uint8_t i=0; i<dataNum; i++)
     {
         //写入数据类型
         memcpy(format.format+dataCnt, ulog_format[i].data_type, strlen(ulog_format[i].data_type));
@@ -207,37 +113,42 @@ void UlogWriteFormat(void)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void UlogWriteAddLogged(void)
+void UlogWriteAddLogged(char* logType, uint8_t msg_id)
 {
 	ulog_message_add_logged_s add_logged;
+    uint16_t dataCnt = 0;
     
     memset(&add_logged, 0, sizeof(add_logged));
     
-    add_logged.msg_size = 6;
+    add_logged.msg_size = 0;
     add_logged.msg_type = ADD_LOGGED_MSG;
     add_logged.multi_id = 0;
-    add_logged.msg_id   = 0;
-    add_logged.message_name[0] = 'l';
-    add_logged.message_name[1] = 'o';
-    add_logged.message_name[2] = 'g';
+    add_logged.msg_id   = msg_id;
+    
+    for(uint8_t i=0; *(logType + i) != '\0' ;i++)
+    {
+        add_logged.message_name[dataCnt++] = *(logType + i);
+    }
+    
+    add_logged.msg_size = 3 + dataCnt;
     
     LoggerWrite(&add_logged, add_logged.msg_size+3);
 }
 
 /**********************************************************************************************************
-*函 数 名: UlogWriteData
+*函 数 名: UlogWriteData_Flight
 *功能说明: ulog写入数据
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void UlogWriteData(void)
+void UlogWriteData_Flight(void)
 {
     ulog_message_data_header_s header;
-    ULOG_DATA_t data;
+    ULOG_DATA_FLIGHT_t data;
     
     header.msg_size = sizeof(data) + 2; //消息ID长度包括在内
     header.msg_type = DATA;
-    header.msg_id   = 0;
+    header.msg_id   = ULOG_DATA_FLIGHT_ID;
 
     data.timestamp      = GetSysTimeUs();
     data.roll_rate      = Radians(GyroGetData().x) * 1000; 
@@ -255,18 +166,52 @@ void UlogWriteData(void)
     data.accel[0]       = GetCopterAccel().x * GRAVITY_ACCEL * 100;
     data.accel[1]       = GetCopterAccel().y * GRAVITY_ACCEL * 100; 
     data.accel[2]       = GetCopterAccel().z * GRAVITY_ACCEL * 100;
-    data.velocity[0]    = GetCopterVelocity().x * 100;
-    data.velocity[1]    = GetCopterVelocity().y * 100;
-    data.velocity[2]    = GetCopterVelocity().z * 100;
+    data.velocity[0]    = GetCopterVelocity().x;
+    data.velocity[1]    = GetCopterVelocity().y;
+    data.velocity[2]    = GetCopterVelocity().z;
     data.velocity_sp[0] = 0;
     data.velocity_sp[1] = 0;
     data.velocity_sp[2] = 0;    
-    data.position[0]    = GetCopterPosition().x * 100;
-    data.position[1]    = GetCopterPosition().y * 100;
-    data.position[2]    = GetCopterPosition().z * 100;
+    data.position[0]    = GetCopterPosition().x;
+    data.position[1]    = GetCopterPosition().y;
+    data.position[2]    = GetCopterPosition().z;
     data.position_sp[0] = 0;
     data.position_sp[1] = 0;
     data.position_sp[2] = 0;    
+    
+    LoggerWrite(&header, sizeof(header));
+    LoggerWrite(&data, sizeof(data));
+}
+
+/**********************************************************************************************************
+*函 数 名: UlogWriteData_GPS
+*功能说明: ulog写入数据
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void UlogWriteData_GPS(void)
+{
+    ulog_message_data_header_s header;
+    ULOG_DATA_GPS_t data;
+    
+    header.msg_size = sizeof(data) + 2; //消息ID长度包括在内
+    header.msg_type = DATA;
+    header.msg_id   = ULOG_DATA_GPS_ID;
+
+    data.timestamp   = GetSysTimeUs();
+    data.latitude    = Ublox_GetData().latitude * 1e7;
+    data.longitude   = Ublox_GetData().longitude * 1e7;
+    data.altitude    = Ublox_GetData().altitude * 100;
+    data.velN        = Ublox_GetData().velN;		 
+    data.velE        = Ublox_GetData().velE;		
+    data.velD        = Ublox_GetData().velD;		
+    data.heading     = Ublox_GetData().heading;	   
+    data.hAcc        = Ublox_GetData().hAcc * 100;	 
+    data.vAcc        = Ublox_GetData().vAcc * 100;	  
+    data.sAcc        = Ublox_GetData().sAcc * 100;	      
+    data.cAcc        = Ublox_GetData().cAcc * 100;	
+    data.fixStatus   = Ublox_GetData().fixStatus;
+    data.numSV       = Ublox_GetData().numSV;	
     
     LoggerWrite(&header, sizeof(header));
     LoggerWrite(&data, sizeof(data));

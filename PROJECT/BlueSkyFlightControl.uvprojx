@@ -586,6 +586,11 @@
               <FileType>5</FileType>
               <FilePath>..\SRC\LOG\ulog.h</FilePath>
             </File>
+            <File>
+              <FileName>ulog_data.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\LOG\ulog_data.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

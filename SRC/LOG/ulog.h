@@ -128,35 +128,15 @@ typedef struct
 	char* data_name;
 }ULOG_FORMAT_t;
 
-typedef struct 
-{
-	uint64_t timestamp;
-	int16_t  roll_rate;
-	int16_t  pitch_rate;
-	int16_t  yaw_rate;   
-	int16_t  roll_rate_sp;
-	int16_t  pitch_rate_sp;
-	int16_t  yaw_rate_sp;     
-	int16_t  roll;
-	int16_t  pitch;
-	int16_t  yaw;
-	int16_t  roll_sp;
-	int16_t  pitch_sp;
-	int16_t  yaw_sp;
-    int16_t  accel[3];
-    int16_t  velocity[3];
-    int16_t  velocity_sp[3];
-    int32_t  position[3];
-    int32_t  position_sp[3];
-}ULOG_DATA_t;
-
 #pragma pack () 
 
 void UlogWriteHeader(void);
 void UlogWriteFlag(void);
-void UlogWriteFormat(void);
-void UlogWriteAddLogged(void);
-void UlogWriteData(void);
+void UlogWriteFormat(char* formatType, ULOG_FORMAT_t* ulog_format, int16_t dataNum);
+void UlogWriteAddLogged(char* logType, uint8_t msg_id);
+
+void UlogWriteData_Flight(void);
+void UlogWriteData_GPS(void);
 
 #endif
 

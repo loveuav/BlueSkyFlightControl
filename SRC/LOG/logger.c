@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "logger.h"
 #include "ulog.h"
+#include "ulog_data.h"
 
 #include "ff.h"		
 #include "diskio.h"	
@@ -21,7 +22,7 @@
 #include "flightStatus.h"
 #include "ublox.h"
 
-#define LOG_NAME_SIZE 23
+#define LOG_NAME_SIZE 19
 
 FATFS fs;
 FIL   file;
@@ -95,7 +96,7 @@ void LoggerLoop(void)
     
     switch(state)
     {
-        /*打开文件*/
+        /*创建文件*/
         case 1:
             //根据当前时间获取文件名
             GetLogNameByTime(logName);  
@@ -115,19 +116,30 @@ void LoggerLoop(void)
 
         /*写入log头部信息*/
         case 2:
+            //头部
             UlogWriteHeader();
+            //标志位
             UlogWriteFlag();
-            UlogWriteFormat();
-            UlogWriteAddLogged();
+            //数据格式定义
+            UlogWriteFormat("Flight", ulog_data_flight, ULOG_DATA_FLIGHT_NUM);
+            UlogWriteFormat("GPS", ulog_data_gps, ULOG_DATA_GPS_NUM);
+            //订阅数据
+            UlogWriteAddLogged("Flight", ULOG_DATA_FLIGHT_ID);
+            UlogWriteAddLogged("GPS", ULOG_DATA_GPS_ID);
             state++;
             break; 
 
-        /*写入飞控数据*/
+        /*记录飞控数据*/
         case 3:	  
-            UlogWriteData();
+            //记录基本飞行数据
+            UlogWriteData_Flight();
 
+            //记录GPS数据
+            if(cnt % 10 == 0)
+                UlogWriteData_GPS();
+        
             //固定间隔刷新文件缓存
-            if(cnt++ % 300 == 0)
+            if(cnt % 500 == 0)
                 fresult = f_sync(&file); 
             
             //上锁后停止记录log并关闭文件
@@ -136,6 +148,8 @@ void LoggerLoop(void)
                 fresult = f_close(&file);
                 state = 0;
             }
+            
+            cnt++;
             break;
         
         default:
@@ -170,25 +184,21 @@ static void GetLogNameByTime(TCHAR* name)
     name[1] = ((time.year / 100) % 10) + '0';
     name[2] = ((time.year / 10) % 10) + '0';
     name[3] = (time.year % 10) + '0';
-    name[4] = '-';
-    name[5] = (time.month / 10) + '0';
-    name[6] = (time.month % 10) + '0';
-    name[7] = '-';
-    name[8] = (time.day / 10) + '0';
-    name[9] = (time.day % 10) + '0';
-    name[10] = '-';
-    name[11] = (time.hour / 10) + '0';
-    name[12] = (time.hour % 10) + '0';
-    name[13] = '-';
-    name[14] = (time.min / 10) + '0';
-    name[15] = (time.min % 10) + '0';
-    name[16] = '-';
-    name[17] = (time.sec / 10) + '0';
-    name[18] = (time.sec % 10) + '0';
-    name[19] = '.';
-    name[20] = 'u';
-    name[21] = 'l';
-    name[22] = 'g';
+    name[4] = (time.month / 10) + '0';
+    name[5] = (time.month % 10) + '0';
+    name[6] = (time.day / 10) + '0';
+    name[7] = (time.day % 10) + '0';
+    name[8] = '_';
+    name[9] = (time.hour / 10) + '0';
+    name[10] = (time.hour % 10) + '0';
+    name[11] = (time.min / 10) + '0';
+    name[12] = (time.min % 10) + '0';
+    name[13] = (time.sec / 10) + '0';
+    name[14] = (time.sec % 10) + '0';
+    name[15] = '.';
+    name[16] = 'u';
+    name[17] = 'l';
+    name[18] = 'g';
 }
 
 
