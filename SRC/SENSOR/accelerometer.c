@@ -13,7 +13,7 @@
 #include "flightStatus.h"
 #include "sensor.h"
 #include "parameter.h"
-#include "gaussNewton.h"
+#include "LevenbergMarquardt.h"
 #include "message.h"
 #include "mavlinkSend.h"
 #include "mavlinkParam.h"
@@ -298,8 +298,8 @@ void AccCalibration(Vector3f_t accRaw)
 
 	if(acc.cali.step == 6 && samples_count == 501)
 	{		
-		//高斯牛顿法求解误差方程
-		GaussNewtonCalibrate(samples, &new_offset, &new_scale, 1, 20);
+		//LM法求解传感器误差方程最优解
+		LevenbergMarquardt(samples, &new_offset, &new_scale, 1);
 
 		//判断校准参数是否正常
 		if(fabsf(new_scale.x-1.0f) > 0.1f || fabsf(new_scale.y-1.0f) > 0.1f || fabsf(new_scale.z-1.0f) > 0.1f) 

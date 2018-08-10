@@ -407,11 +407,6 @@
               <FilePath>..\SRC\SYSTEM\flightStatus.h</FilePath>
             </File>
             <File>
-              <FileName>README.md</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\README.md</FilePath>
-            </File>
-            <File>
               <FileName>项目开发记录.md</FileName>
               <FileType>5</FileType>
               <FilePath>..\项目开发记录.md</FilePath>
@@ -622,11 +617,6 @@
               <FilePath>..\SRC\MATH\pid.c</FilePath>
             </File>
             <File>
-              <FileName>gaussNewton.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SRC\MATH\gaussNewton.c</FilePath>
-            </File>
-            <File>
               <FileName>lowPassFilter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\lowPassFilter.c</FilePath>
@@ -640,6 +630,11 @@
               <FileName>rotation.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\rotation.c</FilePath>
+            </File>
+            <File>
+              <FileName>LevenbergMarquardt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MATH\LevenbergMarquardt.c</FilePath>
             </File>
           </Files>
         </Group>

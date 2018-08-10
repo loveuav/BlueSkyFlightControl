@@ -13,7 +13,7 @@
 #include "module.h"
 #include "gyroscope.h"
 #include "parameter.h"
-#include "gaussNewton.h"
+#include "LevenbergMarquardt.h"
 #include "faultDetect.h"
 #include "message.h"
 #include "mavlinkSend.h"
@@ -220,8 +220,8 @@ void MagCalibration(void)
                 }
                 earthMag /= 6;
                 
-                //高斯牛顿法求解误差方程
-                GaussNewtonCalibrate(samples, &new_offset, &new_scale, earthMag, 30);
+                //LM法求解传感器误差方程最优解
+                LevenbergMarquardt(samples, &new_offset, &new_scale, earthMag);
                 
                 //判断校准参数是否正常
                 if(isnan(new_scale.x) || isnan(new_scale.y) || isnan(new_scale.z))
