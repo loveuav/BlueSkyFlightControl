@@ -16,7 +16,7 @@ double lm_lambda;
 
 static void UpdateMatrices(float dS[6], float JS[6][6], float beta[6], float data[3]);
 static void ResetMatrices(float dS[6], float JS[6][6]);
-static void FindDelta(float dS[6], float JS[6][6], float delta[6]);
+static void GaussEliminateSolveDelta(float dS[6], float JS[6][6], float delta[6]);
 
 /**********************************************************************************************************
 *函 数 名: LevenbergMarquardt
@@ -24,8 +24,7 @@ static void FindDelta(float dS[6], float JS[6][6], float delta[6]);
 *形    参: 传感器采样数据（6组） 零偏误差指针 比例误差指针 数据向量长度
 *返 回 值: 无
 **********************************************************************************************************/
-void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t* scale, 
-     float length)
+void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t* scale, float length)
 {
     uint32_t cnt    = 0;
     double   eps    = 0.000000001;
@@ -34,7 +33,7 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
     float    data[3];  
     float    beta[6];      //方程解
     float    delta[6];     //迭代步长
-    float    JtR[6];       //梯度
+    float    JtR[6];       //梯度矩阵
     float    JtJ[6][6];    //海森矩阵
     
     //误差方程：((x-b0) * b3)² + ((y-b1) * b4)² + ((z-b2) * b5)² - length² = 0
@@ -52,7 +51,7 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
         //矩阵初始化
         ResetMatrices(JtR, JtJ);
 
-        //计算误差方程函数的梯度和海森矩阵
+        //计算误差方程函数的梯度JtR和海森矩阵JtJ
         for(uint8_t i=0; i<6; i++) 
         {
             data[0] = inputData[i].x;
@@ -61,8 +60,8 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
             UpdateMatrices(JtR, JtJ, beta, data);
         }
 
-        //求解delta
-        FindDelta(JtR, JtJ, delta);
+        //高斯消元法求解方程：(JtJ + lambda*I) * delta = JtR，得到delta
+        GaussEliminateSolveDelta(JtR, JtJ, delta);
 
         //计算迭代步长
         changeTemp = delta[0]*delta[0] +
@@ -73,7 +72,7 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
                      delta[4]*delta[4] / (beta[4]*beta[4]) +
                      delta[5]*delta[5] / (beta[5]*beta[5]);
 
-        //根据步长大小决定如何更新LM因子
+        //根据步长大小更新LM因子
         //LM因子为0时，算法退化为高斯牛顿法，LM因子变大时，退化为步长较小的梯度下降法
         if(changeTemp < change)
         {
@@ -156,10 +155,10 @@ static void UpdateMatrices(float JtR[6], float JtJ[6][6], float beta[6], float d
 static void ResetMatrices(float JtR[6], float JtJ[6][6])
 {
     int16_t j,k;
-    for( j=0; j<6; j++ ) 
+    for(j=0; j<6; j++) 
     {
         JtR[j] = 0.0f;
-        for( k=0; k<6; k++ ) 
+        for(k=0; k<6; k++) 
         {
             JtJ[j][k] = 0.0f;
         }
@@ -167,12 +166,12 @@ static void ResetMatrices(float JtR[6], float JtJ[6][6])
 }
 
 /**********************************************************************************************************
-*函 数 名: FindDelta
-*功能说明: 求解方程，得到delta
+*函 数 名: GaussEliminateSolveDelta
+*功能说明: 高斯消元法求解方程: (JtJ + lambda*I) * delta = JtR
 *形    参: 梯度矩阵 海森矩阵 delta
 *返 回 值: 无
 **********************************************************************************************************/
-static void FindDelta(float JtR[6], float JtJ[6][6], float delta[6])
+static void GaussEliminateSolveDelta(float JtR[6], float JtJ[6][6], float delta[6])
 {
     int16_t i,j,k;
     float mu;
@@ -184,17 +183,17 @@ static void FindDelta(float JtR[6], float JtJ[6][6], float delta[6])
          JtJ[i][j] += lm_lambda;
     }
     
-    //make upper triangular
-    for( i=0; i<6; i++ )
+    //逐次消元，将线性方程组转换为上三角方程组
+    for(i=0; i<6; i++)
     {
-        //eliminate all nonzero entries below JtJ[i][i]
-        for( j=i+1; j<6; j++ )
+        //若JtJ[i][i]不为0，将该列在JtJ[i][i]以下的元素消为0
+        for(j=i+1; j<6; j++)
         {
             mu = JtJ[i][j] / JtJ[i][i];
-            if( mu != 0.0f ) 
+            if(mu != 0.0f) 
             {
                 JtR[j] -= mu * JtR[i];
-                for( k=j; k<6; k++ )
+                for(k=j; k<6; k++)
                 {
                     JtJ[k][j] -= mu * JtJ[k][i];
                 }
@@ -202,13 +201,13 @@ static void FindDelta(float JtR[6], float JtJ[6][6], float delta[6])
         }
     }
 
-    //back-substitute
-    for( i=5; i>=0; i-- )
+    //回代得到方程组的解
+    for(i=5; i>=0; i--)
     {
         JtR[i] /= JtJ[i][i];
         JtJ[i][i] = 1.0f;
         
-        for( j=0; j<i; j++ )
+        for(j=0; j<i; j++)
         {
             mu = JtJ[i][j];
             JtR[j] -= mu * JtR[i];
@@ -216,7 +215,7 @@ static void FindDelta(float JtR[6], float JtJ[6][6], float delta[6])
         }
     }
 
-    for( i=0; i<6; i++ )
+    for(i=0; i<6; i++)
     {
         delta[i] = JtR[i];
     }

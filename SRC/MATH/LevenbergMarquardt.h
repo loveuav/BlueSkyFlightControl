@@ -3,7 +3,6 @@
 
 #include "mathTool.h"
 
-void LevenbergMarquardt(Vector3f_t inputData[6],Vector3f_t* offset, Vector3f_t* scale, 
-     float length);
+void LevenbergMarquardt(Vector3f_t inputData[6],Vector3f_t* offset, Vector3f_t* scale, float length);
 
 #endif
