@@ -81,15 +81,13 @@ QQ:352707983
 ## 【深入浅出多旋翼飞控开发】
 本人以个人的一些浅陋经验，结合本飞控项目，编写的一系列教程，持续更新中。
 
-教程地址：http://bbs.loveuav.com/thread-11317-1-1.html
-
 目录
 
-[序：我的多旋翼飞控学习历程](http://bbs.loveuav.com/thread-11316-1-1.html)
+[序：我的多旋翼飞控学习之路](https://blog.csdn.net/loveuav/article/details/81592850)
 
 [概述篇：一.多旋翼飞控发展史](http://bbs.loveuav.com/thread-693-1-1.html)
 
-[概述篇：二.多旋翼飞控技术综述](http://bbs.loveuav.com/thread-11308-1-1.html)
+[概述篇：二.多旋翼飞控技术综述](https://blog.csdn.net/loveuav/article/details/81605417)
 
 [预备篇：一.元器件选型及飞控电路设计](http://bbs.loveuav.com/thread-11314-1-1.html)
 
@@ -137,7 +135,7 @@ QQ:352707983
 
 中级篇：七.自动返航功能的实现
 
-高级篇：一.基于椭球拟合的传感器校准
+[高级篇：一.非线性最小二乘与飞控传感器校准](https://blog.csdn.net/loveuav/article/details/81592870)
 
 高级篇：二.传感器的安装误差校准
 
