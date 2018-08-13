@@ -11,6 +11,11 @@
 **********************************************************************************************************/
 #include "LevenbergMarquardt.h"
 
+/*
+本算法的详细讲解：
+https://blog.csdn.net/loveuav/article/details/81592870
+*/
+
 //LM算法因子
 double lm_lambda;
 
@@ -35,8 +40,6 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
     float    delta[6];     //迭代步长
     float    JtR[6];       //梯度矩阵
     float    JtJ[6][6];    //海森矩阵
-    
-    //误差方程：((x-b0) * b3)² + ((y-b1) * b4)² + ((z-b2) * b5)² - length² = 0
 
     //方程解赋初值
     beta[0] = beta[1] = beta[2] = 0;
@@ -121,6 +124,8 @@ static void UpdateMatrices(float JtR[6], float JtJ[6][6], float beta[6], float d
     float residual = 1.0;
     float jacobian[6];
     
+    //误差方程：residual = length² - ((x-b0) * b3)² + ((y-b1) * b4)² + ((z-b2) * b5)²
+    //前面对参数进行了归一化，所以这里的length == 1
     for(j=0; j<3; j++) 
     { 
         b = beta[3+j];
