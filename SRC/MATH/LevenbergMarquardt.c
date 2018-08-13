@@ -179,8 +179,7 @@ static void GaussEliminateSolveDelta(float JtR[6], float JtJ[6][6], float delta[
     //加入LM因子
     for(i=0; i<6; i++)
     {
-        for(j=0; j<6; j++)
-         JtJ[i][j] += lm_lambda;
+         JtJ[i][i] += lm_lambda;
     }
     
     //逐次消元，将线性方程组转换为上三角方程组
