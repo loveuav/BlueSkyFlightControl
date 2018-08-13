@@ -68,9 +68,10 @@ void Adc_Init(void)
 uint16_t GetVoltageAdcValue(void)
 {
 	static uint16_t adcTemp;
-	
-	adcTemp = ADC_GetConversionValue(ADC_VOLTAGE);
-	return (adcTemp * 330 / 0xfff);
+
+    adcTemp = ADC_GetConversionValue(ADC_VOLTAGE) >> 4;
+    
+	return (adcTemp * 330 / 0xFFF);
 }
 
 /**********************************************************************************************************
@@ -83,8 +84,9 @@ uint16_t GetCurrentAdcValue(void)
 {
 	static uint16_t adcTemp;
 	
-	adcTemp = ADC_GetConversionValue(ADC_CURRENT);
-	return (adcTemp * 330 / 0xfff);
+	adcTemp = ADC_GetConversionValue(ADC_CURRENT) >> 4;
+    
+	return (adcTemp * 330 / 0xFFF);
 }
 
 
