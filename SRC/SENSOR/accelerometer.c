@@ -81,7 +81,7 @@ void AccDataPreTreat(Vector3f_t accRaw, Vector3f_t* accData)
 	acc.data.z = (acc.data.z - acc.cali.offset.z) * acc.cali.scale.z;	
 	
 	//水平误差校准
-	acc.data = VectorRotate(acc.data, acc.levelCali.scale);
+	acc.data = VectorRotateToBodyFrame(acc.data, acc.levelCali.scale);
 	
 	//低通滤波
 	acc.dataLpf = LowPassFilter2nd(&acc.lpf_2nd, acc.data);

@@ -34,7 +34,8 @@ Vector3f_t Vector3f_Sub(Vector3f_t v1, Vector3f_t v2);
 
 Vector3f_t VectorCrossProduct(Vector3f_t a, Vector3f_t b);
 Vector3f_t Matrix3MulVector3(float* m, Vector3f_t vector);
-Vector3f_t VectorRotate(Vector3f_t vector, Vector3f_t deltaAngle);
+Vector3f_t VectorRotateToBodyFrame(Vector3f_t vector, Vector3f_t deltaAngle);
+Vector3f_t VectorRotateToEarthFrame(Vector3f_t vector, Vector3f_t deltaAngle);
 
 void EulerAngleToDCM(Vector3f_t angle, float* dcM);
 

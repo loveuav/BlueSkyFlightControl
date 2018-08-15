@@ -64,19 +64,16 @@ int8_t AttitudeInitAlignment(Kalman_t* rollPitch, Kalman_t* yaw, Vector3f_t acc,
     
 	if(alignCnt > 0)
 	{
-		accSum.x += acc.x;
-		accSum.y += acc.y;
-		accSum.z += acc.z;
-		
-		magSum.x += mag.x;
-		magSum.y += mag.y;
-		magSum.z += mag.z;
-		
+        //传感器采样值累加
+        accSum = Vector3f_Add(accSum, acc);	
+		magSum = Vector3f_Add(magSum, mag);
+
 		alignCnt--;
 		return 0;
 	}
 	else
 	{
+        //求平均值
 		rollPitch->status.x = accSum.x / 200;
 		rollPitch->status.y = accSum.y / 200;
 		rollPitch->status.z = accSum.z / 200;
@@ -119,14 +116,10 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     accCompensate = AccSportCompensate(acc, GetSportAccEf(), ahrs.angle, ahrs.accBfOffset);
     
     //加速度零偏补偿
-    accCompensate.x -= ahrs.accBfOffset.x;
-    accCompensate.y -= ahrs.accBfOffset.y;
-    accCompensate.z -= ahrs.accBfOffset.z;    
+    accCompensate = Vector3f_Sub(accCompensate, ahrs.accBfOffset);  
 
     //向心加速度误差补偿
-    accCompensate.x -= ahrs.centripetalAccBf.x;
-    accCompensate.y -= ahrs.centripetalAccBf.y;
-    accCompensate.z -= ahrs.centripetalAccBf.z;
+    accCompensate = Vector3f_Sub(accCompensate, ahrs.centripetalAccBf);  
     
     //俯仰横滚角估计
     AttitudeEstimateRollPitch(deltaAngle, accCompensate);
@@ -224,9 +217,9 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	static float vectorErrorIntRate = 0.0005f;
     
 	//用向量叉积误差积分来补偿陀螺仪零偏噪声
-	deltaAngle.x += ahrs.vectorRollPitchErrorInt.x * ahrs.vectorRollPitchKI;
-	deltaAngle.y += ahrs.vectorRollPitchErrorInt.y * ahrs.vectorRollPitchKI;	
-	deltaAngle.z += ahrs.vectorRollPitchErrorInt.z * ahrs.vectorRollPitchKI;
+//	deltaAngle.x += ahrs.vectorRollPitchErrorInt.x * ahrs.vectorRollPitchKI;
+//	deltaAngle.y += ahrs.vectorRollPitchErrorInt.y * ahrs.vectorRollPitchKI;	
+//	deltaAngle.z += ahrs.vectorRollPitchErrorInt.z * ahrs.vectorRollPitchKI;
     
     //角度变化量转换为方向余弦矩阵
     EulerAngleToDCM(deltaAngle, dcMat);
@@ -343,17 +336,11 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 void BodyFrameToEarthFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vectorEf)
 {
 	Vector3f_t anglerad;
-	
-	anglerad.x = 0;
-	anglerad.y = -Radians(angle.y);
-	anglerad.z = 0;
-	vector = VectorRotate(vector, anglerad);	
-	
-	anglerad.x = -Radians(angle.x);
-	anglerad.y = 0;
-	vector = VectorRotate(vector, anglerad);
-    
-    *vectorEf = vector;
+
+	anglerad.x = Radians(angle.x);
+	anglerad.y = Radians(angle.y);
+	anglerad.z = 0;    
+    *vectorEf  = VectorRotateToEarthFrame(vector, anglerad); 
 }
 
 /**********************************************************************************************************
@@ -369,9 +356,7 @@ void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 	anglerad.x = Radians(angle.x);
 	anglerad.y = Radians(angle.y);
 	anglerad.z = 0;
-    vector = VectorRotate(vector, anglerad);
-
-    *vectorBf = vector;
+    *vectorBf  = VectorRotateToBodyFrame(vector, anglerad);
 }
 
 /**********************************************************************************************************
@@ -424,8 +409,8 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 		{
             //直接使用加速度数据计算姿态角
             AccVectorToRollPitchAngle(&accAngle, acc);
-            ahrs.angle.x = Degrees(accAngle.x);
-            ahrs.angle.y = Degrees(accAngle.y);
+            accAngle.x = Degrees(accAngle.x);
+            accAngle.y = Degrees(accAngle.y);
             
             //转换重力加速度到机体坐标系并计算零偏误差
             gravityBf.x = 0;

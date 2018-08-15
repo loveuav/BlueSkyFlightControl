@@ -111,7 +111,7 @@ Vector3f_t Matrix3MulVector3(float* m, Vector3f_t vector)
 
 /**********************************************************************************************************
 *函 数 名: EulerAngleToDCM
-*功能说明: 欧拉角转方向余弦矩阵
+*功能说明: 欧拉角转方向余弦矩阵（参考系到机体系）
 *形    参: 欧拉角 矩阵指针
 *返 回 值: 无
 **********************************************************************************************************/
@@ -138,12 +138,40 @@ void EulerAngleToDCM(Vector3f_t angle, float* dcM)
 }
 
 /**********************************************************************************************************
-*函 数 名: VectorRotate
-*功能说明: 三维向量的旋转
+*函 数 名: EulerAngleToDCM_T
+*功能说明: 欧拉角转方向余弦矩阵（机体系到参考系）
+*形    参: 欧拉角 矩阵指针
+*返 回 值: 无
+**********************************************************************************************************/
+void EulerAngleToDCM_T(Vector3f_t angle, float* dcM)
+{
+    Vector3f_t cos, sin;
+    
+    cos.x = cosf(angle.x);
+    cos.y = cosf(angle.y);
+    cos.z = cosf(angle.z);   
+    sin.x = sinf(angle.x);
+    sin.y = sinf(angle.y);
+    sin.z = sinf(angle.z);    
+
+    dcM[0] = cos.y * cos.z; 
+    dcM[1] = -sin.z * cos.y;
+    dcM[2] = -sin.y;
+    dcM[3] = sin.z * cos.x + sin.x * sin.y * cos.z; 
+    dcM[4] = cos.x * cos.z - sin.x * sin.y * sin.z;
+    dcM[5] = sin.x * cos.y;
+    dcM[6] = -sin.x * sin.z + sin.y * cos.x * cos.z; 
+    dcM[7] = -sin.x * cos.z - sin.y * sin.z * cos.x;
+    dcM[8] = cos.x * cos.y;
+}
+
+/**********************************************************************************************************
+*函 数 名: VectorRotateToBodyFrame
+*功能说明: 三维向量旋转至机体系
 *形    参: 三维向量 角度变化量（弧度）
 *返 回 值: 旋转后的三维向量
 **********************************************************************************************************/
-Vector3f_t VectorRotate(Vector3f_t vector, Vector3f_t deltaAngle)
+Vector3f_t VectorRotateToBodyFrame(Vector3f_t vector, Vector3f_t deltaAngle)
 {
     float dcMat[9];
 
@@ -155,15 +183,32 @@ Vector3f_t VectorRotate(Vector3f_t vector, Vector3f_t deltaAngle)
 }
 
 /**********************************************************************************************************
+*函 数 名: VectorRotateToEarthFrame
+*功能说明: 三维向量旋转至参考系
+*形    参: 三维向量 角度变化量（弧度）
+*返 回 值: 旋转后的三维向量
+**********************************************************************************************************/
+Vector3f_t VectorRotateToEarthFrame(Vector3f_t vector, Vector3f_t deltaAngle)
+{
+    float dcMat[9];
+
+    //欧拉角转为方向余弦矩阵
+    EulerAngleToDCM_T(deltaAngle, dcMat);
+
+    //方向余弦矩阵乘以向量，得到旋转后的新向量
+    return Matrix3MulVector3(dcMat, vector);
+}
+
+/**********************************************************************************************************
 *函 数 名: AccVectorToEulerAngle
-*功能说明: 根据加速度向量在机体系上的投影计算俯仰和横滚角
-*形    参: 姿态角指针 加速度向量
+*功能说明: 根据重力加速度向量在机体系上的投影计算俯仰和横滚角
+*形    参: 姿态角指针 加速度向量(已归一化）
 *返 回 值: 无
 **********************************************************************************************************/
 void AccVectorToRollPitchAngle(Vector3f_t* angle, Vector3f_t vector)
 {
-	angle->x = atan2f(-vector.y, Pythagorous2(vector.x, vector.z)); //横滚角
-	angle->y = atan2f(vector.x, vector.z);                          //俯仰角
+	angle->x = -asinf(vector.y);            //横滚角
+	angle->y = atan2f(vector.x, vector.z);  //俯仰角
 }
 
 /**********************************************************************************************************

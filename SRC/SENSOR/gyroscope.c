@@ -77,7 +77,7 @@ void GyroDataPreTreat(Vector3f_t gyroRaw, float temperature, Vector3f_t* gyroDat
 	gyro.data.z = (gyro.data.z - gyro.cali.offset.z) * gyro.cali.scale.z;	
 	
 	//安装误差校准
-    gyro.data = VectorRotate(gyro.data, GetLevelCalibraData());
+    gyro.data = VectorRotateToBodyFrame(gyro.data, GetLevelCalibraData());
  
 	//低通滤波
 	gyro.dataLpf = LowPassFilter2nd(&gyro.lpf_2nd, gyro.data);
