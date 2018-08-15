@@ -11,7 +11,6 @@
 **********************************************************************************************************/
 #include "vector3.h"
 
-
 /**********************************************************************************************************
 *函 数 名: Vector3iTo3f
 *功能说明: 向量类型转换
@@ -126,16 +125,16 @@ void EulerAngleToDCM(Vector3f_t angle, float* dcM)
     sin.x = sinf(angle.x);
     sin.y = sinf(angle.y);
     sin.z = sinf(angle.z);    
-    
+
     dcM[0] = cos.y * cos.z; 
-    dcM[1] = sin.z * cos.x + cos.z * sin.x * sin.y; 
-    dcM[2] = sin.z * sin.x - cos.z * cos.x * sin.y; 
-    dcM[3] = -cos.y * sin.z;
-    dcM[4] = cos.z * cos.x - sin.z * sin.x * sin.y;
-    dcM[5] = cos.z * sin.x + sin.z * cos.x * sin.y; 
-    dcM[6] = sin.y;
-    dcM[7] = -sin.x * cos.y;
-    dcM[8] = cos.y * cos.x;    
+    dcM[1] = sin.z * cos.x + sin.x * sin.y * cos.z; 
+    dcM[2] = -sin.x * sin.z + sin.y * cos.x * cos.z; 
+    dcM[3] = -sin.z * cos.y;
+    dcM[4] = cos.x * cos.z - sin.x * sin.y * sin.z;
+    dcM[5] = -sin.x * cos.z - sin.y * sin.z * cos.x; 
+    dcM[6] = -sin.y;
+    dcM[7] = sin.x * cos.y;
+    dcM[8] = cos.x * cos.y;
 }
 
 /**********************************************************************************************************
@@ -154,5 +153,29 @@ Vector3f_t VectorRotate(Vector3f_t vector, Vector3f_t deltaAngle)
     //方向余弦矩阵乘以向量，得到旋转后的新向量
     return Matrix3MulVector3(dcMat, vector);
 }
+
+/**********************************************************************************************************
+*函 数 名: AccVectorToEulerAngle
+*功能说明: 根据加速度向量在机体系上的投影计算俯仰和横滚角
+*形    参: 姿态角指针 加速度向量
+*返 回 值: 无
+**********************************************************************************************************/
+void AccVectorToRollPitchAngle(Vector3f_t* angle, Vector3f_t vector)
+{
+	angle->x = atan2f(-vector.y, Pythagorous2(vector.x, vector.z)); //横滚角
+	angle->y = atan2f(vector.x, vector.z);                          //俯仰角
+}
+
+/**********************************************************************************************************
+*函 数 名: MagVectorToEulerAngle
+*功能说明: 根据地磁场向量在机体系上的投影计算偏航角
+*形    参: 姿态角指针 地磁场向量
+*返 回 值: 无
+**********************************************************************************************************/
+void MagVectorToYawAngle(Vector3f_t* angle, Vector3f_t vector)
+{
+	angle->z = atan2f(-vector.y, vector.x);     //偏航角
+}
+
 
 

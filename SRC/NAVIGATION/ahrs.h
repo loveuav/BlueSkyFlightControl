@@ -12,9 +12,7 @@ typedef struct{
     float      vectorRollPitchKI;
     
 	Vector3f_t vectorYaw; 	
-	Vector3f_t vectorYawErrorInt;
-    float      vectorYawKI;	
-    
+
     Vector3f_t accEf;
 	Vector3f_t accEfLpf;
     Vector3f_t accBfOffset;

@@ -168,13 +168,15 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     ahrsAux.vectorRollPitch = kalmanAux.status;
     
 	//转换成欧拉角
-	ahrsAux.angle.x = Degrees(atan2f(ahrsAux.vectorRollPitch.y, Pythagorous2(ahrsAux.vectorRollPitch.x, ahrsAux.vectorRollPitch.z)));
-	ahrsAux.angle.y = Degrees(atan2f(-ahrsAux.vectorRollPitch.x, ahrsAux.vectorRollPitch.z));
-    
-    //表示姿态误差
-	ahrsAux.vectorRollPitchError.x = ahrsAux.vectorRollPitchError.x * 0.999f + (acc.x - ahrsAux.vectorRollPitch.x) * 0.001f;
-	ahrsAux.vectorRollPitchError.y = ahrsAux.vectorRollPitchError.y * 0.999f + (acc.y - ahrsAux.vectorRollPitch.y) * 0.001f;
-	ahrsAux.vectorRollPitchError.z = ahrsAux.vectorRollPitchError.z * 0.999f + (acc.z - ahrsAux.vectorRollPitch.z) * 0.001f;	
+    AccVectorToRollPitchAngle(&ahrsAux.angle, ahrsAux.vectorRollPitch);
+	ahrsAux.angle.x = Degrees(ahrsAux.angle.x);
+	ahrsAux.angle.y = Degrees(ahrsAux.angle.y);
+
+    //表示横滚和俯仰角误差
+    Vector3f_t accAngle;
+    AccVectorToRollPitchAngle(&accAngle, acc);
+	ahrsAux.angleError.x = ahrsAux.angleError.x * 0.999f + (ahrsAux.angle.x - Degrees(accAngle.x)) * 0.001f;
+	ahrsAux.angleError.y = ahrsAux.angleError.y * 0.999f + (ahrsAux.angle.y - Degrees(accAngle.y)) * 0.001f;  
 
     //转化加速度到地理坐标系
 	BodyFrameToEarthFrame(ahrsAux.angle, acc, &ahrsAux.accEf);

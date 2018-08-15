@@ -18,7 +18,7 @@
 **********************************************************************************************************/
 #define GYRO_ROTATION       ROTATION_ROLL_180_YAW_90
 #define ACC_ROTATION        ROTATION_ROLL_180_YAW_90
-#define MAG_ROTATION        ROTATION_ROLL_180_YAW_90
+#define MAG_ROTATION        ROTATION_ROLL_180
 
 /**********************************************************************************************************
 *传感器配置

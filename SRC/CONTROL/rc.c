@@ -138,7 +138,7 @@ static void RcCommandUpdate(void)
     {
         rcCommand.roll     = rcData.roll - 1500;
         rcCommand.pitch    = rcData.pitch - 1500;
-        rcCommand.yaw      = -(rcData.yaw - 1500);
+        rcCommand.yaw      = rcData.yaw - 1500;
         rcCommand.throttle = (rcData.throttle - 1000) * 2;  
     }   
     else

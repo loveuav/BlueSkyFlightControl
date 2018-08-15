@@ -56,7 +56,7 @@ void FlightControlInit(void)
 void SetRcTarget(RCTARGET_t rcTarget)
 {
     fc.rcTarget.roll  = fc.rcTarget.roll * 0.95f + rcTarget.roll * 0.05f;
-    fc.rcTarget.pitch = fc.rcTarget.pitch * 0.95f + rcTarget.pitch * 0.05f;
+    fc.rcTarget.pitch = fc.rcTarget.pitch * 0.95f + (-rcTarget.pitch) * 0.05f;
     fc.rcTarget.yaw   = fc.rcTarget.yaw * 0.95f + rcTarget.yaw * 0.05f;
     fc.rcTarget.throttle  = rcTarget.throttle;
 }
@@ -91,9 +91,9 @@ static Vector3f_t AttitudeInnerControl(Vector3f_t gyro, float deltaT)
 
     //限制俯仰和横滚轴的控制输出量
 	rateControlOutput.x = ConstrainInt32(rateControlOutput.x, -1000, +1000);	
-	rateControlOutput.y = ConstrainInt32(rateControlOutput.y, -1000, +1000);		
+	rateControlOutput.y = -ConstrainInt32(rateControlOutput.y, -1000, +1000);		
     //限制偏航轴控制输出量
-	rateControlOutput.z = -ConstrainInt32(rateControlOutput.z, -600, +600);	
+	rateControlOutput.z = ConstrainInt32(rateControlOutput.z, -600, +600);	
 
     return rateControlOutput;
 }
@@ -272,7 +272,7 @@ void AttitudeOuterControl(void)
             fc.attOuterError.z -= 360;
         
         //计算偏航轴PID控制量
-        attOuterCtlValue.z = -PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 1.0f;	
+        attOuterCtlValue.z = PID_GetP(&fc.pid[YAW_OUTER], fc.attOuterError.z) * 1.0f;	
         //限幅，单位为°/s
         attOuterCtlValue.z = ConstrainFloat(attOuterCtlValue.z, -50, 50);
 	}
@@ -294,7 +294,7 @@ void AttitudeOuterControl(void)
 void SetAttOuterCtlTarget(Vector3f_t target)
 {
     fc.attOuterTarget.x = target.x;
-    fc.attOuterTarget.y = target.y;
+    fc.attOuterTarget.y = -target.y;
 }
 
 /**********************************************************************************************************

@@ -91,6 +91,11 @@ void QMC5883_Update(void)
 	buffer[5] = QMC5883_ReadReg(QMC5883L_HZ_L);	
 	buffer[4] = QMC5883_ReadReg(QMC5883L_HZ_H); 
 	magRaw.z = (int16_t)buffer[4] << 8 | buffer[5];
+    
+    //统一传感器坐标系（并非定义安装方向）
+    magRaw.x = magRaw.x;
+    magRaw.y = -magRaw.y;
+    magRaw.z = magRaw.z;    
 }
 
 /**********************************************************************************************************

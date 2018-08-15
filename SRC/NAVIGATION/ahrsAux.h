@@ -5,8 +5,10 @@
 
 typedef struct{
 	Vector3f_t angle;	
+    Vector3f_t angleError;	
+    
 	Vector3f_t vectorRollPitch;
-	Vector3f_t vectorRollPitchError;
+
     Vector3f_t accEf;
 }AHRSAUX_t;
 

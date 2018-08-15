@@ -436,8 +436,8 @@ void ImuLevelCalibration(void)
 		acc.levelCali.should_cali = 0;
 		acc.levelCali.step = 2;
 		
-		caliTemp.x = atan2f(accAverage.y, Pythagorous2(accAverage.x, accAverage.z));
-		caliTemp.y = atan2f(-accAverage.x, Pythagorous2(accAverage.y, accAverage.z));
+        //加速度向量转化为姿态角
+        AccVectorToRollPitchAngle(&caliTemp, accAverage);
 		
 		if(abs(Degrees(caliTemp.x)) < 10 && abs(Degrees(caliTemp.y)) < 10)
 		{

@@ -176,7 +176,7 @@ static void KalmanRollPitchInit(void)
     kalmanRollPitch.fuseDelay.z = 1;
     
     //陀螺仪积分补偿系数
-    ahrs.vectorRollPitchKI = 0.00001f;
+    ahrs.vectorRollPitchKI = 0.00003f;
 }
 
 /**********************************************************************************************************
@@ -208,9 +208,6 @@ static void KalmanYawInit(void)
     kalmanYaw.fuseDelay.x = 1;
     kalmanYaw.fuseDelay.y = 1;
     kalmanYaw.fuseDelay.z = 1;
-    
-    //陀螺仪积分补偿系数
-    ahrs.vectorYawKI = 0.00002f;
 }
 
 /**********************************************************************************************************
@@ -241,25 +238,29 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     KalmanUpdate(&kalmanRollPitch, input, acc, true);
     ahrs.vectorRollPitch = kalmanRollPitch.status;
     
-	//转换成欧拉角
-	ahrs.angle.x = Degrees(atan2f(ahrs.vectorRollPitch.y, Pythagorous2(ahrs.vectorRollPitch.x, ahrs.vectorRollPitch.z)));
-	ahrs.angle.y = Degrees(atan2f(-ahrs.vectorRollPitch.x, ahrs.vectorRollPitch.z));
+	//加速度状态向量转换成姿态角，并由弧度制转为角度制
+    AccVectorToRollPitchAngle(&ahrs.angle, ahrs.vectorRollPitch);
+	ahrs.angle.x = Degrees(ahrs.angle.x);
+	ahrs.angle.y = Degrees(ahrs.angle.y);
     
 	//加速度观测值与姿态估计值进行叉积运算得到旋转误差矢量
-	vectorError = VectorCrossProduct(acc, ahrs.vectorRollPitch);
-    
+	vectorError = VectorCrossProduct(ahrs.vectorRollPitch, acc);
+      
 	//旋转误差矢量积分
 	ahrs.vectorRollPitchErrorInt.x += vectorError.x * vectorErrorIntRate;
 	ahrs.vectorRollPitchErrorInt.y += vectorError.y * vectorErrorIntRate;
 	ahrs.vectorRollPitchErrorInt.z += vectorError.z * vectorErrorIntRate;
+    
     //积分限幅
-	ahrs.vectorRollPitchErrorInt.x = ConstrainFloat(ahrs.vectorRollPitchErrorInt.x, -0.5f, 0.5f);
-	ahrs.vectorRollPitchErrorInt.y = ConstrainFloat(ahrs.vectorRollPitchErrorInt.y, -0.5f, 0.5f);
+	ahrs.vectorRollPitchErrorInt.x = ConstrainFloat(ahrs.vectorRollPitchErrorInt.x, -1.0f, 1.0f);
+	ahrs.vectorRollPitchErrorInt.y = ConstrainFloat(ahrs.vectorRollPitchErrorInt.y, -1.0f, 1.0f);
 	ahrs.vectorRollPitchErrorInt.z = ConstrainFloat(ahrs.vectorRollPitchErrorInt.z, -0.3f, 0.3f);    
 	
     //表示横滚和俯仰角误差
-	ahrs.angleError.x = ahrs.angleError.x * 0.999f + (ahrs.angle.x - Degrees(atan2f(acc.y, Pythagorous2(acc.x, acc.z)))) * 0.001f;
-	ahrs.angleError.y = ahrs.angleError.y * 0.999f + (ahrs.angle.y - Degrees(atan2f(-acc.x, acc.z))) * 0.001f;  
+    Vector3f_t accAngle;
+    AccVectorToRollPitchAngle(&accAngle, acc);
+	ahrs.angleError.x = ahrs.angleError.x * 0.999f + (ahrs.angle.x - Degrees(accAngle.x)) * 0.001f;
+	ahrs.angleError.y = ahrs.angleError.y * 0.999f + (ahrs.angle.y - Degrees(accAngle.y)) * 0.001f;  
 }
 
 /**********************************************************************************************************
@@ -290,8 +291,6 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
     static bool fuseFlag = true;
     static uint32_t count = 0;
     Vector3f_t vectorYawEf;
- 	static Vector3f_t vectorError;	
-	static float vectorErrorIntRate = 0.0003f;
     
     //磁强数据更新频率要低于陀螺仪，因此磁强数据未更新时只进行状态预估计
     //陀螺仪更新频率1KHz，磁力计更新频率100Hz
@@ -304,11 +303,6 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
         fuseFlag = false;
     }
     count++;
-    
-    //用向量叉积误差积分来补偿陀螺仪零偏噪声
-	deltaAngle.x += ahrs.vectorYawErrorInt.x * ahrs.vectorYawKI;
-	deltaAngle.y += ahrs.vectorYawErrorInt.y * ahrs.vectorYawKI;	
-	deltaAngle.z += ahrs.vectorYawErrorInt.z * ahrs.vectorYawKI;
     
     //角度变化量转换为方向余弦矩阵
     EulerAngleToDCM(deltaAngle, dcMat);
@@ -323,29 +317,19 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
 	//转换磁场向量估计量到地理坐标系
 	BodyFrameToEarthFrame(ahrs.angle, ahrs.vectorYaw, &vectorYawEf);
     
-	//转换成欧拉角，并减去磁偏角误差
-	ahrs.angle.z = Degrees(atan2f(vectorYawEf.y, vectorYawEf.x)) - GetMagDeclination();    
+	//地磁场状态向量转换成姿态角，并由弧度制转为角度制，最后修正磁偏角误差
+    //磁偏角东偏为正，西偏为负，中国除新疆外大部分地区为西偏，比如深圳地区为-2°左右
+    MagVectorToYawAngle(&ahrs.angle, vectorYawEf);
+	ahrs.angle.z = Degrees(ahrs.angle.z) + GetMagDeclination();    
     
     //将航向角限制为0-360°
     ahrs.angle.z = WrapDegree360(ahrs.angle.z);
-    
-	//磁强观测值与航向估计值进行叉积运算得到旋转误差矢量
-	vectorError = VectorCrossProduct(mag, ahrs.vectorYaw);
-    
-	//旋转误差矢量积分
-	ahrs.vectorYawErrorInt.x += vectorError.x * vectorErrorIntRate;
-	ahrs.vectorYawErrorInt.y += vectorError.y * vectorErrorIntRate;
-	ahrs.vectorYawErrorInt.z += vectorError.z * vectorErrorIntRate;
-    //积分限幅
-	ahrs.vectorYawErrorInt.x = ConstrainFloat(ahrs.vectorYawErrorInt.x, -0.1f, 0.1f);
-	ahrs.vectorYawErrorInt.y = ConstrainFloat(ahrs.vectorYawErrorInt.y, -0.1f, 0.1f);
-	ahrs.vectorYawErrorInt.z = ConstrainFloat(ahrs.vectorYawErrorInt.z, -0.1f, 0.1f);    
-	
+
     //表示偏航角误差	
     Vector3f_t magEf;
     float yawAngle;    
     BodyFrameToEarthFrame(ahrs.angle, mag, &magEf);
-    yawAngle = Degrees(atan2f(magEf.y, magEf.x)) - GetMagDeclination();  
+    yawAngle = Degrees(atan2f(-magEf.y, magEf.x)) + GetMagDeclination();  
     yawAngle = WrapDegree360(yawAngle);
     ahrs.angleError.z = ahrs.angleError.z * 0.999f + (ahrs.angle.z - yawAngle) * 0.001f;  
 }
@@ -386,6 +370,7 @@ void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 	anglerad.y = Radians(angle.y);
 	anglerad.z = 0;
     vector = VectorRotate(vector, anglerad);
+
     *vectorBf = vector;
 }
 
@@ -417,10 +402,7 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         acc.x -= (gravityBf.x + accBfOffset->x);
         acc.y -= (gravityBf.y + accBfOffset->y);
         acc.z -= (gravityBf.z + accBfOffset->z);
-        
-        //加速度正反轴比例误差补偿
-        //AccScaleCalibrate(&acc);
-        
+
         //转化加速度到地理坐标系
         BodyFrameToEarthFrame(angle, acc, accEf);
         
@@ -428,9 +410,6 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         accEf->x -= ahrs.centripetalAcc.x;
         accEf->y -= ahrs.centripetalAcc.y;
         
-        //转换坐标系（西北天）到东北天
-        accEf->y = -accEf->y;	
-		
 		//地理系加速度低通滤波
 		accEfLpf->x = accEfLpf->x * 0.99f + accEf->x * 0.01f;
 		accEfLpf->y = accEfLpf->y * 0.99f + accEf->y * 0.01f;
@@ -444,8 +423,9 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
 		if(GetPlaceStatus() == STATIC)
 		{
             //直接使用加速度数据计算姿态角
-            accAngle.x = Degrees(atan2f(acc.y, Pythagorous2(acc.x, acc.z)));
-            accAngle.y = Degrees(atan2f(-acc.x, acc.z));
+            AccVectorToRollPitchAngle(&accAngle, acc);
+            ahrs.angle.x = Degrees(accAngle.x);
+            ahrs.angle.y = Degrees(accAngle.y);
             
             //转换重力加速度到机体坐标系并计算零偏误差
             gravityBf.x = 0;
