@@ -219,7 +219,7 @@ void AccVectorToRollPitchAngle(Vector3f_t* angle, Vector3f_t vector)
 **********************************************************************************************************/
 void MagVectorToYawAngle(Vector3f_t* angle, Vector3f_t vector)
 {
-	angle->z = atan2f(-vector.y, vector.x);     //偏航角
+	angle->z = -atan2f(vector.y, vector.x);     //偏航角
 }
 
 

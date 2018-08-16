@@ -24,8 +24,8 @@
 AHRS_t ahrs;
 Kalman_t kalmanRollPitch, kalmanYaw;
 
-static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc);
-static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag);
+static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float deltaT);
+static void AttitudeEstimateYaw(Vector3f_t gyro, Vector3f_t mag, float deltaT);
 static void KalmanRollPitchInit(void);
 static void KalmanYawInit(void);
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfLpf, Vector3f_t* accBfOffset);
@@ -96,7 +96,6 @@ int8_t AttitudeInitAlignment(Kalman_t* rollPitch, Kalman_t* yaw, Vector3f_t acc,
 **********************************************************************************************************/
 void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
 {
-    Vector3f_t deltaAngle;	
     Vector3f_t accCompensate;
 	static uint64_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
@@ -106,11 +105,6 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     //姿态初始对准
     if(!AttitudeInitAlignment(&kalmanRollPitch, &kalmanYaw, acc, mag))
         return;
-    
-	//计算角度变化量，单位为弧度
-	deltaAngle.x = Radians(gyro.x * deltaT); 
-	deltaAngle.y = Radians(gyro.y * deltaT); 
-	deltaAngle.z = Radians(gyro.z * deltaT);	    
     
     //运动加速度补偿
     accCompensate = AccSportCompensate(acc, GetSportAccEf(), ahrs.angle, ahrs.accBfOffset);
@@ -122,10 +116,10 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     accCompensate = Vector3f_Sub(accCompensate, ahrs.centripetalAccBf);  
     
     //俯仰横滚角估计
-    AttitudeEstimateRollPitch(deltaAngle, accCompensate);
+    AttitudeEstimateRollPitch(gyro, accCompensate, deltaT);
     
     //偏航角估计
-    AttitudeEstimateYaw(deltaAngle, mag);
+    AttitudeEstimateYaw(gyro, mag, deltaT);
     
     //计算飞行器在地理坐标系下的运动加速度
     TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accEfLpf, &ahrs.accBfOffset);
@@ -167,9 +161,6 @@ static void KalmanRollPitchInit(void)
     kalmanRollPitch.fuseDelay.x = 1;
     kalmanRollPitch.fuseDelay.y = 1;
     kalmanRollPitch.fuseDelay.z = 1;
-    
-    //陀螺仪积分补偿系数
-    ahrs.vectorRollPitchKI = 0.00003f;
 }
 
 /**********************************************************************************************************
@@ -206,20 +197,24 @@ static void KalmanYawInit(void)
 /**********************************************************************************************************
 *函 数 名: AttitudeEstimateRollPitch
 *功能说明: 俯仰与横滚角估计
-*形    参: 描述姿态转动的方向余弦矩阵 加速度测量值
+*形    参: 角速度 加速度测量值 时间间隔
 *返 回 值: 无
 **********************************************************************************************************/
-static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
+static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float deltaT)
 {
+    Vector3f_t deltaAngle;
     static Vector3f_t input = {0, 0, 0};
     float dcMat[9];
  	static Vector3f_t vectorError;	
-	static float vectorErrorIntRate = 0.0005f;
     
-	//用向量叉积误差积分来补偿陀螺仪零偏噪声
-//	deltaAngle.x += ahrs.vectorRollPitchErrorInt.x * ahrs.vectorRollPitchKI;
-//	deltaAngle.y += ahrs.vectorRollPitchErrorInt.y * ahrs.vectorRollPitchKI;	
-//	deltaAngle.z += ahrs.vectorRollPitchErrorInt.z * ahrs.vectorRollPitchKI;
+    //修正陀螺仪零偏
+    gyro.x -= ahrs.gyroBias.x; 
+    gyro.y -= ahrs.gyroBias.y; 
+    
+    //一阶积分计算角度变化量，单位为弧度
+	deltaAngle.x = Radians(gyro.x * deltaT); 
+	deltaAngle.y = Radians(gyro.y * deltaT); 
+	deltaAngle.z = Radians(gyro.z * deltaT); 
     
     //角度变化量转换为方向余弦矩阵
     EulerAngleToDCM(deltaAngle, dcMat);
@@ -236,18 +231,14 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
 	ahrs.angle.x = Degrees(ahrs.angle.x);
 	ahrs.angle.y = Degrees(ahrs.angle.y);
     
-	//加速度观测值与姿态估计值进行叉积运算得到旋转误差矢量
-	vectorError = VectorCrossProduct(ahrs.vectorRollPitch, acc);
-      
-	//旋转误差矢量积分
-	ahrs.vectorRollPitchErrorInt.x += vectorError.x * vectorErrorIntRate;
-	ahrs.vectorRollPitchErrorInt.y += vectorError.y * vectorErrorIntRate;
-	ahrs.vectorRollPitchErrorInt.z += vectorError.z * vectorErrorIntRate;
-    
-    //积分限幅
-	ahrs.vectorRollPitchErrorInt.x = ConstrainFloat(ahrs.vectorRollPitchErrorInt.x, -1.0f, 1.0f);
-	ahrs.vectorRollPitchErrorInt.y = ConstrainFloat(ahrs.vectorRollPitchErrorInt.y, -1.0f, 1.0f);
-	ahrs.vectorRollPitchErrorInt.z = ConstrainFloat(ahrs.vectorRollPitchErrorInt.z, -0.3f, 0.3f);    
+	//加速度向量观测值与估计值进行叉积运算得到旋转误差矢量
+	vectorError = VectorCrossProduct(acc, ahrs.vectorRollPitch);
+
+    //陀螺仪零偏估计
+    ahrs.gyroBias.x += 0.3f * (vectorError.x * deltaT);
+    ahrs.gyroBias.y += 0.3f * (vectorError.y * deltaT);
+    ahrs.gyroBias.x = ConstrainFloat(ahrs.gyroBias.x, -1.0f, 1.0f);
+    ahrs.gyroBias.y = ConstrainFloat(ahrs.gyroBias.y, -1.0f, 1.0f);   
 	
     //表示横滚和俯仰角误差
     Vector3f_t accAngle;
@@ -274,11 +265,12 @@ void AttCovarianceSelfAdaptation(void)
 /**********************************************************************************************************
 *函 数 名: AttitudeEstimateYaw
 *功能说明: 航向角估计
-*形    参: 描述姿态转动的方向余弦矩阵 磁场强度测量值
+*形    参: 角速度 磁场强度测量值 时间间隔
 *返 回 值: 无
 **********************************************************************************************************/
-static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
+static void AttitudeEstimateYaw(Vector3f_t gyro, Vector3f_t mag, float deltaT)
 {
+    Vector3f_t deltaAngle;
     static Vector3f_t input = {0, 0, 0};
     float dcMat[9];
     static bool fuseFlag = true;
@@ -296,6 +288,11 @@ static void AttitudeEstimateYaw(Vector3f_t deltaAngle, Vector3f_t mag)
         fuseFlag = false;
     }
     count++;
+
+    //一阶积分计算角度变化量，单位为弧度
+	deltaAngle.x = Radians(gyro.x * deltaT); 
+	deltaAngle.y = Radians(gyro.y * deltaT); 
+	deltaAngle.z = Radians(gyro.z * deltaT); 
     
     //角度变化量转换为方向余弦矩阵
     EulerAngleToDCM(deltaAngle, dcMat);
