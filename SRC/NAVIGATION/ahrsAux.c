@@ -22,7 +22,7 @@ AHRSAUX_t ahrsAux;
 Kalman_t kalmanAux;
 
 static void KalmanAuxInit(void);
-static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc);
+static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float deltaT);
 
 /**********************************************************************************************************
 *函 数 名: AHRSAuxInit
@@ -54,9 +54,8 @@ int8_t AttitudeAuxInitAlignment(Kalman_t* rollPitch, Vector3f_t acc)
     
 	if(alignCnt > 0)
 	{
-		accSum.x += acc.x;
-		accSum.y += acc.y;
-		accSum.z += acc.z;
+		//传感器采样值累加
+        accSum = Vector3f_Add(accSum, acc);	
 		
 		alignCnt--;
 		return 0;
@@ -81,7 +80,6 @@ int8_t AttitudeAuxInitAlignment(Kalman_t* rollPitch, Vector3f_t acc)
 **********************************************************************************************************/
 void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc)
 {
-    Vector3f_t deltaAngle;	
 	static uint64_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
     deltaT = ConstrainFloat(deltaT, 0.0005, 0.002);	
@@ -91,18 +89,11 @@ void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc)
     if(!AttitudeAuxInitAlignment(&kalmanAux, acc))
         return;
     
-	//计算角度变化量，单位为弧度
-	deltaAngle.x = Radians(gyro.x * deltaT); 
-	deltaAngle.y = Radians(gyro.y * deltaT); 
-	deltaAngle.z = Radians(gyro.z * deltaT);	    
-    
     //补偿向心加速度误差
-    acc.x -= GetCentripetalAccBf().x;
-    acc.y -= GetCentripetalAccBf().y;
-    acc.z -= GetCentripetalAccBf().z;
+    acc = Vector3f_Sub(acc, GetCentripetalAccBf());	
     
     //俯仰横滚角估计
-    AttitudeEstimateRollPitch(deltaAngle, acc);
+    AttitudeEstimateRollPitch(gyro, acc, deltaT);
 }
 
 /**********************************************************************************************************
@@ -138,12 +129,13 @@ static void KalmanAuxInit(void)
 
 /**********************************************************************************************************
 *函 数 名: AttitudeEstimateRollPitch
-*功能说明: 俯仰与横滚角估计
-*形    参: 描述姿态转动的方向余弦矩阵 加速度测量值
+*功能说明: 俯仰与横滚角估计 
+*形    参: 角速度 加速度测量值 时间间隔
 *返 回 值: 无
 **********************************************************************************************************/
-static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
+static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float deltaT)
 {
+    Vector3f_t deltaAngle;	
     static Vector3f_t input = {0, 0, 0};
     float dcMat[9];
     static bool fuseFlag = true;
@@ -156,6 +148,11 @@ static void AttitudeEstimateRollPitch(Vector3f_t deltaAngle, Vector3f_t acc)
     {
         fuseFlag = true;
     }
+    
+    //计算角度变化量，单位为弧度
+	deltaAngle.x = Radians(gyro.x * deltaT); 
+	deltaAngle.y = Radians(gyro.y * deltaT); 
+	deltaAngle.z = Radians(gyro.z * deltaT);	
     
     //角度变化量转换为方向余弦矩阵
     EulerAngleToDCM(deltaAngle, dcMat);
