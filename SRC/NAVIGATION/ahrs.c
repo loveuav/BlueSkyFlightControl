@@ -108,9 +108,6 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     
     //运动加速度补偿
     accCompensate = AccSportCompensate(acc, GetSportAccEf(), ahrs.angle, ahrs.accBfOffset);
-    
-    //加速度零偏补偿
-    accCompensate = Vector3f_Sub(accCompensate, ahrs.accBfOffset);  
 
     //向心加速度误差补偿
     accCompensate = Vector3f_Sub(accCompensate, ahrs.centripetalAccBf);  
@@ -235,8 +232,8 @@ static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float del
 	vectorError = VectorCrossProduct(acc, ahrs.vectorRollPitch);
 
     //陀螺仪零偏估计
-    ahrs.gyroBias.x += 0.3f * (vectorError.x * deltaT);
-    ahrs.gyroBias.y += 0.3f * (vectorError.y * deltaT);
+    ahrs.gyroBias.x += 0.2f * (vectorError.x * deltaT);
+    ahrs.gyroBias.y += 0.2f * (vectorError.y * deltaT);
     ahrs.gyroBias.x = ConstrainFloat(ahrs.gyroBias.x, -1.0f, 1.0f);
     ahrs.gyroBias.y = ConstrainFloat(ahrs.gyroBias.y, -1.0f, 1.0f);   
 	
@@ -448,9 +445,7 @@ static Vector3f_t AccSportCompensate(Vector3f_t acc, Vector3f_t sportAccEf, Vect
     EarthFrameToBodyFrame(angle, sportAccEf, &sportAccBf);
     
     //减去加速度零偏
-    sportAccBf.x -= accBfOffset.x;
-    sportAccBf.y -= accBfOffset.y;    
-    sportAccBf.z -= accBfOffset.z;
+    sportAccBf = Vector3f_Sub(sportAccBf, accBfOffset);
     
     //应用死区
     sportAccBf.x = ApplyDeadbandFloat(sportAccBf.x, 0.03f);
