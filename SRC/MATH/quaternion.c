@@ -110,7 +110,7 @@ void QuaternionToDCM_T(float q[4], float dcM[9])
 **********************************************************************************************************/
 Vector3f_t QuaternionRotateToEarthFrame(float q[4], Vector3f_t vector)
 {
-    float dcM[9];
+    static float dcM[9];
     QuaternionToDCM_T(q, dcM);
     return Matrix3MulVector3(dcM, vector);
 }
@@ -123,7 +123,7 @@ Vector3f_t QuaternionRotateToEarthFrame(float q[4], Vector3f_t vector)
 **********************************************************************************************************/
 Vector3f_t QuaternionRotateToBodyFrame(float q[4], Vector3f_t vector)
 {
-    float dcM[9];
+    static float dcM[9];
     QuaternionToDCM(q, dcM);
     return Matrix3MulVector3(dcM, vector);
 }
@@ -142,9 +142,7 @@ void QuaternionToEulerAngle(float q[4], Vector3f_t* angle)
 
 	angle->x = -asinf(-dcM[7]);           
 	angle->y = atan2f(-dcM[6], dcM[8]); 
-//    angle->x = atan2f(dcM[7], dcM[8]);
-//    angle->y = -asinf(dcM[6]);
-    angle->z = -atan2f(dcM[3], dcM[0]);
+    angle->z = -atan2f(dcM[3], dcM[4]);
 }
 
 /**********************************************************************************************************

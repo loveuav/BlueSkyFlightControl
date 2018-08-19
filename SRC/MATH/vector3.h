@@ -27,6 +27,8 @@ typedef struct{
 	int32_t z;
 }Vector3l_t;
 
+void Vector3f_Normalize(Vector3f_t* vector);
+
 Vector3f_t Vector3iTo3f(Vector3i_t vector);
 Vector3i_t Vector3fTo3i(Vector3f_t vector);
 Vector3f_t Vector3f_Add(Vector3f_t v1, Vector3f_t v2);
