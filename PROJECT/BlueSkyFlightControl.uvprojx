@@ -636,6 +636,11 @@
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\LevenbergMarquardt.c</FilePath>
             </File>
+            <File>
+              <FileName>quaternion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MATH\quaternion.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

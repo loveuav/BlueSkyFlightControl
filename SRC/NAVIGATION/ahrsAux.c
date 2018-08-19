@@ -38,10 +38,10 @@ void AHRSAuxInit(void)
 /**********************************************************************************************************
 *函 数 名: AttitudeAuxInitAlignment
 *功能说明: 辅助姿态初始对准
-*形    参: 横滚俯仰的卡尔曼结构体指针 加速度测量值 
+*形    参: 横滚俯仰的卡尔曼结构体指针 加速度测量值 磁力计测量值
 *返 回 值: 对准完成状态
 **********************************************************************************************************/
-int8_t AttitudeAuxInitAlignment(Kalman_t* rollPitch, Vector3f_t acc)
+int8_t AttitudeAuxInitAlignment(Kalman_t* rollPitch, Vector3f_t acc, Vector3f_t mag)
 {
 	static int16_t alignCnt = 200;
 	static Vector3f_t accSum;
@@ -75,10 +75,10 @@ int8_t AttitudeAuxInitAlignment(Kalman_t* rollPitch, Vector3f_t acc)
 /**********************************************************************************************************
 *函 数 名: AttitudeAuxEstimate
 *功能说明: 辅助姿态估计
-*形    参: 角速度测量值 加速度测量值
+*形    参: 角速度测量值 加速度测量值 磁力计测量值
 *返 回 值: 无
 **********************************************************************************************************/
-void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc)
+void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
 {
 	static uint64_t previousT;
 	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
@@ -86,14 +86,20 @@ void AttitudeAuxEstimate(Vector3f_t gyro, Vector3f_t acc)
 	previousT = GetSysTimeUs();		  
 
     //姿态初始对准
-    if(!AttitudeAuxInitAlignment(&kalmanAux, acc))
+    if(!AttitudeAuxInitAlignment(&kalmanAux, acc, mag))
         return;
     
     //补偿向心加速度误差
     acc = Vector3f_Sub(acc, GetCentripetalAccBf());	
     
-    //俯仰横滚角估计
+    //姿态估计
     AttitudeEstimateRollPitch(gyro, acc, deltaT);
+    
+    //转化加速度到地理坐标系
+	BodyFrameToEarthFrame(ahrsAux.angle, acc, &ahrsAux.accEf);
+
+    //减去重力加速度(0,0,g)    
+	ahrsAux.accEf.z = ahrsAux.accEf.z - 1;  
 }
 
 /**********************************************************************************************************
@@ -173,13 +179,7 @@ static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float del
     Vector3f_t accAngle;
     AccVectorToRollPitchAngle(&accAngle, acc);
 	ahrsAux.angleError.x = ahrsAux.angleError.x * 0.999f + (ahrsAux.angle.x - Degrees(accAngle.x)) * 0.001f;
-	ahrsAux.angleError.y = ahrsAux.angleError.y * 0.999f + (ahrsAux.angle.y - Degrees(accAngle.y)) * 0.001f;  
-
-    //转化加速度到地理坐标系
-	BodyFrameToEarthFrame(ahrsAux.angle, acc, &ahrsAux.accEf);
-
-    //减去重力加速度(0,0,g)    
-	ahrsAux.accEf.z = ahrsAux.accEf.z - 1;   
+	ahrsAux.angleError.y = ahrsAux.angleError.y * 0.999f + (ahrsAux.angle.y - Degrees(accAngle.y)) * 0.001f;   
 }
 
 /**********************************************************************************************************

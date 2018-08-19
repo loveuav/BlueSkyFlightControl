@@ -49,7 +49,7 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 		xQueueReceive(messageQueue[ACC_DATA_PRETREAT], &acc, (3 / portTICK_RATE_MS)); 	
 
         //辅助姿态估计
-        AttitudeAuxEstimate(*gyro, *acc);
+        AttitudeAuxEstimate(*gyro, *acc, MagGetData());
         
         //姿态卡尔曼测量噪声协方差参数自适应
         AttCovarianceSelfAdaptation();
