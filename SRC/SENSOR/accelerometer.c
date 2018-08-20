@@ -50,8 +50,21 @@ void AccPreTreatInit(void)
         acc.cali.scale.y = 1;
         acc.cali.scale.z = 1;
     } 
+
+    if(abs(acc.cali.offset.x) > 1 || abs(acc.cali.offset.y) > 1 || abs(acc.cali.offset.z) > 1 ||
+       abs(acc.cali.scale.x) > 2 || abs(acc.cali.scale.y) > 2 || abs(acc.cali.scale.z) > 2 ||
+       abs(acc.cali.scale.x) < 0.3f || abs(acc.cali.scale.y) < 0.3f || abs(acc.cali.scale.z) < 0.3f)
+    {
+        acc.cali.offset.x = 0;
+        acc.cali.offset.y = 0;
+        acc.cali.offset.z = 0;
+        acc.cali.scale.x = 1;
+        acc.cali.scale.y = 1;
+        acc.cali.scale.z = 1;
+    } 
     
-    if(isnan(acc.levelCali.scale.x) || isnan(acc.levelCali.scale.y) || isnan(acc.levelCali.scale.z))
+    if(isnan(acc.levelCali.scale.x) || isnan(acc.levelCali.scale.y) || isnan(acc.levelCali.scale.z) ||
+       abs(acc.levelCali.scale.x) > 0.2f || abs(acc.levelCali.scale.y) > 0.2f || abs(acc.levelCali.scale.z) > 0.2f)
     {
         acc.levelCali.scale.x = 0;
         acc.levelCali.scale.y = 0;

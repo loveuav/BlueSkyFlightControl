@@ -222,7 +222,7 @@ Vector3f_t VectorRotateToEarthFrame(Vector3f_t vector, Vector3f_t deltaAngle)
 **********************************************************************************************************/
 void AccVectorToRollPitchAngle(Vector3f_t* angle, Vector3f_t vector)
 {
-	angle->x = -asinf(vector.y);            //横滚角
+	angle->x = -SafeArcsin(vector.y);       //横滚角
 	angle->y = atan2f(vector.x, vector.z);  //俯仰角
 }
 

@@ -21,6 +21,7 @@
 
 #define HALF_SQRT_2          0.70710678118654757f	//根号2的值
 
+float SafeArcsin(float v);
 float ConstrainFloat(float amt, float low, float high);
 int16_t ConstrainInt16(int16_t amt, int16_t low, int16_t high);
 uint16_t ConstrainUint16(uint16_t amt, uint16_t low, uint16_t high);

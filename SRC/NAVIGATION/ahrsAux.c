@@ -19,6 +19,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+//姿态估计算法选择，目前基于四元数的算法还存在问题
 #define AHRS_AUX_USE_DCM_KF
 //#define AHRS_AUX_USE_QUATERNION_CF
 //#define AHRS_AUX_USE_QUATERNION_KF
