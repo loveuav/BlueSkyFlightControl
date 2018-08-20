@@ -24,8 +24,7 @@
 AHRS_t ahrs;
 Kalman_t kalmanRollPitch, kalmanYaw;
 
-static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float deltaT);
-static void AttitudeEstimateYaw(Vector3f_t gyro, Vector3f_t mag, float deltaT);
+static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag, float deltaT);
 static void KalmanRollPitchInit(void);
 static void KalmanYawInit(void);
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfLpf, Vector3f_t* accBfOffset);
@@ -112,20 +111,19 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     //向心加速度误差补偿
     accCompensate = Vector3f_Sub(accCompensate, ahrs.centripetalAccBf);  
     
-    //俯仰横滚角估计
-    AttitudeEstimateRollPitch(gyro, accCompensate, deltaT);
+    //姿态更新
+    AttitudeEstimateUpdate(&ahrs.angle, gyro, acc, mag, deltaT);
     
-    //偏航角估计
-    AttitudeEstimateYaw(gyro, mag, deltaT);
-    
-    //计算飞行器在地理坐标系下的运动加速度
+    //计算导航系下的运动加速度
     TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accEfLpf, &ahrs.accBfOffset);
     
-    //计算飞行器在地理坐标系下的角速度
+    //转换角速度至导航系
     GyroEfUpdate(gyro, ahrs.angle, &ahrs.gyroEf);
     
-    //计算飞行过程中产生的向心加速度误差
+    //计算导航系下的向心加速度
     CentripetalAccUpdate(&ahrs.centripetalAcc, GetCopterVelocity(), ahrs.gyroEf.z);
+    
+    //转换向心加速度至机体系，用于姿态更新补偿
     EarthFrameToBodyFrame(ahrs.angle, ahrs.centripetalAcc, &ahrs.centripetalAccBf);
 }
 
@@ -169,7 +167,7 @@ static void KalmanRollPitchInit(void)
 static void KalmanYawInit(void)
 {
     float qMatInit[9] = {0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.001};
-    float rMatInit[9] = {2000, 0,  0, 0, 2000, 0, 0, 0, 2000};
+    float rMatInit[9] = {2500, 0,  0, 0, 2500, 0, 0, 0, 2500};
     float pMatInit[9] = {0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5};
     float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
@@ -192,21 +190,25 @@ static void KalmanYawInit(void)
 }
 
 /**********************************************************************************************************
-*函 数 名: AttitudeEstimateRollPitch
-*功能说明: 俯仰与横滚角估计
-*形    参: 角速度 加速度测量值 时间间隔
+*函 数 名: AttitudeEstimateUpdate
+*功能说明: 姿态更新
+*形    参: 姿态角指针 角速度 加速度测量值 磁力计测量值 时间间隔
 *返 回 值: 无
 **********************************************************************************************************/
-static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float deltaT)
+static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag, float deltaT)
 {
     Vector3f_t deltaAngle;
+    static Vector3f_t gError;	
+    static Vector3f_t gyro_bias = {0, 0, 0};    //陀螺仪零偏
     static Vector3f_t input = {0, 0, 0};
     float dcMat[9];
- 	static Vector3f_t vectorError;	
+    Vector3f_t mVectorEf;
+    static uint32_t count = 0;
     
     //修正陀螺仪零偏
-    gyro.x -= ahrs.gyroBias.x; 
-    gyro.y -= ahrs.gyroBias.y; 
+    gyro.x -= gyro_bias.x; 
+    gyro.y -= gyro_bias.y; 
+    gyro.z -= gyro_bias.z; 
     
     //一阶积分计算角度变化量，单位为弧度
 	deltaAngle.x = Radians(gyro.x * deltaT); 
@@ -218,30 +220,58 @@ static void AttitudeEstimateRollPitch(Vector3f_t gyro, Vector3f_t acc, float del
     
     //更新卡尔曼状态转移矩阵
     KalmanStateTransMatSet(&kalmanRollPitch, dcMat);
+    KalmanStateTransMatSet(&kalmanYaw, dcMat);
     
     //卡尔曼滤波器更新
+    //磁强数据更新频率要低于陀螺仪，因此磁强数据未更新时只进行状态预估计
     KalmanUpdate(&kalmanRollPitch, input, acc, true);
-    ahrs.vectorRollPitch = kalmanRollPitch.status;
+    KalmanUpdate(&kalmanYaw, input, mag, count++ % 10 == 0?true:false);   
     
-	//加速度状态向量转换成姿态角，并由弧度制转为角度制
-    AccVectorToRollPitchAngle(&ahrs.angle, ahrs.vectorRollPitch);
-	ahrs.angle.x = Degrees(ahrs.angle.x);
-	ahrs.angle.y = Degrees(ahrs.angle.y);
+	//计算俯仰与横滚角
+    AccVectorToRollPitchAngle(angle, kalmanRollPitch.status);
+	angle->x = Degrees(angle->x);
+	angle->y = Degrees(angle->y);
     
-	//加速度向量观测值与估计值进行叉积运算得到旋转误差矢量
-	vectorError = VectorCrossProduct(acc, ahrs.vectorRollPitch);
+    //计算偏航角，并修正磁偏角误差
+    //磁偏角东偏为正，西偏为负，中国除新疆外大部分地区为西偏，比如深圳地区为-2°左右
+	BodyFrameToEarthFrame(*angle, kalmanYaw.status, &mVectorEf);
+    MagVectorToYawAngle(angle, mVectorEf);
+	angle->z = WrapDegree360(Degrees(angle->z) + GetMagDeclination());      
+    
+	//向量观测值与估计值进行叉积运算得到旋转误差矢量
+	gError = VectorCrossProduct(acc, kalmanRollPitch.status);
+    BodyFrameToEarthFrame(*angle, gError, &gError);
+    
+    //计算偏航误差
+    float magAngle;
+    BodyFrameToEarthFrame(*angle, mag, &mVectorEf);
+    magAngle = WrapDegree360(Degrees(atan2f(-mVectorEf.y, mVectorEf.x)) + GetMagDeclination());   
+    if(abs(angle->z - magAngle) < 10)
+    {
+       gError.z = Radians(angle->z - magAngle);
+    }
 
     //陀螺仪零偏估计
-    ahrs.gyroBias.x += 0.2f * (vectorError.x * deltaT);
-    ahrs.gyroBias.y += 0.2f * (vectorError.y * deltaT);
-    ahrs.gyroBias.x = ConstrainFloat(ahrs.gyroBias.x, -1.0f, 1.0f);
-    ahrs.gyroBias.y = ConstrainFloat(ahrs.gyroBias.y, -1.0f, 1.0f);   
+    gyro_bias.x += 0.2f * (gError.x * deltaT);
+    gyro_bias.y += 0.2f * (gError.y * deltaT);
+    gyro_bias.z += 0.2f * (gError.z * deltaT);
+    
+    //陀螺仪零偏限幅
+    gyro_bias.x = ConstrainFloat(gyro_bias.x, -1.0f, 1.0f);
+    gyro_bias.y = ConstrainFloat(gyro_bias.y, -1.0f, 1.0f);   
+    gyro_bias.z = ConstrainFloat(gyro_bias.z, -1.0f, 1.0f); 
 	
-    //表示横滚和俯仰角误差
-    Vector3f_t accAngle;
-    AccVectorToRollPitchAngle(&accAngle, acc);
-	ahrs.angleError.x = ahrs.angleError.x * 0.999f + (ahrs.angle.x - Degrees(accAngle.x)) * 0.001f;
-	ahrs.angleError.y = ahrs.angleError.y * 0.999f + (ahrs.angle.y - Degrees(accAngle.y)) * 0.001f;  
+    /************************************近似计算姿态角误差，用于观察和调试**********************************/
+    Vector3f_t angleObserv;
+    AccVectorToRollPitchAngle(&angleObserv, acc);
+	ahrs.angleError.x = ahrs.angleError.x * 0.999f + (angle->x - Degrees(angleObserv.x)) * 0.001f;
+	ahrs.angleError.y = ahrs.angleError.y * 0.999f + (angle->y - Degrees(angleObserv.y)) * 0.001f;  
+    
+    Vector3f_t magEf;    
+    BodyFrameToEarthFrame(*angle, mag, &magEf);
+    angleObserv.z = WrapDegree360(Degrees(atan2f(-magEf.y, magEf.x)) + GetMagDeclination());  
+    ahrs.angleError.z = ahrs.angleError.z * 0.999f + (angle->z - angleObserv.z) * 0.001f;  
+    /********************************************************************************************************/
 }
 
 /**********************************************************************************************************
@@ -257,68 +287,6 @@ void AttCovarianceSelfAdaptation(void)
     kalmanRollPitch.r[0] = Sq(45 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
     kalmanRollPitch.r[4] = Sq(45 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));	
     kalmanRollPitch.r[8] = Sq(45 * (1 + ConstrainFloat(accelMag * 10, 0, 9)));
-}
-
-/**********************************************************************************************************
-*函 数 名: AttitudeEstimateYaw
-*功能说明: 航向角估计
-*形    参: 角速度 磁场强度测量值 时间间隔
-*返 回 值: 无
-**********************************************************************************************************/
-static void AttitudeEstimateYaw(Vector3f_t gyro, Vector3f_t mag, float deltaT)
-{
-    Vector3f_t deltaAngle;
-    static Vector3f_t input = {0, 0, 0};
-    float dcMat[9];
-    static bool fuseFlag = true;
-    static uint32_t count = 0;
-    Vector3f_t vectorYawEf;
-    
-    //磁强数据更新频率要低于陀螺仪，因此磁强数据未更新时只进行状态预估计
-    //陀螺仪更新频率1KHz，磁力计更新频率100Hz
-    if(count % 10 == 0)
-    {
-        fuseFlag = true;
-    }
-    else
-    {
-        fuseFlag = false;
-    }
-    count++;
-
-    //一阶积分计算角度变化量，单位为弧度
-	deltaAngle.x = Radians(gyro.x * deltaT); 
-	deltaAngle.y = Radians(gyro.y * deltaT); 
-	deltaAngle.z = Radians(gyro.z * deltaT); 
-    
-    //角度变化量转换为方向余弦矩阵
-    EulerAngleToDCM(deltaAngle, dcMat);
-    
-    //更新卡尔曼状态转移矩阵    
-    KalmanStateTransMatSet(&kalmanYaw, dcMat);
-
-    //卡尔曼滤波器更新    
-    KalmanUpdate(&kalmanYaw, input, mag, fuseFlag);   
-	ahrs.vectorYaw = kalmanYaw.status;  
-    
-	//转换磁场向量估计量到地理坐标系
-	BodyFrameToEarthFrame(ahrs.angle, ahrs.vectorYaw, &vectorYawEf);
-    
-	//地磁场状态向量转换成姿态角，并由弧度制转为角度制，最后修正磁偏角误差
-    //磁偏角东偏为正，西偏为负，中国除新疆外大部分地区为西偏，比如深圳地区为-2°左右
-    MagVectorToYawAngle(&ahrs.angle, vectorYawEf);
-	ahrs.angle.z = Degrees(ahrs.angle.z) + GetMagDeclination();    
-    
-    //将航向角限制为0-360°
-    ahrs.angle.z = WrapDegree360(ahrs.angle.z);
-
-    //表示偏航角误差	
-    Vector3f_t magEf;
-    float yawAngle;    
-    BodyFrameToEarthFrame(ahrs.angle, mag, &magEf);
-    yawAngle = Degrees(atan2f(-magEf.y, magEf.x)) + GetMagDeclination();  
-    yawAngle = WrapDegree360(yawAngle);
-    ahrs.angleError.z = ahrs.angleError.z * 0.999f + (ahrs.angle.z - yawAngle) * 0.001f;  
 }
 
 /**********************************************************************************************************

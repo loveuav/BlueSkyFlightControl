@@ -6,15 +6,11 @@
 typedef struct{
 	Vector3f_t angle;	
     Vector3f_t angleError;	
-    
-	Vector3f_t vectorRollPitch;
-	Vector3f_t vectorYaw; 	
 
     Vector3f_t accEf;
 	Vector3f_t accEfLpf;
     Vector3f_t accBfOffset;
 	
-    Vector3f_t gyroBias;
 	Vector3f_t gyroEf;
 	
 	Vector3f_t centripetalAcc;
