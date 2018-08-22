@@ -73,13 +73,13 @@ int8_t AttitudeInitAlignment(Kalman_t* rollPitch, Kalman_t* yaw, Vector3f_t acc,
 	else
 	{
         //求平均值
-		rollPitch->status.x = accSum.x / 200;
-		rollPitch->status.y = accSum.y / 200;
-		rollPitch->status.z = accSum.z / 200;
+		rollPitch->state.x = accSum.x / 200;
+		rollPitch->state.y = accSum.y / 200;
+		rollPitch->state.z = accSum.z / 200;
 
-		yaw->status.x = magSum.x / 200;
-		yaw->status.y = magSum.y / 200;		
-		yaw->status.z = magSum.z / 200;
+		yaw->state.x = magSum.x / 200;
+		yaw->state.y = magSum.y / 200;		
+		yaw->state.z = magSum.z / 200;
 		
         alignFinishFlag = 1;
         
@@ -152,7 +152,7 @@ static void KalmanRollPitchInit(void)
     
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
     kalmanRollPitch.slidWindowSize = 1;
-    kalmanRollPitch.statusSlidWindow = pvPortMalloc(kalmanRollPitch.slidWindowSize * sizeof(kalmanRollPitch.status));
+    kalmanRollPitch.statusSlidWindow = pvPortMalloc(kalmanRollPitch.slidWindowSize * sizeof(kalmanRollPitch.state));
     kalmanRollPitch.fuseDelay.x = 1;
     kalmanRollPitch.fuseDelay.y = 1;
     kalmanRollPitch.fuseDelay.z = 1;
@@ -183,7 +183,7 @@ static void KalmanYawInit(void)
  
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
     kalmanYaw.slidWindowSize = 1;
-    kalmanYaw.statusSlidWindow = pvPortMalloc(kalmanYaw.slidWindowSize * sizeof(kalmanYaw.status));
+    kalmanYaw.statusSlidWindow = pvPortMalloc(kalmanYaw.slidWindowSize * sizeof(kalmanYaw.state));
     kalmanYaw.fuseDelay.x = 1;
     kalmanYaw.fuseDelay.y = 1;
     kalmanYaw.fuseDelay.z = 1;
@@ -228,18 +228,18 @@ static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_
     KalmanUpdate(&kalmanYaw, input, mag, count++ % 10 == 0?true:false);   
     
 	//计算俯仰与横滚角
-    AccVectorToRollPitchAngle(angle, kalmanRollPitch.status);
+    AccVectorToRollPitchAngle(angle, kalmanRollPitch.state);
 	angle->x = Degrees(angle->x);
 	angle->y = Degrees(angle->y);
     
     //计算偏航角，并修正磁偏角误差
     //磁偏角东偏为正，西偏为负，中国除新疆外大部分地区为西偏，比如深圳地区为-2°左右
-	BodyFrameToEarthFrame(*angle, kalmanYaw.status, &mVectorEf);
+	BodyFrameToEarthFrame(*angle, kalmanYaw.state, &mVectorEf);
     MagVectorToYawAngle(angle, mVectorEf);
 	angle->z = WrapDegree360(Degrees(angle->z) + GetMagDeclination());      
     
 	//向量观测值与估计值进行叉积运算得到旋转误差矢量
-	gError = VectorCrossProduct(acc, kalmanRollPitch.status);
+	gError = VectorCrossProduct(acc, kalmanRollPitch.state);
     BodyFrameToEarthFrame(*angle, gError, &gError);
     
     //计算偏航误差
@@ -252,9 +252,9 @@ static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_
     }
 
     //陀螺仪零偏估计
-    gyro_bias.x += 0.2f * (gError.x * deltaT);
-    gyro_bias.y += 0.2f * (gError.y * deltaT);
-    gyro_bias.z += 0.2f * (gError.z * deltaT);
+    gyro_bias.x += (gError.x * deltaT) * 0.2f;
+    gyro_bias.y += (gError.y * deltaT) * 0.2f;
+    gyro_bias.z += (gError.z * deltaT) * 0.05f;
     
     //陀螺仪零偏限幅
     gyro_bias.x = ConstrainFloat(gyro_bias.x, -1.0f, 1.0f);

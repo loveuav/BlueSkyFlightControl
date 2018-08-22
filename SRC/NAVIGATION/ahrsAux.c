@@ -79,9 +79,9 @@ int8_t AttitudeAuxInitAlignment(Kalman_t* kalman, float q[4],Vector3f_t acc, Vec
 		magSum.z = magSum.z / 200;
         
         //卡尔曼状态量初始化
-		kalman->status.x = accSum.x;
-		kalman->status.y = accSum.y;
-		kalman->status.z = accSum.z;
+		kalman->state.x = accSum.x;
+		kalman->state.y = accSum.y;
+		kalman->state.z = accSum.z;
 
         //计算姿态欧拉角
         AccVectorToRollPitchAngle(&angle, accSum);
@@ -157,7 +157,7 @@ static void KalmanAuxInit(void)
     
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
     kalmanAux.slidWindowSize = 1;
-    kalmanAux.statusSlidWindow = pvPortMalloc(kalmanAux.slidWindowSize * sizeof(kalmanAux.status));
+    kalmanAux.statusSlidWindow = pvPortMalloc(kalmanAux.slidWindowSize * sizeof(kalmanAux.state));
     kalmanAux.fuseDelay.x = 1;
     kalmanAux.fuseDelay.y = 1;
     kalmanAux.fuseDelay.z = 1;
@@ -198,7 +198,7 @@ void RollPitchUpdateByKF(Vector3f_t* angle, Vector3f_t gyro, Vector3f_t acc, flo
     
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanAux, input, acc, fuseFlag);
-    ahrsAux.vectorRollPitch = kalmanAux.status;
+    ahrsAux.vectorRollPitch = kalmanAux.state;
     
 	//转换成欧拉角
     AccVectorToRollPitchAngle(angle, ahrsAux.vectorRollPitch);

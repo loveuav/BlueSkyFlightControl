@@ -102,7 +102,7 @@ void VelocityEstimate(void)
 
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanVel, input, nav.velMeasure, fuseFlag);
-    nav.velocity = kalmanVel.status;
+    nav.velocity = kalmanVel.state;
     
     //计算误差积分
     nav.velErrorInt.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * velErrorIntRate;
@@ -169,7 +169,7 @@ void PositionEstimate(void)
     
     //卡尔曼滤波器更新
     KalmanUpdate(&kalmanPos, input, nav.posMeasure, fuseFlag);
-    nav.position = kalmanPos.status;    
+    nav.position = kalmanPos.state;    
 }
 
 /**********************************************************************************************************
@@ -298,7 +298,7 @@ static void KalmanVelInit(void)
     
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
     kalmanVel.slidWindowSize = 220;
-    kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.status));
+    kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.state));
     kalmanVel.fuseDelay.x = 220;    //0.22s延时
     kalmanVel.fuseDelay.y = 220;    //0.22s延时
     kalmanVel.fuseDelay.z = 200;    //0.2s延时
@@ -329,7 +329,7 @@ static void KalmanPosInit(void)
  
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题    
     kalmanPos.slidWindowSize = 200;
-    kalmanPos.statusSlidWindow = pvPortMalloc(kalmanPos.slidWindowSize * sizeof(kalmanPos.status));
+    kalmanPos.statusSlidWindow = pvPortMalloc(kalmanPos.slidWindowSize * sizeof(kalmanPos.state));
     kalmanPos.fuseDelay.x = 200;    //0.2s延时
     kalmanPos.fuseDelay.y = 200;    //0.2s延时
     kalmanPos.fuseDelay.z = 100;    //0.1s延时
@@ -343,21 +343,21 @@ static void KalmanPosInit(void)
 **********************************************************************************************************/
 void NavigationReset(void)
 {
-    kalmanVel.status.x = 0;
-    kalmanVel.status.y = 0;    
-    kalmanVel.status.z = 0;    
+    kalmanVel.state.x = 0;
+    kalmanVel.state.y = 0;    
+    kalmanVel.state.z = 0;    
 
     if(GpsGetFixStatus())
     {
-        kalmanPos.status.x = GpsGetPosition().x;
-        kalmanPos.status.y = GpsGetPosition().y;  
+        kalmanPos.state.x = GpsGetPosition().x;
+        kalmanPos.state.y = GpsGetPosition().y;  
     }
     else
     {
-        kalmanPos.status.x = 0;
-        kalmanPos.status.y = 0;  
+        kalmanPos.state.x = 0;
+        kalmanPos.state.y = 0;  
     }    
-    kalmanPos.status.z = BaroGetAlt();   
+    kalmanPos.state.z = BaroGetAlt();   
 
 	nav.velocity2.x = 0;
 	nav.velocity2.y = 0;

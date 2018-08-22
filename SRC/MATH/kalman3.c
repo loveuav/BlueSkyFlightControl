@@ -29,7 +29,7 @@ void KalmanUpdate(Kalman_t* kalman, Vector3f_t input, Vector3f_t observe, bool f
 	float S[9], m1[9], m2[9], m3[9], m4[9], m5[9];	
     
 	//1:状态预估计 Xk = Fk*Xk-1 + Bk*Uk
-    kalman->status = Vector3f_Add(Matrix3MulVector3(kalman->f, kalman->status), Matrix3MulVector3(kalman->b, input));
+    kalman->state = Vector3f_Add(Matrix3MulVector3(kalman->f, kalman->state), Matrix3MulVector3(kalman->b, input));
     
     //状态窗口更新
     KalmanSlidWindowUpdate(kalman);
@@ -65,7 +65,7 @@ void KalmanUpdate(Kalman_t* kalman, Vector3f_t input, Vector3f_t observe, bool f
 	Matrix3_Mul(m2, m1,kalman->gain);
     
 	//6：修正当前状态 Xk = Xk + Kk*Yk
-    kalman->status = Vector3f_Add(kalman->status, Matrix3MulVector3(kalman->gain, kalman->residual));
+    kalman->state = Vector3f_Add(kalman->state, Matrix3MulVector3(kalman->gain, kalman->residual));
     
 	//7：更新协方差矩阵 Pk = (I-Kk*Hk)*Pk*(I-Kk*Hk)T + Kk*Rk*KkT
 	Matrix3_Mul(kalman->gain, kalman->h, m1);
@@ -196,7 +196,7 @@ static void KalmanSlidWindowUpdate(Kalman_t* kalman)
     {
         kalman->statusSlidWindow[i] = kalman->statusSlidWindow[i+1];
     }
-    kalman->statusSlidWindow[kalman->slidWindowSize - 1] = kalman->status;
+    kalman->statusSlidWindow[kalman->slidWindowSize - 1] = kalman->state;
 }
 
 

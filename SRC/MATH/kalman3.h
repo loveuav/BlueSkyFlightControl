@@ -5,7 +5,7 @@
 
 typedef struct{
 	//状态矩阵
-	Vector3f_t status;
+	Vector3f_t state;
     //滑动窗口大小
     int16_t slidWindowSize;
 	//状态滑动窗口
