@@ -111,8 +111,11 @@ void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag)
     //向心加速度误差补偿
     accCompensate = Vector3f_Sub(accCompensate, ahrs.centripetalAccBf);  
     
+    //加速度零偏补偿
+    accCompensate = Vector3f_Sub(accCompensate, ahrs.accBfOffset);
+    
     //姿态更新
-    AttitudeEstimateUpdate(&ahrs.angle, gyro, acc, mag, deltaT);
+    AttitudeEstimateUpdate(&ahrs.angle, gyro, accCompensate, mag, deltaT);
     
     //计算导航系下的运动加速度
     TransAccToEarthFrame(ahrs.angle, acc, &ahrs.accEf, &ahrs.accEfLpf, &ahrs.accBfOffset);
@@ -358,9 +361,9 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         accEf->y -= ahrs.centripetalAcc.y;
         
 		//地理系加速度低通滤波
-		accEfLpf->x = accEfLpf->x * 0.99f + accEf->x * 0.01f;
-		accEfLpf->y = accEfLpf->y * 0.99f + accEf->y * 0.01f;
-		accEfLpf->z = accEfLpf->z * 0.99f + accEf->z * 0.01f; 
+		accEfLpf->x = accEfLpf->x * 0.998f + accEf->x * 0.002f;
+		accEfLpf->y = accEfLpf->y * 0.998f + accEf->y * 0.002f;
+		accEfLpf->z = accEfLpf->z * 0.998f + accEf->z * 0.002f; 
     }
     
 	//系统初始化时，计算加速度零偏
