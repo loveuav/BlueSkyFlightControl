@@ -217,11 +217,14 @@ Vector3f_t VectorRotateToEarthFrame(Vector3f_t vector, Vector3f_t deltaAngle)
 /**********************************************************************************************************
 *函 数 名: AccVectorToEulerAngle
 *功能说明: 根据重力加速度向量在机体系上的投影计算俯仰和横滚角
-*形    参: 姿态角指针 加速度向量(已归一化）
+*形    参: 姿态角指针 加速度向量
 *返 回 值: 无
 **********************************************************************************************************/
 void AccVectorToRollPitchAngle(Vector3f_t* angle, Vector3f_t vector)
 {
+    //加速度向量归一化
+    Vector3f_Normalize(&vector);
+    
 	angle->x = -SafeArcsin(vector.y);       //横滚角
 	angle->y = atan2f(vector.x, vector.z);  //俯仰角
 }
