@@ -54,11 +54,12 @@ void VelocityEstimate(void)
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static float velErrorIntRate = 0.00003f;
+    static Vector3f_t accel_bias = {0, 0, 0};
+    static float velErrorIntRate = 0.00001f;
     
     //计算时间间隔，用于积分
     deltaT = (GetSysTimeUs() - previousT) * 1e-6;
-    deltaT = ConstrainFloat(deltaT, 0.0001, 0.01);	
+    deltaT = ConstrainFloat(deltaT, 0.0005, 0.005);	
 	previousT = GetSysTimeUs();		
 	
 	//获取运动加速度
@@ -78,6 +79,7 @@ void VelocityEstimate(void)
             gpsVel.x = 0;
             gpsVel.y = 0;
         }
+        
         nav.velMeasure.x = gpsVel.x;
         nav.velMeasure.y = gpsVel.y;
         //获取气压速度测量值
@@ -90,28 +92,28 @@ void VelocityEstimate(void)
         fuseFlag = false;
     }
 
+    //修正加速度零偏
+    nav.accel.x += accel_bias.x;
+    nav.accel.y += accel_bias.y;
+    nav.accel.z += accel_bias.z;
+    
     //加速度积分，并转换单位为cm
     input.x = nav.accel.x * GRAVITY_ACCEL * deltaT * 100;
     input.y = nav.accel.y * GRAVITY_ACCEL * deltaT * 100;
     input.z = nav.accel.z * GRAVITY_ACCEL * deltaT * 100;
     
-    //加速度值始终存在零偏误差，这里使用误差积分来修正零偏
-    input.x += nav.velErrorInt.x * 0.0005f;
-    input.y += nav.velErrorInt.y * 0.0005f;
-    input.z += nav.velErrorInt.z * 0.0003f;
-
-    //卡尔曼滤波器更新
+    //速度估计
     KalmanUpdate(&kalmanVel, input, nav.velMeasure, fuseFlag);
     nav.velocity = kalmanVel.state;
     
-    //计算误差积分
-    nav.velErrorInt.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * velErrorIntRate;
-    nav.velErrorInt.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * velErrorIntRate;        
-    nav.velErrorInt.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * velErrorIntRate;
+    //加速度（导航系）零偏估计
+    accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * deltaT * velErrorIntRate;
+    accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * deltaT * velErrorIntRate;        
+    accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * deltaT * velErrorIntRate;
     
-    nav.velErrorInt.x  = ConstrainFloat(nav.velErrorInt.x, -20, 20);
-    nav.velErrorInt.y  = ConstrainFloat(nav.velErrorInt.y, -20, 20);
-    nav.velErrorInt.z  = ConstrainFloat(nav.velErrorInt.z, -30, 30);
+    accel_bias.x  = ConstrainFloat(accel_bias.x, -0.03, 0.03);
+    accel_bias.y  = ConstrainFloat(accel_bias.y, -0.03, 0.03);
+    accel_bias.z  = ConstrainFloat(accel_bias.z, -0.03, 0.03);
 }
 
 /**********************************************************************************************************
@@ -159,7 +161,7 @@ void PositionEstimate(void)
         fuseFlag = false;
     }
 
-    //转换速度值到地理坐标系（东北天）
+    //转换速度值到导航系
     TransVelToEarthFrame(nav.velocity, &velocityEf, GetCopterAngle().z);
     
     //速度积分
@@ -167,7 +169,7 @@ void PositionEstimate(void)
     input.y = velocityEf.y * deltaT;   
     input.z = velocityEf.z * deltaT;    
     
-    //卡尔曼滤波器更新
+    //位置估计
     KalmanUpdate(&kalmanPos, input, nav.posMeasure, fuseFlag);
     nav.position = kalmanPos.state;    
 }
@@ -358,10 +360,6 @@ void NavigationReset(void)
         kalmanPos.state.y = 0;  
     }    
     kalmanPos.state.z = BaroGetAlt();   
-
-	nav.velocity2.x = 0;
-	nav.velocity2.y = 0;
-	nav.velocity2.z = 0;	
 }
 
 /**********************************************************************************************************

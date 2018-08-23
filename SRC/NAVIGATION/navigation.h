@@ -7,11 +7,8 @@ typedef struct{
 	Vector3f_t accel;
 	Vector3f_t velocity;
     Vector3f_t velMeasure;
-	Vector3f_t velocity2;    
 	Vector3f_t position;
     Vector3f_t posMeasure;    
-    
-    Vector3f_t velErrorInt;	
 }NAVGATION_t;
 
 void NavigationInit(void);
