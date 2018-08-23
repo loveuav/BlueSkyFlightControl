@@ -14,6 +14,7 @@
 #include "flightControl.h"
 #include "userControl.h"
 #include "missionControl.h"
+#include "safeControl.h"
 #include "rc.h"
 
 xTaskHandle flightControlTask;
@@ -45,6 +46,9 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 		{
             //遥控器各通道数据及失控检测
             RcCheck();
+            
+            //安全保护控制
+            SafeControl();
         }
 			
         //200Hz

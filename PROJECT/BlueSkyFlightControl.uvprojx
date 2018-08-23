@@ -511,6 +511,11 @@
               <FileType>1</FileType>
               <FilePath>..\SRC\CONTROL\waypointControl.c</FilePath>
             </File>
+            <File>
+              <FileName>safeControl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\CONTROL\safeControl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
