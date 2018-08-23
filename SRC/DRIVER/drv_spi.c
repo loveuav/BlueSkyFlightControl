@@ -63,15 +63,15 @@ void Spi_Open(uint8_t deviceNum)
 	
 	if(deviceNum == 1)
 	{  
-		GPIO_PinAFConfig(SPI1_GPIO, SPI1_PINSOURCE_MOSI, GPIO_AF_SPI1);
-		GPIO_PinAFConfig(SPI1_GPIO, SPI1_PINSOURCE_MISO, GPIO_AF_SPI1);
-		GPIO_PinAFConfig(SPI1_GPIO, SPI1_PINSOURCE_SCK, GPIO_AF_SPI1);
+		GPIO_PinAFConfig(SPI1_GPIO_MOSI, SPI1_PINSOURCE_MOSI, GPIO_AF_SPI1);
+		GPIO_PinAFConfig(SPI1_GPIO_MISO, SPI1_PINSOURCE_MISO, GPIO_AF_SPI1);
+		GPIO_PinAFConfig(SPI1_GPIO_SCK, SPI1_PINSOURCE_SCK, GPIO_AF_SPI1);
 		GPIO_InitStructure.GPIO_Pin = SPI1_PIN_MOSI;
-		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);
+		GPIO_Init(SPI1_GPIO_MOSI, &GPIO_InitStructure);
 		GPIO_InitStructure.GPIO_Pin =  SPI1_PIN_MISO;
-		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);
+		GPIO_Init(SPI1_GPIO_MISO, &GPIO_InitStructure);
 		GPIO_InitStructure.GPIO_Pin =  SPI1_PIN_SCK;
-		GPIO_Init(SPI1_GPIO, &GPIO_InitStructure);		
+		GPIO_Init(SPI1_GPIO_SCK, &GPIO_InitStructure);		
         
         SPI_InitStructure.SPI_BaudRatePrescaler = SPI1_CLOCKDIV;
         SPI_Init(SPI1, &SPI_InitStructure); 
@@ -79,15 +79,15 @@ void Spi_Open(uint8_t deviceNum)
 	}
     else if(deviceNum == 2)
     {
-		GPIO_PinAFConfig(SPI2_GPIO, SPI2_PINSOURCE_MOSI, GPIO_AF_SPI2);
-		GPIO_PinAFConfig(SPI2_GPIO, SPI2_PINSOURCE_MISO, GPIO_AF_SPI2);
-		GPIO_PinAFConfig(SPI2_GPIO, SPI2_PINSOURCE_SCK, GPIO_AF_SPI2);
+		GPIO_PinAFConfig(SPI2_GPIO_MOSI, SPI2_PINSOURCE_MOSI, GPIO_AF_SPI2);
+		GPIO_PinAFConfig(SPI2_GPIO_MISO, SPI2_PINSOURCE_MISO, GPIO_AF_SPI2);
+		GPIO_PinAFConfig(SPI2_GPIO_SCK, SPI2_PINSOURCE_SCK, GPIO_AF_SPI2);
 		GPIO_InitStructure.GPIO_Pin = SPI2_PIN_MOSI;
-		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);
+		GPIO_Init(SPI2_GPIO_MOSI, &GPIO_InitStructure);
 		GPIO_InitStructure.GPIO_Pin =  SPI2_PIN_MISO;
-		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);
+		GPIO_Init(SPI2_GPIO_MISO, &GPIO_InitStructure);
 		GPIO_InitStructure.GPIO_Pin =  SPI2_PIN_SCK;
-		GPIO_Init(SPI2_GPIO, &GPIO_InitStructure);	  
+		GPIO_Init(SPI2_GPIO_SCK, &GPIO_InitStructure);	  
         
         SPI_InitStructure.SPI_BaudRatePrescaler = SPI2_CLOCKDIV;
         SPI_Init(SPI2, &SPI_InitStructure); 

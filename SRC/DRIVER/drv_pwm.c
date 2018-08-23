@@ -192,6 +192,44 @@ void PWM_Init(void)
         TIM_Cmd(TIM4, ENABLE);
         TIM_ARRPreloadConfig(TIM4, ENABLE);
     #endif
+    
+    #if(TIM12_PWM_OUT == 1)
+        PrescalerValue =  (uint16_t) ((SystemCoreClock / 2) / TIM12_CLOCK) - 1;
+        TIM_TimeBaseStructure.TIM_Period = TIM12_PERIOD;		
+        TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;	    
+        TIM_TimeBaseInit(TIM12, &TIM_TimeBaseStructure);   
+
+        #if(configUSE_TIM12_CH1 == 1)
+            GPIO_InitStructure.GPIO_Pin = TIM12_CH1_PIN;
+            GPIO_Init(TIM12_CH1_GPIO, &GPIO_InitStructure); 
+            GPIO_PinAFConfig(TIM12_CH1_GPIO, TIM12_CH1_PINSOURCE, GPIO_AF_TIM12);
+            TIM_OC1Init(TIM12, &TIM_OCInitStructure);
+            TIM_OC1PreloadConfig(TIM12, TIM_OCPreload_Enable);
+        #endif
+        #if(configUSE_TIM12_CH2 == 1)
+            GPIO_InitStructure.GPIO_Pin = TIM12_CH2_PIN;
+            GPIO_Init(TIM12_CH2_GPIO, &GPIO_InitStructure); 
+            GPIO_PinAFConfig(TIM12_CH2_GPIO, TIM12_CH2_PINSOURCE, GPIO_AF_TIM12);
+            TIM_OC2Init(TIM12, &TIM_OCInitStructure);
+            TIM_OC2PreloadConfig(TIM12, TIM_OCPreload_Enable);
+        #endif
+        #if(configUSE_TIM12_CH3 == 1)
+            GPIO_InitStructure.GPIO_Pin = TIM12_CH3_PIN;
+            GPIO_Init(TIM12_CH3_GPIO, &GPIO_InitStructure); 
+            GPIO_PinAFConfig(TIM12_CH3_GPIO, TIM12_CH3_PINSOURCE, GPIO_AF_TIM12);
+            TIM_OC3Init(TIM12, &TIM_OCInitStructure);
+            TIM_OC3PreloadConfig(TIM12, TIM_OCPreload_Enable);
+        #endif
+        #if(configUSE_TIM12_CH4 == 1)
+            GPIO_InitStructure.GPIO_Pin = TIM12_CH4_PIN;
+            GPIO_Init(TIM12_CH4_GPIO, &GPIO_InitStructure); 
+            GPIO_PinAFConfig(TIM12_CH4_GPIO, TIM12_CH4_PINSOURCE, GPIO_AF_TIM12);
+            TIM_OC4Init(TIM12, &TIM_OCInitStructure);
+            TIM_OC4PreloadConfig(TIM12, TIM_OCPreload_Enable);
+        #endif
+        TIM_Cmd(TIM12, ENABLE);
+        TIM_ARRPreloadConfig(TIM12, ENABLE);
+    #endif
 }
 
 /**********************************************************************************************************
@@ -202,7 +240,7 @@ void PWM_Init(void)
 **********************************************************************************************************/
 void TempControlPWMSet(int32_t pwmValue)
 {
-    TIM_TypeDef* timer[] = {TIM1, TIM2, TIM3, TIM4};
+    TIM_TypeDef* timer[] = {TIM1, TIM2, TIM3, TIM4, TIM5, TIM6, TIM7, TIM8, TIM9, TIM10, TIM11, TIM12};
     
     pwmValue = pwmValue * ((int32_t)TEMP_TIM_PERIOD / 1000);
     
