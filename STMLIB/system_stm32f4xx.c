@@ -313,7 +313,7 @@
 /************************* PLL Parameters *************************************/
 #if defined (STM32F40_41xxx) || defined (STM32F427_437xx) || defined (STM32F429_439xx) || defined (STM32F401xx)
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
-#define PLL_M      24
+#define PLL_M      HSE_FREQ
 #else /* STM32F411xE */
 #if defined (USE_HSE_BYPASS)
 #define PLL_M      8    

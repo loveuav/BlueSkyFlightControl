@@ -56,7 +56,9 @@
 #ifdef __cplusplus
  extern "C" {
 #endif /* __cplusplus */
-  
+ 
+#define HSE_FREQ             8
+
 /** @addtogroup Library_configuration_section
   * @{
   */
@@ -120,7 +122,7 @@
   */           
 
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)24000000) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    ((uint32_t)HSE_FREQ * 1000000) /*!< Value of the External oscillator in Hz */
   
 #endif /* HSE_VALUE */
 
