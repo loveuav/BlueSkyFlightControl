@@ -46,7 +46,6 @@ void BoardInit(void)
     
     //串口初始化
 	Usart_Open(DATA_UART, DATA_BAUDRATE);
-	Usart_Open(TOF_UART, TOF_BAUDRATE);
 	Usart_Open(SBUS_UART, SBUS_BAUDRATE);
     
     //软件I2C初始化
@@ -56,10 +55,8 @@ void BoardInit(void)
     PWM_Init();
 	
 	//遥控器接收机数据协议解析初始化
-	if(RC_PROTOCOL == SBUS)
-		Sbus_Init();
-	else if(RC_PROTOCOL == PPM)
-        PPM_Init();
+    Sbus_Init();
+    PPM_Init();
 
 	//USB转串口初始化
 	Usb_Init();

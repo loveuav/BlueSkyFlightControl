@@ -50,10 +50,8 @@ static void RcCheckFailsafe(void);
 **********************************************************************************************************/
 void RcInit(void)
 {
-	if(RC_PROTOCOL == SBUS)
-		Sbus_SetRcDataCallback(RcDataUpdate);
-	else if(RC_PROTOCOL == PPM)
-        PPM_SetRcDataCallback(RcDataUpdate);
+    Sbus_SetRcDataCallback(RcDataUpdate);
+    PPM_SetRcDataCallback(RcDataUpdate);
     
     //遥控通道数据初始化
     rcData.roll     = 1500;
