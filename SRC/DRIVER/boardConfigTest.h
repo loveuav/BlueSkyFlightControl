@@ -33,6 +33,10 @@
 #define GYRO_CS_GPIO         GPIOC
 #define GYRO_CS_PIN          GPIO_Pin_2
 
+#define GYRO2_SPI            1              //陀螺仪2SPI配置
+#define GYRO2_CS_GPIO        GPIOC
+#define GYRO2_CS_PIN         GPIO_Pin_2
+
 #define BARO_SPI             1              //气压计SPI配置
 #define BARO_CS_GPIO         GPIOC
 #define BARO_CS_PIN          GPIO_Pin_3
@@ -50,9 +54,6 @@
 
 #define ESC_PROTOCOL         PWM            //电调输出信号协议选择
 //#define ESC_PROTOCOL         DSHOT600
-
-//#define RC_PROTOCOL		     SBUS       //遥控接收方式选择
-#define RC_PROTOCOL		     PPM
 
 #define TEMP_TIM_FREQ        500000         //传感器恒温PWM输出定时器配置
 #define TEMP_TIM_PERIOD      5000
@@ -147,6 +148,11 @@
 #define configUSE_TIM4_CH2   0
 #define configUSE_TIM4_CH3   0
 #define configUSE_TIM4_CH4   1
+#define configUSE_TIM12      0
+#define configUSE_TIM12_CH1  0
+#define configUSE_TIM12_CH2  0
+#define configUSE_TIM12_CH3  0
+#define configUSE_TIM12_CH4  0
 
 /**********************************************************************************************************
 *串口引脚及参数配置
@@ -195,7 +201,9 @@
 /**********************************************************************************************************
 *SPI引脚及参数配置
 **********************************************************************************************************/
-#define SPI1_GPIO               GPIOA
+#define SPI1_GPIO_MOSI          GPIOA
+#define SPI1_GPIO_MISO          GPIOA
+#define SPI1_GPIO_SCK           GPIOA
 #define SPI1_PINSOURCE_MOSI     GPIO_PinSource7
 #define SPI1_PINSOURCE_MISO     GPIO_PinSource6
 #define SPI1_PINSOURCE_SCK      GPIO_PinSource5
@@ -204,7 +212,9 @@
 #define SPI1_PIN_SCK            GPIO_Pin_5
 #define SPI1_CLOCKDIV           SPI_BaudRatePrescaler_8
 
-#define SPI2_GPIO               GPIOA
+#define SPI2_GPIO_MOSI          GPIOA
+#define SPI2_GPIO_MISO          GPIOA
+#define SPI2_GPIO_SCK           GPIOA
 #define SPI2_PINSOURCE_MOSI     GPIO_PinSource7
 #define SPI2_PINSOURCE_MISO     GPIO_PinSource6
 #define SPI2_PINSOURCE_SCK      GPIO_PinSource5

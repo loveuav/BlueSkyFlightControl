@@ -55,9 +55,6 @@
 #define ESC_PROTOCOL         PWM            //电调输出信号协议选择
 //#define ESC_PROTOCOL         DSHOT600
 
-#define RC_PROTOCOL		     SBUS           //遥控接收方式选择
-//#define RC_PROTOCOL		     PPM
-
 #define TEMP_TIM_FREQ        5000000        //传感器恒温PWM输出定时器配置
 #define TEMP_TIM_PERIOD      5000
 #define TEMP_TIM             12
@@ -83,13 +80,13 @@
 #define PPM_PINSOURCE        GPIO_PinSource8
 
 #define ADC_VOLTAGE          ADC1           //电池电压采集ADC配置
-#define ADC_VOLTAGE_CHAN     ADC_Channel_0
+#define ADC_VOLTAGE_CHAN     ADC_Channel_10
 #define ADC_VOLTAGE_GPIO     GPIOC
 #define ADC_VOLTAGE_PIN      GPIO_Pin_0
 #define ADC_VOLTAGE_COEF     10.0f
 
 #define ADC_CURRENT          ADC2           //电池电流采集ADC配置
-#define ADC_CURRENT_CHAN     ADC_Channel_1
+#define ADC_CURRENT_CHAN     ADC_Channel_11
 #define ADC_CURRENT_GPIO     GPIOC
 #define ADC_CURRENT_PIN      GPIO_Pin_1
 #define ADC_CURRENT_COEF     10.0f
@@ -323,8 +320,8 @@
 #define TIM4_CLOCK                    PPM_TIM_FREQ
 #define TIM4_PERIOD                   PPM_TIM_PERIOD
 #define TIM4_IRQ_PRIORITY 			  3
-#define TIM4_PWM_OUT                  0
-#define TIM4_PPM_IN                   1		
+#define TIM4_PWM_OUT                  1
+#define TIM4_PPM_IN                   0		
 #if(configUSE_TIM4_CH1 == 1)
 	#define TIM4_CH1_GPIO             GPIOA
 	#define TIM4_CH1_PIN              GPIO_Pin_7
