@@ -11,6 +11,7 @@
 **********************************************************************************************************/
 #include "drv_sbus.h"
 #include "drv_usart.h"
+#include "drv_ppm.h"
 
 struct sbus_dat {
     uint32_t start : 8;
@@ -51,8 +52,22 @@ static RcDataCallback rcDataCallbackFunc;
 **********************************************************************************************************/
 void Sbus_Init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStructure;
+    
     //设置SBUS串口接收中断回调函数（即数据协议解析函数）
     Usart_SetIRQCallback(SBUS_UART, Sbus_Decode);
+
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+    GPIO_InitStructure.GPIO_Pin   = SBUS_INV_PIN;
+	GPIO_Init(SBUS_INV_GPIO, &GPIO_InitStructure);	  
+    
+    if(SBUS_INV == 1)
+        GPIO_SetBits(SBUS_INV_GPIO, SBUS_INV_PIN);
+    else
+        GPIO_ResetBits(SBUS_INV_GPIO, SBUS_INV_PIN);
 }
 
 /**********************************************************************************************************
@@ -64,7 +79,8 @@ void Sbus_Init(void)
 static void Sbus_Decode(uint8_t data)
 {  
     static uint32_t lastTime;
-    static uint32_t dataCnt = 0;
+    static uint32_t dataCnt  = 0;
+    static uint8_t  initFlag = 0;
     
     if(GetSysTimeMs() < 2000)
         return;
@@ -109,7 +125,14 @@ static void Sbus_Decode(uint8_t data)
         
         //一帧数据解析完成
         if(rcDataCallbackFunc != 0)
-            (*rcDataCallbackFunc)(sbusData);        
+            (*rcDataCallbackFunc)(sbusData);    
+
+        if(!initFlag)
+        {
+            //禁用PPM输入
+            PPM_Disable();
+            initFlag = 1;
+        }
     }
 }
 

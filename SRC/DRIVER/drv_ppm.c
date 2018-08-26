@@ -272,6 +272,79 @@ void PPM_Init(void)
 }
 
 /**********************************************************************************************************
+*函 数 名: PPM_Disable
+*功能说明: PPM输入关闭
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void PPM_Disable(void)
+{
+    #if(TIM1_PPM_IN == 1)
+        #if(configUSE_TIM1_CH1 == 1)
+            TIM_ITConfig(TIM1, TIM_IT_CC1, DISABLE);   
+        #endif
+        #if(configUSE_TIM1_CH2 == 1)
+            TIM_ITConfig(TIM1, TIM_IT_CC2, DISABLE);  
+        #endif
+        #if(configUSE_TIM1_CH3 == 1)
+            TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);  
+        #endif
+        #if(configUSE_TIM1_CH4 == 1)
+            TIM_ITConfig(TIM1, TIM_IT_CC4, DISABLE);  
+        #endif
+        TIM_Cmd(TIM1, DISABLE);
+    #endif    
+    
+    #if(TIM2_PPM_IN == 1)
+        #if(configUSE_TIM2_CH1 == 1)
+            TIM_ITConfig(TIM2, TIM_IT_CC1, DISABLE);   
+        #endif
+        #if(configUSE_TIM2_CH2 == 1)
+            TIM_ITConfig(TIM2, TIM_IT_CC2, DISABLE);  
+        #endif
+        #if(configUSE_TIM2_CH3 == 1)
+            TIM_ITConfig(TIM1, TIM_IT_CC3, DISABLE);  
+        #endif
+        #if(configUSE_TIM2_CH4 == 1)
+            TIM_ITConfig(TIM2, TIM_IT_CC4, DISABLE);  
+        #endif  
+        TIM_Cmd(TIM2, DISABLE);
+    #endif    
+
+    #if(TIM3_PPM_IN== 1)
+        #if(configUSE_TIM3_CH1 == 1)
+            TIM_ITConfig(TIM3, TIM_IT_CC1, DISABLE);   
+        #endif
+        #if(configUSE_TIM3_CH2 == 1)
+            TIM_ITConfig(TIM3, TIM_IT_CC2, DISABLE);  
+        #endif
+        #if(configUSE_TIM3_CH3 == 1)
+            TIM_ITConfig(TIM3, TIM_IT_CC3, DISABLE);  
+        #endif
+        #if(configUSE_TIM3_CH4 == 1)
+            TIM_ITConfig(TIM3, TIM_IT_CC4, DISABLE);  
+        #endif
+        TIM_Cmd(TIM3, DISABLE);
+    #endif    
+    
+     #if(TIM4_PPM_IN == 1)
+        #if(configUSE_TIM4_CH1 == 1)
+            TIM_ITConfig(TIM4, TIM_IT_CC1, DISABLE);   
+        #endif
+        #if(configUSE_TIM4_CH2 == 1)
+            TIM_ITConfig(TIM4, TIM_IT_CC2, DISABLE);  
+        #endif
+        #if(configUSE_TIM4_CH3 == 1)
+            TIM_ITConfig(TIM4, TIM_IT_CC3, DISABLE);  
+        #endif
+        #if(configUSE_TIM4_CH4 == 1)
+            TIM_ITConfig(TIM4, TIM_IT_CC4, DISABLE);  
+        #endif 
+        TIM_Cmd(TIM4, DISABLE);
+    #endif  
+}
+
+/**********************************************************************************************************
 *函 数 名: PPM_Decode
 *功能说明: PPM定时器数据捕获与解码
 *形    参: 无
