@@ -52,6 +52,10 @@
 #define SBUS_UART            6              //SBUS接收机串口配置
 #define SBUS_BAUDRATE        100000
 
+#define SBUS_INV             1              //SBUS接收反向设置
+#define SBUS_INV_GPIO        GPIOC
+#define SBUS_INV_PIN         GPIO_Pin_15
+
 #define ESC_PROTOCOL         PWM            //电调输出信号协议选择
 //#define ESC_PROTOCOL         DSHOT600
 
@@ -61,7 +65,7 @@
 #define TEMP_CH              1
 
 #define PWM_TIM_FREQ         21000000       //电机输出PWM输出定时器配置
-#define PWM_TIM_PERIOD       43000  //488Hz
+#define PWM_TIM_PERIOD       50000
 #define PWM1_TIM             2
 #define PWM1_CH              3
 #define PWM2_TIM             2
