@@ -83,7 +83,7 @@ static void LowPowerProtect(void)
     //严重低电量时直接降落
     if(GetBatteryStatus() == BATTERY_CRITICAL_LOW)
     {
-        SetFlightMode(RETURNTOHOME);
+        SetFlightMode(AUTOLAND);
     }
     //普通低电量时按照一定时间间隔触发返航
     else if(GetBatteryStatus() == BATTERY_LOW)

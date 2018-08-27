@@ -28,11 +28,15 @@ void Spi_GPIO_Init(void)
 
     GPIO_InitStructure.GPIO_Pin = GYRO_CS_PIN;     
 	GPIO_Init(GYRO_CS_GPIO, &GPIO_InitStructure);    
+
+    GPIO_InitStructure.GPIO_Pin = GYRO2_CS_PIN;     
+	GPIO_Init(GYRO2_CS_GPIO, &GPIO_InitStructure);
     
     GPIO_InitStructure.GPIO_Pin = BARO_CS_PIN;     
 	GPIO_Init(BARO_CS_GPIO, &GPIO_InitStructure);  
 
     GPIO_SetBits(GYRO_CS_GPIO, GYRO_CS_PIN);
+    GPIO_SetBits(GYRO2_CS_GPIO, GYRO2_CS_PIN);
     GPIO_SetBits(BARO_CS_GPIO, BARO_CS_PIN);    
 }
 
