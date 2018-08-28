@@ -265,7 +265,7 @@ void TempControlPWMSet(int32_t pwmValue)
 *形    参: 电机号 PWM值（0-2000）
 *返 回 值: 无
 **********************************************************************************************************/
-void MotorPWMSet(uint8_t motor, int16_t pwmValue)
+void MotorPWMSet(uint8_t motor, uint16_t pwmValue)
 {
     TIM_TypeDef* timer[] = {TIM1, TIM2, TIM3, TIM4};
     
