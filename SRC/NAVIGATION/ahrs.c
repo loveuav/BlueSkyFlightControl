@@ -249,9 +249,13 @@ static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_
     float magAngle;
     BodyFrameToEarthFrame(*angle, mag, &mVectorEf);
     magAngle = WrapDegree360(Degrees(atan2f(-mVectorEf.y, mVectorEf.x)) + GetMagDeclination());   
-    if(abs(angle->z - magAngle) < 10)
+    if(abs(angle->z - magAngle) < 10 && abs(angle->x) < 10 && abs(angle->y)< 10)
     {
        gError.z = Radians(angle->z - magAngle);
+    }
+    else
+    {
+        gError.z = 0;
     }
 
     //陀螺仪零偏估计
