@@ -57,7 +57,6 @@
 #define SBUS_INV_PIN         GPIO_Pin_15
 
 #define ESC_PROTOCOL         PWM            //电调输出信号协议选择
-//#define ESC_PROTOCOL         DSHOT600
 
 #define TEMP_TIM_FREQ        5000000        //传感器恒温PWM输出定时器配置
 #define TEMP_TIM_PERIOD      5000
@@ -65,7 +64,7 @@
 #define TEMP_CH              1
 
 #define PWM_TIM_FREQ         21000000       //电机输出PWM输出定时器配置
-#define PWM_TIM_PERIOD       50000
+#define PWM_TIM_PERIOD       45000
 #define PWM1_TIM             2
 #define PWM1_CH              3
 #define PWM2_TIM             2
@@ -74,6 +73,14 @@
 #define PWM3_CH              3
 #define PWM4_TIM             3
 #define PWM4_CH              4
+#define PWM5_TIM             2
+#define PWM5_CH              1
+#define PWM6_TIM             2
+#define PWM6_CH              2
+#define PWM7_TIM             3
+#define PWM7_CH              1
+#define PWM8_TIM             3
+#define PWM8_CH              2
 
 #define PPM_TIM_FREQ         1000000        //PPM输入捕获定时器配置
 #define PPM_TIM_PERIOD       0xFFFF
@@ -138,13 +145,13 @@
 #define configUSE_TIM1_CH3   0
 #define configUSE_TIM1_CH4   0
 #define configUSE_TIM2       1
-#define configUSE_TIM2_CH1   0
-#define configUSE_TIM2_CH2   0
+#define configUSE_TIM2_CH1   1
+#define configUSE_TIM2_CH2   1
 #define configUSE_TIM2_CH3   1
 #define configUSE_TIM2_CH4   1
 #define configUSE_TIM3       1
-#define configUSE_TIM3_CH1   0
-#define configUSE_TIM3_CH2   0
+#define configUSE_TIM3_CH1   1
+#define configUSE_TIM3_CH2   1
 #define configUSE_TIM3_CH3   1
 #define configUSE_TIM3_CH4   1
 #define configUSE_TIM4       0
@@ -276,13 +283,13 @@
 #define TIM2_PPM_IN                   0		
 #if(configUSE_TIM2_CH1 == 1)
 	#define TIM2_CH1_GPIO             GPIOA
-	#define TIM2_CH1_PIN              GPIO_Pin_7
-	#define TIM2_CH1_PINSOURCE        GPIO_PinSource5
+	#define TIM2_CH1_PIN              GPIO_Pin_15
+	#define TIM2_CH1_PINSOURCE        GPIO_PinSource15
 #endif
 #if(configUSE_TIM2_CH2 == 1)
-	#define TIM2_CH2_GPIO             GPIOA
-	#define TIM2_CH2_PIN              GPIO_Pin_1
-	#define TIM2_CH2_PINSOURCE        GPIO_PinSource1
+	#define TIM2_CH2_GPIO             GPIOB
+	#define TIM2_CH2_PIN              GPIO_Pin_3
+	#define TIM2_CH2_PINSOURCE        GPIO_PinSource3
 #endif
 #if(configUSE_TIM2_CH3 == 1)
 	#define TIM2_CH3_GPIO             GPIOA
@@ -302,13 +309,13 @@
 #define TIM3_PPM_IN                   0		
 #if(configUSE_TIM3_CH1 == 1)
 	#define TIM3_CH1_GPIO             GPIOB
-	#define TIM3_CH1_PIN              GPIO_Pin_0
-	#define TIM3_CH1_PINSOURCE        GPIO_PinSource0
+	#define TIM3_CH1_PIN              GPIO_Pin_4
+	#define TIM3_CH1_PINSOURCE        GPIO_PinSource4
 #endif
 #if(configUSE_TIM3_CH2 == 1)
 	#define TIM3_CH2_GPIO             GPIOB
-	#define TIM3_CH2_PIN              GPIO_Pin_1
-	#define TIM3_CH2_PINSOURCE        GPIO_PinSource1
+	#define TIM3_CH2_PIN              GPIO_Pin_5
+	#define TIM3_CH2_PINSOURCE        GPIO_PinSource5
 #endif
 #if(configUSE_TIM3_CH3 == 1)
 	#define TIM3_CH3_GPIO             GPIOB

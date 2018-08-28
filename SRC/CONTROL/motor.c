@@ -17,11 +17,14 @@
 #define MINTHROTTLE	    200                     //最小油门值           
 #define MAXTHROTTLE 	1800                    //最大油门值
 
-#define motorType quadX 
+//机型选择
+#define motorType quadX
 
 static int16_t motorPWM[8];
-    
-static const MOTOR_TYPE_t quadX = {             //四轴X型
+
+//四轴X型
+const MOTOR_TYPE_t quadX = 
+{                 
     .motorNum   = 4,                            //电机数量
     .motorMixer = 
     {
@@ -32,18 +35,37 @@ static const MOTOR_TYPE_t quadX = {             //四轴X型
     }
 };
 
-//static const MOTOR_TYPE_t hex6X = {             //六轴X型
-//    .motorNum   = 6,                            //电机数量
-//    .motorMixer = 
-//    {    
-//        { 1.0f, -0.5f,  0.866025f,  1.0f },     //后右
-//        { 1.0f, -0.5f, -0.866025f,  1.0f },     //前右
-//        { 1.0f,  0.5f,  0.866025f, -1.0f },     //后左
-//        { 1.0f,  0.5f, -0.866025f, -1.0f },     //前左
-//        { 1.0f, -1.0f,  0.0f,      -1.0f },     //右
-//        { 1.0f,  1.0f,  0.0f,       1.0f },     //左
-//    }   
-//};
+//六轴X型
+const MOTOR_TYPE_t hex6X = 
+{                    
+    .motorNum   = 6,                            //电机数量
+    .motorMixer = 
+    {    
+        { 1.0f, -0.5f,  0.866025f,  1.0f },     //后右
+        { 1.0f, -0.5f, -0.866025f,  1.0f },     //前右
+        { 1.0f,  0.5f,  0.866025f, -1.0f },     //后左
+        { 1.0f,  0.5f, -0.866025f, -1.0f },     //前左
+        { 1.0f, -1.0f,  0.0f,      -1.0f },     //右
+        { 1.0f,  1.0f,  0.0f,       1.0f },     //左
+    }   
+};
+
+//八轴X型
+const MOTOR_TYPE_t octoFlatX = 
+{                    
+    .motorNum   = 8,                            //电机数量
+    .motorMixer = 
+    {    
+        { 1.0f,  1.0f, -0.5f,  1.0f },          //中前左
+        { 1.0f, -0.5f, -1.0f,  1.0f },          //前右
+        { 1.0f, -1.0f,  0.5f,  1.0f },          //中后右
+        { 1.0f,  0.5f,  1.0f,  1.0f },          //后左
+        { 1.0f,  0.5f, -1.0f, -1.0f },          //前左
+        { 1.0f, -1.0f, -0.5f, -1.0f },          //中前右
+        { 1.0f, -0.5f,  1.0f, -1.0f },          //后右
+        { 1.0f,  1.0f,  0.5f, -1.0f },          //中后左
+    }   
+};
 
 /**********************************************************************************************************
 *函 数 名: MotorControl

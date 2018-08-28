@@ -333,6 +333,66 @@ void MotorPWMSet(uint8_t motor, uint16_t pwmValue)
         #if(PWM4_CH == 4)
             timer[PWM4_TIM-1]->CCR4 = pwmValue;
         #endif    
-    }      
+    }
+    else if(motor == 5)
+    {
+        #if(PWM5_CH == 1)
+            timer[PWM5_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM5_CH == 2)
+            timer[PWM5_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM5_CH == 3)
+            timer[PWM5_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM5_CH == 4)
+            timer[PWM5_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    }
+    else if(motor == 6)
+    {
+        #if(PWM6_CH == 1)
+            timer[PWM6_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM6_CH == 2)
+            timer[PWM6_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM6_CH == 3)
+            timer[PWM6_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM6_CH == 4)
+            timer[PWM6_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    } 
+    else if(motor == 7)
+    {
+        #if(PWM7_CH == 1)
+            timer[PWM7_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM7_CH == 2)
+            timer[PWM7_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM7_CH == 3)
+            timer[PWM7_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM7_CH == 4)
+            timer[PWM7_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    }
+    else if(motor == 8)
+    {
+        #if(PWM8_CH == 1)
+            timer[PWM8_TIM-1]->CCR1 = pwmValue;
+        #endif
+        #if(PWM8_CH == 2)
+            timer[PWM8_TIM-1]->CCR2 = pwmValue;
+        #endif
+        #if(PWM8_CH == 3)
+            timer[PWM8_TIM-1]->CCR3 = pwmValue;
+        #endif
+        #if(PWM8_CH == 4)
+            timer[PWM8_TIM-1]->CCR4 = pwmValue;
+        #endif    
+    }        
 }
 

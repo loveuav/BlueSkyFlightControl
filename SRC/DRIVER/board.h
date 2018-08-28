@@ -8,15 +8,13 @@
 **********************************************************************************************************/
 #define SOFTWARE_VERSION_HIGH   0
 #define SOFTWARE_VERSION_MID    4
-#define SOFTWARE_VERSION_LOW    16
+#define SOFTWARE_VERSION_LOW    17
 
 /**********************************************************************************************************
 *飞控硬件类型
 **********************************************************************************************************/
 enum
 {
-    BOARD_TEST,
-	BOARD_BLUESKY_V2,
     BOARD_BLUESKY_V3,
 	BOARD_FUTURESKY
 };
@@ -24,21 +22,12 @@ enum
 /**********************************************************************************************************
 *定义硬件类型
 **********************************************************************************************************/
-//#define BLUESKY_V2
 #define BLUESKY_V3
-//#define TESTBOARD
 
-#ifdef BLUESKY_V2
-	#include "boardConfigBlueSkyV2.h"
-    #define BOARD_TYPE BOARD_BLUESKY_V2
-#endif
+//硬件配置头文件包含
 #ifdef BLUESKY_V3
 	#include "boardConfigBlueSkyV3.h"
     #define BOARD_TYPE BOARD_BLUESKY_V3
-#endif
-#ifdef TESTBOARD
-	#include "boardConfigTest.h"
-    #define BOARD_TYPE BOARD_TEST
 #endif
 
 typedef struct
