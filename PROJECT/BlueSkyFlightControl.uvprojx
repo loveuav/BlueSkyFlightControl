@@ -697,6 +697,21 @@
               <FilePath>..\SRC\MODULE\mpu6000.c</FilePath>
             </File>
             <File>
+              <FileName>mpu6500.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\mpu6500.c</FilePath>
+            </File>
+            <File>
+              <FileName>icm20602.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\icm20602.c</FilePath>
+            </File>
+            <File>
+              <FileName>icm20689.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\icm20689.c</FilePath>
+            </File>
+            <File>
               <FileName>ms5611.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\ms5611.c</FilePath>
@@ -710,16 +725,6 @@
               <FileName>ublox.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\ublox.c</FilePath>
-            </File>
-            <File>
-              <FileName>mpu6500.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SRC\MODULE\mpu6500.c</FilePath>
-            </File>
-            <File>
-              <FileName>icm20689.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SRC\MODULE\icm20689.c</FilePath>
             </File>
             <File>
               <FileName>2smpb.c</FileName>

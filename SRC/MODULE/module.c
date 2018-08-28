@@ -12,6 +12,7 @@
 #include "module.h"
 #include "mpu6000.h"
 #include "mpu6500.h"
+#include "icm20602.h"
 #include "icm20689.h"
 #include "ms5611.h"
 #include "2smpb.h"
@@ -80,6 +81,14 @@ void GyroSensorInit(void)
             detectFlag = 1;
         }      
     }
+    else if (GYRO_TYPE == ICM20602)
+    {
+        if(ICM20602_Detect())
+        {
+            ICM20602_Init();
+            detectFlag = 1;
+        }      
+    }  
     else if (GYRO_TYPE == ICM20689)
     {
         if(ICM20689_Detect())
@@ -174,6 +183,8 @@ void GyroSensorRead(Vector3f_t* gyro)
         MPU6000_ReadGyro(gyro);    
     else if(GYRO_TYPE == MPU6500)
         MPU6500_ReadGyro(gyro);
+    else if(GYRO_TYPE == ICM20602)
+        ICM20602_ReadGyro(gyro);
     else if(GYRO_TYPE == ICM20689)
         ICM20689_ReadGyro(gyro);
     
@@ -193,6 +204,8 @@ void AccSensorRead(Vector3f_t* acc)
         MPU6000_ReadAcc(acc);
     else if(GYRO_TYPE == MPU6500)
         MPU6500_ReadAcc(acc);
+    else if(GYRO_TYPE == ICM20602)
+        ICM20602_ReadAcc(acc);
     else if(GYRO_TYPE == ICM20689)
         ICM20689_ReadAcc(acc);
     
@@ -212,6 +225,8 @@ void TempSensorRead(float* temp)
         MPU6000_ReadTemp(temp);
     else if(GYRO_TYPE == MPU6500)
         MPU6500_ReadTemp(temp);  
+    else if(GYRO_TYPE == ICM20602)
+        ICM20602_ReadTemp(temp); 
     else if(GYRO_TYPE == ICM20689)
         ICM20689_ReadTemp(temp);
 }
