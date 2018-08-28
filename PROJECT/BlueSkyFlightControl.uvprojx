@@ -712,24 +712,29 @@
               <FilePath>..\SRC\MODULE\icm20689.c</FilePath>
             </File>
             <File>
-              <FileName>ms5611.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\SRC\MODULE\ms5611.c</FilePath>
-            </File>
-            <File>
               <FileName>qmc5883.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\qmc5883.c</FilePath>
             </File>
             <File>
-              <FileName>ublox.c</FileName>
+              <FileName>ist8310.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\SRC\MODULE\ublox.c</FilePath>
+              <FilePath>..\SRC\MODULE\ist8310.c</FilePath>
+            </File>
+            <File>
+              <FileName>ms5611.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\ms5611.c</FilePath>
             </File>
             <File>
               <FileName>2smpb.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\2smpb.c</FilePath>
+            </File>
+            <File>
+              <FileName>ublox.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\ublox.c</FilePath>
             </File>
             <File>
               <FileName>battery.c</FileName>

@@ -17,6 +17,7 @@
 #include "ms5611.h"
 #include "2smpb.h"
 #include "qmc5883.h"
+#include "ist8310.h"
 #include "ublox.h"
 #include "drv_pwm.h"
 #include "faultDetect.h"
@@ -118,6 +119,14 @@ void MagSensorInit(void)
         if(QMC5883_Detect())
         {
             QMC5883_Init();
+            detectFlag = 1;
+        }
+    } 
+    else if(MAG_TYPE == IST8310)
+    {
+        if(IST8310_Detect())
+        {
+            IST8310_Init();
             detectFlag = 1;
         }
     } 
@@ -241,6 +250,8 @@ void MagSensorUpdate(void)
 {
     if(MAG_TYPE == QMC5883)
         QMC5883_Update();  
+    else if(MAG_TYPE == IST8310)
+        IST8310_Update();  
 }
 
 /**********************************************************************************************************
@@ -253,6 +264,8 @@ void MagSensorRead(Vector3f_t* mag)
 {
     if(MAG_TYPE == QMC5883)
         QMC5883_Read(mag);
+    else if(MAG_TYPE == IST8310)
+        IST8310_Read(mag);
 
     //传感器方向转换
     MagSensorRotate(mag);    
