@@ -806,6 +806,11 @@
               <FileType>1</FileType>
               <FilePath>..\SRC\DRIVER\drv_ppm.c</FilePath>
             </File>
+            <File>
+              <FileName>drv_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\DRIVER\drv_can.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -865,6 +870,11 @@
               <FileName>stm32f4xx_sdio.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\STMLIB\src\stm32f4xx_sdio.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f4xx_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\STMLIB\src\stm32f4xx_can.c</FilePath>
             </File>
             <File>
               <FileName>stm32f4xx_it.c</FileName>

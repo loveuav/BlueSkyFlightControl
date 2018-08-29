@@ -22,6 +22,7 @@
 #include "drv_usb.h"
 #include "drv_adc.h"
 #include "drv_ppm.h"
+#include "drv_can.h"
 
 static void SysPeriphClockInit(void);
 
@@ -63,6 +64,9 @@ void BoardInit(void)
 	
 	//ADC初始化
 	Adc_Init();
+    
+    //CAN初始化
+    Can_Open(1);
 }
 
 /**********************************************************************************************************
@@ -104,6 +108,10 @@ static void SysPeriphClockInit(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2,ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3,ENABLE);
+    
+    //CAN
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN2, ENABLE);
 }
 
 

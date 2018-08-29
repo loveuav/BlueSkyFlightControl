@@ -209,6 +209,7 @@
 #define USART6_PIN_TX           GPIO_Pin_6
 #define USART6_PIN_RX           GPIO_Pin_7
 #define USART6_IRQ_PRIORITY     3
+
 /**********************************************************************************************************
 *SPI引脚及参数配置
 **********************************************************************************************************/
@@ -237,15 +238,30 @@
 /**********************************************************************************************************
 *软件I2C引脚及参数配置
 **********************************************************************************************************/
-#define SOFT_I2C1_GPIO              GPIOB
-#define SOFT_I2C1_PIN_SCL           GPIO_Pin_6
-#define SOFT_I2C1_PIN_SDA           GPIO_Pin_7
-#define SOFT_I2C1_DELAY             0
+#define SOFT_I2C1_GPIO          GPIOB
+#define SOFT_I2C1_PIN_SCL       GPIO_Pin_6
+#define SOFT_I2C1_PIN_SDA       GPIO_Pin_7
+#define SOFT_I2C1_DELAY         0
 
-#define SOFT_I2C2_GPIO              GPIOA
-#define SOFT_I2C2_PIN_SCL           GPIO_Pin_7
-#define SOFT_I2C2_PIN_SDA           GPIO_Pin_7
-#define SOFT_I2C2_DELAY             0
+#define SOFT_I2C2_GPIO          GPIOA
+#define SOFT_I2C2_PIN_SCL       GPIO_Pin_7
+#define SOFT_I2C2_PIN_SDA       GPIO_Pin_7
+#define SOFT_I2C2_DELAY         0
+
+/**********************************************************************************************************
+*CAN引脚及参数配置
+**********************************************************************************************************/
+#define CAN1_GPIO               GPIOB
+#define CAN1_PINSOURCE_RX       GPIO_PinSource8
+#define CAN1_PINSOURCE_TX       GPIO_PinSource9
+#define CAN1_PIN_RX             GPIO_Pin_8
+#define CAN1_PIN_TX             GPIO_Pin_9
+
+#define CAN2_GPIO               GPIOB
+#define CAN2_PINSOURCE_RX       GPIO_PinSource8
+#define CAN2_PINSOURCE_TX       GPIO_PinSource9
+#define CAN2_PIN_RX             GPIO_Pin_8
+#define CAN2_PIN_TX             GPIO_Pin_9
 
 /**********************************************************************************************************
 *定时器引脚及参数配置
