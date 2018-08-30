@@ -59,9 +59,11 @@ task.h is included from an application file. */
 #if( configAPPLICATION_ALLOCATED_HEAP == 1 )
 	/* The application writer has already defined the array used for the RTOS
 	heap - probably so it can be placed in a special segment or address. */
-	extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+    //使用CCM内存
+	extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((at(0x10000000)));
 #else
-	static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+    //使用CCM内存
+	static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((at(0x10000000)));
 #endif /* configAPPLICATION_ALLOCATED_HEAP */
 
 /* Define the linked list structure.  This is used to link free blocks in order
