@@ -30,7 +30,7 @@ SENSOR_HEALTH_t sensorHealth;
 **********************************************************************************************************/
 void ImuTempControlInit(void)
 {
-    PID_SetParam(&tempPID, 3, 0.2, 1, 200, 30);	
+    PID_SetParam(&tempPID, 8, 0.3, 1, 300, 30);	
 }
 
 /**********************************************************************************************************
@@ -162,7 +162,8 @@ void ImuTempControl(float tempMeasure)
         if(tempMeasure < SENSOR_TEMP_KEPT && !overPreHeatFLag)
         {
             //全速加热
-            TempControlSet(1000);     
+            TempControlSet(1000); 
+            PID_ResetI(&tempPID);             
             return;
         }
         else
@@ -188,7 +189,6 @@ void ImuTempControl(float tempMeasure)
             }          
             else
             {
-                PID_ResetI(&tempPID); 
                 SetInitStatus(HEATING); 
             }
         }
