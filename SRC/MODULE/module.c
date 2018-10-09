@@ -18,6 +18,7 @@
 #include "2smpb.h"
 #include "qmc5883.h"
 #include "ist8310.h"
+#include "mmc3630.h"
 #include "ublox.h"
 #include "drv_pwm.h"
 #include "faultDetect.h"
@@ -130,7 +131,15 @@ void MagSensorInit(void)
             detectFlag = 1;
         }
     } 
-
+    else if(MAG_TYPE == MMC3630)
+    {
+        if(MMC3630_Detect())
+        {
+            MMC3630_Init();
+            detectFlag = 1;
+        }
+    } 
+    
     //未检测到磁力计
     if(!detectFlag)
         FaultDetectSetError(MAG_UNDETECTED);    
@@ -252,6 +261,8 @@ void MagSensorUpdate(void)
         QMC5883_Update();  
     else if(MAG_TYPE == IST8310)
         IST8310_Update();  
+    else if(MAG_TYPE == MMC3630)
+        MMC3630_Update(); 
 }
 
 /**********************************************************************************************************
@@ -266,7 +277,9 @@ void MagSensorRead(Vector3f_t* mag)
         QMC5883_Read(mag);
     else if(MAG_TYPE == IST8310)
         IST8310_Read(mag);
-
+    else if(MAG_TYPE == MMC3630)
+        MMC3630_Read(mag);
+    
     //传感器方向转换
     MagSensorRotate(mag);    
 }

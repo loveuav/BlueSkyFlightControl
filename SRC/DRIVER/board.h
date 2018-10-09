@@ -70,7 +70,8 @@ enum
 {
     HMC5883,
     QMC5883,
-    IST8310
+    IST8310,
+    MMC3630
 };
 
 enum
