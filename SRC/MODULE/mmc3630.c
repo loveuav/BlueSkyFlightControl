@@ -73,9 +73,9 @@
 #define MMC3630KJ_MEAS_M_DONE_BIT	0x01
 
 // 16-bit mode, null field output (32768)
-#define MMC3630KJ_OFFSET			32768.0
-#define MMC3630KJ_SENSITIVITY		1024.0
-#define MMC3630KJ_T_ZERO			(-75.0)
+#define MMC3630KJ_OFFSET			32768.0f
+#define MMC3630KJ_SENSITIVITY		1024.0f
+#define MMC3630KJ_T_ZERO			(-75.0f)
 #define MMC3630KJ_T_SENSITIVITY		0.8
 
 #define OTP_CONVERT(REG)		 ((float)((REG) >=32 ? (32 - (REG)) : (REG)) * 0.006f)
@@ -156,15 +156,15 @@ void MMC3630_Init(void)
     fOtpMatrix[2] = (OTP_CONVERT((reg_data[1] & 0x0f) << 2 | (reg_data[0] & 0xc0) >> 6) + 1.0f) * 1.35f;
     
     /*Change the SET/RESET pulse width*/				    
-	MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_NACT);		
-	MMC3630_WriteReg(MMC3630KJ_REG_PASSWORD, MMC3630KJ_CMD_PASSWORD);	
-	
-	reg_data[0] = MMC3630_ReadReg(MMC3630KJ_REG_SR_PWIDTH) & 0xE7;
-    
-	MMC3630_WriteReg(MMC3630KJ_REG_SR_PWIDTH, reg_data[0]); 	
+//	MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_NACT);		
+//	MMC3630_WriteReg(MMC3630KJ_REG_PASSWORD, MMC3630KJ_CMD_PASSWORD);	
+//	
+//	reg_data[0] = MMC3630_ReadReg(MMC3630KJ_REG_SR_PWIDTH) & 0xE7;
+//    
+//	MMC3630_WriteReg(MMC3630KJ_REG_SR_PWIDTH, reg_data[0]); 	
 
-    /* SET operation when using dual supply */
-    MMC3630_WriteReg(MMC3630KJ_REG_CTRL0, MMC3630KJ_CMD_SET);
+//    /* SET operation when using dual supply */
+//    MMC3630_WriteReg(MMC3630KJ_REG_CTRL0, MMC3630KJ_CMD_SET);
     
     /*设置输出分辨率*/
     MMC3630_WriteReg(MMC3630KJ_REG_CTRL1, MMC3630KJ_CMD_200HZ);
@@ -186,19 +186,18 @@ void MMC3630_Update(void)
 	uint8_t buffer[6];
     uint16_t dataTemp[3];
     uint16_t rawData[3];
-    static int set_cnt = 0;
-    
-	buffer[1] = MMC3630_ReadReg(MMC3630KJ_REG_XL);	
-	buffer[0] = MMC3630_ReadReg(MMC3630KJ_REG_XH);
-	dataTemp[0] = (uint16_t)buffer[0] << 8 | buffer[1];
-	
-	buffer[3] = MMC3630_ReadReg(MMC3630KJ_REG_YL);
-	buffer[2] = MMC3630_ReadReg(MMC3630KJ_REG_YH);
-	dataTemp[1] = (uint16_t)buffer[2] << 8 | buffer[3];
 
-	buffer[5] = MMC3630_ReadReg(MMC3630KJ_REG_ZL);	
-	buffer[4] = MMC3630_ReadReg(MMC3630KJ_REG_ZH); 
-	dataTemp[2] = (uint16_t)buffer[4] << 8 | buffer[5];
+	buffer[0] = MMC3630_ReadReg(MMC3630KJ_REG_XL);	
+	buffer[1] = MMC3630_ReadReg(MMC3630KJ_REG_XH);
+	dataTemp[0] = (uint16_t)buffer[1] << 8 | buffer[0];
+	
+	buffer[2] = MMC3630_ReadReg(MMC3630KJ_REG_YL);
+	buffer[3] = MMC3630_ReadReg(MMC3630KJ_REG_YH);
+	dataTemp[1] = (uint16_t)buffer[3] << 8 | buffer[2];
+
+	buffer[4] = MMC3630_ReadReg(MMC3630KJ_REG_ZL);	
+	buffer[5] = MMC3630_ReadReg(MMC3630KJ_REG_ZH); 
+	dataTemp[2] = (uint16_t)buffer[5] << 8 | buffer[4];
     
     rawData[0] = dataTemp[0];
     rawData[1] = dataTemp[1] - dataTemp[2] + 32768;
@@ -215,11 +214,6 @@ void MMC3630_Update(void)
     
     /*使能测量*/
     MMC3630_WriteReg(MMC3630KJ_REG_CTRL0, MMC3630KJ_CMD_TM_M);
-    
-    if(set_cnt++ >= 500){
-        set_cnt = 0;
-        MMC3630_WriteReg(MMC3630KJ_REG_CTRL0, MMC3630KJ_CMD_SET);
-    }	
 }
 
 /**********************************************************************************************************
