@@ -228,9 +228,9 @@ void MagCalibration(void)
                 initBeta[0] = (samples[MaxX].x + samples[MinX].x) * 0.5f;
                 initBeta[1] = (samples[MaxY].y + samples[MinY].y) * 0.5f;
                 initBeta[2] = (samples[MaxZ].z + samples[MinZ].z) * 0.5f;
-                initBeta[3] = 1;
-                initBeta[4] = 1;
-                initBeta[5] = 1;
+                initBeta[3] = 1 / earthMag;
+                initBeta[4] = 1 / earthMag;
+                initBeta[5] = 1 / earthMag;
                 
                 //LM法求解传感器误差方程最优解
                 LevenbergMarquardt(samples, &new_offset, &new_scale, initBeta, earthMag);
