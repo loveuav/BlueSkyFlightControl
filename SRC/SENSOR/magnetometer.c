@@ -155,9 +155,10 @@ void MagCalibration(void)
             //实时计算磁场强度模值
             earthMag = earthMag * 0.998f + Pythagorous3(magRaw.x, magRaw.y, magRaw.z) * 0.002f;
             
-            //找到每个轴的最大最小值，并对采样值进行一阶低通滤波
-            if(Pythagorous3(magRaw.x, magRaw.y, magRaw.z) < earthMag * 1.45f)
+             //找到每个轴的最大最小值，并对采样值进行一阶低通滤波
+            if(Pythagorous3(magRaw.x, magRaw.y, magRaw.z) < earthMag * 1.5f)
             {
+                //找到每个轴的最大最小值，并对采样值进行一阶低通滤波
                 if(magRaw.x > samples[MaxX].x)
                 { 
                     LowPassFilter1st(&samples[MaxX], magRaw, 0.3);
@@ -214,14 +215,25 @@ void MagCalibration(void)
                 earthMag = 0;
                 
                 //计算当地地磁场强度模值均值
-                for(u8 i=0;i<6;i++)
+                for(u8 i=0;i<3;i++)
                 {
-                    earthMag += Pythagorous3(samples[i].x, samples[i].y, samples[i].z);
+                    earthMag += Pythagorous3((samples[i*2].x - samples[i*2+1].x) * 0.5f, 
+                                             (samples[i*2].y - samples[i*2+1].y) * 0.5f,
+                                             (samples[i*2].z - samples[i*2+1].z) * 0.5f);
                 }
-                earthMag /= 6;
+                earthMag /= 3;
+                
+                //计算方程解初值
+                float initBeta[6];
+                initBeta[0] = (samples[MaxX].x + samples[MinX].x) * 0.5f;
+                initBeta[1] = (samples[MaxY].y + samples[MinY].y) * 0.5f;
+                initBeta[2] = (samples[MaxZ].z + samples[MinZ].z) * 0.5f;
+                initBeta[3] = 1;
+                initBeta[4] = 1;
+                initBeta[5] = 1;
                 
                 //LM法求解传感器误差方程最优解
-                LevenbergMarquardt(samples, &new_offset, &new_scale, earthMag);
+                LevenbergMarquardt(samples, &new_offset, &new_scale, initBeta, earthMag);
                 
                 //判断校准参数是否正常
                 if(isnan(new_scale.x) || isnan(new_scale.y) || isnan(new_scale.z))
@@ -232,7 +244,7 @@ void MagCalibration(void)
                 {
                     mag.cali.success = false;
                 }
-                else if(fabsf(new_offset.x) > (earthMag * 0.8f) || fabsf(new_offset.y) > (earthMag * 0.8f) || fabsf(new_offset.z) > (earthMag * 0.8f)) 
+                else if(fabsf(new_offset.x) > (earthMag * 2) || fabsf(new_offset.y) > (earthMag * 2) || fabsf(new_offset.z) > (earthMag * 2)) 
                 {
                     mag.cali.success = false;
                 }

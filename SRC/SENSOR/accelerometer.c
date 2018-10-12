@@ -304,15 +304,23 @@ void AccCalibration(Vector3f_t accRaw)
                     break;
                 default:
                     break;
-            }
-                         
+            }           
 		}		
 	}
 
 	if(acc.cali.step == 6 && samples_count == 501)
 	{		
+        //计算方程解初值
+        float initBeta[6];
+        initBeta[0] = 0;
+        initBeta[1] = 0;
+        initBeta[2] = 0;
+        initBeta[3] = 1;
+        initBeta[4] = 1;
+        initBeta[5] = 1;
+        
 		//LM法求解传感器误差方程最优解
-		LevenbergMarquardt(samples, &new_offset, &new_scale, 1);
+		LevenbergMarquardt(samples, &new_offset, &new_scale, initBeta, 1);
 
 		//判断校准参数是否正常
 		if(fabsf(new_scale.x-1.0f) > 0.1f || fabsf(new_scale.y-1.0f) > 0.1f || fabsf(new_scale.z-1.0f) > 0.1f) 

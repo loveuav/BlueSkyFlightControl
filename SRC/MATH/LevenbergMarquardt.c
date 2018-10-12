@@ -26,13 +26,13 @@ static void GaussEliminateSolveDelta(float dS[6], float JS[6][6], float delta[6]
 /**********************************************************************************************************
 *函 数 名: LevenbergMarquardt
 *功能说明: Levenberg-Marquardt算法求解传感器误差方程，得到校准参数
-*形    参: 传感器采样数据（6组） 零偏误差指针 比例误差指针 数据向量长度
+*形    参: 传感器采样数据（6组） 零偏误差指针 比例误差指针 方程初解 数据向量长度
 *返 回 值: 无
 **********************************************************************************************************/
-void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t* scale, float length)
+void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t* scale, float initBeta[6], float length)
 {
     uint32_t cnt    = 0;
-    double   eps    = 0.000000001;
+    double   eps    = 1e-10;
     double   change = 100.0;
     double   changeTemp = 100.0;
     float    data[3];  
@@ -42,8 +42,10 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
     float    JtJ[6][6];    //海森矩阵
 
     //方程解赋初值
-    beta[0] = beta[1] = beta[2] = 0;
-    beta[3] = beta[4] = beta[5] = 1 / length;
+    for(uint8_t i=0; i<6; i++)
+    {
+        beta[i] = initBeta[i];
+    }    
     
     //LM因子初始化
     lm_lambda = 0.1;
