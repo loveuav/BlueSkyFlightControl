@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.06 
+ * @日期     2018.06
 **********************************************************************************************************/
 #include "TaskConfig.h"
 
@@ -21,21 +21,21 @@ xTaskHandle messageTask;
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-portTASK_FUNCTION(vMessageTask, pvParameters) 
-{	
+portTASK_FUNCTION(vMessageTask, pvParameters)
+{
     portTickType xLastWakeTime;
 
     //飞控数据通信初始化
-	MessageInit();
-    
+    MessageInit();
+
     xLastWakeTime = xTaskGetTickCount();
-	for(;;)
-	{
+    for(;;)
+    {
         //发送飞控数据
         MessageSendLoop();
-        
-		vTaskDelayUntil(&xLastWakeTime, ((1000 / MAX_SEND_FREQ) / portTICK_RATE_MS));
-	}
+
+        vTaskDelayUntil(&xLastWakeTime, ((1000 / MAX_SEND_FREQ) / portTICK_RATE_MS));
+    }
 }
 
 /**********************************************************************************************************
@@ -46,7 +46,7 @@ portTASK_FUNCTION(vMessageTask, pvParameters)
 **********************************************************************************************************/
 void MessageTaskCreate(void)
 {
-	xTaskCreate(vMessageTask, "message", MESSAGE_TASK_STACK, NULL, MESSAGE_TASK_PRIORITY, &messageTask); 
+    xTaskCreate(vMessageTask, "message", MESSAGE_TASK_STACK, NULL, MESSAGE_TASK_PRIORITY, &messageTask);
 }
 
 /**********************************************************************************************************
@@ -57,7 +57,7 @@ void MessageTaskCreate(void)
 **********************************************************************************************************/
 int16_t	GetMessageTaskStackRemain(void)
 {
-	return uxTaskGetStackHighWaterMark(messageTask);
+    return uxTaskGetStackHighWaterMark(messageTask);
 }
 
 

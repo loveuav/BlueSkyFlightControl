@@ -3,13 +3,13 @@
 
 #include "mathTool.h"
 
-typedef struct{
-	Vector3f_t accel;
-	Vector3f_t velocity;
+typedef struct {
+    Vector3f_t accel;
+    Vector3f_t velocity;
     Vector3f_t velMeasure;
-	Vector3f_t position;
-    Vector3f_t posMeasure;    
-}NAVGATION_t;
+    Vector3f_t position;
+    Vector3f_t posMeasure;
+} NAVGATION_t;
 
 void NavigationInit(void);
 void VelocityEstimate(void);

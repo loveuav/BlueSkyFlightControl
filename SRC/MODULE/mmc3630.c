@@ -13,7 +13,7 @@
 #include "drv_i2c_soft.h"
 
 //模拟IIC地址
-#define MMC3630KJ_ADDRESS	        0x60    
+#define MMC3630KJ_ADDRESS	        0x60
 //硬件IIC地址
 //#define MMC3630KJ_ADDRESS	        0x30
 
@@ -39,7 +39,7 @@
 #define MMC3630KJ_REG_SR_PWIDTH		0x20
 #define MMC3630KJ_REG_OTP			0x2A
 #define MMC3630KJ_REG_PRODUCTID		0x2F
- 
+
 #define MMC3630KJ_CMD_REFILL		0x20
 #define MMC3630KJ_CMD_RESET         0x10
 #define MMC3630KJ_CMD_SET			0x08
@@ -79,7 +79,7 @@
 #define MMC3630KJ_T_SENSITIVITY		0.8
 
 #define OTP_CONVERT(REG)		 ((float)((REG) >=32 ? (32 - (REG)) : (REG)) * 0.006f)
-    
+
 //默认传感器补偿值
 static float fOtpMatrix[3] = {1.0f,1.0f,1.35f};
 
@@ -117,17 +117,17 @@ bool MMC3630_Detect(void)
 {
     //复位
     MMC3630_WriteReg(MMC3630KJ_REG_CTRL1, MMC3630KJ_CMD_SW_RST);
-    
-    SoftDelayMs(10);	
-    
+
+    SoftDelayMs(10);
+
     //检查OTP读取状态
-	if((MMC3630_ReadReg(MMC3630KJ_REG_STATUS) & 0x10) != MMC3630KJ_OTP_READ_DONE_BIT)
+    if((MMC3630_ReadReg(MMC3630KJ_REG_STATUS) & 0x10) != MMC3630KJ_OTP_READ_DONE_BIT)
         return false;
-        
-	if(MMC3630_ReadReg(MMC3630KJ_REG_PRODUCTID) == MMC3630KJ_PRODUCT_ID)
-		return true;
-	else
-		return false;
+
+    if(MMC3630_ReadReg(MMC3630KJ_REG_PRODUCTID) == MMC3630KJ_PRODUCT_ID)
+        return true;
+    else
+        return false;
 }
 
 /**********************************************************************************************************
@@ -138,40 +138,40 @@ bool MMC3630_Detect(void)
 **********************************************************************************************************/
 void MMC3630_Init(void)
 {
-	uint8_t reg_data[2] = {0}; 
+    uint8_t reg_data[2] = {0};
 
     /*读取OTP存储器中的数据，并计算传感器补偿值*/
-	MMC3630_WriteReg(MMC3630KJ_REG_PASSWORD, MMC3630KJ_CMD_PASSWORD);
-	MMC3630_WriteReg(MMC3630KJ_REG_OTPMODE, MMC3630KJ_CMD_OTP_OPER);
-	MMC3630_WriteReg(MMC3630KJ_REG_TESTMODE, MMC3630KJ_CMD_OTP_MR);  
-	MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_ACT); 	
-    
+    MMC3630_WriteReg(MMC3630KJ_REG_PASSWORD, MMC3630KJ_CMD_PASSWORD);
+    MMC3630_WriteReg(MMC3630KJ_REG_OTPMODE, MMC3630KJ_CMD_OTP_OPER);
+    MMC3630_WriteReg(MMC3630KJ_REG_TESTMODE, MMC3630KJ_CMD_OTP_MR);
+    MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_ACT);
+
     reg_data[0] = MMC3630_ReadReg(MMC3630KJ_REG_OTP);
     reg_data[1] = MMC3630_ReadReg(MMC3630KJ_REG_OTP + 1);
-    
-	MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_NACT); 
 
-	fOtpMatrix[0] = 1.0f;
-	fOtpMatrix[1] = OTP_CONVERT(reg_data[0] & 0x3f) + 1.0f;
+    MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_NACT);
+
+    fOtpMatrix[0] = 1.0f;
+    fOtpMatrix[1] = OTP_CONVERT(reg_data[0] & 0x3f) + 1.0f;
     fOtpMatrix[2] = (OTP_CONVERT((reg_data[1] & 0x0f) << 2 | (reg_data[0] & 0xc0) >> 6) + 1.0f) * 1.35f;
-    
-    /*Change the SET/RESET pulse width*/				    
-//	MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_NACT);		
-//	MMC3630_WriteReg(MMC3630KJ_REG_PASSWORD, MMC3630KJ_CMD_PASSWORD);	
-//	
+
+    /*Change the SET/RESET pulse width*/
+//	MMC3630_WriteReg(MMC3630KJ_REG_CTRL2, MMC3630KJ_CMD_OTP_NACT);
+//	MMC3630_WriteReg(MMC3630KJ_REG_PASSWORD, MMC3630KJ_CMD_PASSWORD);
+//
 //	reg_data[0] = MMC3630_ReadReg(MMC3630KJ_REG_SR_PWIDTH) & 0xE7;
-//    
-//	MMC3630_WriteReg(MMC3630KJ_REG_SR_PWIDTH, reg_data[0]); 	
+//
+//	MMC3630_WriteReg(MMC3630KJ_REG_SR_PWIDTH, reg_data[0]);
 
 //    /* SET operation when using dual supply */
 //    MMC3630_WriteReg(MMC3630KJ_REG_CTRL0, MMC3630KJ_CMD_SET);
-    
+
     /*设置输出分辨率*/
     MMC3630_WriteReg(MMC3630KJ_REG_CTRL1, MMC3630KJ_CMD_200HZ);
-    
+
     /*使能测量*/
     MMC3630_WriteReg(MMC3630KJ_REG_CTRL0, MMC3630KJ_CMD_TM_M);
-    
+
     SoftDelayMs(10);
 }
 
@@ -183,35 +183,35 @@ void MMC3630_Init(void)
 **********************************************************************************************************/
 void MMC3630_Update(void)
 {
-	uint8_t buffer[6];
+    uint8_t buffer[6];
     uint16_t dataTemp[3];
     uint16_t rawData[3];
 
-	buffer[0] = MMC3630_ReadReg(MMC3630KJ_REG_XL);	
-	buffer[1] = MMC3630_ReadReg(MMC3630KJ_REG_XH);
-	dataTemp[0] = (uint16_t)buffer[1] << 8 | buffer[0];
-	
-	buffer[2] = MMC3630_ReadReg(MMC3630KJ_REG_YL);
-	buffer[3] = MMC3630_ReadReg(MMC3630KJ_REG_YH);
-	dataTemp[1] = (uint16_t)buffer[3] << 8 | buffer[2];
+    buffer[0] = MMC3630_ReadReg(MMC3630KJ_REG_XL);
+    buffer[1] = MMC3630_ReadReg(MMC3630KJ_REG_XH);
+    dataTemp[0] = (uint16_t)buffer[1] << 8 | buffer[0];
 
-	buffer[4] = MMC3630_ReadReg(MMC3630KJ_REG_ZL);	
-	buffer[5] = MMC3630_ReadReg(MMC3630KJ_REG_ZH); 
-	dataTemp[2] = (uint16_t)buffer[5] << 8 | buffer[4];
-    
+    buffer[2] = MMC3630_ReadReg(MMC3630KJ_REG_YL);
+    buffer[3] = MMC3630_ReadReg(MMC3630KJ_REG_YH);
+    dataTemp[1] = (uint16_t)buffer[3] << 8 | buffer[2];
+
+    buffer[4] = MMC3630_ReadReg(MMC3630KJ_REG_ZL);
+    buffer[5] = MMC3630_ReadReg(MMC3630KJ_REG_ZH);
+    dataTemp[2] = (uint16_t)buffer[5] << 8 | buffer[4];
+
     rawData[0] = dataTemp[0];
     rawData[1] = dataTemp[1] - dataTemp[2] + 32768;
-    rawData[2] = dataTemp[1] + dataTemp[2] - 32768; 
-    
+    rawData[2] = dataTemp[1] + dataTemp[2] - 32768;
+
     magRaw.x = rawData[0] - MMC3630KJ_OFFSET;
     magRaw.y = rawData[1] - MMC3630KJ_OFFSET;
     magRaw.z = rawData[2] - MMC3630KJ_OFFSET;
-    
+
     //统一传感器坐标系（并非定义安装方向）
     magRaw.x = magRaw.x;
     magRaw.y = -magRaw.y;
-    magRaw.z = magRaw.z;    
-    
+    magRaw.z = magRaw.z;
+
     /*使能测量*/
     MMC3630_WriteReg(MMC3630KJ_REG_CTRL0, MMC3630KJ_CMD_TM_M);
 }
@@ -224,9 +224,9 @@ void MMC3630_Update(void)
 **********************************************************************************************************/
 void MMC3630_Read(Vector3f_t* mag)
 {
-	mag->x = magRaw.x / MMC3630KJ_SENSITIVITY * fOtpMatrix[0];
-	mag->y = magRaw.y / MMC3630KJ_SENSITIVITY * fOtpMatrix[1];
-	mag->z = magRaw.z / MMC3630KJ_SENSITIVITY * fOtpMatrix[2];
+    mag->x = magRaw.x / MMC3630KJ_SENSITIVITY * fOtpMatrix[0];
+    mag->y = magRaw.y / MMC3630KJ_SENSITIVITY * fOtpMatrix[1];
+    mag->z = magRaw.z / MMC3630KJ_SENSITIVITY * fOtpMatrix[2];
 }
 
 

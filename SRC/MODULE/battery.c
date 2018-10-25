@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.06 
+ * @日期     2018.06
 **********************************************************************************************************/
 #include "battery.h"
 #include "drv_adc.h"
@@ -33,7 +33,7 @@ void BatteryVoltageUpdate(void)
     else
     {
         batVoltage = batVoltage * 0.999f + GetVoltageAdcValue() * ADC_VOLTAGE_COEF * 0.001f;
-    }  
+    }
 }
 
 /**********************************************************************************************************
@@ -51,7 +51,7 @@ void BatteryCurrentUpdate(void)
     else
     {
         batCurrent = batCurrent * 0.99f + GetCurrentAdcValue() * ADC_CURRENT_COEF * 0.01f;
-    }  
+    }
 }
 
 /**********************************************************************************************************

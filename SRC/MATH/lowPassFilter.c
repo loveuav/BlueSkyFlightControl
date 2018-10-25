@@ -7,7 +7,7 @@
  * @版本  	 V1.1
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.07 
+ * @日期     2018.07
 **********************************************************************************************************/
 #include "lowPassFilter.h"
 
@@ -32,10 +32,10 @@ void LowPassFilter1st(Vector3f_t* data, Vector3f_t newData, float coff)
 **********************************************************************************************************/
 void LowPassFilter2ndFactorCal(float deltaT, float Fcut, LPF2ndData_t* lpf_data)
 {
-	float a = 1 / (2 * M_PI * Fcut * deltaT);
-	lpf_data->b0 = 1 / (a*a + 3*a + 1);
-	lpf_data->a1 = (2*a*a + 3*a) / (a*a + 3*a + 1);
-	lpf_data->a2 = (a*a) / (a*a + 3*a + 1);
+    float a = 1 / (2 * M_PI * Fcut * deltaT);
+    lpf_data->b0 = 1 / (a*a + 3*a + 1);
+    lpf_data->a1 = (2*a*a + 3*a) / (a*a + 3*a + 1);
+    lpf_data->a2 = (a*a) / (a*a + 3*a + 1);
 }
 
 /**********************************************************************************************************
@@ -46,21 +46,21 @@ void LowPassFilter2ndFactorCal(float deltaT, float Fcut, LPF2ndData_t* lpf_data)
 **********************************************************************************************************/
 Vector3f_t LowPassFilter2nd(LPF2ndData_t* lpf_2nd, Vector3f_t rawData)
 {
-	Vector3f_t lpf_2nd_data;
+    Vector3f_t lpf_2nd_data;
 
-	lpf_2nd_data.x = rawData.x * lpf_2nd->b0 + lpf_2nd->lastout.x * lpf_2nd->a1 - lpf_2nd->preout.x * lpf_2nd->a2;
-	lpf_2nd_data.y = rawData.y * lpf_2nd->b0 + lpf_2nd->lastout.y * lpf_2nd->a1 - lpf_2nd->preout.y * lpf_2nd->a2;
-	lpf_2nd_data.z = rawData.z * lpf_2nd->b0 + lpf_2nd->lastout.z * lpf_2nd->a1 - lpf_2nd->preout.z * lpf_2nd->a2;
+    lpf_2nd_data.x = rawData.x * lpf_2nd->b0 + lpf_2nd->lastout.x * lpf_2nd->a1 - lpf_2nd->preout.x * lpf_2nd->a2;
+    lpf_2nd_data.y = rawData.y * lpf_2nd->b0 + lpf_2nd->lastout.y * lpf_2nd->a1 - lpf_2nd->preout.y * lpf_2nd->a2;
+    lpf_2nd_data.z = rawData.z * lpf_2nd->b0 + lpf_2nd->lastout.z * lpf_2nd->a1 - lpf_2nd->preout.z * lpf_2nd->a2;
 
-	lpf_2nd->preout.x = lpf_2nd->lastout.x;
-	lpf_2nd->preout.y = lpf_2nd->lastout.y;
-	lpf_2nd->preout.z = lpf_2nd->lastout.z;
+    lpf_2nd->preout.x = lpf_2nd->lastout.x;
+    lpf_2nd->preout.y = lpf_2nd->lastout.y;
+    lpf_2nd->preout.z = lpf_2nd->lastout.z;
 
-	lpf_2nd->lastout.x = lpf_2nd_data.x;
-	lpf_2nd->lastout.y = lpf_2nd_data.y;
-	lpf_2nd->lastout.z = lpf_2nd_data.z;
+    lpf_2nd->lastout.x = lpf_2nd_data.x;
+    lpf_2nd->lastout.y = lpf_2nd_data.y;
+    lpf_2nd->lastout.z = lpf_2nd_data.z;
 
-	return lpf_2nd_data;
+    return lpf_2nd_data;
 }
 
 

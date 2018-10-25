@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.08 
+ * @日期     2018.08
 **********************************************************************************************************/
 #include "LevenbergMarquardt.h"
 
@@ -35,7 +35,7 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
     double   eps    = 1e-10;
     double   change = 100.0;
     double   changeTemp = 100.0;
-    float    data[3];  
+    float    data[3];
     float    beta[6];      //方程解
     float    delta[6];     //迭代步长
     float    JtR[6];       //梯度矩阵
@@ -45,19 +45,19 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
     for(uint8_t i=0; i<6; i++)
     {
         beta[i] = initBeta[i];
-    }    
-    
+    }
+
     //LM因子初始化
     lm_lambda = 0.1;
-    
+
     //开始迭代，当迭代步长小于eps时结束计算，得到方程近似最优解
-    while(change > eps) 
+    while(change > eps)
     {
         //矩阵初始化
         ResetMatrices(JtR, JtJ);
 
         //计算误差方程函数的梯度JtR和海森矩阵JtJ
-        for(uint8_t i=0; i<6; i++) 
+        for(uint8_t i=0; i<6; i++)
         {
             data[0] = inputData[i].x;
             data[1] = inputData[i].y;
@@ -83,22 +83,22 @@ void LevenbergMarquardt(Vector3f_t inputData[6], Vector3f_t* offset, Vector3f_t*
         {
             //LM因子减小
             lm_lambda /= 3;
-            
+
             //更新方程解
-            for(uint8_t i=0; i<6; i++) 
+            for(uint8_t i=0; i<6; i++)
             {
                 beta[i] -= delta[i];
             }
-            
+
             change = changeTemp;
         }
         else
         {
-             //LM因子增大
+            //LM因子增大
             lm_lambda *= 3;
             lm_lambda = ConstrainFloat(lm_lambda, 0, 1e10);
         }
-        
+
         //限制迭代次数
         if(cnt++ > 1000)
             break;
@@ -125,27 +125,27 @@ static void UpdateMatrices(float JtR[6], float JtJ[6][6], float beta[6], float d
     float dx, b;
     float residual = 1.0;
     float jacobian[6];
-    
+
     //误差方程：residual = length² - ((x-b0) * b3)² + ((y-b1) * b4)² + ((z-b2) * b5)²
     //前面对参数进行了归一化，所以这里的length == 1
-    for(j=0; j<3; j++) 
-    { 
+    for(j=0; j<3; j++)
+    {
         b = beta[3+j];
         dx = (float)data[j] - beta[j];
-        //计算残差 
+        //计算残差
         residual -= b*b*dx*dx;
-        
+
         //计算雅可比矩阵
         jacobian[j] = 2.0f*b*b*dx;
         jacobian[3+j] = -2.0f*b*dx*dx;
     }
-    
-    for(j=0; j<6; j++) 
+
+    for(j=0; j<6; j++)
     {
         //计算函数梯度
         JtR[j] += jacobian[j]*residual;
-        
-        for(k=0; k<6; k++) 
+
+        for(k=0; k<6; k++)
         {
             //计算海森矩阵（简化形式，省略二阶偏导），即雅可比矩阵与其转置的乘积
             JtJ[j][k] += jacobian[j]*jacobian[k];
@@ -162,10 +162,10 @@ static void UpdateMatrices(float JtR[6], float JtJ[6][6], float beta[6], float d
 static void ResetMatrices(float JtR[6], float JtJ[6][6])
 {
     int16_t j,k;
-    for(j=0; j<6; j++) 
+    for(j=0; j<6; j++)
     {
         JtR[j] = 0.0f;
-        for(k=0; k<6; k++) 
+        for(k=0; k<6; k++)
         {
             JtJ[j][k] = 0.0f;
         }
@@ -182,13 +182,13 @@ static void GaussEliminateSolveDelta(float JtR[6], float JtJ[6][6], float delta[
 {
     int16_t i,j,k;
     float mu;
-    
+
     //加入LM因子
     for(i=0; i<6; i++)
     {
-         JtJ[i][i] += lm_lambda;
+        JtJ[i][i] += lm_lambda;
     }
-    
+
     //逐次消元，将线性方程组转换为上三角方程组
     for(i=0; i<6; i++)
     {
@@ -196,7 +196,7 @@ static void GaussEliminateSolveDelta(float JtR[6], float JtJ[6][6], float delta[
         for(j=i+1; j<6; j++)
         {
             mu = JtJ[i][j] / JtJ[i][i];
-            if(mu != 0.0f) 
+            if(mu != 0.0f)
             {
                 JtR[j] -= mu * JtR[i];
                 for(k=j; k<6; k++)
@@ -212,7 +212,7 @@ static void GaussEliminateSolveDelta(float JtR[6], float JtJ[6][6], float delta[
     {
         JtR[i] /= JtJ[i][i];
         JtJ[i][i] = 1.0f;
-        
+
         for(j=0; j<i; j++)
         {
             mu = JtJ[i][j];

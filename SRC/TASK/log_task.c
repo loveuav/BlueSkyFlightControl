@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.08 
+ * @日期     2018.08
 **********************************************************************************************************/
 #include "TaskConfig.h"
 
@@ -21,21 +21,21 @@ xTaskHandle logTask;
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-portTASK_FUNCTION(vLogTask, pvParameters) 
-{	
+portTASK_FUNCTION(vLogTask, pvParameters)
+{
     portTickType xLastWakeTime;
-    
+
     //飞行日志初始化
     LoggerInit();
-    
+
     xLastWakeTime = xTaskGetTickCount();
-	for(;;)
-	{
+    for(;;)
+    {
         //记录飞行日志
         LoggerLoop();
-          
+
         vTaskDelayUntil(&xLastWakeTime, ((1000 / LOG_RATE) / portTICK_RATE_MS));
-	}
+    }
 }
 
 /**********************************************************************************************************
@@ -46,7 +46,7 @@ portTASK_FUNCTION(vLogTask, pvParameters)
 **********************************************************************************************************/
 void LogTaskCreate(void)
 {
-	xTaskCreate(vLogTask, "log", LOG_TASK_STACK, NULL, LOG_TASK_PRIORITY, &logTask); 
+    xTaskCreate(vLogTask, "log", LOG_TASK_STACK, NULL, LOG_TASK_PRIORITY, &logTask);
 }
 
 /**********************************************************************************************************
@@ -57,7 +57,7 @@ void LogTaskCreate(void)
 **********************************************************************************************************/
 int16_t	GetLogTaskStackRemain(void)
 {
-	return uxTaskGetStackHighWaterMark(logTask);
+    return uxTaskGetStackHighWaterMark(logTask);
 }
 
 

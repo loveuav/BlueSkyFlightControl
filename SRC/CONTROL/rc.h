@@ -4,7 +4,7 @@
 #include "mathTool.h"
 #include "board.h"
 
-enum 
+enum
 {
     AUX1,
     AUX2,
@@ -20,14 +20,14 @@ enum
     AUX12
 };
 
-enum 
+enum
 {
     LOW,
     MID,
     HIGH
 };
 
-enum 
+enum
 {
     ROLL,
     PITCH,
@@ -41,7 +41,7 @@ typedef struct
     int16_t pitch;      //俯仰
     int16_t yaw;        //偏航
     int16_t throttle;   //油门
-}RCCOMMAND_t;
+} RCCOMMAND_t;
 
 void RcInit(void);
 void RcCheck(void);

@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "drv_flash.h"
 
@@ -19,7 +19,7 @@
 **********************************************************************************************************/
 uint8_t Flash_ReadByte(uint32_t start_addr, uint16_t cnt)
 {
-	return *(__IO uint8_t*)(start_addr+cnt);
+    return *(__IO uint8_t*)(start_addr+cnt);
 }
 
 /**********************************************************************************************************
@@ -30,7 +30,7 @@ uint8_t Flash_ReadByte(uint32_t start_addr, uint16_t cnt)
 **********************************************************************************************************/
 uint32_t Flash_ReadWord(uint32_t addr)
 {
-	return *(vu32*)addr; 
+    return *(vu32*)addr;
 }
 
 
@@ -42,29 +42,29 @@ uint32_t Flash_ReadWord(uint32_t addr)
 **********************************************************************************************************/
 uint16_t Flash_GetSector(uint32_t addr)
 {
-	if(addr<ADDR_FLASH_SECTOR_1)
-		return FLASH_Sector_0;
-	else if(addr<ADDR_FLASH_SECTOR_2)
-		return FLASH_Sector_1;
-	else if(addr<ADDR_FLASH_SECTOR_3)
-		return FLASH_Sector_2;
-	else if(addr<ADDR_FLASH_SECTOR_4)
-		return FLASH_Sector_3;
-	else if(addr<ADDR_FLASH_SECTOR_5)
-		return FLASH_Sector_4;
-	else if(addr<ADDR_FLASH_SECTOR_6)
-		return FLASH_Sector_5;
-	else if(addr<ADDR_FLASH_SECTOR_7)
-		return FLASH_Sector_6;
-	else if(addr<ADDR_FLASH_SECTOR_8)
-		return FLASH_Sector_7;
-	else if(addr<ADDR_FLASH_SECTOR_9)
-		return FLASH_Sector_8;
-	else if(addr<ADDR_FLASH_SECTOR_10)
-		return FLASH_Sector_9;
-	else if(addr<ADDR_FLASH_SECTOR_11)
-		return FLASH_Sector_10;
-	return FLASH_Sector_11;
+    if(addr<ADDR_FLASH_SECTOR_1)
+        return FLASH_Sector_0;
+    else if(addr<ADDR_FLASH_SECTOR_2)
+        return FLASH_Sector_1;
+    else if(addr<ADDR_FLASH_SECTOR_3)
+        return FLASH_Sector_2;
+    else if(addr<ADDR_FLASH_SECTOR_4)
+        return FLASH_Sector_3;
+    else if(addr<ADDR_FLASH_SECTOR_5)
+        return FLASH_Sector_4;
+    else if(addr<ADDR_FLASH_SECTOR_6)
+        return FLASH_Sector_5;
+    else if(addr<ADDR_FLASH_SECTOR_7)
+        return FLASH_Sector_6;
+    else if(addr<ADDR_FLASH_SECTOR_8)
+        return FLASH_Sector_7;
+    else if(addr<ADDR_FLASH_SECTOR_9)
+        return FLASH_Sector_8;
+    else if(addr<ADDR_FLASH_SECTOR_10)
+        return FLASH_Sector_9;
+    else if(addr<ADDR_FLASH_SECTOR_11)
+        return FLASH_Sector_10;
+    return FLASH_Sector_11;
 }
 
 /**********************************************************************************************************
@@ -73,7 +73,7 @@ uint16_t Flash_GetSector(uint32_t addr)
 *形    参: 写入地址 写入数据缓冲区指针 写入长度
 *返 回 值: 写入状态
 **********************************************************************************************************/
-bool Flash_WriteByte(uint32_t dest,uint8_t *src,uint32_t length) 
+bool Flash_WriteByte(uint32_t dest,uint8_t *src,uint32_t length)
 {
     FLASH_Status status = FLASH_COMPLETE;
     bool return_value = false;
@@ -81,21 +81,21 @@ bool Flash_WriteByte(uint32_t dest,uint8_t *src,uint32_t length)
     uint32_t end_addr = 0;
 
     if(dest<FLASH_BASE_START_ADDR || dest>FLASH_BASE_END_ADDR) //非法地址
-        return false;	
+        return false;
 
     FLASH_Unlock();	//解锁
-    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
-    FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
+    FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
+                    FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
     FLASH_DataCacheCmd(DISABLE);//FLASH擦除期间，必须禁止数据缓存
 
     start_addr = dest;			//写入的起始地址
     end_addr = dest + length;	//写入的结束地址
 
-    while(start_addr < end_addr)		
+    while(start_addr < end_addr)
     {
         if(Flash_ReadWord(start_addr) != 0XFFFFFFFF)//有非0XFFFFFFFF的地方，要擦除这个扇区
         {
-            status = FLASH_EraseSector(Flash_GetSector(start_addr),VoltageRange_3);//VCC=2.7~3.6V之间!! 
+            status = FLASH_EraseSector(Flash_GetSector(start_addr),VoltageRange_3);//VCC=2.7~3.6V之间!!
 
             if(status != FLASH_COMPLETE) //发生错误了
             {
@@ -103,7 +103,7 @@ bool Flash_WriteByte(uint32_t dest,uint8_t *src,uint32_t length)
                 break;
             }
         }
-        else 
+        else
             start_addr+=4;
     }
 

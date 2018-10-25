@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "TaskConfig.h"
 
@@ -25,63 +25,63 @@ xTaskHandle flightControlTask;
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-portTASK_FUNCTION(vFlightControlTask, pvParameters) 
+portTASK_FUNCTION(vFlightControlTask, pvParameters)
 {
-	Vector3f_t* gyro;
-	static uint32_t count = 0;
-	
-	//遥控相关功能初始化
-	RcInit();
-	
+    Vector3f_t* gyro;
+    static uint32_t count = 0;
+
+    //遥控相关功能初始化
+    RcInit();
+
     //控制参数初始化
     FlightControlInit();
-    
-	for(;;)
-	{
-		//从消息队列中获取数据
-		xQueueReceive(messageQueue[GYRO_FOR_CONTROL], &gyro, (3 / portTICK_RATE_MS)); 		
+
+    for(;;)
+    {
+        //从消息队列中获取数据
+        xQueueReceive(messageQueue[GYRO_FOR_CONTROL], &gyro, (3 / portTICK_RATE_MS));
 
         //100Hz
-        if(count % 10 == 0)	
-		{
+        if(count % 10 == 0)
+        {
             //遥控器各通道数据及失控检测
             RcCheck();
-            
+
             //安全保护控制
             SafeControl();
         }
-			
+
         //200Hz
-        if(count % 5 == 0)	
-		{
+        if(count % 5 == 0)
+        {
             //位置外环控制
             PositionOuterControl();
         }
-        
-        //500Hz
-        if(count % 2 == 0)	
-		{
-			//用户控制模式下的操控逻辑处理
-			UserControl();
 
-			//自主控制任务实现（自动起飞、自动降落、自动返航、自动航线等）
-			MissionControl();
-			
+        //500Hz
+        if(count % 2 == 0)
+        {
+            //用户控制模式下的操控逻辑处理
+            UserControl();
+
+            //自主控制任务实现（自动起飞、自动降落、自动返航、自动航线等）
+            MissionControl();
+
             //位置内环控制
-            PositionInnerControl();   
-            
+            PositionInnerControl();
+
             //姿态外环控制
             AttitudeOuterControl();
-            
+
             //高度外环控制
             AltitudeOuterControl();
         }
-        
-		//飞行内环控制，包括姿态内环和高度内环
-		FlightControlInnerLoop(*gyro);
-              
-		count++;
-	}
+
+        //飞行内环控制，包括姿态内环和高度内环
+        FlightControlInnerLoop(*gyro);
+
+        count++;
+    }
 }
 
 /**********************************************************************************************************
@@ -92,7 +92,7 @@ portTASK_FUNCTION(vFlightControlTask, pvParameters)
 **********************************************************************************************************/
 void ControlTaskCreate(void)
 {
-	xTaskCreate(vFlightControlTask, "flightControl", FLIGHTCONTROL_TASK_STACK, NULL, FLIGHTCONTROL_TASK_PRIORITY, &flightControlTask); 
+    xTaskCreate(vFlightControlTask, "flightControl", FLIGHTCONTROL_TASK_STACK, NULL, FLIGHTCONTROL_TASK_PRIORITY, &flightControlTask);
 }
 
 /**********************************************************************************************************
@@ -103,7 +103,7 @@ void ControlTaskCreate(void)
 **********************************************************************************************************/
 int16_t	GetFlightControlTaskStackRemain(void)
 {
-	return uxTaskGetStackHighWaterMark(flightControlTask);
+    return uxTaskGetStackHighWaterMark(flightControlTask);
 }
 
 

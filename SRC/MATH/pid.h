@@ -10,11 +10,11 @@ typedef struct
     float kD;
 
     float imax;
-    float integrator; 
+    float integrator;
     float lastError;
-    float lastDerivative;   
+    float lastDerivative;
     float dFilter;
-}PID_t;
+} PID_t;
 
 float PID_GetP(PID_t* pid, float error);
 float PID_GetI(PID_t* pid, float error, float dt);

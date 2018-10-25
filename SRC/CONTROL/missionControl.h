@@ -3,7 +3,7 @@
 
 #include "mathTool.h"
 
-enum 
+enum
 {
     RTH_STEP_START = 0,
     RTH_STEP_TURN,
@@ -14,7 +14,7 @@ enum
 };
 
 void MissionControl(void);
-    
+
 #endif
 
 

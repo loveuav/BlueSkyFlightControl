@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "board.h"
 
@@ -34,37 +34,37 @@ static void SysPeriphClockInit(void);
 **********************************************************************************************************/
 void BoardInit(void)
 {
-	//中断优先级组别设置
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
-	
-	//外设时钟使能
-	SysPeriphClockInit();
-	
-	//SPI初始化
+    //中断优先级组别设置
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+
+    //外设时钟使能
+    SysPeriphClockInit();
+
+    //SPI初始化
     Spi_GPIO_Init();
     Spi_Open(GYRO_SPI);
     Spi_Open(BARO_SPI);
-    
+
     //串口初始化
-	Usart_Open(DATA_UART, DATA_BAUDRATE);
-	Usart_Open(SBUS_UART, SBUS_BAUDRATE);
-    
+    Usart_Open(DATA_UART, DATA_BAUDRATE);
+    Usart_Open(SBUS_UART, SBUS_BAUDRATE);
+
     //软件I2C初始化
-	Soft_I2c_Open(MAG_I2C);
+    Soft_I2c_Open(MAG_I2C);
 
     //定时器PWM输出初始化
     PWM_Init();
-	
-	//遥控器接收机数据协议解析初始化
+
+    //遥控器接收机数据协议解析初始化
     Sbus_Init();
     PPM_Init();
 
-	//USB转串口初始化
-	Usb_Init();
-	
-	//ADC初始化
-	Adc_Init();
-    
+    //USB转串口初始化
+    Usb_Init();
+
+    //ADC初始化
+    Adc_Init();
+
     //CAN初始化
     Can_Open(1);
 }
@@ -77,27 +77,27 @@ void BoardInit(void)
 **********************************************************************************************************/
 static void SysPeriphClockInit(void)
 {
-	//GPIO
+    //GPIO
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
-    
-	//串口
+
+    //串口
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART6, ENABLE);
-    
-	//SPI
+
+    //SPI
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 
-	//定时器
+    //定时器
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
@@ -108,7 +108,7 @@ static void SysPeriphClockInit(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1,ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2,ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3,ENABLE);
-    
+
     //CAN
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN2, ENABLE);
@@ -123,15 +123,15 @@ static void SysPeriphClockInit(void)
 **********************************************************************************************************/
 void SoftDelayMs(uint32_t ms)
 {
-	uint32_t us_cnt; 
-	for(; ms!= 0;ms--)
+    uint32_t us_cnt;
+    for(; ms!= 0; ms--)
     {
         us_cnt = 42000;
-		while(us_cnt)
+        while(us_cnt)
         {
-			us_cnt--;
-		}	
-    }		
+            us_cnt--;
+        }
+    }
 }
 
 /**********************************************************************************************************
@@ -142,15 +142,15 @@ void SoftDelayMs(uint32_t ms)
 **********************************************************************************************************/
 void SoftDelayUs(uint32_t us)
 {
-	uint32_t us_cnt; 
-	for(; us!= 0;us--)
+    uint32_t us_cnt;
+    for(; us!= 0; us--)
     {
         us_cnt = 35;
-		while(us_cnt)
+        while(us_cnt)
         {
-			us_cnt--;
-		}
-    }        
+            us_cnt--;
+        }
+    }
 }
 
 /**********************************************************************************************************
@@ -170,13 +170,13 @@ void OsDelayMs(uint32_t ms)
 *形    参: 无
 *返 回 值: 系统时间
 **********************************************************************************************************/
-uint64_t GetSysTimeUs(void) 
+uint64_t GetSysTimeUs(void)
 {
     uint64_t ms;
-	uint64_t value;
-	ms = xTaskGetTickCount();
-	value = ms * 1000 + (SysTick->LOAD - SysTick->VAL) * 1000 / SysTick->LOAD;
-	return value;
+    uint64_t value;
+    ms = xTaskGetTickCount();
+    value = ms * 1000 + (SysTick->LOAD - SysTick->VAL) * 1000 / SysTick->LOAD;
+    return value;
 }
 
 /**********************************************************************************************************
@@ -185,9 +185,9 @@ uint64_t GetSysTimeUs(void)
 *形    参: 无
 *返 回 值: 系统时间
 **********************************************************************************************************/
-uint32_t GetSysTimeMs(void) 
+uint32_t GetSysTimeMs(void)
 {
-	return xTaskGetTickCount();
+    return xTaskGetTickCount();
 }
 
 

@@ -43,54 +43,54 @@ static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload);
 void BsklinkDecode(uint8_t data)
 {
     static BSKLINK_MSG_t msg;
-    
+
     //对接收到的字节数据进行帧解析，接收完一帧时再继续对帧数据进行解析
     if(BsklinkParseChar(&msg, data) == false)
         return;
-    
+
     switch(msg.msgid)
     {
-        case BSKLINK_MSG_ID_FLIGHT_DATA:
-            break;
-        
-        case BSKLINK_MSG_ID_SENSOR_CALI_CMD:        //传感器校准命令解析
+    case BSKLINK_MSG_ID_FLIGHT_DATA:
+        break;
+
+    case BSKLINK_MSG_ID_SENSOR_CALI_CMD:        //传感器校准命令解析
+    {
+        BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload;
+        memcpy(&payload, msg.payload, msg.length);
+        BsklinkDecodeSensorCaliCmd(payload);
+        break;
+    }
+    case BSKLINK_MSG_ID_PID_ATT:                //姿态PID解析
+        if(msg.length == 0)
         {
-            BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload;
-            memcpy(&payload, msg.payload, msg.length);
-            BsklinkDecodeSensorCaliCmd(payload);
-            break;
+            //往地面站发送PID参数
+            BsklinkSendEnable(BSKLINK_MSG_ID_PID_ATT);
         }
-        case BSKLINK_MSG_ID_PID_ATT:                //姿态PID解析
-            if(msg.length == 0)
-            {
-                //往地面站发送PID参数
-                BsklinkSendEnable(BSKLINK_MSG_ID_PID_ATT);
-            }
-            else
-            {
-                BSKLINK_PAYLOAD_PID_ATT_t payload;
-                memcpy(&payload, msg.payload, msg.length);
-                //设置姿态PID参数
-                BsklinkDecodeSetAttPid(payload);                
-            }
-            break;
-        case BSKLINK_MSG_ID_PID_POS:                //位置PID解析
-            if(msg.length == 0)
-            {
-                //往地面站发送PID参数
-                BsklinkSendEnable(BSKLINK_MSG_ID_PID_POS);
-            }
-            else
-            {
-                BSKLINK_PAYLOAD_PID_POS_t payload;
-                memcpy(&payload, msg.payload, msg.length);
-                //设置位置PID参数
-                BsklinkDecodeSetPosPid(payload);                
-            }
-            break;
-            
-        default:
-            break;
+        else
+        {
+            BSKLINK_PAYLOAD_PID_ATT_t payload;
+            memcpy(&payload, msg.payload, msg.length);
+            //设置姿态PID参数
+            BsklinkDecodeSetAttPid(payload);
+        }
+        break;
+    case BSKLINK_MSG_ID_PID_POS:                //位置PID解析
+        if(msg.length == 0)
+        {
+            //往地面站发送PID参数
+            BsklinkSendEnable(BSKLINK_MSG_ID_PID_POS);
+        }
+        else
+        {
+            BSKLINK_PAYLOAD_PID_POS_t payload;
+            memcpy(&payload, msg.payload, msg.length);
+            //设置位置PID参数
+            BsklinkDecodeSetPosPid(payload);
+        }
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -104,39 +104,39 @@ static void BsklinkDecodeSensorCaliCmd(BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload
 {
     switch(payload.type)
     {
-        case GYRO:			//陀螺仪
-            if(payload.caliFlag == true)
-            {
-                GyroCalibrateEnable();
-            }
-            break;
-   
-        case ACC:		    //加速度计
-            if(payload.caliFlag == true)
-            {
-                AccCalibrateEnable();
-            }
-            break;
-            
-        case MAG:   		//磁力计
-            if(payload.caliFlag == true)
-            {
-                MagCalibrateEnable();
-            }
-            break;
+    case GYRO:			//陀螺仪
+        if(payload.caliFlag == true)
+        {
+            GyroCalibrateEnable();
+        }
+        break;
 
-        case ANGLE: 		//水平
-            if(payload.caliFlag == true)
-            {
-                LevelCalibrateEnable();
-            }
-            break;
+    case ACC:		    //加速度计
+        if(payload.caliFlag == true)
+        {
+            AccCalibrateEnable();
+        }
+        break;
 
-        case ESC:   		//电调
-            break;
-        
-        default:
-            break;
+    case MAG:   		//磁力计
+        if(payload.caliFlag == true)
+        {
+            MagCalibrateEnable();
+        }
+        break;
+
+    case ANGLE: 		//水平
+        if(payload.caliFlag == true)
+        {
+            LevelCalibrateEnable();
+        }
+        break;
+
+    case ESC:   		//电调
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -149,11 +149,11 @@ static void BsklinkDecodeSensorCaliCmd(BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload
 static void BsklinkDecodeSetAttPid(BSKLINK_PAYLOAD_PID_ATT_t payload)
 {
     PID_t pid;
-    
+
     //解锁状态下不允许修改PID参数
     if(GetArmedStatus() == ARMED)
         return;
-    
+
     //横滚角速度PID
     pid.kP = payload.roll_kp;
     pid.kI = payload.roll_ki;
@@ -180,8 +180,8 @@ static void BsklinkDecodeSetAttPid(BSKLINK_PAYLOAD_PID_ATT_t payload)
     //偏航角度PID
     pid.kP = payload.yawAngle_kp;
     FcSetPID(YAW_OUTER, pid);
-}    
-    
+}
+
 /**********************************************************************************************************
 *函 数 名: BsklinkDecodeSetPosPid
 *功能说明: 姿态PID解析
@@ -195,7 +195,7 @@ static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload)
     //解锁状态下不允许修改PID参数
     if(GetArmedStatus() == ARMED)
         return;
-    
+
     //X轴速度PID
     pid.kP = payload.velX_kp;
     pid.kI = payload.velX_ki;
@@ -221,6 +221,6 @@ static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload)
     FcSetPID(POS_Y, pid);
     //Z轴位置PID
     pid.kP = payload.posZ_kp;
-    FcSetPID(POS_Z, pid);    
-}    
-        
+    FcSetPID(POS_Z, pid);
+}
+

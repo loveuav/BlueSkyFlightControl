@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "TaskConfig.h"
 
@@ -26,56 +26,56 @@ xTaskHandle otherSensorTask;
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters) 
+portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 {
-	Vector3f_t* gyroRawData;
-	Vector3f_t* accRawData;
-	float*      tempRawData;
-	Vector3f_t* accData  = pvPortMalloc(sizeof(Vector3f_t));
-	Vector3f_t* gyroData = pvPortMalloc(sizeof(Vector3f_t));
-	Vector3f_t* gyroLpfData = pvPortMalloc(sizeof(Vector3f_t));
-	
-	//挂起调度器
-	vTaskSuspendAll();
-	
+    Vector3f_t* gyroRawData;
+    Vector3f_t* accRawData;
+    float*      tempRawData;
+    Vector3f_t* accData  = pvPortMalloc(sizeof(Vector3f_t));
+    Vector3f_t* gyroData = pvPortMalloc(sizeof(Vector3f_t));
+    Vector3f_t* gyroLpfData = pvPortMalloc(sizeof(Vector3f_t));
+
+    //挂起调度器
+    vTaskSuspendAll();
+
     //陀螺仪预处理初始化
-	GyroPreTreatInit();
+    GyroPreTreatInit();
     //加速度预处理初始化
     AccPreTreatInit();
     //IMU传感器恒温参数初始化
     ImuTempControlInit();
 
-	//唤醒调度器
-	xTaskResumeAll();
+    //唤醒调度器
+    xTaskResumeAll();
 
-	for(;;)
-	{
-		//从消息队列中获取数据
-		xQueueReceive(messageQueue[GYRO_SENSOR_READ], &gyroRawData, (3 / portTICK_RATE_MS)); 
-		xQueueReceive(messageQueue[ACC_SENSOR_READ], &accRawData, (3 / portTICK_RATE_MS)); 
-		xQueueReceive(messageQueue[TEMP_SENSOR_READ], &tempRawData, (3 / portTICK_RATE_MS)); 
-		
-		//陀螺仪校准
-		GyroCalibration(*gyroRawData);	
+    for(;;)
+    {
+        //从消息队列中获取数据
+        xQueueReceive(messageQueue[GYRO_SENSOR_READ], &gyroRawData, (3 / portTICK_RATE_MS));
+        xQueueReceive(messageQueue[ACC_SENSOR_READ], &accRawData, (3 / portTICK_RATE_MS));
+        xQueueReceive(messageQueue[TEMP_SENSOR_READ], &tempRawData, (3 / portTICK_RATE_MS));
+
+        //陀螺仪校准
+        GyroCalibration(*gyroRawData);
         //加速度校准
         AccCalibration(*accRawData);
-        
-		//陀螺仪数据预处理
-		GyroDataPreTreat(*gyroRawData, *tempRawData, gyroData, gyroLpfData);
+
+        //陀螺仪数据预处理
+        GyroDataPreTreat(*gyroRawData, *tempRawData, gyroData, gyroLpfData);
         //加速度数据预处理
         AccDataPreTreat(*accRawData, accData);
-        
-		//IMU安装误差校准
+
+        //IMU安装误差校准
         ImuLevelCalibration();
-        
+
         //IMU传感器恒温控制
         ImuTempControl(*tempRawData);
-        
-		//往下一级消息队列中填充数据
-		xQueueSendToBack(messageQueue[ACC_DATA_PRETREAT], (void *)&accData, 0); 		
-		xQueueSendToBack(messageQueue[GYRO_DATA_PRETREAT], (void *)&gyroData, 0); 
-		xQueueSendToBack(messageQueue[GYRO_FOR_CONTROL], (void *)&gyroLpfData, 0); 			
-	}
+
+        //往下一级消息队列中填充数据
+        xQueueSendToBack(messageQueue[ACC_DATA_PRETREAT], (void *)&accData, 0);
+        xQueueSendToBack(messageQueue[GYRO_DATA_PRETREAT], (void *)&gyroData, 0);
+        xQueueSendToBack(messageQueue[GYRO_FOR_CONTROL], (void *)&gyroLpfData, 0);
+    }
 }
 
 /**********************************************************************************************************
@@ -84,55 +84,55 @@ portTASK_FUNCTION(vImuDataPreTreatTask, pvParameters)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-portTASK_FUNCTION(vOtherSensorTask, pvParameters) 
+portTASK_FUNCTION(vOtherSensorTask, pvParameters)
 {
-	portTickType xLastWakeTime;
-	static uint16_t count = 0;
-	
-	//挂起调度器
-	vTaskSuspendAll();
-    
+    portTickType xLastWakeTime;
+    static uint16_t count = 0;
+
+    //挂起调度器
+    vTaskSuspendAll();
+
     //磁力计校准参数初始化
     MagCaliDataInit();
-    
-	//唤醒调度器
-	xTaskResumeAll();
-	
-	xLastWakeTime = xTaskGetTickCount();
-	for(;;)
-	{		
+
+    //唤醒调度器
+    xTaskResumeAll();
+
+    xLastWakeTime = xTaskGetTickCount();
+    for(;;)
+    {
         //100Hz
-        if(count % 2 == 0)	
-		{
+        if(count % 2 == 0)
+        {
             //磁力计校准
             MagCalibration();
-            
+
             //磁力计数据预处理
             MagDataPreTreat();
-		}
-        
+        }
+
         //25Hz
-        if(count % 8 == 0)	
-		{ 
+        if(count % 8 == 0)
+        {
             //气压高度数据预处理
             BaroDataPreTreat();
-		}    
-        
+        }
+
         //10Hz
-        if(count % 20 == 0)	
-		{   
-            //GPS数据预处理            
+        if(count % 20 == 0)
+        {
+            //GPS数据预处理
             GpsDataPreTreat();
         }
-        
+
         //传感器健康状态检测
         SensorHealthCheck();
-        
-		count++;
-        
+
+        count++;
+
         //睡眠5ms
-		vTaskDelayUntil(&xLastWakeTime, (5 / portTICK_RATE_MS));
-	}
+        vTaskDelayUntil(&xLastWakeTime, (5 / portTICK_RATE_MS));
+    }
 }
 
 /**********************************************************************************************************
@@ -143,8 +143,8 @@ portTASK_FUNCTION(vOtherSensorTask, pvParameters)
 **********************************************************************************************************/
 void SensorTaskCreate(void)
 {
-	xTaskCreate(vImuDataPreTreatTask, "imuDataPreTreat", IMU_DATA_PRETREAT_TASK_STACK, NULL, IMU_DATA_PRETREAT_TASK_PRIORITY, &imuDataPreTreatTask); 
-	xTaskCreate(vOtherSensorTask, "otherSensor", OTHER_SENSOR_TASK_STACK, NULL, OTHER_SENSOR_TASK_PRIORITY, &otherSensorTask); 
+    xTaskCreate(vImuDataPreTreatTask, "imuDataPreTreat", IMU_DATA_PRETREAT_TASK_STACK, NULL, IMU_DATA_PRETREAT_TASK_PRIORITY, &imuDataPreTreatTask);
+    xTaskCreate(vOtherSensorTask, "otherSensor", OTHER_SENSOR_TASK_STACK, NULL, OTHER_SENSOR_TASK_PRIORITY, &otherSensorTask);
 }
 
 /**********************************************************************************************************
@@ -155,7 +155,7 @@ void SensorTaskCreate(void)
 **********************************************************************************************************/
 int16_t	GetImuDataPreTreatTaskStackRemain(void)
 {
-	return uxTaskGetStackHighWaterMark(imuDataPreTreatTask);
+    return uxTaskGetStackHighWaterMark(imuDataPreTreatTask);
 }
 
 /**********************************************************************************************************
@@ -166,6 +166,6 @@ int16_t	GetImuDataPreTreatTaskStackRemain(void)
 **********************************************************************************************************/
 int16_t	GetOtherSensorTaskStackRemain(void)
 {
-	return uxTaskGetStackHighWaterMark(otherSensorTask);	
+    return uxTaskGetStackHighWaterMark(otherSensorTask);
 }
 

@@ -58,52 +58,52 @@ void MavlinkSendHeartbeat(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     heartbeat.type          = MAV_TYPE_QUADROTOR;
     heartbeat.autopilot     = MAV_AUTOPILOT_PX4;    //设置飞控类型为PX4，以便能使用QGroudControl地面站
     heartbeat.base_mode     = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-    
+
     if(GetArmedStatus() == ARMED)
     {
         heartbeat.base_mode |= MAV_MODE_MANUAL_ARMED;
     }
     else
     {
-        heartbeat.base_mode |= MAV_MODE_MANUAL_DISARMED;        
+        heartbeat.base_mode |= MAV_MODE_MANUAL_DISARMED;
     }
-    
+
     switch(GetFlightMode())
     {
-        case MANUAL:
-            heartbeat.custom_mode   = 0x0001 << 16;
-            break;
-        
-        case SEMIAUTO:
-            heartbeat.custom_mode   = 0x0002 << 16;
-            break;
-        
-        case AUTO:
-            heartbeat.custom_mode   = 0x0003 << 16;
-            break;
-        
-        case AUTOPILOT:
-            heartbeat.custom_mode   = 0x0404 << 16;
-            break;
-        
-        default:
-            heartbeat.custom_mode   = 0x0003 << 16;
-            break;
+    case MANUAL:
+        heartbeat.custom_mode   = 0x0001 << 16;
+        break;
+
+    case SEMIAUTO:
+        heartbeat.custom_mode   = 0x0002 << 16;
+        break;
+
+    case AUTO:
+        heartbeat.custom_mode   = 0x0003 << 16;
+        break;
+
+    case AUTOPILOT:
+        heartbeat.custom_mode   = 0x0404 << 16;
+        break;
+
+    default:
+        heartbeat.custom_mode   = 0x0003 << 16;
+        break;
     }
-    
+
     heartbeat.system_status = MAV_STATE_STANDBY;
 
     //mavlink组帧
     mavlink_msg_heartbeat_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &heartbeat);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -123,7 +123,7 @@ void MavlinkSendSysStatus(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     status.onboard_control_sensors_present = 0;
     status.onboard_control_sensors_enabled = 0;
@@ -132,13 +132,13 @@ void MavlinkSendSysStatus(uint8_t* sendFlag)
     status.voltage_battery = GetBatteryVoltage() * 10;
     status.current_battery = GetBatteryCurrent() * 10;
     status.battery_remaining = -1;
-    
+
     //mavlink组帧
     mavlink_msg_sys_status_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &status);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -157,22 +157,22 @@ void MavlinkSendParamValue(uint8_t* sendFlag)
     if(*sendFlag == DISABLE)
         return;
     else
-       *sendFlag = DISABLE;
-    
+        *sendFlag = DISABLE;
+
     //消息负载赋值
     param_value.param_value = MavParamGetValue(currentParamNum);
     param_value.param_count = MAV_PARAM_NUM;
-    param_value.param_index = currentParamNum;   
+    param_value.param_index = currentParamNum;
     memset(param_value.param_id, 0, 16);
     memcpy(param_value.param_id, MavParamGetString(currentParamNum), strlen(MavParamGetString(currentParamNum)));
     param_value.param_type = MAVLINK_TYPE_FLOAT;
-   
+
     //mavlink组帧
     mavlink_msg_param_value_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &param_value);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -203,7 +203,7 @@ void MavlinkSendGpsRawInt(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     gps.time_usec = Ublox_GetData().time * 1000;
     gps.lat       = Ublox_GetData().latitude * (double)1e7;
@@ -215,13 +215,13 @@ void MavlinkSendGpsRawInt(uint8_t* sendFlag)
     gps.cog       = Ublox_GetData().heading * 100;
     gps.fix_type  = Ublox_GetData().fixStatus;
     gps.satellites_visible = Ublox_GetData().numSV;
-    
+
     //mavlink组帧
     mavlink_msg_gps_raw_int_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &gps);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -241,25 +241,25 @@ void MavlinkSendScaledImu(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     scaled_imu.time_boot_ms = GetSysTimeMs();
     scaled_imu.xacc         = AccGetData().x * 1000;
     scaled_imu.yacc         = AccGetData().y * 1000;
     scaled_imu.zacc         = AccGetData().z * 1000;
-    scaled_imu.xgyro        = Radians(GyroGetData().x) * 1000;    
-    scaled_imu.ygyro        = Radians(GyroGetData().y) * 1000;         
-    scaled_imu.zgyro        = Radians(GyroGetData().z) * 1000;  
-    scaled_imu.xmag         = MagGetData().x * 1000;   
-    scaled_imu.ymag         = MagGetData().y * 1000;  
-    scaled_imu.zmag         = MagGetData().z * 1000;  
-    
+    scaled_imu.xgyro        = Radians(GyroGetData().x) * 1000;
+    scaled_imu.ygyro        = Radians(GyroGetData().y) * 1000;
+    scaled_imu.zgyro        = Radians(GyroGetData().z) * 1000;
+    scaled_imu.xmag         = MagGetData().x * 1000;
+    scaled_imu.ymag         = MagGetData().y * 1000;
+    scaled_imu.zmag         = MagGetData().z * 1000;
+
     //mavlink组帧
     mavlink_msg_scaled_imu_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &scaled_imu);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -279,7 +279,7 @@ void MavlinkSendAttitude(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     attitude.time_boot_ms = GetSysTimeMs();
     attitude.roll         = Radians(GetCopterAngle().x);
@@ -288,13 +288,13 @@ void MavlinkSendAttitude(uint8_t* sendFlag)
     attitude.rollspeed    = Radians(GyroGetData().x);
     attitude.pitchspeed   = Radians(GyroGetData().y);
     attitude.yawspeed     = Radians(GyroGetData().z);
-    
+
     //mavlink组帧
     mavlink_msg_attitude_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &attitude);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -314,7 +314,7 @@ void MavlinkSendLocalPositionNed(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     position.time_boot_ms = GetSysTimeMs();
     position.x            = GetCopterPosition().x;
@@ -325,13 +325,13 @@ void MavlinkSendLocalPositionNed(uint8_t* sendFlag)
     position.vx           = velEf.x;
     position.vy           = velEf.y;
     position.vz           = -velEf.z;
-    
+
     //mavlink组帧
     mavlink_msg_local_position_ned_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &position);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -351,7 +351,7 @@ void MavlinkSendVfrHud(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     hud.airspeed    = 0;
     hud.groundspeed = (float)Pythagorous2(GetCopterVelocity().x, GetCopterVelocity().y) * 0.01f;
@@ -363,9 +363,9 @@ void MavlinkSendVfrHud(uint8_t* sendFlag)
     //mavlink组帧
     mavlink_msg_vfr_hud_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &hud);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -385,7 +385,7 @@ void MavlinkSendRcChannels(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     rc.time_boot_ms = GetSysTimeMs();
     rc.chancount    = 8;
@@ -408,13 +408,13 @@ void MavlinkSendRcChannels(uint8_t* sendFlag)
     rc.chan17_raw   = 0xFFFF;
     rc.chan18_raw   = 0xFFFF;
     rc.rssi         = 0xFF;
-    
+
     //mavlink组帧
     mavlink_msg_rc_channels_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &rc);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -433,13 +433,13 @@ void MavlinkSendCommandAck(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //mavlink组帧
     mavlink_msg_command_ack_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &commandAck);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -471,18 +471,18 @@ void MavlinkSendMissionRequest(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     request.seq = GetWaypointRecvCount();
     request.target_component = MAVLINK_SYSTEM_ID;
     request.target_system    = MAVLINK_COMPONENT_ID;
-    
+
     //mavlink组帧
     mavlink_msg_mission_request_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &request);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -502,18 +502,18 @@ void MavlinkSendMissionAck(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     ack.type = MAV_MISSION_ACCEPTED;
     ack.target_component = MAVLINK_SYSTEM_ID;
     ack.target_system    = MAVLINK_COMPONENT_ID;
-    
+
     //mavlink组帧
     mavlink_msg_mission_ack_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &ack);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -533,18 +533,18 @@ void MavlinkSendMissionCount(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     count.count = GetWaypointCount();
     count.target_component = MAVLINK_SYSTEM_ID;
     count.target_system    = MAVLINK_COMPONENT_ID;
-    
+
     //mavlink组帧
     mavlink_msg_mission_count_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &count);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -564,16 +564,16 @@ void MavlinkSendMissionItem(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     item = GetWaypointItem(GetWaypointSendCount());
-    
+
     //mavlink组帧
     mavlink_msg_mission_item_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &item);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -593,24 +593,24 @@ void MavlinkSendHomePosition(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //消息负载赋值
     double latitude, longitude;
     GetHomeLatitudeAndLongitude(&latitude, &longitude);
-    
+
     home.latitude  = latitude * (double)1e7;
     home.longitude = longitude * (double)1e7;
     home.altitude  = 0;
     home.x         = GetHomePosition().x;
     home.y         = GetHomePosition().y;
     home.z         = 0;
-    
+
     //mavlink组帧
     mavlink_msg_home_position_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &home);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -629,13 +629,13 @@ void MavlinkSendStatusText(uint8_t* sendFlag)
         return;
     else
         *sendFlag = DISABLE;
-    
+
     //mavlink组帧
     mavlink_msg_statustext_encode(MAVLINK_SYSTEM_ID, MAVLINK_COMPONENT_ID, &msg, &statustext);
     //消息帧格式化
-    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg); 
+    msgLength = mavlink_msg_to_send_buffer(msgBuffer, &msg);
     //发送消息帧
-	DataSend(msgBuffer, msgLength);  
+    DataSend(msgBuffer, msgLength);
 }
 
 /**********************************************************************************************************
@@ -662,7 +662,7 @@ bool MavStatusTextSendCheck(void)
 {
     static uint32_t i = 0;
     uint8_t flag;
-    
+
     if(statusTextSendFlag[i % MAV_NOTICE_NUM] == 1)
     {
         MavlinkSendNotice(i % MAV_NOTICE_NUM);
@@ -673,9 +673,9 @@ bool MavStatusTextSendCheck(void)
     {
         flag = false;
     }
-    
+
     i++;
-    
+
     return flag;
 }
 
@@ -700,38 +700,38 @@ void MavlinkSendNoticeProgress(uint8_t progress)
 {
     switch(progress)
     {
-        case 0:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_0);
-            break;  
-        case 1:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_10);
-            break;          
-        case 2:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_20);
-            break;
-        case 3:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_30);
-            break;         
-        case 4:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_40);
-            break;  
-        case 5:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_50);
-            break;          
-        case 6:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_60);
-            break;   
-        case 7:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_70);
-            break; 
-        case 8:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_80);
-            break;   
-        case 9:
-            MavlinkSendNoticeEnable(CAL_PROGRESS_90);
-            break; 
-        default:
-            break;
+    case 0:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_0);
+        break;
+    case 1:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_10);
+        break;
+    case 2:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_20);
+        break;
+    case 3:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_30);
+        break;
+    case 4:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_40);
+        break;
+    case 5:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_50);
+        break;
+    case 6:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_60);
+        break;
+    case 7:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_70);
+        break;
+    case 8:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_80);
+        break;
+    case 9:
+        MavlinkSendNoticeEnable(CAL_PROGRESS_90);
+        break;
+    default:
+        break;
     }
 }
 

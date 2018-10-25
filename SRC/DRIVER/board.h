@@ -16,7 +16,7 @@
 enum
 {
     BOARD_BLUESKY_V3,
-	BOARD_FUTURESKY
+    BOARD_FUTURESKY
 };
 
 /**********************************************************************************************************
@@ -26,29 +26,29 @@ enum
 
 //硬件配置头文件包含
 #ifdef BLUESKY_V3
-	#include "boardConfigBlueSkyV3.h"
-    #define BOARD_TYPE BOARD_BLUESKY_V3
+#include "boardConfigBlueSkyV3.h"
+#define BOARD_TYPE BOARD_BLUESKY_V3
 #endif
 
 typedef struct
 {
-    int16_t roll;   
-    int16_t pitch;   
-    int16_t yaw;      
-    int16_t throttle;  
-    int16_t aux1;  
-    int16_t aux2;  
-    int16_t aux3;  
-    int16_t aux4;  
-    int16_t aux5;  
-    int16_t aux6;   
-    int16_t aux7;  
-    int16_t aux8;  
-    int16_t aux9;  
-    int16_t aux10;     
-    int16_t aux11;  
-    int16_t aux12;  
-}RCDATA_t;
+    int16_t roll;
+    int16_t pitch;
+    int16_t yaw;
+    int16_t throttle;
+    int16_t aux1;
+    int16_t aux2;
+    int16_t aux3;
+    int16_t aux4;
+    int16_t aux5;
+    int16_t aux6;
+    int16_t aux7;
+    int16_t aux8;
+    int16_t aux9;
+    int16_t aux10;
+    int16_t aux11;
+    int16_t aux12;
+} RCDATA_t;
 
 enum
 {

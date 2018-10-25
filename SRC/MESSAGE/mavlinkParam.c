@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.07 
+ * @日期     2018.07
 **********************************************************************************************************/
 #include "mavlinkParam.h"
 #include "mavlinkSend.h"
@@ -24,7 +24,7 @@ float mavParam[MAV_PARAM_NUM];
 uint8_t mavParamSendFlag[MAV_PARAM_NUM];
 
 //参数字符标识，不能超过16个字符
-const char* mavParamStrings[] = 
+const char* mavParamStrings[] =
 {
     "SYS_AUTOSTART",
     "SYS_AUTOCONFIG",
@@ -101,7 +101,7 @@ const char* mavParamStrings[] =
     "RC4_TRIM",
     "RC4_MAX",
     "RC4_REV",
-    "RC4_DZ",    
+    "RC4_DZ",
     "RC5_MIN",
     "RC5_TRIM",
     "RC5_MAX",
@@ -283,7 +283,7 @@ const char* mavParamStrings[] =
     "MPC_XY_P",
     "MPC_XY_VEL_P",
     "MPC_XY_VEL_I",
-    "MPC_XY_VEL_D",    
+    "MPC_XY_VEL_D",
 };
 
 /**********************************************************************************************************
@@ -296,7 +296,7 @@ bool MavParamSendCheck(void)
 {
     static uint32_t i = 0;
     uint8_t flag;
-    
+
     if(mavParamSendFlag[i % MAV_PARAM_NUM] == 1)
     {
         MavlinkCurrentParamSet(i % MAV_PARAM_NUM);
@@ -307,9 +307,9 @@ bool MavParamSendCheck(void)
     {
         flag = false;
     }
-    
+
     i++;
-    
+
     return flag;
 }
 
@@ -357,137 +357,137 @@ void MavParamSetValue(uint16_t num, float value)
 {
     if(GetArmedStatus() == ARMED)
         return;
-    
+
     mavParam[num] = value;
-    
+
     switch(num)
     {
-        case MC_ROLLRATE_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_X_KP, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_ROLLRATE_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_X_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_ROLLRATE_I:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_X_KI, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_ROLLRATE_I:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_X_KI, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_ROLLRATE_D:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_X_KD, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_ROLLRATE_D:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_X_KD, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_PITCHRATE_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_Y_KP, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_PITCHRATE_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_Y_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_PITCHRATE_I:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_Y_KI, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_PITCHRATE_I:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_Y_KI, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_PITCHRATE_D:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_Y_KD, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_PITCHRATE_D:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_Y_KD, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_YAWRATE_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_Z_KP, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_YAWRATE_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_Z_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_YAWRATE_I:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_Z_KI, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_YAWRATE_I:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_Z_KI, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_YAWRATE_D:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_INNER_Z_KD, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_YAWRATE_D:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_INNER_Z_KD, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_ROLL_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_OUTER_X_KP, &value);
-            PIDReadFromFlash();
-            break;
-        
-        case MC_PITCH_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_OUTER_Y_KP, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_ROLL_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_OUTER_X_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MC_YAW_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_ATT_OUTER_Z_KP, &value);
-            PIDReadFromFlash();
-            break;
-        
-        case MPC_XY_VEL_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_INNER_X_KP, &value);
-            ParamUpdateData(PARAM_PID_POS_INNER_Y_KP, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_PITCH_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_OUTER_Y_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MPC_XY_VEL_I:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_INNER_X_KI, &value);
-            ParamUpdateData(PARAM_PID_POS_INNER_Y_KI, &value);
-            PIDReadFromFlash();
-            break;
+    case MC_YAW_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_ATT_OUTER_Z_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MPC_XY_VEL_D:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_INNER_X_KD, &value);
-            ParamUpdateData(PARAM_PID_POS_INNER_Y_KD, &value);
-            PIDReadFromFlash(); 
-            break;
+    case MPC_XY_VEL_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_INNER_X_KP, &value);
+        ParamUpdateData(PARAM_PID_POS_INNER_Y_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MPC_Z_VEL_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_INNER_Z_KP, &value);
-            PIDReadFromFlash(); 
-            break;
+    case MPC_XY_VEL_I:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_INNER_X_KI, &value);
+        ParamUpdateData(PARAM_PID_POS_INNER_Y_KI, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MPC_Z_VEL_I:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_INNER_Z_KI, &value);
-            PIDReadFromFlash(); 
-            break;
+    case MPC_XY_VEL_D:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_INNER_X_KD, &value);
+        ParamUpdateData(PARAM_PID_POS_INNER_Y_KD, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MPC_Z_VEL_D:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_INNER_Z_KD, &value);
-            PIDReadFromFlash(); 
-            break;
+    case MPC_Z_VEL_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_INNER_Z_KP, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MPC_XY_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_OUTER_X_KP, &value);
-            ParamUpdateData(PARAM_PID_POS_OUTER_Y_KP, &value);
-            PIDReadFromFlash(); 
-            break;
+    case MPC_Z_VEL_I:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_INNER_Z_KI, &value);
+        PIDReadFromFlash();
+        break;
 
-        case MPC_Z_P:
-            value *= 100;
-            ParamUpdateData(PARAM_PID_POS_OUTER_Z_KP, &value);
-            PIDReadFromFlash(); 
-            break;
-        
-        default:
-            break;
+    case MPC_Z_VEL_D:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_INNER_Z_KD, &value);
+        PIDReadFromFlash();
+        break;
+
+    case MPC_XY_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_OUTER_X_KP, &value);
+        ParamUpdateData(PARAM_PID_POS_OUTER_Y_KP, &value);
+        PIDReadFromFlash();
+        break;
+
+    case MPC_Z_P:
+        value *= 100;
+        ParamUpdateData(PARAM_PID_POS_OUTER_Z_KP, &value);
+        PIDReadFromFlash();
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -499,7 +499,7 @@ void MavParamSetValue(uint16_t num, float value)
 **********************************************************************************************************/
 const char* MavParamGetString(uint16_t num)
 {
-	return mavParamStrings[num];
+    return mavParamStrings[num];
 }
 
 /**********************************************************************************************************
@@ -515,7 +515,7 @@ int MavParamGetIdByName(char *name)
     for (i=0; i<MAV_PARAM_NUM; i++)
     {
         if (!strncmp(name, mavParamStrings[i], 16))
-            break;        
+            break;
     }
 
     return i;
@@ -529,46 +529,46 @@ int MavParamGetIdByName(char *name)
 void MavParamSetDefault(void)
 {
     mavParam[SYS_AUTOSTART] = 4001;
-    mavParam[SYS_AUTOCONFIG] = 0; 
+    mavParam[SYS_AUTOCONFIG] = 0;
     mavParam[SYS_PARAM_VER] = 0.2;
-    
-    mavParam[MAV_SYS_ID] = 1; 
-    mavParam[MAV_COMP_ID] = 1; 
-    mavParam[MAV_PROTO_VER] = 1; 
-    mavParam[MAV_RADIO_ID] = 0; 
-    mavParam[MAV_AIRFRAME_TYPE] = 2; 
-    mavParam[MAV_USEHILGPS] = 0; 
-    mavParam[MAV_FWDEXTSP] = 0;   
-    mavParam[MAV_BROADCAST] = 0;  
-    
-    mavParam[CAL_BOARD_ID] = 0; 
-    mavParam[CAL_GYRO0_ID] = 125; 
+
+    mavParam[MAV_SYS_ID] = 1;
+    mavParam[MAV_COMP_ID] = 1;
+    mavParam[MAV_PROTO_VER] = 1;
+    mavParam[MAV_RADIO_ID] = 0;
+    mavParam[MAV_AIRFRAME_TYPE] = 2;
+    mavParam[MAV_USEHILGPS] = 0;
+    mavParam[MAV_FWDEXTSP] = 0;
+    mavParam[MAV_BROADCAST] = 0;
+
+    mavParam[CAL_BOARD_ID] = 0;
+    mavParam[CAL_GYRO0_ID] = 125;
     ParamGetData(PARAM_GYRO_OFFSET_X, &mavParam[CAL_GYRO0_XOFF], 4);
-	ParamGetData(PARAM_GYRO_OFFSET_Y, &mavParam[CAL_GYRO0_YOFF], 4);
-	ParamGetData(PARAM_GYRO_OFFSET_Z, &mavParam[CAL_GYRO0_ZOFF], 4);
-	ParamGetData(PARAM_GYRO_SCALE_X, &mavParam[CAL_GYRO0_XSCALE], 4);
-	ParamGetData(PARAM_GYRO_SCALE_Y, &mavParam[CAL_GYRO0_YSCALE], 4);
-	ParamGetData(PARAM_GYRO_SCALE_Z, &mavParam[CAL_GYRO0_ZSCALE], 4);
-    mavParam[CAL_MAG0_ID] = 130; 
+    ParamGetData(PARAM_GYRO_OFFSET_Y, &mavParam[CAL_GYRO0_YOFF], 4);
+    ParamGetData(PARAM_GYRO_OFFSET_Z, &mavParam[CAL_GYRO0_ZOFF], 4);
+    ParamGetData(PARAM_GYRO_SCALE_X, &mavParam[CAL_GYRO0_XSCALE], 4);
+    ParamGetData(PARAM_GYRO_SCALE_Y, &mavParam[CAL_GYRO0_YSCALE], 4);
+    ParamGetData(PARAM_GYRO_SCALE_Z, &mavParam[CAL_GYRO0_ZSCALE], 4);
+    mavParam[CAL_MAG0_ID] = 130;
     mavParam[CAL_MAG1_ID] = 0;
     mavParam[CAL_MAG2_ID] = 0;
-    mavParam[CAL_MAG0_ROT] = MAG_ROTATION; 
+    mavParam[CAL_MAG0_ROT] = MAG_ROTATION;
     mavParam[CAL_MAG1_ROT] = 0;
     mavParam[CAL_MAG2_ROT] = 0;
     ParamGetData(PARAM_MAG_OFFSET_X, &mavParam[CAL_MAG0_XOFF], 4);
-	ParamGetData(PARAM_MAG_OFFSET_Y, &mavParam[CAL_MAG0_YOFF], 4);
-	ParamGetData(PARAM_MAG_OFFSET_Z, &mavParam[CAL_MAG0_ZOFF], 4);
-	ParamGetData(PARAM_MAG_SCALE_X, &mavParam[CAL_MAG0_XSCALE], 4);
-	ParamGetData(PARAM_MAG_SCALE_Y, &mavParam[CAL_MAG0_YSCALE], 4);
-	ParamGetData(PARAM_MAG_SCALE_Z, &mavParam[CAL_MAG0_ZSCALE], 4);
-    mavParam[CAL_ACC0_ID] = 120; 
+    ParamGetData(PARAM_MAG_OFFSET_Y, &mavParam[CAL_MAG0_YOFF], 4);
+    ParamGetData(PARAM_MAG_OFFSET_Z, &mavParam[CAL_MAG0_ZOFF], 4);
+    ParamGetData(PARAM_MAG_SCALE_X, &mavParam[CAL_MAG0_XSCALE], 4);
+    ParamGetData(PARAM_MAG_SCALE_Y, &mavParam[CAL_MAG0_YSCALE], 4);
+    ParamGetData(PARAM_MAG_SCALE_Z, &mavParam[CAL_MAG0_ZSCALE], 4);
+    mavParam[CAL_ACC0_ID] = 120;
     ParamGetData(PARAM_ACC_OFFSET_X, &mavParam[CAL_ACC0_XOFF], 4);
-	ParamGetData(PARAM_ACC_OFFSET_Y, &mavParam[CAL_ACC0_YOFF], 4);
-	ParamGetData(PARAM_ACC_OFFSET_Z, &mavParam[CAL_ACC0_ZOFF], 4);
-	ParamGetData(PARAM_ACC_SCALE_X, &mavParam[CAL_ACC0_XSCALE], 4);
-	ParamGetData(PARAM_ACC_SCALE_Y, &mavParam[CAL_ACC0_YSCALE], 4);
-	ParamGetData(PARAM_ACC_SCALE_Z, &mavParam[CAL_ACC0_ZSCALE], 4);
-    
+    ParamGetData(PARAM_ACC_OFFSET_Y, &mavParam[CAL_ACC0_YOFF], 4);
+    ParamGetData(PARAM_ACC_OFFSET_Z, &mavParam[CAL_ACC0_ZOFF], 4);
+    ParamGetData(PARAM_ACC_SCALE_X, &mavParam[CAL_ACC0_XSCALE], 4);
+    ParamGetData(PARAM_ACC_SCALE_Y, &mavParam[CAL_ACC0_YSCALE], 4);
+    ParamGetData(PARAM_ACC_SCALE_Z, &mavParam[CAL_ACC0_ZSCALE], 4);
+
     mavParam[CAL_ACC_PRIME] = 120;
     mavParam[CAL_GYRO_PRIME] = 125;
     mavParam[CAL_MAG_PRIME] = 130;
@@ -580,8 +580,8 @@ void MavParamSetDefault(void)
     mavParam[SENS_BOARD_ROT] = GYRO_ROTATION;
     mavParam[SENS_FLOW_ROT] = 0;
     ParamGetData(PARAM_IMU_LEVEL_X, &mavParam[SENS_BOARD_X_OFF], 4);
-	ParamGetData(PARAM_IMU_LEVEL_Y, &mavParam[SENS_BOARD_Y_OFF], 4);
-	ParamGetData(PARAM_IMU_LEVEL_Z, &mavParam[SENS_BOARD_Z_OFF], 4);
+    ParamGetData(PARAM_IMU_LEVEL_Y, &mavParam[SENS_BOARD_Y_OFF], 4);
+    ParamGetData(PARAM_IMU_LEVEL_Z, &mavParam[SENS_BOARD_Z_OFF], 4);
     mavParam[SENS_BOARD_X_OFF] = Degrees(mavParam[SENS_BOARD_X_OFF]);
     mavParam[SENS_BOARD_Y_OFF] = Degrees(mavParam[SENS_BOARD_Y_OFF]);
     mavParam[SENS_BOARD_Z_OFF] = Degrees(mavParam[SENS_BOARD_Z_OFF]);
@@ -610,7 +610,7 @@ void MavParamSetDefault(void)
     mavParam[RC4_TRIM] = 1500;
     mavParam[RC4_MAX] = 2000;
     mavParam[RC4_REV] = 1;
-    mavParam[RC4_DZ] = 50;   
+    mavParam[RC4_DZ] = 50;
     mavParam[RC5_MIN] = 1000;
     mavParam[RC5_TRIM] = 1500;
     mavParam[RC5_MAX] = 2000;
@@ -681,7 +681,7 @@ void MavParamSetDefault(void)
     mavParam[RC18_MAX] = 2000;
     mavParam[RC18_REV] = 1;
     mavParam[RC18_DZ] = 0;
-    
+
     mavParam[RC_MAP_ROLL] = 1;
     mavParam[RC_MAP_PITCH] = 2;
     mavParam[RC_MAP_YAW] = 4;
@@ -717,7 +717,7 @@ void MavParamSetDefault(void)
     mavParam[RC_KILLSWITCH_TH] = 0.7;
     mavParam[RC_CHAN_CNT] = 0;
     mavParam[RC_TH_USER] = 1;
-    
+
     mavParam[COM_DL_LOSS_T] = 10;
     mavParam[COM_DL_REG_T] = 0;
     mavParam[COM_EF_THROT] = 0.5;
@@ -731,7 +731,7 @@ void MavParamSetDefault(void)
     mavParam[COM_RC_ARM_HYST] = 1000;
     mavParam[COM_DISARM_LAND] = 2;
     mavParam[COM_LOW_BAT_ACT] = 1;
-    
+
     mavParam[BAT_H_CURR] = 12;
     mavParam[BAT_V_CURR] = 10;
     mavParam[BAT_C_SAFE] = 700;
@@ -749,23 +749,23 @@ void MavParamSetDefault(void)
     mavParam[BAT_EMERGEN_THR] = 0.05;
     mavParam[BAT_V_LOAD_DROP] = 0.3;
     mavParam[BAT_N_CELLS] = 4;
-    mavParam[BAT_CAPACITY] = -1;  
+    mavParam[BAT_CAPACITY] = -1;
 
     mavParam[NAV_DLL_ACT] = 0;
     mavParam[NAV_RCL_ACT] = 2;
-    
+
     mavParam[RTL_RETURN_ALT] = 15;
     mavParam[RTL_DESCEND_ALT] = 30;
     mavParam[RTL_LAND_DELAY] = 3;
     mavParam[RTL_MIN_DIST] = 0.5;
-    
+
     mavParam[COM_FLTMODE1] = 0;
     mavParam[COM_FLTMODE2] = 1;
     mavParam[COM_FLTMODE3] = 2;
     mavParam[COM_FLTMODE4] = 4;
     mavParam[COM_FLTMODE5] = 5;
     mavParam[COM_FLTMODE6] = 5;
-    
+
     mavParam[GF_ACTION] = 1;
     mavParam[GF_ALTMODE] = 0;
     mavParam[GF_SOURCE] = 0;
@@ -774,19 +774,19 @@ void MavParamSetDefault(void)
     mavParam[GF_MAX_VER_DIST] = -1;
     mavParam[GF_FENCE_SW] = 1;
 
-	ParamGetData(PARAM_PID_ATT_INNER_X_KP, &mavParam[MC_ROLLRATE_P], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_X_KI, &mavParam[MC_ROLLRATE_I], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_X_KD, &mavParam[MC_ROLLRATE_D], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_Y_KP, &mavParam[MC_PITCHRATE_P], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_Y_KI, &mavParam[MC_PITCHRATE_I], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_Y_KD, &mavParam[MC_PITCHRATE_D], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_Z_KP, &mavParam[MC_YAWRATE_P], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_Z_KI, &mavParam[MC_YAWRATE_I], 4);
-	ParamGetData(PARAM_PID_ATT_INNER_Z_KD, &mavParam[MC_YAWRATE_D], 4);
-	ParamGetData(PARAM_PID_ATT_OUTER_X_KP, &mavParam[MC_ROLL_P], 4);
-	ParamGetData(PARAM_PID_ATT_OUTER_Y_KP, &mavParam[MC_PITCH_P], 4);
-	ParamGetData(PARAM_PID_ATT_OUTER_Z_KP, &mavParam[MC_YAW_P], 4); 
-    
+    ParamGetData(PARAM_PID_ATT_INNER_X_KP, &mavParam[MC_ROLLRATE_P], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_X_KI, &mavParam[MC_ROLLRATE_I], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_X_KD, &mavParam[MC_ROLLRATE_D], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_Y_KP, &mavParam[MC_PITCHRATE_P], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_Y_KI, &mavParam[MC_PITCHRATE_I], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_Y_KD, &mavParam[MC_PITCHRATE_D], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_Z_KP, &mavParam[MC_YAWRATE_P], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_Z_KI, &mavParam[MC_YAWRATE_I], 4);
+    ParamGetData(PARAM_PID_ATT_INNER_Z_KD, &mavParam[MC_YAWRATE_D], 4);
+    ParamGetData(PARAM_PID_ATT_OUTER_X_KP, &mavParam[MC_ROLL_P], 4);
+    ParamGetData(PARAM_PID_ATT_OUTER_Y_KP, &mavParam[MC_PITCH_P], 4);
+    ParamGetData(PARAM_PID_ATT_OUTER_Z_KP, &mavParam[MC_YAW_P], 4);
+
     mavParam[MC_ROLL_TC]     *= 0.01f;
     mavParam[MC_PITCH_TC]    *= 0.01f;
     mavParam[MC_ROLL_P]      *= 0.01f;
@@ -801,22 +801,22 @@ void MavParamSetDefault(void)
     mavParam[MC_YAWRATE_P]   *= 0.01f;
     mavParam[MC_YAWRATE_I]   *= 0.01f;
     mavParam[MC_YAWRATE_D]   *= 0.01f;
-    
+
     mavParam[MPC_THR_MIN] = 0.15;
     mavParam[MPC_THR_HOVER] = 0.5;
     mavParam[MPC_THR_MAX] = 0.9;
     mavParam[MPC_MANTHR_MIN] = 0.15;
     mavParam[MPC_MANTHR_MAX] = 0.9;
 
-	ParamGetData(PARAM_PID_POS_INNER_X_KP, &mavParam[MPC_XY_VEL_P], 4);
-	ParamGetData(PARAM_PID_POS_INNER_X_KI, &mavParam[MPC_XY_VEL_I], 4);
-	ParamGetData(PARAM_PID_POS_INNER_X_KD, &mavParam[MPC_XY_VEL_D], 4);
-	ParamGetData(PARAM_PID_POS_INNER_Z_KP, &mavParam[MPC_Z_VEL_P], 4);
-	ParamGetData(PARAM_PID_POS_INNER_Z_KI, &mavParam[MPC_Z_VEL_I], 4);
-	ParamGetData(PARAM_PID_POS_INNER_Z_KD, &mavParam[MPC_Z_VEL_D], 4);
-	ParamGetData(PARAM_PID_POS_OUTER_X_KP, &mavParam[MPC_XY_P], 4);
-	ParamGetData(PARAM_PID_POS_OUTER_Z_KP, &mavParam[MPC_Z_P], 4); 
-    
+    ParamGetData(PARAM_PID_POS_INNER_X_KP, &mavParam[MPC_XY_VEL_P], 4);
+    ParamGetData(PARAM_PID_POS_INNER_X_KI, &mavParam[MPC_XY_VEL_I], 4);
+    ParamGetData(PARAM_PID_POS_INNER_X_KD, &mavParam[MPC_XY_VEL_D], 4);
+    ParamGetData(PARAM_PID_POS_INNER_Z_KP, &mavParam[MPC_Z_VEL_P], 4);
+    ParamGetData(PARAM_PID_POS_INNER_Z_KI, &mavParam[MPC_Z_VEL_I], 4);
+    ParamGetData(PARAM_PID_POS_INNER_Z_KD, &mavParam[MPC_Z_VEL_D], 4);
+    ParamGetData(PARAM_PID_POS_OUTER_X_KP, &mavParam[MPC_XY_P], 4);
+    ParamGetData(PARAM_PID_POS_OUTER_Z_KP, &mavParam[MPC_Z_P], 4);
+
     mavParam[MPC_Z_P]       *= 0.01f;
     mavParam[MPC_Z_VEL_P]   *= 0.01f;
     mavParam[MPC_Z_VEL_I]   *= 0.01f;
@@ -824,7 +824,7 @@ void MavParamSetDefault(void)
     mavParam[MPC_XY_P]      *= 0.01f;
     mavParam[MPC_XY_VEL_P]  *= 0.01f;
     mavParam[MPC_XY_VEL_I]  *= 0.01f;
-    mavParam[MPC_XY_VEL_D]  *= 0.01f;   
+    mavParam[MPC_XY_VEL_D]  *= 0.01f;
 }
 
 

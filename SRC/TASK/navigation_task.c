@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "TaskConfig.h"
 
@@ -28,51 +28,51 @@ xTaskHandle flightStatusTask;
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-portTASK_FUNCTION(vNavigationTask, pvParameters) 
-{	
-	Vector3f_t* gyro;
-	Vector3f_t* acc;
+portTASK_FUNCTION(vNavigationTask, pvParameters)
+{
+    Vector3f_t* gyro;
+    Vector3f_t* acc;
 
-	vTaskDelay(500);
-	
+    vTaskDelay(500);
+
     //姿态估计参数初始化
     AHRSInit();
     //辅助姿态估计参数初始化
     AHRSAuxInit();
-	//导航参数初始化
-	NavigationInit();
-    
-	for(;;)
-	{
-		//从消息队列中获取数据
-		xQueueReceive(messageQueue[GYRO_DATA_PRETREAT], &gyro, (3 / portTICK_RATE_MS)); 
-		xQueueReceive(messageQueue[ACC_DATA_PRETREAT], &acc, (3 / portTICK_RATE_MS)); 	
+    //导航参数初始化
+    NavigationInit();
+
+    for(;;)
+    {
+        //从消息队列中获取数据
+        xQueueReceive(messageQueue[GYRO_DATA_PRETREAT], &gyro, (3 / portTICK_RATE_MS));
+        xQueueReceive(messageQueue[ACC_DATA_PRETREAT], &acc, (3 / portTICK_RATE_MS));
 
         //辅助姿态估计
         AttitudeAuxEstimate(*gyro, *acc, MagGetData());
-        
+
         //姿态卡尔曼测量噪声协方差参数自适应
         AttCovarianceSelfAdaptation();
-        
-		//姿态估计
-		AttitudeEstimate(*gyro, *acc, MagGetData());
-        
-		//等待系统初始化完成
-		if(GetInitStatus() == INIT_FINISH)
-		{
-			//高度卡尔曼测量噪声协方差参数自适应
-			AltCovarianceSelfAdaptation();
 
-			//位置卡尔曼测量噪声协方差参数自适应
-			PosCovarianceSelfAdaptation();
+        //姿态估计
+        AttitudeEstimate(*gyro, *acc, MagGetData());
 
-			//飞行速度估计
-			VelocityEstimate();
-			
+        //等待系统初始化完成
+        if(GetInitStatus() == INIT_FINISH)
+        {
+            //高度卡尔曼测量噪声协方差参数自适应
+            AltCovarianceSelfAdaptation();
+
+            //位置卡尔曼测量噪声协方差参数自适应
+            PosCovarianceSelfAdaptation();
+
+            //飞行速度估计
+            VelocityEstimate();
+
             //位置估计
             PositionEstimate();
-		}
-	}
+        }
+    }
 }
 
 /**********************************************************************************************************
@@ -81,32 +81,32 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-portTASK_FUNCTION(vFlightStatusTask, pvParameters) 
-{	
-	portTickType xLastWakeTime;
-	
-	xLastWakeTime = xTaskGetTickCount();
-    
-	for(;;)
-	{
+portTASK_FUNCTION(vFlightStatusTask, pvParameters)
+{
+    portTickType xLastWakeTime;
+
+    xLastWakeTime = xTaskGetTickCount();
+
+    for(;;)
+    {
         //系统初始化检测
         SystemInitCheck();
-        
+
         //飞行器放置状态检测
         PlaceStausCheck(GyroLpfGetData());
-        
+
         //飞行状态更新
         FlightStatusUpdate();
 
-		//环境风速估计
-		WindEstimate();
-        
+        //环境风速估计
+        WindEstimate();
+
         //传感器方向检测（用于校准时的判断）
         ImuOrientationDetect();
-        
+
         //睡眠10ms
-		vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
-	}
+        vTaskDelayUntil(&xLastWakeTime, (10 / portTICK_RATE_MS));
+    }
 }
 
 /**********************************************************************************************************
@@ -117,8 +117,8 @@ portTASK_FUNCTION(vFlightStatusTask, pvParameters)
 **********************************************************************************************************/
 void NavigationTaskCreate(void)
 {
-	xTaskCreate(vNavigationTask, "navigation", NAVIGATION_TASK_STACK, NULL, NAVIGATION_TASK_PRIORITY, &navigationTask); 
-	xTaskCreate(vFlightStatusTask, "flightStatus", FLIGHT_STATUS_TASK_STACK, NULL, FLIGHT_STATUS_TASK_PRIORITY, &flightStatusTask); 
+    xTaskCreate(vNavigationTask, "navigation", NAVIGATION_TASK_STACK, NULL, NAVIGATION_TASK_PRIORITY, &navigationTask);
+    xTaskCreate(vFlightStatusTask, "flightStatus", FLIGHT_STATUS_TASK_STACK, NULL, FLIGHT_STATUS_TASK_PRIORITY, &flightStatusTask);
 }
 
 /**********************************************************************************************************
@@ -129,7 +129,7 @@ void NavigationTaskCreate(void)
 **********************************************************************************************************/
 int16_t	GetNavigationTaskStackRemain(void)
 {
-	return uxTaskGetStackHighWaterMark(navigationTask);
+    return uxTaskGetStackHighWaterMark(navigationTask);
 }
 
 /**********************************************************************************************************
@@ -140,7 +140,7 @@ int16_t	GetNavigationTaskStackRemain(void)
 **********************************************************************************************************/
 int16_t	GetFlightStatusTaskStackRemain(void)
 {
-	return uxTaskGetStackHighWaterMark(flightStatusTask);
+    return uxTaskGetStackHighWaterMark(flightStatusTask);
 }
 
 

@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "module.h"
 #include "mpu6000.h"
@@ -53,7 +53,7 @@ static void AccSensorRotate(Vector3f_t *acc)
 *返 回 值: 无
 **********************************************************************************************************/
 static void MagSensorRotate(Vector3f_t *mag)
-{  
+{
     RotateVector3f(MAG_ROTATION, mag);
 }
 
@@ -61,19 +61,19 @@ static void MagSensorRotate(Vector3f_t *mag)
 *函 数 名: GyroSensorInit
 *功能说明: 陀螺仪传感器初始化
 *形    参: 无
-*返 回 值: 陀螺仪存在状态 
+*返 回 值: 陀螺仪存在状态
 **********************************************************************************************************/
 void GyroSensorInit(void)
 {
     uint8_t detectFlag = 0;
-    
+
     if(GYRO_TYPE == MPU6000)
     {
         if(MPU6000_Detect())
         {
             MPU6000_Init();
             detectFlag = 1;
-        }  
+        }
     }
     else if (GYRO_TYPE == MPU6500)
     {
@@ -81,7 +81,7 @@ void GyroSensorInit(void)
         {
             MPU6500_Init();
             detectFlag = 1;
-        }      
+        }
     }
     else if (GYRO_TYPE == ICM20602)
     {
@@ -89,17 +89,17 @@ void GyroSensorInit(void)
         {
             ICM20602_Init();
             detectFlag = 1;
-        }      
-    }  
+        }
+    }
     else if (GYRO_TYPE == ICM20689)
     {
         if(ICM20689_Detect())
         {
             ICM20689_Init();
             detectFlag = 1;
-        }      
-    }    
-    
+        }
+    }
+
     //未检测到陀螺仪
     if(!detectFlag)
         FaultDetectSetError(GYRO_UNDETECTED);
@@ -109,12 +109,12 @@ void GyroSensorInit(void)
 *函 数 名: MagSensorInit
 *功能说明: 磁力传感器初始化
 *形    参: 无
-*返 回 值: 磁力计存在状态 
+*返 回 值: 磁力计存在状态
 **********************************************************************************************************/
 void MagSensorInit(void)
 {
     uint8_t detectFlag = 0;
-    
+
     if(MAG_TYPE == QMC5883)
     {
         if(QMC5883_Detect())
@@ -122,7 +122,7 @@ void MagSensorInit(void)
             QMC5883_Init();
             detectFlag = 1;
         }
-    } 
+    }
     else if(MAG_TYPE == IST8310)
     {
         if(IST8310_Detect())
@@ -130,7 +130,7 @@ void MagSensorInit(void)
             IST8310_Init();
             detectFlag = 1;
         }
-    } 
+    }
     else if(MAG_TYPE == MMC3630)
     {
         if(MMC3630_Detect())
@@ -138,11 +138,11 @@ void MagSensorInit(void)
             MMC3630_Init();
             detectFlag = 1;
         }
-    } 
-    
+    }
+
     //未检测到磁力计
     if(!detectFlag)
-        FaultDetectSetError(MAG_UNDETECTED);    
+        FaultDetectSetError(MAG_UNDETECTED);
 }
 
 /**********************************************************************************************************
@@ -154,24 +154,24 @@ void MagSensorInit(void)
 void BaroSensorInit(void)
 {
     uint8_t detectFlag = 0;
-    
+
     if(BARO_TYPE == MS5611)
     {
         if(MS5611_Detect())
         {
             MS5611_Init();
             detectFlag = 1;
-        }     
+        }
     }
-	else if(BARO_TYPE == _2SMPB)
-	{
-		if(_2SMPB_Detect())
+    else if(BARO_TYPE == _2SMPB)
+    {
+        if(_2SMPB_Detect())
         {
             _2SMPB_Init();
             detectFlag = 1;
         }
-	}
-    
+    }
+
     //未检测到气压计
     if(!detectFlag)
         FaultDetectSetError(BARO_UNDETECTED);
@@ -198,14 +198,14 @@ void GPSModuleInit(void)
 void GyroSensorRead(Vector3f_t* gyro)
 {
     if(GYRO_TYPE == MPU6000)
-        MPU6000_ReadGyro(gyro);    
+        MPU6000_ReadGyro(gyro);
     else if(GYRO_TYPE == MPU6500)
         MPU6500_ReadGyro(gyro);
     else if(GYRO_TYPE == ICM20602)
         ICM20602_ReadGyro(gyro);
     else if(GYRO_TYPE == ICM20689)
         ICM20689_ReadGyro(gyro);
-    
+
     //传感器方向转换
     GyroSensorRotate(gyro);
 }
@@ -226,9 +226,9 @@ void AccSensorRead(Vector3f_t* acc)
         ICM20602_ReadAcc(acc);
     else if(GYRO_TYPE == ICM20689)
         ICM20689_ReadAcc(acc);
-    
+
     //传感器方向转换
-    AccSensorRotate(acc);    
+    AccSensorRotate(acc);
 }
 
 /**********************************************************************************************************
@@ -238,13 +238,13 @@ void AccSensorRead(Vector3f_t* acc)
 *返 回 值: 无
 **********************************************************************************************************/
 void TempSensorRead(float* temp)
-{    
+{
     if(GYRO_TYPE == MPU6000)
         MPU6000_ReadTemp(temp);
     else if(GYRO_TYPE == MPU6500)
-        MPU6500_ReadTemp(temp);  
+        MPU6500_ReadTemp(temp);
     else if(GYRO_TYPE == ICM20602)
-        ICM20602_ReadTemp(temp); 
+        ICM20602_ReadTemp(temp);
     else if(GYRO_TYPE == ICM20689)
         ICM20689_ReadTemp(temp);
 }
@@ -258,11 +258,11 @@ void TempSensorRead(float* temp)
 void MagSensorUpdate(void)
 {
     if(MAG_TYPE == QMC5883)
-        QMC5883_Update();  
+        QMC5883_Update();
     else if(MAG_TYPE == IST8310)
-        IST8310_Update();  
+        IST8310_Update();
     else if(MAG_TYPE == MMC3630)
-        MMC3630_Update(); 
+        MMC3630_Update();
 }
 
 /**********************************************************************************************************
@@ -279,9 +279,9 @@ void MagSensorRead(Vector3f_t* mag)
         IST8310_Read(mag);
     else if(MAG_TYPE == MMC3630)
         MMC3630_Read(mag);
-    
+
     //传感器方向转换
-    MagSensorRotate(mag);    
+    MagSensorRotate(mag);
 }
 
 /**********************************************************************************************************
@@ -293,9 +293,9 @@ void MagSensorRead(Vector3f_t* mag)
 void BaroSensorUpdate(void)
 {
     if(BARO_TYPE == MS5611)
-        MS5611_Update();    
-	else if(BARO_TYPE == _2SMPB)
-		_2SMPB_Update();
+        MS5611_Update();
+    else if(BARO_TYPE == _2SMPB)
+        _2SMPB_Update();
 }
 
 /**********************************************************************************************************
@@ -307,9 +307,9 @@ void BaroSensorUpdate(void)
 void BaroSensorRead(int32_t* baroAlt)
 {
     if(BARO_TYPE == MS5611)
-        MS5611_Read(baroAlt);   
+        MS5611_Read(baroAlt);
     else if(BARO_TYPE == _2SMPB)
-        _2SMPB_Read(baroAlt);  	
+        _2SMPB_Read(baroAlt);
 }
 
 /**********************************************************************************************************
@@ -323,7 +323,7 @@ void BaroTemperatureRead(float* temp)
     if(BARO_TYPE == MS5611)
         MS5611_ReadTemp(temp);
     else if(BARO_TYPE == _2SMPB)
-        _2SMPB_ReadTemp(temp);  	
+        _2SMPB_ReadTemp(temp);
 }
 
 /**********************************************************************************************************
@@ -334,11 +334,11 @@ void BaroTemperatureRead(float* temp)
 **********************************************************************************************************/
 void TempControlSet(int16_t value)
 {
-    #if(configUSE_SENSORHEAT == 1)
+#if(configUSE_SENSORHEAT == 1)
     TempControlPWMSet(value);
-    #else
+#else
     TempControlPWMSet(0);
-    #endif
+#endif
 }
 
 

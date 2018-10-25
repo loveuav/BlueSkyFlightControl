@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "mathTool.h"
 #include "board.h"
@@ -38,13 +38,13 @@ float SafeArcsin(float v)
 *形    参: 输入值 限幅下限 限幅上限
 *返 回 值: 限幅后的值
 **********************************************************************************************************/
-float ConstrainFloat(float amt, float low, float high) 
+float ConstrainFloat(float amt, float low, float high)
 {
-	if (isnan(amt)) 
+    if (isnan(amt))
     {
-		return (low+high)*0.5f;
-	}
-	return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
+        return (low+high)*0.5f;
+    }
+    return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
 }
 
 /**********************************************************************************************************
@@ -53,9 +53,9 @@ float ConstrainFloat(float amt, float low, float high)
 *形    参: 输入值 限幅下限 限幅上限
 *返 回 值: 限幅后的值
 **********************************************************************************************************/
-int16_t ConstrainInt16(int16_t amt, int16_t low, int16_t high) 
+int16_t ConstrainInt16(int16_t amt, int16_t low, int16_t high)
 {
-	return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
+    return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
 }
 
 /**********************************************************************************************************
@@ -66,7 +66,7 @@ int16_t ConstrainInt16(int16_t amt, int16_t low, int16_t high)
 **********************************************************************************************************/
 uint16_t ConstrainUint16(uint16_t amt, uint16_t low, uint16_t high)
 {
-	return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
+    return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
 }
 
 /**********************************************************************************************************
@@ -75,9 +75,9 @@ uint16_t ConstrainUint16(uint16_t amt, uint16_t low, uint16_t high)
 *形    参: 输入值 限幅下限 限幅上限
 *返 回 值: 限幅后的值
 **********************************************************************************************************/
-int32_t ConstrainInt32(int32_t amt, int32_t low, int32_t high) 
+int32_t ConstrainInt32(int32_t amt, int32_t low, int32_t high)
 {
-	return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
+    return ((amt)<(low)?(low):((amt)>(high)?(high):(amt)));
 }
 
 /**********************************************************************************************************
@@ -92,11 +92,11 @@ int32_t ApplyDeadbandInt(int32_t value, int32_t deadband)
     {
         value = 0;
     }
-    else if (value > 0) 
+    else if (value > 0)
     {
         value -= deadband;
-    } 
-    else if (value < 0) 
+    }
+    else if (value < 0)
     {
         value += deadband;
     }
@@ -111,15 +111,15 @@ int32_t ApplyDeadbandInt(int32_t value, int32_t deadband)
 **********************************************************************************************************/
 float ApplyDeadbandFloat(float value, float deadband)
 {
-    if (abs(value) < deadband) 
+    if (abs(value) < deadband)
     {
         value = 0;
-    } 
-    else if (value > 0) 
+    }
+    else if (value > 0)
     {
         value -= deadband;
     }
-    else if (value < 0) 
+    else if (value < 0)
     {
         value += deadband;
     }
@@ -132,9 +132,9 @@ float ApplyDeadbandFloat(float value, float deadband)
 *形    参: 角度值
 *返 回 值: 弧度值
 **********************************************************************************************************/
-float Radians(float deg) 
+float Radians(float deg)
 {
-	return deg * DEG_TO_RAD;
+    return deg * DEG_TO_RAD;
 }
 
 /**********************************************************************************************************
@@ -143,9 +143,9 @@ float Radians(float deg)
 *形    参: 弧度值
 *返 回 值: 角度值
 **********************************************************************************************************/
-float Degrees(float rad) 
+float Degrees(float rad)
 {
-	return rad * RAD_TO_DEG;
+    return rad * RAD_TO_DEG;
 }
 
 /**********************************************************************************************************
@@ -154,9 +154,9 @@ float Degrees(float rad)
 *形    参: 输入值
 *返 回 值: 输入值的平方
 **********************************************************************************************************/
-float Sq(float v) 
+float Sq(float v)
 {
-	return v*v;
+    return v*v;
 }
 
 /**********************************************************************************************************
@@ -165,9 +165,9 @@ float Sq(float v)
 *形    参: 变量a 变量b
 *返 回 值: 模值大小
 **********************************************************************************************************/
-float Pythagorous2(float a, float b) 
+float Pythagorous2(float a, float b)
 {
-	return sqrtf(Sq(a)+Sq(b));
+    return sqrtf(Sq(a)+Sq(b));
 }
 
 /**********************************************************************************************************
@@ -176,9 +176,9 @@ float Pythagorous2(float a, float b)
 *形    参: 变量a 变量b 变量c
 *返 回 值: 模值大小
 **********************************************************************************************************/
-float Pythagorous3(float a, float b, float c) 
+float Pythagorous3(float a, float b, float c)
 {
-	return sqrtf(Sq(a)+Sq(b)+Sq(c));
+    return sqrtf(Sq(a)+Sq(b)+Sq(c));
 }
 
 /**********************************************************************************************************
@@ -187,9 +187,9 @@ float Pythagorous3(float a, float b, float c)
 *形    参: 变量a 变量b 变量c 变量d
 *返 回 值: 模值大小
 **********************************************************************************************************/
-float Pythagorous4(float a, float b, float c, float d) 
+float Pythagorous4(float a, float b, float c, float d)
 {
-	return sqrtf(Sq(a)+Sq(b)+Sq(c)+Sq(d));
+    return sqrtf(Sq(a)+Sq(b)+Sq(c)+Sq(d));
 }
 
 /**********************************************************************************************************
@@ -200,9 +200,9 @@ float Pythagorous4(float a, float b, float c, float d)
 **********************************************************************************************************/
 float WrapDegree360(float angle)
 {
-    if(angle >= 360) 
+    if(angle >= 360)
         angle -= 360;
-    if(angle < 0) 
+    if(angle < 0)
         angle += 360;
     return angle;
 }
@@ -215,8 +215,8 @@ float WrapDegree360(float angle)
 **********************************************************************************************************/
 int32_t GetRandom(void)
 {
-	srand(GetSysTimeUs());
-	return rand();
+    srand(GetSysTimeUs());
+    return rand();
 }
 
 

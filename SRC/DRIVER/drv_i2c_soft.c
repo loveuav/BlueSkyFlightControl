@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "drv_i2c_soft.h"
 
@@ -19,23 +19,23 @@
 **********************************************************************************************************/
 void Soft_I2c_Open(uint8_t deviceNum)
 {
-    GPIO_InitTypeDef  GPIO_InitStructure; 
-    
+    GPIO_InitTypeDef  GPIO_InitStructure;
+
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    
+
     if(deviceNum == 1)
     {
         GPIO_InitStructure.GPIO_Pin =  SOFT_I2C1_PIN_SCL | SOFT_I2C1_PIN_SDA;
-        GPIO_Init(SOFT_I2C1_GPIO, &GPIO_InitStructure);	
-    }  
+        GPIO_Init(SOFT_I2C1_GPIO, &GPIO_InitStructure);
+    }
     else if(deviceNum == 2)
     {
         GPIO_InitStructure.GPIO_Pin =  SOFT_I2C2_PIN_SCL | SOFT_I2C2_PIN_SDA;
-        GPIO_Init(SOFT_I2C2_GPIO, &GPIO_InitStructure);	
-    }      
+        GPIO_Init(SOFT_I2C2_GPIO, &GPIO_InitStructure);
+    }
 }
 
 /**********************************************************************************************************
@@ -47,18 +47,24 @@ void Soft_I2c_Open(uint8_t deviceNum)
 void Soft_I2c_Delay(uint8_t deviceNum)
 {
     uint8_t i;
-	__nop();__nop();__nop();
-	__nop();__nop();__nop();
-	__nop();__nop();__nop();
+    __nop();
+    __nop();
+    __nop();
+    __nop();
+    __nop();
+    __nop();
+    __nop();
+    __nop();
+    __nop();
 
     if(deviceNum == 1)
     {
-        i = SOFT_I2C1_DELAY;    
-    }  
+        i = SOFT_I2C1_DELAY;
+    }
     else if(deviceNum == 2)
     {
         i = SOFT_I2C2_DELAY;
-    }  	
+    }
 
     while(i--);
 }
@@ -73,12 +79,12 @@ void Soft_I2c_SCL_H(uint8_t deviceNum)
 {
     if(deviceNum == 1)
     {
-        SOFT_I2C1_GPIO->BSRRL = SOFT_I2C1_PIN_SCL;       
-    }  
+        SOFT_I2C1_GPIO->BSRRL = SOFT_I2C1_PIN_SCL;
+    }
     else if(deviceNum == 2)
     {
         SOFT_I2C2_GPIO->BSRRL = SOFT_I2C2_PIN_SCL;
-    }  
+    }
 }
 
 /**********************************************************************************************************
@@ -91,12 +97,12 @@ void Soft_I2c_SCL_L(uint8_t deviceNum)
 {
     if(deviceNum == 1)
     {
-        SOFT_I2C1_GPIO->BSRRH = SOFT_I2C1_PIN_SCL;       
-    }  
+        SOFT_I2C1_GPIO->BSRRH = SOFT_I2C1_PIN_SCL;
+    }
     else if(deviceNum == 2)
     {
         SOFT_I2C2_GPIO->BSRRH = SOFT_I2C2_PIN_SCL;
-    } 
+    }
 }
 
 /**********************************************************************************************************
@@ -109,12 +115,12 @@ void Soft_I2c_SDA_H(uint8_t deviceNum)
 {
     if(deviceNum == 1)
     {
-        SOFT_I2C1_GPIO->BSRRL = SOFT_I2C1_PIN_SDA;       
-    }  
+        SOFT_I2C1_GPIO->BSRRL = SOFT_I2C1_PIN_SDA;
+    }
     else if(deviceNum == 2)
     {
         SOFT_I2C2_GPIO->BSRRL = SOFT_I2C2_PIN_SDA;
-    }  
+    }
 }
 
 /**********************************************************************************************************
@@ -127,12 +133,12 @@ void Soft_I2c_SDA_L(uint8_t deviceNum)
 {
     if(deviceNum == 1)
     {
-        SOFT_I2C1_GPIO->BSRRH = SOFT_I2C1_PIN_SDA;       
-    }  
+        SOFT_I2C1_GPIO->BSRRH = SOFT_I2C1_PIN_SDA;
+    }
     else if(deviceNum == 2)
     {
         SOFT_I2C2_GPIO->BSRRH = SOFT_I2C2_PIN_SDA;
-    } 
+    }
 }
 
 /**********************************************************************************************************
@@ -149,14 +155,14 @@ uint8_t Soft_I2c_SCL_Read(uint8_t deviceNum)
             return 0;
         else
             return 1;
-    }  
+    }
     else if(deviceNum == 2)
     {
         if(!(SOFT_I2C2_GPIO->IDR & SOFT_I2C2_PIN_SCL))
             return 0;
         else
             return 1;
-    } 
+    }
     else
     {
         return 0;
@@ -177,14 +183,14 @@ uint8_t Soft_I2c_SDA_Read(uint8_t deviceNum)
             return 0;
         else
             return 1;
-    }  
+    }
     else if(deviceNum == 2)
     {
         if(!(SOFT_I2C2_GPIO->IDR & SOFT_I2C2_PIN_SDA))
             return 0;
         else
             return 1;
-    } 
+    }
     else
     {
         return 0;
@@ -199,18 +205,18 @@ uint8_t Soft_I2c_SDA_Read(uint8_t deviceNum)
 **********************************************************************************************************/
 bool Soft_I2c_Start(uint8_t deviceNum)
 {
-	Soft_I2c_SDA_H(deviceNum);
-	Soft_I2c_SCL_H(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	if(!Soft_I2c_SDA_Read(deviceNum))
+    Soft_I2c_SDA_H(deviceNum);
+    Soft_I2c_SCL_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    if(!Soft_I2c_SDA_Read(deviceNum))
         return 0;
-	Soft_I2c_SDA_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	if(Soft_I2c_SDA_Read(deviceNum)) 
-        return 0;	
-	Soft_I2c_SDA_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	return 1;	
+    Soft_I2c_SDA_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    if(Soft_I2c_SDA_Read(deviceNum))
+        return 0;
+    Soft_I2c_SDA_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    return 1;
 }
 
 /**********************************************************************************************************
@@ -221,15 +227,15 @@ bool Soft_I2c_Start(uint8_t deviceNum)
 **********************************************************************************************************/
 void Soft_I2c_Stop(uint8_t deviceNum)
 {
-	Soft_I2c_SCL_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SDA_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SCL_H(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SDA_H(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-} 
+    Soft_I2c_SCL_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SDA_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SCL_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SDA_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+}
 
 /**********************************************************************************************************
 *函 数 名: Soft_I2c_Ack
@@ -238,16 +244,16 @@ void Soft_I2c_Stop(uint8_t deviceNum)
 *返 回 值: 无
 **********************************************************************************************************/
 void Soft_I2c_Ack(uint8_t deviceNum)
-{	
-	Soft_I2c_SCL_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SDA_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SCL_H(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SCL_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-}   
+{
+    Soft_I2c_SCL_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SDA_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SCL_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SCL_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+}
 
 /**********************************************************************************************************
 *函 数 名: Soft_I2c_NoAck
@@ -256,16 +262,16 @@ void Soft_I2c_Ack(uint8_t deviceNum)
 *返 回 值: 无
 **********************************************************************************************************/
 void Soft_I2c_NoAck(uint8_t deviceNum)
-{	
-	Soft_I2c_SCL_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SDA_H(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SCL_H(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SCL_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-} 
+{
+    Soft_I2c_SCL_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SDA_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SCL_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SCL_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+}
 
 /**********************************************************************************************************
 *函 数 名: Soft_I2c_WaitAck
@@ -273,23 +279,23 @@ void Soft_I2c_NoAck(uint8_t deviceNum)
 *形    参: 设备号
 *返 回 值: 应答状态——1表示有应答
 **********************************************************************************************************/
-bool Soft_I2c_WaitAck(uint8_t deviceNum) 	
+bool Soft_I2c_WaitAck(uint8_t deviceNum)
 {
-	Soft_I2c_SCL_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SDA_H(deviceNum);			
-	Soft_I2c_Delay(deviceNum);
-	Soft_I2c_SCL_H(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	if(Soft_I2c_SDA_Read(deviceNum))
-	{
+    Soft_I2c_SCL_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SDA_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    Soft_I2c_SCL_H(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    if(Soft_I2c_SDA_Read(deviceNum))
+    {
         Soft_I2c_SCL_L(deviceNum);
         Soft_I2c_Delay(deviceNum);
         return 0;
-	}
-	Soft_I2c_SCL_L(deviceNum);
-	Soft_I2c_Delay(deviceNum);
-	return 1;
+    }
+    Soft_I2c_SCL_L(deviceNum);
+    Soft_I2c_Delay(deviceNum);
+    return 1;
 }
 
 /**********************************************************************************************************
@@ -298,7 +304,7 @@ bool Soft_I2c_WaitAck(uint8_t deviceNum)
 *形    参: 设备号
 *返 回 值: 无
 **********************************************************************************************************/
-void Soft_I2c_SendByte(uint8_t deviceNum, u8 SendByte) 
+void Soft_I2c_SendByte(uint8_t deviceNum, u8 SendByte)
 {
     u8 i=8;
     while(i--)
@@ -306,16 +312,16 @@ void Soft_I2c_SendByte(uint8_t deviceNum, u8 SendByte)
         Soft_I2c_SCL_L(deviceNum);
         Soft_I2c_Delay(deviceNum);
         if(SendByte&0x80)
-            Soft_I2c_SDA_H(deviceNum);  
-        else 
-            Soft_I2c_SDA_L(deviceNum);   
+            Soft_I2c_SDA_H(deviceNum);
+        else
+            Soft_I2c_SDA_L(deviceNum);
         SendByte<<=1;
         Soft_I2c_Delay(deviceNum);
         Soft_I2c_SCL_H(deviceNum);
         Soft_I2c_Delay(deviceNum);
     }
     Soft_I2c_SCL_L(deviceNum);
-}  
+}
 
 /**********************************************************************************************************
 *函 数 名: Soft_I2c_ReadByt
@@ -323,19 +329,19 @@ void Soft_I2c_SendByte(uint8_t deviceNum, u8 SendByte)
 *形    参: 设备号
 *返 回 值: 读取到的数据
 **********************************************************************************************************/
-uint8_t Soft_I2c_ReadByte(uint8_t deviceNum) 
-{ 
+uint8_t Soft_I2c_ReadByte(uint8_t deviceNum)
+{
     uint8_t i=8;
     uint8_t ReceiveByte=0;
 
-    Soft_I2c_SDA_H(deviceNum);				
+    Soft_I2c_SDA_H(deviceNum);
     while(i--)
     {
-        ReceiveByte<<=1;      
+        ReceiveByte<<=1;
         Soft_I2c_SCL_L(deviceNum);
         Soft_I2c_Delay(deviceNum);
         Soft_I2c_SCL_H(deviceNum);
-        Soft_I2c_Delay(deviceNum);	
+        Soft_I2c_Delay(deviceNum);
         if(Soft_I2c_SDA_Read(deviceNum))
         {
             ReceiveByte|=0x01;
@@ -343,7 +349,7 @@ uint8_t Soft_I2c_ReadByte(uint8_t deviceNum)
     }
     Soft_I2c_SCL_L(deviceNum);
     return ReceiveByte;
-} 
+}
 
 /**********************************************************************************************************
 *函 数 名: Soft_I2c_Single_Write
@@ -351,21 +357,21 @@ uint8_t Soft_I2c_ReadByte(uint8_t deviceNum)
 *形    参: 设备号 从机地址 寄存器地址 写入数据
 *返 回 值: 写入状态
 **********************************************************************************************************/
-bool Soft_I2c_Single_Write(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address,u8 REG_data)		
+bool Soft_I2c_Single_Write(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address,u8 REG_data)
 {
-  	if(!Soft_I2c_Start(deviceNum))
+    if(!Soft_I2c_Start(deviceNum))
         return false;
-    Soft_I2c_SendByte(deviceNum, SlaveAddress);  
+    Soft_I2c_SendByte(deviceNum, SlaveAddress);
     if(!Soft_I2c_WaitAck(deviceNum))
     {
-        Soft_I2c_Stop(deviceNum); 
+        Soft_I2c_Stop(deviceNum);
         return false;
     }
-    Soft_I2c_SendByte(deviceNum, REG_Address);        
-    Soft_I2c_WaitAck(deviceNum);	
+    Soft_I2c_SendByte(deviceNum, REG_Address);
+    Soft_I2c_WaitAck(deviceNum);
     Soft_I2c_SendByte(deviceNum, REG_data);
-    Soft_I2c_WaitAck(deviceNum);   
-    Soft_I2c_Stop(deviceNum); 
+    Soft_I2c_WaitAck(deviceNum);
+    Soft_I2c_Stop(deviceNum);
     return true;
 }
 
@@ -376,27 +382,27 @@ bool Soft_I2c_Single_Write(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address,u8 
 *返 回 值: 读出数据
 **********************************************************************************************************/
 uint8_t Soft_I2C_Single_Read(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address)
-{   
-    uint8_t REG_data;     	
+{
+    uint8_t REG_data;
     if(!Soft_I2c_Start(deviceNum))
         return false;
-    Soft_I2c_SendByte(deviceNum, SlaveAddress);  
+    Soft_I2c_SendByte(deviceNum, SlaveAddress);
     if(!Soft_I2c_WaitAck(deviceNum))
     {
         Soft_I2c_Stop(deviceNum);
         return false;
     }
-    Soft_I2c_SendByte(deviceNum, (u8)REG_Address); 
+    Soft_I2c_SendByte(deviceNum, (u8)REG_Address);
     Soft_I2c_WaitAck(deviceNum);
     Soft_I2c_Start(deviceNum);
     Soft_I2c_SendByte(deviceNum, SlaveAddress+1);
     Soft_I2c_WaitAck(deviceNum);
 
-	REG_data = Soft_I2c_ReadByte(deviceNum);
+    REG_data = Soft_I2c_ReadByte(deviceNum);
     Soft_I2c_NoAck(deviceNum);
     Soft_I2c_Stop(deviceNum);
     return REG_data;
-}	
+}
 
 /**********************************************************************************************************
 *函 数 名: Soft_I2C_Multi_Read
@@ -407,25 +413,25 @@ uint8_t Soft_I2C_Single_Read(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address)
 bool Soft_I2C_Multi_Read(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address,u8 * ptChar,u8 size)
 {
     uint8_t i;
-    
+
     if(size < 1)
         return false;
     if(!Soft_I2c_Start(deviceNum))
-		return false;
+        return false;
     Soft_I2c_SendByte(deviceNum, SlaveAddress);
     if(!Soft_I2c_WaitAck(deviceNum))
     {
         Soft_I2c_Stop(deviceNum);
         return false;
     }
-    Soft_I2c_SendByte(deviceNum, REG_Address);    
+    Soft_I2c_SendByte(deviceNum, REG_Address);
     Soft_I2c_WaitAck(deviceNum);
-    
+
     Soft_I2c_Start(deviceNum);
     Soft_I2c_SendByte(deviceNum, SlaveAddress+1);
     Soft_I2c_WaitAck(deviceNum);
-    
-    for(i=1;i<size; i++)
+
+    for(i=1; i<size; i++)
     {
         *ptChar++ = Soft_I2c_ReadByte(deviceNum);
         Soft_I2c_Ack(deviceNum);
@@ -433,6 +439,6 @@ bool Soft_I2C_Multi_Read(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address,u8 * 
     *ptChar++ = Soft_I2c_ReadByte(deviceNum);
     Soft_I2c_NoAck(deviceNum);
     Soft_I2c_Stop(deviceNum);
-    return true;    
-}	
+    return true;
+}
 

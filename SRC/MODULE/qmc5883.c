@@ -7,17 +7,17 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "qmc5883.h"
 #include "drv_i2c_soft.h"
 
-#define QMC5883L_Addr   0x1A     
+#define QMC5883L_Addr   0x1A
 #define QMC5883L_HX_L   0x00
 #define QMC5883L_HX_H   0x01
 #define QMC5883L_HY_L   0x02
 #define QMC5883L_HY_H   0x03
-#define QMC5883L_HZ_L   0x04 
+#define QMC5883L_HZ_L   0x04
 #define QMC5883L_HZ_H   0x05
 #define QMC5883L_CTR1   0x09
 #define QMC5883L_SRPERIOD 0x0B
@@ -60,13 +60,13 @@ static uint8_t QMC5883_ReadReg(u8 REG_Address)
 bool QMC5883_Detect(void)
 {
     QMC5883_WriteReg(QMC5883L_SRPERIOD,0x01);
-	QMC5883_WriteReg(QMC5883L_CTR1,0x0D);  //2Guass 200Hz	
-	SoftDelayMs(50);
-	
-	if(QMC5883_ReadReg(QMC5883L_CTR1) == 0x0D)
-		return true;
-	else
-		return false;
+    QMC5883_WriteReg(QMC5883L_CTR1,0x0D);  //2Guass 200Hz
+    SoftDelayMs(50);
+
+    if(QMC5883_ReadReg(QMC5883L_CTR1) == 0x0D)
+        return true;
+    else
+        return false;
 }
 
 /**********************************************************************************************************
@@ -77,9 +77,9 @@ bool QMC5883_Detect(void)
 **********************************************************************************************************/
 void QMC5883_Init(void)
 {
-	QMC5883_WriteReg(QMC5883L_SRPERIOD, 0x01);
-	SoftDelayMs(5);  
-	QMC5883_WriteReg(QMC5883L_CTR1, 0x0D);  //2Guass 200Hz	
+    QMC5883_WriteReg(QMC5883L_SRPERIOD, 0x01);
+    SoftDelayMs(5);
+    QMC5883_WriteReg(QMC5883L_CTR1, 0x0D);  //2Guass 200Hz
 }
 
 /**********************************************************************************************************
@@ -90,24 +90,24 @@ void QMC5883_Init(void)
 **********************************************************************************************************/
 void QMC5883_Update(void)
 {
-	uint8_t buffer[6];
+    uint8_t buffer[6];
 
-	buffer[1] = QMC5883_ReadReg(QMC5883L_HX_L);	
-	buffer[0] = QMC5883_ReadReg(QMC5883L_HX_H);
-	magRaw.x = (int16_t)buffer[0] << 8 | buffer[1];
-	
-	buffer[3] = QMC5883_ReadReg(QMC5883L_HY_L);
-	buffer[2] = QMC5883_ReadReg(QMC5883L_HY_H);
-	magRaw.y = (int16_t)buffer[2] << 8 | buffer[3];
+    buffer[1] = QMC5883_ReadReg(QMC5883L_HX_L);
+    buffer[0] = QMC5883_ReadReg(QMC5883L_HX_H);
+    magRaw.x = (int16_t)buffer[0] << 8 | buffer[1];
 
-	buffer[5] = QMC5883_ReadReg(QMC5883L_HZ_L);	
-	buffer[4] = QMC5883_ReadReg(QMC5883L_HZ_H); 
-	magRaw.z = (int16_t)buffer[4] << 8 | buffer[5];
-    
+    buffer[3] = QMC5883_ReadReg(QMC5883L_HY_L);
+    buffer[2] = QMC5883_ReadReg(QMC5883L_HY_H);
+    magRaw.y = (int16_t)buffer[2] << 8 | buffer[3];
+
+    buffer[5] = QMC5883_ReadReg(QMC5883L_HZ_L);
+    buffer[4] = QMC5883_ReadReg(QMC5883L_HZ_H);
+    magRaw.z = (int16_t)buffer[4] << 8 | buffer[5];
+
     //统一传感器坐标系（并非定义安装方向）
     magRaw.x = magRaw.x;
     magRaw.y = -magRaw.y;
-    magRaw.z = magRaw.z;    
+    magRaw.z = magRaw.z;
 }
 
 /**********************************************************************************************************
@@ -118,9 +118,9 @@ void QMC5883_Update(void)
 **********************************************************************************************************/
 void QMC5883_Read(Vector3f_t* mag)
 {
-	mag->x = magRaw.x * QMC5883_MAG_TO_GAUSS;
-	mag->y = magRaw.y * QMC5883_MAG_TO_GAUSS;
-	mag->z = magRaw.z * QMC5883_MAG_TO_GAUSS;
+    mag->x = magRaw.x * QMC5883_MAG_TO_GAUSS;
+    mag->y = magRaw.y * QMC5883_MAG_TO_GAUSS;
+    mag->z = magRaw.z * QMC5883_MAG_TO_GAUSS;
 }
 
 

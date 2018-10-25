@@ -22,12 +22,12 @@ void BsklinkMsgCalculateSum(BSKLINK_MSG_t* msg)
 {
     uint8_t length = msg->length + 6;
     uint8_t temp[BSKLINK_MAX_PAYLOAD_LENGTH+10];
-    
+
     memcpy(temp, msg, length);
-    
+
     msg->checksum = 0;
-    
-    for(uint8_t i=0;i<length;i++)
+
+    for(uint8_t i=0; i<length; i++)
     {
         msg->checksum += temp[i];
     }
@@ -44,14 +44,14 @@ bool BsklinkMsgCheckSum(BSKLINK_MSG_t* msg)
     uint8_t length = msg->length + 6;
     uint8_t temp[BSKLINK_MAX_PAYLOAD_LENGTH+10];
     uint8_t checksum = 0;
-    
+
     memcpy(temp, msg, length);
-    
-    for(uint8_t i=0;i<length;i++)
+
+    for(uint8_t i=0; i<length; i++)
     {
         checksum += temp[i];
     }
-    
+
     if(checksum == msg->checksum)
         return true;
     else
@@ -65,17 +65,17 @@ bool BsklinkMsgCheckSum(BSKLINK_MSG_t* msg)
 *返 回 值: 无
 **********************************************************************************************************/
 void BsklinkMsgFormat(BSKLINK_MSG_t msg, uint8_t* msgTemp)
-{ 
+{
     //首字节为帧长度
     msgTemp[0] = msg.length + 7;
-    
+
     msgTemp[1] = msg.head1;
     msgTemp[2] = msg.head2;
     msgTemp[3] = msg.deviceid;
-	msgTemp[4] = msg.sysid;
+    msgTemp[4] = msg.sysid;
     msgTemp[5] = msg.msgid;
     msgTemp[6] = msg.length;
-    
+
     memcpy(msgTemp+7, msg.payload, msg.length);
     msgTemp[7+msg.length] = msg.checksum;
 }
@@ -87,62 +87,62 @@ void BsklinkMsgFormat(BSKLINK_MSG_t msg, uint8_t* msgTemp)
 *返 回 值: 标志位 一帧接收完成返回true
 **********************************************************************************************************/
 bool BsklinkParseChar(BSKLINK_MSG_t* msg, uint8_t data)
-{     
+{
     switch(msg->recvStatus)
     {
-        case 0:     //帧头
-            if(data == BSKLINK_MSG_HEAD_1)
-            {
-                msg->head1 = data;
-                msg->recvStatus++;
-            }
-            break;
-        case 1:     //帧头
-            if(data == BSKLINK_MSG_HEAD_2)
-            {
-                msg->head2 = data;
-                msg->recvStatus++;
-            } 
-            else
-                msg->recvStatus = 0;
-            break;
-        case 2:     //设备ID
-            msg->deviceid = data;
+    case 0:     //帧头
+        if(data == BSKLINK_MSG_HEAD_1)
+        {
+            msg->head1 = data;
             msg->recvStatus++;
-            break;
-		case 3:     //系统ID
-            msg->sysid = data;
+        }
+        break;
+    case 1:     //帧头
+        if(data == BSKLINK_MSG_HEAD_2)
+        {
+            msg->head2 = data;
             msg->recvStatus++;
-            break;
-        case 4:     //消息ID
-            msg->msgid = data;
-            msg->recvStatus++;
-            break;
-        case 5:     //数据负载长度
-            msg->length = data;
-            msg->recvStatus++;
-            break;
-        case 6:     //数据负载接收
-            msg->payload[msg->payloadRecvCnt++] = data;
-            if(msg->payloadRecvCnt == msg->length)
-            {
-                msg->payloadRecvCnt = 0;
-                msg->recvStatus++;
-            }
-            break;
-        case 7:     //帧校验
-            msg->checksum = data;
+        }
+        else
             msg->recvStatus = 0;
-            if(BsklinkMsgCheckSum(msg))
-            {
-                return true;
-            } 
-        default:
-            msg->recvStatus = 0;
+        break;
+    case 2:     //设备ID
+        msg->deviceid = data;
+        msg->recvStatus++;
+        break;
+    case 3:     //系统ID
+        msg->sysid = data;
+        msg->recvStatus++;
+        break;
+    case 4:     //消息ID
+        msg->msgid = data;
+        msg->recvStatus++;
+        break;
+    case 5:     //数据负载长度
+        msg->length = data;
+        msg->recvStatus++;
+        break;
+    case 6:     //数据负载接收
+        msg->payload[msg->payloadRecvCnt++] = data;
+        if(msg->payloadRecvCnt == msg->length)
+        {
             msg->payloadRecvCnt = 0;
-            break;        
+            msg->recvStatus++;
+        }
+        break;
+    case 7:     //帧校验
+        msg->checksum = data;
+        msg->recvStatus = 0;
+        if(BsklinkMsgCheckSum(msg))
+        {
+            return true;
+        }
+    default:
+        msg->recvStatus = 0;
+        msg->payloadRecvCnt = 0;
+        break;
     }
-    
+
     return false;
 }
 

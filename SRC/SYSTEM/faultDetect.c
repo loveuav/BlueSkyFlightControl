@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "faultDetect.h"
 
@@ -23,13 +23,13 @@ static uint8_t warnning[WARNNING_NUM];
 void FaultDetectInit(void)
 {
     uint16_t i;
-    
-    for(i=0;i<ERROR_NUM;i++)
+
+    for(i=0; i<ERROR_NUM; i++)
     {
         error[i] = 0;
     }
-    
-    for(i=0;i<WARNNING_NUM;i++)
+
+    for(i=0; i<WARNNING_NUM; i++)
     {
         warnning[i] = 0;
     }

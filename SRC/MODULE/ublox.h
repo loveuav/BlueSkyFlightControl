@@ -48,23 +48,23 @@
 
 #define UBLOX_MAX_PAYLOAD   512
 
-typedef struct{
-	float   time;		  //时间
-	double	latitude;	  //纬度
-	double	longitude;    //经度
-	float	altitude;	  //高度	
-	int32_t	velN;		  //北向速度
-	int32_t	velE;		  //东向速度
-	int32_t	velD;		  //天向速度
+typedef struct {
+    float   time;		  //时间
+    double	latitude;	  //纬度
+    double	longitude;    //经度
+    float	altitude;	  //高度
+    int32_t	velN;		  //北向速度
+    int32_t	velE;		  //东向速度
+    int32_t	velD;		  //天向速度
     int32_t speed;        //地面速度
     float   heading;      //航向
-	float	hAcc;		  //水平定位精度
+    float	hAcc;		  //水平定位精度
     float   vAcc;         //垂直定位精度
     float   sAcc;         //速度精度
     float   cAcc;         //航向精度
-	uint8_t fixStatus;    //定位状态		
-	uint8_t numSV;		  //卫星数量
-}UBLOX_t;
+    uint8_t fixStatus;    //定位状态
+    uint8_t numSV;		  //卫星数量
+} UBLOX_t;
 
 enum
 {
@@ -79,65 +79,65 @@ enum
     UBLOX_CHECK2
 };
 
-#pragma pack (1) 
-
-typedef struct{
-	uint32_t  iTOW;     //GPS Millisecond Time of Week
-	int32_t	  lon;      //Longitude
-	int32_t	  lat;      //Latitude
-	int32_t	  height;   //Height above Ellipsoid
-	int32_t	  hMSL;     //Height above mean sea level
-	uint32_t  hAcc;     //Horizontal Accuracy Estimate
-	uint32_t  vAcc;     //Vertical Accuracy Estimate
-}UBLOX_POSLLH_t;
-
-typedef struct{
-	uint32_t   iTOW;        //GPS Millisecond Time of Week
-	int32_t    fTOW;        //Fractional Nanoseconds remainder of rounded ms above, range -500000 .. 500000
-	int16_t    week;        //GPS week (GPS time)
-	int8_t     gpsFix;      //GPSfix Type, range 0..4
-	int8_t     flags;       //Fix Status Flags
-	int32_t    ecefX;       //ECEF X coordinate
-	int32_t    ecefY;       //ECEF Y velocity
-	int32_t    ecefZ;       //ECEF Z velocity
-	uint32_t   pAcc;        //3D Position Accuracy Estimate
-	int32_t    ecefVX;      //ECEF X velocity
-	int32_t    ecefVY;      //ECEF Y velocity
-	int32_t    ecefVZ;      //ECEF Z velocity
-	uint32_t   sAcc;        //Speed Accuracy Estimate
-	uint16_t   pDOP;        //Position DOP
-	uint8_t    res1;        //reserved
-	uint8_t    numSV;       //Number of SVs used in Nav Solution
-	uint32_t   res2;        //reserved
-}UBLOX_SOL_t;
-
-typedef struct{
-	uint32_t   iTOW;	    //GPS Millisecond Time of Week	ms
-	int32_t    velN;        //NED north velocity	cm/s
-	int32_t    velE;        //NED east velocity		cm/s
-	int32_t    velD;        //NED down velocity		cm/s
-	uint32_t   speed;		//Speed (3-D)			cm/s
-	uint32_t   gSpeed;		//Ground Speed (2-D)	cm/s
-	int32_t    heading;		//Heading 2-D			deg
-	uint32_t   sAcc;		//Speed Accuracy Estimate	cm/s
-	uint32_t   cAcc;		//Course / Heading Accuracy Estimate deg
-}UBLOX_VELNED_t;
-
-typedef struct{
-	uint32_t   iTOW;	    //GPS Millisecond Time of Week	ms
-	uint32_t   tAcc;        //Time Accuracy Estimate
-	int32_t    nano;        //Nanoseconds of second, range -500000000 .. 500000000 (UTC)	
-	uint16_t   year;        //Year, range 1999..2099 (UTC)
-	uint8_t    month;		//Month, range 1..12 (UTC)
-	uint8_t    day;		    //Day of Month, range 1..31 (UTC)
-	uint8_t    hour;		//Hour of Day, range 0..23 (UTC)
-	uint8_t    min;		    //Minute of Hour, range 0..59 (UTC)
-	uint8_t    sec;		    //Seconds of Minute, range 0..59 (UTC)
-    uint8_t    valid;       //Validity Flags
-}UBLOX_TIMEUTC_t;
+#pragma pack (1)
 
 typedef struct {
-    union 
+    uint32_t  iTOW;     //GPS Millisecond Time of Week
+    int32_t	  lon;      //Longitude
+    int32_t	  lat;      //Latitude
+    int32_t	  height;   //Height above Ellipsoid
+    int32_t	  hMSL;     //Height above mean sea level
+    uint32_t  hAcc;     //Horizontal Accuracy Estimate
+    uint32_t  vAcc;     //Vertical Accuracy Estimate
+} UBLOX_POSLLH_t;
+
+typedef struct {
+    uint32_t   iTOW;        //GPS Millisecond Time of Week
+    int32_t    fTOW;        //Fractional Nanoseconds remainder of rounded ms above, range -500000 .. 500000
+    int16_t    week;        //GPS week (GPS time)
+    int8_t     gpsFix;      //GPSfix Type, range 0..4
+    int8_t     flags;       //Fix Status Flags
+    int32_t    ecefX;       //ECEF X coordinate
+    int32_t    ecefY;       //ECEF Y velocity
+    int32_t    ecefZ;       //ECEF Z velocity
+    uint32_t   pAcc;        //3D Position Accuracy Estimate
+    int32_t    ecefVX;      //ECEF X velocity
+    int32_t    ecefVY;      //ECEF Y velocity
+    int32_t    ecefVZ;      //ECEF Z velocity
+    uint32_t   sAcc;        //Speed Accuracy Estimate
+    uint16_t   pDOP;        //Position DOP
+    uint8_t    res1;        //reserved
+    uint8_t    numSV;       //Number of SVs used in Nav Solution
+    uint32_t   res2;        //reserved
+} UBLOX_SOL_t;
+
+typedef struct {
+    uint32_t   iTOW;	    //GPS Millisecond Time of Week	ms
+    int32_t    velN;        //NED north velocity	cm/s
+    int32_t    velE;        //NED east velocity		cm/s
+    int32_t    velD;        //NED down velocity		cm/s
+    uint32_t   speed;		//Speed (3-D)			cm/s
+    uint32_t   gSpeed;		//Ground Speed (2-D)	cm/s
+    int32_t    heading;		//Heading 2-D			deg
+    uint32_t   sAcc;		//Speed Accuracy Estimate	cm/s
+    uint32_t   cAcc;		//Course / Heading Accuracy Estimate deg
+} UBLOX_VELNED_t;
+
+typedef struct {
+    uint32_t   iTOW;	    //GPS Millisecond Time of Week	ms
+    uint32_t   tAcc;        //Time Accuracy Estimate
+    int32_t    nano;        //Nanoseconds of second, range -500000000 .. 500000000 (UTC)
+    uint16_t   year;        //Year, range 1999..2099 (UTC)
+    uint8_t    month;		//Month, range 1..12 (UTC)
+    uint8_t    day;		    //Day of Month, range 1..31 (UTC)
+    uint8_t    hour;		//Hour of Day, range 0..23 (UTC)
+    uint8_t    min;		    //Minute of Hour, range 0..59 (UTC)
+    uint8_t    sec;		    //Seconds of Minute, range 0..59 (UTC)
+    uint8_t    valid;       //Validity Flags
+} UBLOX_TIMEUTC_t;
+
+typedef struct {
+    union
     {
         UBLOX_POSLLH_t posllh;
         UBLOX_VELNED_t velned;
@@ -158,18 +158,18 @@ typedef struct {
 
     uint8_t  ubloxTxCK_A;
     uint8_t  ubloxTxCK_B;
-}UBLOX_t_RAW_t;
+} UBLOX_t_RAW_t;
 
 typedef struct {
-	uint16_t   year;   
-	uint8_t    month;	
-	uint8_t    day;		
-	uint8_t    hour;	
-	uint8_t    min;		 
-	uint8_t    sec;		  
-}UTC_TIME_t;
+    uint16_t   year;
+    uint8_t    month;
+    uint8_t    day;
+    uint8_t    hour;
+    uint8_t    min;
+    uint8_t    sec;
+} UTC_TIME_t;
 
-#pragma pack () 
+#pragma pack ()
 
 void Ublox_Init(void);
 UBLOX_t Ublox_GetData(void);

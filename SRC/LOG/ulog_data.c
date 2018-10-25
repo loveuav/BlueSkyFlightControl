@@ -11,12 +11,12 @@
 **********************************************************************************************************/
 #include "ulog_data.h"
 
-ULOG_FORMAT_t ulog_data_flight[ULOG_DATA_FLIGHT_NUM] = 
+ULOG_FORMAT_t ulog_data_flight[ULOG_DATA_FLIGHT_NUM] =
 {
     {
         .data_type = "uint64_t",
         .data_name = "timestamp"
-    },    
+    },
     {
         .data_type = "int16_t",
         .data_name = "roll_rate"
@@ -87,12 +87,12 @@ ULOG_FORMAT_t ulog_data_flight[ULOG_DATA_FLIGHT_NUM] =
     },
 };
 
-ULOG_FORMAT_t ulog_data_gps[ULOG_DATA_GPS_NUM] = 
+ULOG_FORMAT_t ulog_data_gps[ULOG_DATA_GPS_NUM] =
 {
     {
         .data_type = "uint64_t",
         .data_name = "timestamp"
-    },    
+    },
     {
         .data_type = "int32_t",
         .data_name = "latitude"

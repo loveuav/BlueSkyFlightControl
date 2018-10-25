@@ -61,10 +61,10 @@ enum MAV_NOTICE_TYPE
     MAV_NOTICE_NUM
 };
 
-typedef struct{
-	uint8_t severity;
-	char*   strings;
-}MAV_NOTICE_t;
+typedef struct {
+    uint8_t severity;
+    char*   strings;
+} MAV_NOTICE_t;
 
 MAV_NOTICE_t GetMavNoticeValue(uint8_t noticeNum);
 

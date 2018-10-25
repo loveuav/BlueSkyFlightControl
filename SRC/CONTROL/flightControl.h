@@ -7,7 +7,7 @@
 #define MAXANGLE  400               //最大飞行角度：40°
 #define MAXRCDATA 450
 
-enum 
+enum
 {
     ROLL_INNER,
     PITCH_INNER,
@@ -17,7 +17,7 @@ enum
     YAW_OUTER,
     VEL_X,
     VEL_Y,
-    VEL_Z,	
+    VEL_Z,
     POS_X,
     POS_Y,
     POS_Z,
@@ -26,40 +26,40 @@ enum
 
 typedef struct
 {
-    float roll;   
-    float pitch;   
-    float yaw;      
-    float throttle;  
-}RCTARGET_t;
+    float roll;
+    float pitch;
+    float yaw;
+    float throttle;
+} RCTARGET_t;
 
 typedef struct
 {
-	PID_t      pid[PIDNUM];         //PID参数结构体
-	
+    PID_t      pid[PIDNUM];         //PID参数结构体
+
     RCTARGET_t rcTarget;            //摇杆控制量
     Vector3f_t angleLpf;
 
     Vector3f_t attInnerCtlValue;    //姿态内环控制量
     float      altInnerCtlValue;    //高度内环控制量
-    
-	Vector3f_t attInnerTarget;      //姿态内环（角速度）控制目标
+
+    Vector3f_t attInnerTarget;      //姿态内环（角速度）控制目标
     Vector3f_t attOuterTarget;      //姿态外环（角度）控制目标
- 	Vector3f_t posInnerTarget;      //位置内环（速度）控制目标
- 	Vector3f_t posOuterTarget;      //位置外环（位置）控制目标
+    Vector3f_t posInnerTarget;      //位置内环（速度）控制目标
+    Vector3f_t posOuterTarget;      //位置外环（位置）控制目标
 
     Vector3f_t attInnerError;       //姿态内环（角速度）控制误差
     Vector3f_t attOuterError;       //姿态外环（角度）控制误差
     Vector3f_t posInnerError;       //位置内环（速度）控制误差
- 	Vector3f_t posOuterError;       //位置外环（位置）控制误差  
-    
+    Vector3f_t posOuterError;       //位置外环（位置）控制误差
+
     uint8_t    altCtlFlag;          //高度控制使能标志位
     uint8_t    posCtlFlag;          //位置控制使能标志位
     uint8_t    yawHoldFlag;         //航向锁定控制使能标志位
-    
+
     int16_t    maxBrakeAngle;       //最大刹车角度
     int16_t    maxPosOuterCtl;      //位置控制的最大输出
     int16_t    maxAltOuterCtl;      //高度控制的最大输出
-}FLIGHTCONTROL_t;
+} FLIGHTCONTROL_t;
 
 void FlightControlInit(void);
 

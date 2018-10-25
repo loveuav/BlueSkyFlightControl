@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.08 
+ * @日期     2018.08
 **********************************************************************************************************/
 #include "safeControl.h"
 #include "flightStatus.h"
@@ -30,11 +30,11 @@ static void CrashProtect(void);
 void SafeControl(void)
 {
     //失控保护
-    FailSafeProtect();  
-    
+    FailSafeProtect();
+
     //低电量/电压保护
     LowPowerProtect();
-    
+
     //炸机保护
     CrashProtect();
 }
@@ -49,7 +49,7 @@ static void FailSafeProtect(void)
 {
     if(GetArmedStatus() == DISARMED)
         return;
-    
+
     //失控状态下触发自动返航
     if(GetFailSafeStatus() == true && GetFlightMode() != RETURNTOHOME)
     {
@@ -76,10 +76,10 @@ static void LowPowerProtect(void)
 {
     static uint32_t lastCheckTime;
     const  uint32_t TIME_INTERVAL = 30000;
-    
+
     if(GetArmedStatus() == DISARMED)
         return;
-        
+
     //严重低电量时直接降落
     if(GetBatteryStatus() == BATTERY_CRITICAL_LOW)
     {
@@ -97,15 +97,15 @@ static void LowPowerProtect(void)
                 {
                     //当飞机处于自动降落模式时，若距离过远，也切换为自动返航模式
                     if(GpsGetFixStatus() == true && GetDistanceToHome(GetCopterPosition()) > 5000)
-                    SetFlightMode(RETURNTOHOME);
+                        SetFlightMode(RETURNTOHOME);
                 }
                 else
                 {
                     SetFlightMode(RETURNTOHOME);
                 }
             }
-        } 
-    }        
+        }
+    }
 }
 
 /**********************************************************************************************************
@@ -116,7 +116,7 @@ static void LowPowerProtect(void)
 **********************************************************************************************************/
 static void CrashProtect(void)
 {
-    
+
 }
 
 

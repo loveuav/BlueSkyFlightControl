@@ -81,10 +81,10 @@ static uint8_t IST8310_ReadReg(u8 REG_Address)
 **********************************************************************************************************/
 bool IST8310_Detect(void)
 {
-	if(IST8310_ReadReg(IST8310_REG_WHOAMI) == IST8310_CHIP_ID)
-		return true;
-	else
-		return false;
+    if(IST8310_ReadReg(IST8310_REG_WHOAMI) == IST8310_CHIP_ID)
+        return true;
+    else
+        return false;
 }
 
 /**********************************************************************************************************
@@ -95,8 +95,8 @@ bool IST8310_Detect(void)
 **********************************************************************************************************/
 void IST8310_Init(void)
 {
-	IST8310_WriteReg(IST8310_REG_CNTRL1, IST8310_ODR_200_HZ);
-	SoftDelayMs(5);         
+    IST8310_WriteReg(IST8310_REG_CNTRL1, IST8310_ODR_200_HZ);
+    SoftDelayMs(5);
 }
 
 /**********************************************************************************************************
@@ -107,24 +107,24 @@ void IST8310_Init(void)
 **********************************************************************************************************/
 void IST8310_Update(void)
 {
-	uint8_t buffer[6];
+    uint8_t buffer[6];
 
-	buffer[1] = IST8310_ReadReg(IST8310_REG_HX_L);	
-	buffer[0] = IST8310_ReadReg(IST8310_REG_HX_H);
-	magRaw.x = (int16_t)buffer[0] << 8 | buffer[1];
-	
-	buffer[3] = IST8310_ReadReg(IST8310_REG_HY_L);
-	buffer[2] = IST8310_ReadReg(IST8310_REG_HY_H);
-	magRaw.y = (int16_t)buffer[2] << 8 | buffer[3];
+    buffer[1] = IST8310_ReadReg(IST8310_REG_HX_L);
+    buffer[0] = IST8310_ReadReg(IST8310_REG_HX_H);
+    magRaw.x = (int16_t)buffer[0] << 8 | buffer[1];
 
-	buffer[5] = IST8310_ReadReg(IST8310_REG_HZ_L);	
-	buffer[4] = IST8310_ReadReg(IST8310_REG_HZ_H); 
-	magRaw.z = (int16_t)buffer[4] << 8 | buffer[5];
-    
+    buffer[3] = IST8310_ReadReg(IST8310_REG_HY_L);
+    buffer[2] = IST8310_ReadReg(IST8310_REG_HY_H);
+    magRaw.y = (int16_t)buffer[2] << 8 | buffer[3];
+
+    buffer[5] = IST8310_ReadReg(IST8310_REG_HZ_L);
+    buffer[4] = IST8310_ReadReg(IST8310_REG_HZ_H);
+    magRaw.z = (int16_t)buffer[4] << 8 | buffer[5];
+
     //统一传感器坐标系（并非定义安装方向）
     magRaw.x = magRaw.x;
     magRaw.y = -magRaw.y;
-    magRaw.z = magRaw.z;    
+    magRaw.z = magRaw.z;
 }
 
 /**********************************************************************************************************
@@ -135,9 +135,9 @@ void IST8310_Update(void)
 **********************************************************************************************************/
 void IST8310_Read(Vector3f_t* mag)
 {
-	mag->x = magRaw.x * IST8310_MAG_TO_GAUSS;
-	mag->y = magRaw.y * IST8310_MAG_TO_GAUSS;
-	mag->z = magRaw.z * IST8310_MAG_TO_GAUSS;
+    mag->x = magRaw.x * IST8310_MAG_TO_GAUSS;
+    mag->y = magRaw.y * IST8310_MAG_TO_GAUSS;
+    mag->z = magRaw.z * IST8310_MAG_TO_GAUSS;
 }
 
 

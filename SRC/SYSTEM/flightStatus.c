@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "flightStatus.h"
 #include "faultDetect.h"
@@ -24,13 +24,13 @@ typedef struct
 {
     uint8_t init;           //初始化状态
     uint8_t failsafe;       //失控保护状态
-	uint8_t armed;          //电机锁定状态
-	uint8_t flight;         //飞行状态
-	uint8_t placement;      //放置状态
-	uint8_t altControl;     //高度控制状态
-	uint8_t posControl;     //位置控制状态
-	uint8_t mode;
-}FLIGHT_STATUS_t;
+    uint8_t armed;          //电机锁定状态
+    uint8_t flight;         //飞行状态
+    uint8_t placement;      //放置状态
+    uint8_t altControl;     //高度控制状态
+    uint8_t posControl;     //位置控制状态
+    uint8_t mode;
+} FLIGHT_STATUS_t;
 
 FLIGHT_STATUS_t flyStatus;
 float windSpeed, windSpeedAcc;
@@ -44,137 +44,137 @@ float windSpeed, windSpeedAcc;
 void SystemInitCheck(void)
 {
     static uint8_t initStep = 0;
-    
+
     switch(initStep)
     {
-        case 0:
-            if(GetMessageStatus())
-            {
-                OsDelayMs(3000); 
-                initStep = 1;
-            }
-            break;
+    case 0:
+        if(GetMessageStatus())
+        {
+            OsDelayMs(3000);
+            initStep = 1;
+        }
+        break;
 
-        /*欢迎信息*/
-        case 1:
-            MavlinkSendNoticeEnable(INIT_WELCOME);
+    /*欢迎信息*/
+    case 1:
+        MavlinkSendNoticeEnable(INIT_WELCOME);
+        OsDelayMs(1000);
+        initStep++;
+        break;
+
+    /*开始初始化*/
+    case 2:
+        MavlinkSendNoticeEnable(INIT_INIT_START);
+        OsDelayMs(1000);
+        initStep++;
+        break;
+
+    /*开始传感器检查*/
+    case 3:
+        MavlinkSendNoticeEnable(SENSOR_CHECK_START);
+        OsDelayMs(1000);
+        initStep++;
+        break;
+
+    /*传感器检查*/
+    case 4:
+        //检测陀螺仪状态
+        if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
+            MavlinkSendNoticeEnable(SENSOR_GYRO_UNDETECTED);
+        else if(FaultDetectGetErrorStatus(GYRO_UNCALIBRATED))
+            MavlinkSendNoticeEnable(SENSOR_GYRO_UNCALI);
+        else if(GetGyroHealthStatus() == SENSOR_UNHEALTH)
+            MavlinkSendNoticeEnable(SENSOR_GYRO_NEED_CALI);
+        else
+            MavlinkSendNoticeEnable(SENSOR_GYRO_OK);
+
+        //检测加速度计状态
+        if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
+            ;
+        else if(FaultDetectGetErrorStatus(ACC_UNCALIBRATED))
+            MavlinkSendNoticeEnable(SENSOR_ACC_UNCALI);
+        else if(GetAccHealthStatus() == SENSOR_UNHEALTH)
+            MavlinkSendNoticeEnable(SENSOR_ACC_NEED_CALI);
+        else
+            MavlinkSendNoticeEnable(SENSOR_ACC_OK);
+
+        //检测磁力计状态
+        if(FaultDetectGetErrorStatus(MAG_UNDETECTED))
+            MavlinkSendNoticeEnable(SENSOR_MAG_UNDETECTED);
+        else if(FaultDetectGetErrorStatus(MAG_UNCALIBRATED))
+            MavlinkSendNoticeEnable(SENSOR_MAG_UNCALI);
+        else
+            MavlinkSendNoticeEnable(SENSOR_MAG_OK);
+
+        //检测气压计状态
+        if(FaultDetectGetErrorStatus(BARO_UNDETECTED))
+            MavlinkSendNoticeEnable(SENSOR_BARO_UNDETECTED);
+        else
+            MavlinkSendNoticeEnable(SENSOR_BARO_OK);
+
+        //检测GPS状态
+        if(FaultDetectGetErrorStatus(GPS_UNDETECTED))
+            MavlinkSendNoticeEnable(SENSOR_GPS_UNDETECTED);
+        else
+            MavlinkSendNoticeEnable(SENSOR_GPS_OK);
+
+        OsDelayMs(1000);
+        initStep++;
+        break;
+
+    /*传感器检查结束*/
+    case 5:
+        if(SensorCheckStatus())
+        {
+            MavlinkSendNoticeEnable(SENSOR_CHECK_FINISH);
             OsDelayMs(1000);
             initStep++;
-            break;
+        }
+        else
+        {
+            MavlinkSendNoticeEnable(SENSOR_CHECK_ERROR);
+            initStep = 0xFF;
+        }
+        break;
 
-        /*开始初始化*/
-        case 2:
-            MavlinkSendNoticeEnable(INIT_INIT_START);
+    /*开始加热*/
+    case 6:
+        if(configUSE_SENSORHEAT == 1)
+        {
+            MavlinkSendNoticeEnable(INIT_HEATING);
             OsDelayMs(1000);
             initStep++;
-            break;
+        }
+        else
+        {
+            MavlinkSendNoticeEnable(INIT_HEAT_DISABLE);
+            OsDelayMs(1000);
+            initStep = 8;
+        }
+        break;
 
-        /*开始传感器检查*/            
-        case 3:
-            MavlinkSendNoticeEnable(SENSOR_CHECK_START);
+    /*加热完成*/
+    case 7:
+        if(flyStatus.init >= HEAT_FINISH)
+        {
+            MavlinkSendNoticeEnable(INIT_HEAT_FINISH);
             OsDelayMs(1000);
             initStep++;
-            break;
-        
-        /*传感器检查*/
-        case 4:
-            //检测陀螺仪状态
-            if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
-                MavlinkSendNoticeEnable(SENSOR_GYRO_UNDETECTED);
-            else if(FaultDetectGetErrorStatus(GYRO_UNCALIBRATED))
-                MavlinkSendNoticeEnable(SENSOR_GYRO_UNCALI);
-            else if(GetGyroHealthStatus() == SENSOR_UNHEALTH)
-                MavlinkSendNoticeEnable(SENSOR_GYRO_NEED_CALI);
-            else
-                MavlinkSendNoticeEnable(SENSOR_GYRO_OK);    
-            
-            //检测加速度计状态
-            if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
-                ;
-            else if(FaultDetectGetErrorStatus(ACC_UNCALIBRATED))
-                MavlinkSendNoticeEnable(SENSOR_ACC_UNCALI);
-            else if(GetAccHealthStatus() == SENSOR_UNHEALTH)
-                MavlinkSendNoticeEnable(SENSOR_ACC_NEED_CALI);
-            else
-                MavlinkSendNoticeEnable(SENSOR_ACC_OK);  
-            
-            //检测磁力计状态
-            if(FaultDetectGetErrorStatus(MAG_UNDETECTED))
-                MavlinkSendNoticeEnable(SENSOR_MAG_UNDETECTED); 
-            else if(FaultDetectGetErrorStatus(MAG_UNCALIBRATED))
-                MavlinkSendNoticeEnable(SENSOR_MAG_UNCALI);            
-            else
-                MavlinkSendNoticeEnable(SENSOR_MAG_OK); 
-            
-            //检测气压计状态
-            if(FaultDetectGetErrorStatus(BARO_UNDETECTED))
-                MavlinkSendNoticeEnable(SENSOR_BARO_UNDETECTED);    
-            else
-                MavlinkSendNoticeEnable(SENSOR_BARO_OK); 
-            
-            //检测GPS状态
-            if(FaultDetectGetErrorStatus(GPS_UNDETECTED))
-                MavlinkSendNoticeEnable(SENSOR_GPS_UNDETECTED);    
-            else
-                MavlinkSendNoticeEnable(SENSOR_GPS_OK); 
-            
+        }
+        break;
+
+    /*初始化完成*/
+    case 8:
+        if(flyStatus.init >= INIT_FINISH)
+        {
+            MavlinkSendNoticeEnable(INIT_INIT_FINISH);
             OsDelayMs(1000);
             initStep++;
-            break;
+        }
+        break;
 
-        /*传感器检查结束*/
-        case 5:
-            if(SensorCheckStatus())
-            {
-                MavlinkSendNoticeEnable(SENSOR_CHECK_FINISH);
-                OsDelayMs(1000);
-                initStep++;
-            }
-            else
-            {
-                MavlinkSendNoticeEnable(SENSOR_CHECK_ERROR);
-                initStep = 0xFF;                
-            }
-            break;
-        
-        /*开始加热*/
-        case 6:
-            if(configUSE_SENSORHEAT == 1)
-            {
-                MavlinkSendNoticeEnable(INIT_HEATING);
-                OsDelayMs(1000);
-                initStep++;
-            }
-            else
-            {
-                MavlinkSendNoticeEnable(INIT_HEAT_DISABLE);
-                OsDelayMs(1000);
-                initStep = 8;
-            }
-            break;
-
-        /*加热完成*/
-        case 7:
-            if(flyStatus.init >= HEAT_FINISH)
-            {
-                MavlinkSendNoticeEnable(INIT_HEAT_FINISH);
-                OsDelayMs(1000);
-                initStep++;
-            }
-            break;
-        
-        /*初始化完成*/            
-        case 8:
-            if(flyStatus.init >= INIT_FINISH)
-            {
-                MavlinkSendNoticeEnable(INIT_INIT_FINISH);
-                OsDelayMs(1000);
-                initStep++;
-            }
-            break;
-        
-        default:
-            break;
+    default:
+        break;
     }
 }
 
@@ -188,7 +188,7 @@ bool ArmedCheck(void)
 {
     if(GetInitStatus() != INIT_FINISH)
         return false;
-    
+
     return true;
 }
 
@@ -200,41 +200,41 @@ bool ArmedCheck(void)
 **********************************************************************************************************/
 bool SetArmedStatus(uint8_t status)
 {
-	if(status == DISARMED)	//上锁
-	{
+    if(status == DISARMED)	//上锁
+    {
         //导航数据复位
         NavigationReset();
-        
-		flyStatus.armed = DISARMED;
-        
+
+        flyStatus.armed = DISARMED;
+
         return true;
-	}
-	else if(status == ARMED)	//解锁
-	{	
+    }
+    else if(status == ARMED)	//解锁
+    {
         if(flyStatus.armed == ARMED)
             return true;
-           
+
         //解锁检查
         if(!ArmedCheck())
             return false;
-		
-		//不使用恒温的话，每次解锁时校准一下陀螺仪
-		#if(configUSE_SENSORHEAT == 0)
-		GyroCalibrateEnable();
-		OsDelayMs(100);
-		while(GetGyroCaliStatus()){}
-		#endif
-        
+
+        //不使用恒温的话，每次解锁时校准一下陀螺仪
+#if(configUSE_SENSORHEAT == 0)
+        GyroCalibrateEnable();
+        OsDelayMs(100);
+        while(GetGyroCaliStatus()) {}
+#endif
+
         //导航数据复位
         NavigationReset();
-        
+
         //刷新Home点坐标
         GpsResetHomePosition();
-            
-		flyStatus.armed = ARMED;
-        
+
+        flyStatus.armed = ARMED;
+
         return true;
-	}
+    }
     else
         return false;
 }
@@ -285,12 +285,12 @@ void PlaceStausCheck(Vector3f_t gyro)
     static float threshold = 1.0f;
     static uint16_t checkNum = 0;
     static int16_t count = 0;
-    
+
     gyroDiff.x = gyro.x - lastGyro.x;
-    gyroDiff.y = gyro.y - lastGyro.y;    
+    gyroDiff.y = gyro.y - lastGyro.y;
     gyroDiff.z = gyro.z - lastGyro.z;
     lastGyro = gyro;
-    
+
     if(count < 30)
     {
         count++;
@@ -307,10 +307,10 @@ void PlaceStausCheck(Vector3f_t gyro)
             flyStatus.placement = MOTIONAL;
         else
             flyStatus.placement = STATIC;
-        
+
         checkNum = 0;
         count = 0;
-    }  
+    }
 }
 
 /**********************************************************************************************************
@@ -321,7 +321,7 @@ void PlaceStausCheck(Vector3f_t gyro)
 **********************************************************************************************************/
 uint8_t GetPlaceStatus(void)
 {
-    return flyStatus.placement;    
+    return flyStatus.placement;
 }
 
 /**********************************************************************************************************
@@ -332,7 +332,7 @@ uint8_t GetPlaceStatus(void)
 **********************************************************************************************************/
 void SetAltControlStatus(uint8_t status)
 {
-    flyStatus.altControl = status;    
+    flyStatus.altControl = status;
 }
 
 /**********************************************************************************************************
@@ -343,7 +343,7 @@ void SetAltControlStatus(uint8_t status)
 **********************************************************************************************************/
 uint8_t GetAltControlStatus(void)
 {
-    return flyStatus.altControl;    
+    return flyStatus.altControl;
 }
 
 /**********************************************************************************************************
@@ -354,7 +354,7 @@ uint8_t GetAltControlStatus(void)
 **********************************************************************************************************/
 void SetPosControlStatus(uint8_t status)
 {
-    flyStatus.posControl = status;    
+    flyStatus.posControl = status;
 }
 
 /**********************************************************************************************************
@@ -365,7 +365,7 @@ void SetPosControlStatus(uint8_t status)
 **********************************************************************************************************/
 uint8_t GetPosControlStatus(void)
 {
-    return flyStatus.posControl;    
+    return flyStatus.posControl;
 }
 
 /**********************************************************************************************************
@@ -376,7 +376,7 @@ uint8_t GetPosControlStatus(void)
 **********************************************************************************************************/
 void SetInitStatus(uint8_t status)
 {
-    flyStatus.init = status;    
+    flyStatus.init = status;
 }
 
 /**********************************************************************************************************
@@ -387,7 +387,7 @@ void SetInitStatus(uint8_t status)
 **********************************************************************************************************/
 uint8_t GetInitStatus(void)
 {
-    return flyStatus.init;    
+    return flyStatus.init;
 }
 
 /**********************************************************************************************************
@@ -400,40 +400,40 @@ void SetFlightMode(uint8_t mode)
 {
     switch(mode)
     {
-        case    MANUAL:
-            flyStatus.mode = MANUAL;			//手动模式（自稳）
-            break;
-        case    SEMIAUTO:
-            flyStatus.mode = SEMIAUTO;			//半自动模式（定高）
-            break;
-        case    AUTO:
-            flyStatus.mode = AUTO;				//自动模式（定点）
-            break;
-        case    AUTOTAKEOFF:
-            //flyStatus.mode = AUTOTAKEOFF;		//自动起飞
-            break;
-        case    AUTOLAND:
-            if(flyStatus.armed == ARMED)
-                flyStatus.mode = AUTOLAND;		//自动降落
-            break;
-        case    RETURNTOHOME:
-            if(flyStatus.armed == ARMED)
-                flyStatus.mode = RETURNTOHOME;	//自动返航
-            break;
-        case    AUTOCIRCLE:
-            //flyStatus.mode = AUTOCIRCLE;		//自动环绕
-            break;
-        case    AUTOPILOT:
-            flyStatus.mode = AUTOPILOT;		//自动航线
-            break;
-        case    FOLLOWME:
-            //flyStatus.mode = FOLLOWME;		//自动跟随
-            break;
-		case    0xFF:
-            break;
-        default:
-            flyStatus.mode = AUTO;
-            break;
+    case    MANUAL:
+        flyStatus.mode = MANUAL;			//手动模式（自稳）
+        break;
+    case    SEMIAUTO:
+        flyStatus.mode = SEMIAUTO;			//半自动模式（定高）
+        break;
+    case    AUTO:
+        flyStatus.mode = AUTO;				//自动模式（定点）
+        break;
+    case    AUTOTAKEOFF:
+        //flyStatus.mode = AUTOTAKEOFF;		//自动起飞
+        break;
+    case    AUTOLAND:
+        if(flyStatus.armed == ARMED)
+            flyStatus.mode = AUTOLAND;		//自动降落
+        break;
+    case    RETURNTOHOME:
+        if(flyStatus.armed == ARMED)
+            flyStatus.mode = RETURNTOHOME;	//自动返航
+        break;
+    case    AUTOCIRCLE:
+        //flyStatus.mode = AUTOCIRCLE;		//自动环绕
+        break;
+    case    AUTOPILOT:
+        flyStatus.mode = AUTOPILOT;		//自动航线
+        break;
+    case    FOLLOWME:
+        //flyStatus.mode = FOLLOWME;		//自动跟随
+        break;
+    case    0xFF:
+        break;
+    default:
+        flyStatus.mode = AUTO;
+        break;
     }
 }
 
@@ -445,7 +445,7 @@ void SetFlightMode(uint8_t mode)
 **********************************************************************************************************/
 uint8_t GetFlightMode(void)
 {
-    return flyStatus.mode;    
+    return flyStatus.mode;
 }
 
 /**********************************************************************************************************
@@ -456,36 +456,36 @@ uint8_t GetFlightMode(void)
 **********************************************************************************************************/
 void WindEstimate(void)
 {
-	Vector3f_t angle = GetCopterAngle();
-	static float tiltAngle;
-	static float lastWindSpeed;
+    Vector3f_t angle = GetCopterAngle();
+    static float tiltAngle;
+    static float lastWindSpeed;
 
-	static uint64_t previousT;
-	float deltaT = (GetSysTimeUs() - previousT) * 1e-6;	
-	previousT = GetSysTimeUs();	
+    static uint64_t previousT;
+    float deltaT = (GetSysTimeUs() - previousT) * 1e-6;
+    previousT = GetSysTimeUs();
 
-	//目前的风速估计思路为判断悬停状态下飞机悬停倾角大小
+    //目前的风速估计思路为判断悬停状态下飞机悬停倾角大小
 
-	if(GetPosControlStatus() == POS_HOLD)
-	{
-		//计算悬停倾角, 并低通滤波
-		angle.x = ApplyDeadbandFloat(angle.x , 3);
-		angle.y = ApplyDeadbandFloat(angle.y , 3);
-		tiltAngle = tiltAngle * 0.995f + Pythagorous2(angle.x, angle.y) * 0.005f;
+    if(GetPosControlStatus() == POS_HOLD)
+    {
+        //计算悬停倾角, 并低通滤波
+        angle.x = ApplyDeadbandFloat(angle.x, 3);
+        angle.y = ApplyDeadbandFloat(angle.y, 3);
+        tiltAngle = tiltAngle * 0.995f + Pythagorous2(angle.x, angle.y) * 0.005f;
 
-		//将飞行倾角转换为环境风速
-		windSpeed = 100 * sinf(Radians(tiltAngle));
+        //将飞行倾角转换为环境风速
+        windSpeed = 100 * sinf(Radians(tiltAngle));
 
-		//计算风速变化，并低通滤波
-		windSpeedAcc = windSpeedAcc * 0.95f + ((windSpeed - lastWindSpeed) / deltaT) * 0.05f;
-		lastWindSpeed = windSpeed;
-	}
-	else
-	{
-		windSpeed    -= windSpeed * 0.005f;
-		windSpeedAcc -= windSpeedAcc * 0.005f;
-	}
-	
+        //计算风速变化，并低通滤波
+        windSpeedAcc = windSpeedAcc * 0.95f + ((windSpeed - lastWindSpeed) / deltaT) * 0.05f;
+        lastWindSpeed = windSpeed;
+    }
+    else
+    {
+        windSpeed    -= windSpeed * 0.005f;
+        windSpeedAcc -= windSpeedAcc * 0.005f;
+    }
+
 }
 
 /**********************************************************************************************************
@@ -496,7 +496,7 @@ void WindEstimate(void)
 **********************************************************************************************************/
 float GetWindSpeed(void)
 {
-    return windSpeed;    
+    return windSpeed;
 }
 
 /**********************************************************************************************************
@@ -507,7 +507,7 @@ float GetWindSpeed(void)
 **********************************************************************************************************/
 float GetWindSpeedAcc(void)
 {
-    return windSpeedAcc;    
+    return windSpeedAcc;
 }
 
 /**********************************************************************************************************

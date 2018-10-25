@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "sensor.h"
 #include "module.h"
@@ -25,43 +25,43 @@ SENSOR_HEALTH_t sensorHealth;
 /**********************************************************************************************************
 *函 数 名: ImuTempControlInit
 *功能说明: IMU传感器恒温参数初始化
-*形    参: 无 
+*形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
 void ImuTempControlInit(void)
 {
-    PID_SetParam(&tempPID, 8, 0.3, 1, 300, 30);	
+    PID_SetParam(&tempPID, 8, 0.3, 1, 300, 30);
 }
 
 /**********************************************************************************************************
 *函 数 名: SensorCheckStatus
 *功能说明: 检查传感器状态
-*形    参: 无 
+*形    参: 无
 *返 回 值: 状态
 **********************************************************************************************************/
 bool SensorCheckStatus(void)
 {
     bool status = true;
-    
+
     //检测陀螺仪状态
     if(FaultDetectGetErrorStatus(GYRO_UNDETECTED))
-        status = false;    
+        status = false;
 
     //检测磁力计状态
     if(FaultDetectGetErrorStatus(MAG_UNDETECTED))
-        status = false;     
+        status = false;
 
     //检测气压计状态
     if(FaultDetectGetErrorStatus(BARO_UNDETECTED))
-        status = false;      
-     
+        status = false;
+
     return status;
 }
 
 /**********************************************************************************************************
 *函 数 名: SensorHealthCheck
 *功能说明: 检查传感器健康状态
-*形    参: 无 
+*形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
 void SensorHealthCheck(void)
@@ -70,7 +70,7 @@ void SensorHealthCheck(void)
     static float gyro_offset, acc_offset;
     static float gyro_offset_temp, acc_offset_temp;
     static uint8_t staticFlag = 0;
-    
+
     //5秒一个检测周期
     if(period_cnt < 1000)
     {
@@ -78,24 +78,24 @@ void SensorHealthCheck(void)
         gyro_offset_temp += abs(GyroGetData().x) + abs(GyroGetData().y) + abs(GyroGetData().z);
         //加速度零偏累加
         acc_offset_temp  += abs(GetAccMag() - 1);
-        
+
         //检测期间飞控出现抖动则放弃此次数据
         if(GetPlaceStatus() != STATIC)
         {
             staticFlag = 1;
         }
-        
+
         period_cnt++;
     }
     else
     {
         if(!staticFlag)
-        { 
+        {
             //计算陀螺仪零偏平均值
             gyro_offset = gyro_offset_temp / 1000;
             //计算加速度零偏平均值
             acc_offset  = acc_offset_temp / 1000;
-            
+
             //计算陀螺仪零偏百分比
             sensorHealth.gyro_offset = ConstrainFloat(ApplyDeadbandFloat(gyro_offset, 0.1) / 1, 0.01, 1);
             //计算加速度零偏百分比
@@ -112,7 +112,7 @@ void SensorHealthCheck(void)
             else
                 sensorHealth.acc = SENSOR_NORMAL;
         }
-        
+
         gyro_offset_temp = 0;
         acc_offset_temp  = 0;
         staticFlag = 0;
@@ -128,14 +128,14 @@ void SensorHealthCheck(void)
 **********************************************************************************************************/
 void ImuTempControl(float tempMeasure)
 {
-	static uint64_t lastTime = 0;   
-	int32_t tempError = 0;	//误差变量，使用整型并保留原始数据小数点后两位，避免引入噪声    
+    static uint64_t lastTime = 0;
+    int32_t tempError = 0;	//误差变量，使用整型并保留原始数据小数点后两位，避免引入噪声
     static int32_t tempPIDTerm = 0;
     float	deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
-	lastTime = GetSysTimeUs();
+    lastTime = GetSysTimeUs();
     static uint16_t cnt = 0;
-    static uint8_t overPreHeatFLag = 0; 
-    
+    static uint8_t overPreHeatFLag = 0;
+
     /*加热功能关闭*/
     if(configUSE_SENSORHEAT == 0)
     {
@@ -156,28 +156,28 @@ void ImuTempControl(float tempMeasure)
         }
 
         //计算温度误差
-        tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;	  
+        tempError = SENSOR_TEMP_KEPT * 100 - tempMeasure * 100;
 
         //超前预热
         if(tempMeasure < SENSOR_TEMP_KEPT && !overPreHeatFLag)
         {
             //全速加热
-            TempControlSet(1000); 
-            PID_ResetI(&tempPID);             
+            TempControlSet(1000);
+            PID_ResetI(&tempPID);
             return;
         }
         else
         {
             overPreHeatFLag = 1;
         }
-        
+
         //计算PID输出
         tempPIDTerm = PID_GetPID(&tempPID, tempError, deltaT);
         //PID输出限幅
         tempPIDTerm = ConstrainInt32(tempPIDTerm, 0, 1000);
         //转换控制量为PWM输出
         TempControlSet(tempPIDTerm);
-        
+
         if(GetInitStatus() < HEAT_FINISH  && SensorCheckStatus())
         {
             //温度接近预定温度
@@ -186,10 +186,10 @@ void ImuTempControl(float tempMeasure)
                 cnt++;
                 if(cnt > 5000)
                     SetInitStatus(HEAT_FINISH);
-            }          
+            }
             else
             {
-                SetInitStatus(HEATING); 
+                SetInitStatus(HEATING);
             }
         }
     }
@@ -205,54 +205,54 @@ void ImuOrientationDetect(void)
 {
     const float CONSTANTS_ONE_G = 1;
     const float accel_err_thr = 0.5;
-    
+
     Vector3f_t acc;
-    
+
     //读取加速度数据
     acc = AccGetData();
-    
+
     // [ g, 0, 0 ]
     if (fabsf(acc.x - CONSTANTS_ONE_G) < accel_err_thr &&
-	    fabsf(acc.y) < accel_err_thr &&
-	    fabsf(acc.z) < accel_err_thr) 
+            fabsf(acc.y) < accel_err_thr &&
+            fabsf(acc.z) < accel_err_thr)
     {
-		orientationStatus = ORIENTATION_FRONT;        
-	}
+        orientationStatus = ORIENTATION_FRONT;
+    }
     // [ -g, 0, 0 ]
-	if (fabsf(acc.x + CONSTANTS_ONE_G) < accel_err_thr &&
-	    fabsf(acc.y) < accel_err_thr &&
-	    fabsf(acc.z) < accel_err_thr) 
+    if (fabsf(acc.x + CONSTANTS_ONE_G) < accel_err_thr &&
+            fabsf(acc.y) < accel_err_thr &&
+            fabsf(acc.z) < accel_err_thr)
     {
-		orientationStatus = ORIENTATION_BACK;        
-	}
+        orientationStatus = ORIENTATION_BACK;
+    }
     // [ 0, g, 0 ]
-	if (fabsf(acc.x) < accel_err_thr &&
-	    fabsf(acc.y - CONSTANTS_ONE_G) < accel_err_thr &&
-	    fabsf(acc.z) < accel_err_thr) 
+    if (fabsf(acc.x) < accel_err_thr &&
+            fabsf(acc.y - CONSTANTS_ONE_G) < accel_err_thr &&
+            fabsf(acc.z) < accel_err_thr)
     {
-		orientationStatus = ORIENTATION_LEFT;        
-	}
+        orientationStatus = ORIENTATION_LEFT;
+    }
     // [ 0, -g, 0 ]
-	if (fabsf(acc.x) < accel_err_thr &&
-	    fabsf(acc.y + CONSTANTS_ONE_G) < accel_err_thr &&
-	    fabsf(acc.z) < accel_err_thr) 
+    if (fabsf(acc.x) < accel_err_thr &&
+            fabsf(acc.y + CONSTANTS_ONE_G) < accel_err_thr &&
+            fabsf(acc.z) < accel_err_thr)
     {
-		orientationStatus = ORIENTATION_RIGHT;        
-	}
+        orientationStatus = ORIENTATION_RIGHT;
+    }
     // [ 0, 0, g ]
-	if (fabsf(acc.x) < accel_err_thr &&
-	    fabsf(acc.y) < accel_err_thr &&
-	    fabsf(acc.z - CONSTANTS_ONE_G) < accel_err_thr) 
+    if (fabsf(acc.x) < accel_err_thr &&
+            fabsf(acc.y) < accel_err_thr &&
+            fabsf(acc.z - CONSTANTS_ONE_G) < accel_err_thr)
     {
-		orientationStatus = ORIENTATION_UP;        
-	}
+        orientationStatus = ORIENTATION_UP;
+    }
     // [ 0, 0, -g ]
-	if (fabsf(acc.x) < accel_err_thr &&
-	    fabsf(acc.y) < accel_err_thr &&
-	    fabsf(acc.z + CONSTANTS_ONE_G) < accel_err_thr) 
+    if (fabsf(acc.x) < accel_err_thr &&
+            fabsf(acc.y) < accel_err_thr &&
+            fabsf(acc.z + CONSTANTS_ONE_G) < accel_err_thr)
     {
-		orientationStatus = ORIENTATION_DOWN;        
-	}    
+        orientationStatus = ORIENTATION_DOWN;
+    }
 }
 
 /**********************************************************************************************************

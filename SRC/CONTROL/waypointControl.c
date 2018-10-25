@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.07 
+ * @日期     2018.07
 **********************************************************************************************************/
 #include "waypointControl.h"
 #include "flightStatus.h"
@@ -23,7 +23,7 @@
 */
 const uint8_t WP_YAW_MODE = 1;
 
-mavlink_mission_item_t wpItem[0xFF];    //航点信息  
+mavlink_mission_item_t wpItem[0xFF];    //航点信息
 
 uint16_t wpCount = 0;                   //航点数量
 uint16_t wpCurrentCount = 0;            //当前正在执行的航点序号
@@ -44,61 +44,61 @@ void WaypointControl(void)
     //static Vector3f_t currentPointPos, nextPointPos;
     //float disToNextPoint;
     static float directToNextPoint;
-    
+
     if(GetArmedStatus() == DISARMED)
         return;
-    
-//    if(firstPointArriveFlag == 0)    
+
+//    if(firstPointArriveFlag == 0)
 //        disToNextPoint = Pythagorous2(GetCopterPosition().x - wpPosition[0].x, GetCopterPosition().y - wpPosition[0].y);
 //    else
-//        disToNextPoint = Pythagorous2(wpPosition[wpCurrentCount].x - wpPosition[wpCurrentCount+1].x, 
+//        disToNextPoint = Pythagorous2(wpPosition[wpCurrentCount].x - wpPosition[wpCurrentCount+1].x,
 //                         wpPosition[wpCurrentCount].y - wpPosition[wpCurrentCount+1].y);
-    
+
     switch(wpStep)
     {
-        case 0:
-            //判断命令类型，如果是航点命令则进入下一步，其它命令暂时先忽略
-            if(wpItem[wpCurrentCount].command == MAV_CMD_NAV_WAYPOINT)
-            {
-                wpStep++;
-            }
-            else
-            {
-                wpCurrentCount++;
-            }
-            break; 
-        
-        case 1:   
-            //计算下一个航点的方向
+    case 0:
+        //判断命令类型，如果是航点命令则进入下一步，其它命令暂时先忽略
+        if(wpItem[wpCurrentCount].command == MAV_CMD_NAV_WAYPOINT)
+        {
+            wpStep++;
+        }
+        else
+        {
+            wpCurrentCount++;
+        }
+        break;
+
+    case 1:
+        //计算下一个航点的方向
 //            if(firstPointArriveFlag == 0)
 //                directToNextPoint = GetDirectionOfTwoPoint(GetCopterPosition(), point2);
-            
-            if(WP_YAW_MODE)
-            {
-                //设置机头朝向下一个航点
-                SetYawCtlTarget(directToNextPoint);  
-            }
-            
-            wpStep++;         
-            break;
-        
-        case 2:
-            break;
-            
-        default:
-            break;
+
+        if(WP_YAW_MODE)
+        {
+            //设置机头朝向下一个航点
+            SetYawCtlTarget(directToNextPoint);
+        }
+
+        wpStep++;
+        break;
+
+    case 2:
+        break;
+
+    default:
+        break;
     }
-    
+
     //使能高度控制
     SetAltCtlStatus(ENABLE);
     //更新高度控制状态
-    SetAltControlStatus(ALT_HOLD);  
+    SetAltControlStatus(ALT_HOLD);
     //使能位置控制
-    SetPosCtlStatus(ENABLE);  
+    SetPosCtlStatus(ENABLE);
     //更新位置控制状态
     SetPosControlStatus(POS_HOLD);
     //使能航向锁定
-    SetYawHoldStatus(ENABLE);    
+    SetYawHoldStatus(ENABLE);
 }
 
 /**********************************************************************************************************

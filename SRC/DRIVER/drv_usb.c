@@ -13,7 +13,7 @@
 #include "usb_dcd_int.h"
 #include "usbd_usr.h"
 #include "usbd_desc.h"
-#include "usb_conf.h" 
+#include "usb_conf.h"
 #include "usb_bsp.h"
 #include "usbd_cdc_core.h"
 
@@ -31,7 +31,7 @@ USBD_Usr_cb_TypeDef USR_cb =
     USBD_USR_DeviceSuspended,
     USBD_USR_DeviceResumed,
     USBD_USR_DeviceConnected,
-    USBD_USR_DeviceDisconnected,    
+    USBD_USR_DeviceDisconnected,
 };
 
 static UsbCallback usbCallbackFunc;
@@ -42,7 +42,7 @@ static UsbCallback usbCallbackFunc;
 *形    参: 无
 *返 回 值: 无
 **********************************************************************************************************/
-void Usb_Init(void) 
+void Usb_Init(void)
 {
     USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CDC_cb, &USR_cb);
 }
@@ -54,13 +54,13 @@ void Usb_Init(void)
 *返 回 值: 无
 **********************************************************************************************************/
 void Usb_Send(uint8_t *dataToSend, uint8_t length)
-{      
+{
     if(connectFlag)
     {
         DCD_EP_Tx(&USB_OTG_dev, 1, dataToSend, length);
-        DCD_SetEPStatus(&USB_OTG_dev ,1 , USB_OTG_EP_TX_VALID);
+        DCD_SetEPStatus(&USB_OTG_dev,1, USB_OTG_EP_TX_VALID);
     }
-    
+
     errorCheckCnt = 0;
 }
 
@@ -85,7 +85,7 @@ void Usb_Receive(uint8_t *buf, uint8_t len)
 {
     connectFlag = 1;
     errorCheckCnt = 0;
-    
+
     for(u8 i = 0; i<len; i++)
     {
         if(usbCallbackFunc != 0)
@@ -118,34 +118,34 @@ void OTG_FS_IRQHandler(void)
         connectFlag = 0;
     }
     errorCheckCnt++;
-    
+
     USBD_OTG_ISR_Handler(&USB_OTG_dev);
-}  
+}
 
 /**********************************************************************************************************
-*函 数 名: 
+*函 数 名:
 *功能说明: USB用户自定义函数
-*形    参: 
+*形    参:
 *返 回 值: 无
 **********************************************************************************************************/
 void USBD_USR_Init(void)
 {
-} 
+}
 
 void USBD_USR_DeviceReset(uint8_t speed)
 {
 }
 
 void USBD_USR_DeviceConfigured(void)
-{ 
-} 
+{
+}
 
 void USBD_USR_DeviceSuspended(void)
 {
-} 
+}
 
 void USBD_USR_DeviceResumed(void)
-{  
+{
 }
 
 void USBD_USR_DeviceConnected(void)
@@ -155,5 +155,5 @@ void USBD_USR_DeviceConnected(void)
 void USBD_USR_DeviceDisconnected(void)
 {
 }
- 
+
 

@@ -9,3 +9,4 @@ PROJECT/*.Administrator
 PROJECT/*.uvoptx
 PROJECT/*.dep
 PROJECT/*.BlueSky
+*.orig

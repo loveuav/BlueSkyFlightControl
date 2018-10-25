@@ -6,7 +6,7 @@
 enum
 {
     /*System*/
-    SYS_AUTOSTART,    
+    SYS_AUTOSTART,
     SYS_AUTOCONFIG,
     SYS_PARAM_VER,
     /*MAVLink*/
@@ -45,7 +45,7 @@ enum
     CAL_ACC0_ZOFF,
     CAL_ACC0_XSCALE,
     CAL_ACC0_YSCALE,
-    CAL_ACC0_ZSCALE, 
+    CAL_ACC0_ZSCALE,
     CAL_ACC_PRIME,
     CAL_GYRO_PRIME,
     CAL_MAG_PRIME,
@@ -84,7 +84,7 @@ enum
     RC4_TRIM,
     RC4_MAX,
     RC4_REV,
-    RC4_DZ,    
+    RC4_DZ,
     RC5_MIN,
     RC5_TRIM,
     RC5_MAX,
@@ -276,7 +276,7 @@ enum
     MPC_XY_VEL_P,
     MPC_XY_VEL_I,
     MPC_XY_VEL_D,
-    
+
     MAV_PARAM_NUM
 };
 

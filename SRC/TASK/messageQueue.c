@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "messageQueue.h"
 
@@ -22,13 +22,13 @@ QueueHandle_t messageQueue[QUEUE_NUM];
 **********************************************************************************************************/
 void MessageQueueCreate(void)
 {
-	messageQueue[ACC_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3f_t *));
-	messageQueue[GYRO_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3f_t *));
-	messageQueue[TEMP_SENSOR_READ] =  xQueueCreate(2, sizeof(float *));
+    messageQueue[ACC_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3f_t *));
+    messageQueue[GYRO_SENSOR_READ] =  xQueueCreate(2, sizeof(Vector3f_t *));
+    messageQueue[TEMP_SENSOR_READ] =  xQueueCreate(2, sizeof(float *));
 
-	messageQueue[GYRO_DATA_PRETREAT] =  xQueueCreate(2, sizeof(Vector3f_t *));
-	messageQueue[ACC_DATA_PRETREAT] =  xQueueCreate(2, sizeof(Vector3f_t *));
-	messageQueue[GYRO_FOR_CONTROL] =  xQueueCreate(2, sizeof(Vector3f_t *));
+    messageQueue[GYRO_DATA_PRETREAT] =  xQueueCreate(2, sizeof(Vector3f_t *));
+    messageQueue[ACC_DATA_PRETREAT] =  xQueueCreate(2, sizeof(Vector3f_t *));
+    messageQueue[GYRO_FOR_CONTROL] =  xQueueCreate(2, sizeof(Vector3f_t *));
 }
 
 

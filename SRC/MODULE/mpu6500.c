@@ -7,7 +7,7 @@
  * @版本  	 V1.0
  * @作者     BlueSky
  * @网站     bbs.loveuav.com
- * @日期     2018.05 
+ * @日期     2018.05
 **********************************************************************************************************/
 #include "mpu6500.h"
 #include "drv_spi.h"
@@ -136,14 +136,14 @@
 **********************************************************************************************************/
 bool MPU6500_Detect(void)
 {
-	uint8_t who_am_i;
-	
-	Spi_GyroMultiRead(MPU_RA_WHO_AM_I, &who_am_i, 1);
-	
-	if(who_am_i == 0x70 || who_am_i == 0x71)
-		return true;
-	else 
-		return false;
+    uint8_t who_am_i;
+
+    Spi_GyroMultiRead(MPU_RA_WHO_AM_I, &who_am_i, 1);
+
+    if(who_am_i == 0x70 || who_am_i == 0x71)
+        return true;
+    else
+        return false;
 }
 
 /**********************************************************************************************************
@@ -153,47 +153,47 @@ bool MPU6500_Detect(void)
 *返 回 值: 无
 **********************************************************************************************************/
 void MPU6500_Init(void)
-{	
-	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x80);
-	SoftDelayMs(100);
-	
-	Spi_GyroSingleWrite(MPU_RA_SIGNAL_PATH_RESET, BIT_GYRO | BIT_ACC | BIT_TEMP);
-	SoftDelayMs(100);
-	
-	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x03);
-	SoftDelayUs(5);
-	
-	Spi_GyroSingleWrite(MPU_RA_USER_CTRL, 0x10);
-	SoftDelayUs(5);	
-	
-	Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_2, 0x00);	
-	SoftDelayUs(5);	
-	
-	//陀螺仪采样率0x00(1000Hz)   采样率 = 陀螺仪的输出率 / (1 + SMPLRT_DIV)
-	Spi_GyroSingleWrite(MPU_RA_SMPLRT_DIV, (1000/1000 - 1));	
-	SoftDelayUs(5);
-	
-	//i2c旁路模式
-	// INT_PIN_CFG   -- INT_LEVEL_HIGH, INT_OPEN_DIS, LATCH_INT_DIS, INT_RD_CLEAR_DIS, FSYNC_INT_LEVEL_HIGH, FSYNC_INT_DIS, I2C_BYPASS_EN, CLOCK_DIS
-	Spi_GyroSingleWrite(MPU_RA_INT_PIN_CFG, 0 << 7 | 0 << 6 | 0 << 5 | 0 << 4 | 0 << 3 | 0 << 2 | 1 << 1 | 0 << 0);	
-	SoftDelayUs(5);	
-	
-	//低通滤波频率
-	Spi_GyroSingleWrite(MPU_RA_CONFIG, MPU_LPF_42HZ);		
-	SoftDelayUs(5);		
-	
-	//陀螺仪自检及测量范围，典型值0x18(不自检，2000deg/s) (0x10 1000deg/s) (0x10 1000deg/s) (0x08 500deg/s)
-	Spi_GyroSingleWrite(MPU_RA_GYRO_CONFIG, 0x10);		
-	SoftDelayUs(5);		
-	
-	//加速度自检、测量范围(不自检，+-8G)			
-	Spi_GyroSingleWrite(MPU_RA_ACCEL_CONFIG, 2 << 3);		
-    SoftDelayUs(5);		
-    
-	//加速度低通滤波设置		
-	Spi_GyroSingleWrite(MPU_RA_ACCEL_CONFIG2, MPU_LPF_42HZ);   
-    
-	SoftDelayMs(5);		
+{
+    Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x80);
+    SoftDelayMs(100);
+
+    Spi_GyroSingleWrite(MPU_RA_SIGNAL_PATH_RESET, BIT_GYRO | BIT_ACC | BIT_TEMP);
+    SoftDelayMs(100);
+
+    Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_1, 0x03);
+    SoftDelayUs(5);
+
+    Spi_GyroSingleWrite(MPU_RA_USER_CTRL, 0x10);
+    SoftDelayUs(5);
+
+    Spi_GyroSingleWrite(MPU_RA_PWR_MGMT_2, 0x00);
+    SoftDelayUs(5);
+
+    //陀螺仪采样率0x00(1000Hz)   采样率 = 陀螺仪的输出率 / (1 + SMPLRT_DIV)
+    Spi_GyroSingleWrite(MPU_RA_SMPLRT_DIV, (1000/1000 - 1));
+    SoftDelayUs(5);
+
+    //i2c旁路模式
+    // INT_PIN_CFG   -- INT_LEVEL_HIGH, INT_OPEN_DIS, LATCH_INT_DIS, INT_RD_CLEAR_DIS, FSYNC_INT_LEVEL_HIGH, FSYNC_INT_DIS, I2C_BYPASS_EN, CLOCK_DIS
+    Spi_GyroSingleWrite(MPU_RA_INT_PIN_CFG, 0 << 7 | 0 << 6 | 0 << 5 | 0 << 4 | 0 << 3 | 0 << 2 | 1 << 1 | 0 << 0);
+    SoftDelayUs(5);
+
+    //低通滤波频率
+    Spi_GyroSingleWrite(MPU_RA_CONFIG, MPU_LPF_42HZ);
+    SoftDelayUs(5);
+
+    //陀螺仪自检及测量范围，典型值0x18(不自检，2000deg/s) (0x10 1000deg/s) (0x10 1000deg/s) (0x08 500deg/s)
+    Spi_GyroSingleWrite(MPU_RA_GYRO_CONFIG, 0x10);
+    SoftDelayUs(5);
+
+    //加速度自检、测量范围(不自检，+-8G)
+    Spi_GyroSingleWrite(MPU_RA_ACCEL_CONFIG, 2 << 3);
+    SoftDelayUs(5);
+
+    //加速度低通滤波设置
+    Spi_GyroSingleWrite(MPU_RA_ACCEL_CONFIG2, MPU_LPF_42HZ);
+
+    SoftDelayMs(5);
 }
 
 /**********************************************************************************************************
@@ -204,23 +204,23 @@ void MPU6500_Init(void)
 **********************************************************************************************************/
 void MPU6500_ReadAcc(Vector3f_t* acc)
 {
-	uint8_t buffer[6];
+    uint8_t buffer[6];
     Vector3i_t accRaw;
-    
-	Spi_GyroMultiRead(MPU_RA_ACCEL_XOUT_H, buffer, 6);	
-	accRaw.x = ((((int16_t)buffer[0]) << 8) | buffer[1]); 
-	accRaw.y = ((((int16_t)buffer[2]) << 8) | buffer[3]);  
-	accRaw.z = ((((int16_t)buffer[4]) << 8) | buffer[5]); 
+
+    Spi_GyroMultiRead(MPU_RA_ACCEL_XOUT_H, buffer, 6);
+    accRaw.x = ((((int16_t)buffer[0]) << 8) | buffer[1]);
+    accRaw.y = ((((int16_t)buffer[2]) << 8) | buffer[3]);
+    accRaw.z = ((((int16_t)buffer[4]) << 8) | buffer[5]);
 
     //统一传感器坐标系（并非定义安装方向）
     accRaw.x = accRaw.x;
     accRaw.y = -accRaw.y;
     accRaw.z = accRaw.z;
-    
+
     acc->x = (float)accRaw.x * MPU_A_8mg;
     acc->y = (float)accRaw.y * MPU_A_8mg;
     acc->z = (float)accRaw.z * MPU_A_8mg;
-    
+
     SoftDelayUs(1);
 }
 
@@ -232,23 +232,23 @@ void MPU6500_ReadAcc(Vector3f_t* acc)
 **********************************************************************************************************/
 void MPU6500_ReadGyro(Vector3f_t* gyro)
 {
-	uint8_t buffer[6];
+    uint8_t buffer[6];
     Vector3i_t gyroRaw;
-	
-	Spi_GyroMultiRead(MPU_RA_GYRO_XOUT_H, buffer, 6);	
-	gyroRaw.x = ((((int16_t)buffer[0]) << 8) | buffer[1]);	
-	gyroRaw.y = ((((int16_t)buffer[2]) << 8) | buffer[3]);
-	gyroRaw.z = ((((int16_t)buffer[4]) << 8) | buffer[5]);
+
+    Spi_GyroMultiRead(MPU_RA_GYRO_XOUT_H, buffer, 6);
+    gyroRaw.x = ((((int16_t)buffer[0]) << 8) | buffer[1]);
+    gyroRaw.y = ((((int16_t)buffer[2]) << 8) | buffer[3]);
+    gyroRaw.z = ((((int16_t)buffer[4]) << 8) | buffer[5]);
 
     //统一传感器坐标系（并非定义安装方向）
     gyroRaw.x = gyroRaw.x;
     gyroRaw.y = -gyroRaw.y;
     gyroRaw.z = -gyroRaw.z;
-    
+
     gyro->x = gyroRaw.x * MPU_G_s1000dps;
     gyro->y = gyroRaw.y * MPU_G_s1000dps;
     gyro->z = gyroRaw.z * MPU_G_s1000dps;
-    
+
     SoftDelayUs(1);
 }
 
@@ -260,13 +260,13 @@ void MPU6500_ReadGyro(Vector3f_t* gyro)
 **********************************************************************************************************/
 void MPU6500_ReadTemp(float* temp)
 {
-	uint8_t buffer[2];
-	static int16_t temperature_temp;
-	
-	Spi_GyroMultiRead(MPU_RA_TEMP_OUT_H, buffer, 2);	
-	temperature_temp = ((((int16_t)buffer[0]) << 8) | buffer[1]);		
-	*temp = 21 + (float)temperature_temp / 333.87f;
-    
+    uint8_t buffer[2];
+    static int16_t temperature_temp;
+
+    Spi_GyroMultiRead(MPU_RA_TEMP_OUT_H, buffer, 2);
+    temperature_temp = ((((int16_t)buffer[0]) << 8) | buffer[1]);
+    *temp = 21 + (float)temperature_temp / 333.87f;
+
     SoftDelayUs(1);
 }
 

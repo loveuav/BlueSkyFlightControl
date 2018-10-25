@@ -3,13 +3,13 @@
 
 #include "sensor.h"
 
-typedef struct{
-	Vector3f_t data;
+typedef struct {
+    Vector3f_t data;
     float mag;
-	SENSOR_CALI_t cali;
+    SENSOR_CALI_t cali;
     float earthMag;
-    
-}MAGNETOMETER_t;
+
+} MAGNETOMETER_t;
 
 void MagCaliDataInit(void);
 void MagDataPreTreat(void);

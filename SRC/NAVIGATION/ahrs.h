@@ -3,19 +3,19 @@
 
 #include "mathTool.h"
 
-typedef struct{
-	Vector3f_t angle;	
-    Vector3f_t angleError;	
+typedef struct {
+    Vector3f_t angle;
+    Vector3f_t angleError;
 
     Vector3f_t accEf;
-	Vector3f_t accEfLpf;
+    Vector3f_t accEfLpf;
     Vector3f_t accBfOffset;
-	
-	Vector3f_t gyroEf;
-	
-	Vector3f_t centripetalAcc;
+
+    Vector3f_t gyroEf;
+
+    Vector3f_t centripetalAcc;
     Vector3f_t centripetalAccBf;
-}AHRS_t;
+} AHRS_t;
 
 void AHRSInit(void);
 void AttitudeEstimate(Vector3f_t gyro, Vector3f_t acc, Vector3f_t mag);

@@ -36,12 +36,12 @@ enum
 //飞控放置方向
 enum ORIENTATION_STATUS
 {
-	ORIENTATION_UP,
-	ORIENTATION_DOWN,
-	ORIENTATION_LEFT,
-	ORIENTATION_RIGHT,
-	ORIENTATION_FRONT,
-	ORIENTATION_BACK,
+    ORIENTATION_UP,
+    ORIENTATION_DOWN,
+    ORIENTATION_LEFT,
+    ORIENTATION_RIGHT,
+    ORIENTATION_FRONT,
+    ORIENTATION_BACK,
 };
 
 //传感器健康状态
@@ -53,9 +53,9 @@ enum SENSOR_HEALTH
 
 typedef struct
 {
-	Vector3f_t offset;	    //零偏误差
-	Vector3f_t scale;		//比例误差
-	bool should_cali;		//传感器校准标志位
+    Vector3f_t offset;	    //零偏误差
+    Vector3f_t scale;		//比例误差
+    bool should_cali;		//传感器校准标志位
     bool success;           //校准成功标志位
     uint8_t step;           //步骤标志位
 } SENSOR_CALI_t;
