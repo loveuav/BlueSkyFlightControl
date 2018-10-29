@@ -60,14 +60,16 @@ void Ublox_Init(void)
         OsDelayMs(30);
 
         //使能ublox消息输出
-        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_POSLLH, 1);
-        OsDelayMs(30);
-        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_VALNED, 1);
-        OsDelayMs(30);
-        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_SOL, 1);
-        OsDelayMs(30);
-        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_TIMEUTC, 1);
-        OsDelayMs(100);
+        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_PVT, 1);
+//        OsDelayMs(30);
+//        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_POSLLH, 0);
+//        OsDelayMs(30);
+//        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_VALNED, 0);
+//        OsDelayMs(30);
+//        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_SOL, 0);
+//        OsDelayMs(30);
+//        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_TIMEUTC, 0);
+        OsDelayMs(250);
 
         //检测是否已正确解析ublox数据
         if(recvStatus)
@@ -142,6 +144,32 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
             time.sec   = ubloxRawData.payload.time.sec;
             break;
 
+        case UBLOX_NAV_PVT:
+            ublox.time      = (float)ubloxRawData.payload.pvt.iTOW / 1000;
+            ublox.latitude  = (double)ubloxRawData.payload.pvt.lat * (double)1e-7;
+            ublox.longitude = (double)ubloxRawData.payload.pvt.lon * (double)1e-7;
+            ublox.altitude  = (float)ubloxRawData.payload.pvt.hMSL * 0.001f;
+            ublox.hAcc      = (float)ubloxRawData.payload.pvt.hAcc * 0.001f;
+            ublox.vAcc      = (float)ubloxRawData.payload.pvt.vAcc * 0.001f;    
+            ublox.velN      = ubloxRawData.payload.pvt.velN * 0.1f;
+            ublox.velE      = ubloxRawData.payload.pvt.velE * 0.1f;
+            ublox.velD      = ubloxRawData.payload.pvt.velD * 0.1f;
+            ublox.speed     = ubloxRawData.payload.pvt.gSpeed * 0.1f;
+            ublox.heading   = ubloxRawData.payload.pvt.heading * 1e-5f;
+            ublox.sAcc      = ubloxRawData.payload.pvt.sAcc * 0.001f;
+            ublox.cAcc      = ubloxRawData.payload.pvt.cAcc * 1e-5f; 
+            ublox.numSV     = ubloxRawData.payload.pvt.numSV;
+            ublox.fixStatus = ubloxRawData.payload.pvt.gpsFix;        
+            time.year       = ubloxRawData.payload.pvt.year;
+            time.month      = ubloxRawData.payload.pvt.month;
+            time.day        = ubloxRawData.payload.pvt.day;
+            time.hour       = ubloxRawData.payload.pvt.hour;
+            time.min        = ubloxRawData.payload.pvt.min;
+            time.sec        = ubloxRawData.payload.pvt.sec;
+            
+            recvStatus = 1;
+            break;
+                
         default:
             break;
         }
@@ -149,8 +177,6 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
     else if(ubloxRawData.class == UBLOX_CFG_CLASS)
     {
     }
-
-    recvStatus = 1;
 }
 
 /**********************************************************************************************************
