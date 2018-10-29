@@ -120,7 +120,10 @@ bool BsklinkParseChar(BSKLINK_MSG_t* msg, uint8_t data)
         break;
     case 5:     //数据负载长度
         msg->length = data;
-        msg->recvStatus++;
+        if(msg->length == 0)
+            msg->recvStatus += 2;
+        else
+            msg->recvStatus++;
         break;
     case 6:     //数据负载接收
         msg->payload[msg->payloadRecvCnt++] = data;
