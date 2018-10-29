@@ -69,7 +69,7 @@ void Ublox_Init(void)
 //        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_SOL, 0);
 //        OsDelayMs(30);
 //        UbloxEnableMessage(UBLOX_NAV_CLASS, UBLOX_NAV_TIMEUTC, 0);
-        OsDelayMs(250);
+        OsDelayMs(200);
 
         //检测是否已正确解析ublox数据
         if(recvStatus)
@@ -167,7 +167,6 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
             time.min        = ubloxRawData.payload.pvt.min;
             time.sec        = ubloxRawData.payload.pvt.sec;
             
-            recvStatus = 1;
             break;
                 
         default:
@@ -177,6 +176,8 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
     else if(ubloxRawData.class == UBLOX_CFG_CLASS)
     {
     }
+    
+    recvStatus = 1;
 }
 
 /**********************************************************************************************************
