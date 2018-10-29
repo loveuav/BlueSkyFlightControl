@@ -56,7 +56,7 @@ void Ublox_Init(void)
         OsDelayMs(100);
 
         //设置ublox输出速率：ms
-        UbloxSetRate(100);
+        UbloxSetRate(60);
         OsDelayMs(30);
 
         //使能ublox消息输出
@@ -150,25 +150,25 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
             ublox.longitude = (double)ubloxRawData.payload.pvt.lon * (double)1e-7;
             ublox.altitude  = (float)ubloxRawData.payload.pvt.hMSL * 0.001f;
             ublox.hAcc      = (float)ubloxRawData.payload.pvt.hAcc * 0.001f;
-            ublox.vAcc      = (float)ubloxRawData.payload.pvt.vAcc * 0.001f;    
+            ublox.vAcc      = (float)ubloxRawData.payload.pvt.vAcc * 0.001f;
             ublox.velN      = ubloxRawData.payload.pvt.velN * 0.1f;
             ublox.velE      = ubloxRawData.payload.pvt.velE * 0.1f;
             ublox.velD      = ubloxRawData.payload.pvt.velD * 0.1f;
             ublox.speed     = ubloxRawData.payload.pvt.gSpeed * 0.1f;
             ublox.heading   = ubloxRawData.payload.pvt.heading * 1e-5f;
             ublox.sAcc      = ubloxRawData.payload.pvt.sAcc * 0.001f;
-            ublox.cAcc      = ubloxRawData.payload.pvt.cAcc * 1e-5f; 
+            ublox.cAcc      = ubloxRawData.payload.pvt.cAcc * 1e-5f;
             ublox.numSV     = ubloxRawData.payload.pvt.numSV;
-            ublox.fixStatus = ubloxRawData.payload.pvt.gpsFix;        
+            ublox.fixStatus = ubloxRawData.payload.pvt.gpsFix;
             time.year       = ubloxRawData.payload.pvt.year;
             time.month      = ubloxRawData.payload.pvt.month;
             time.day        = ubloxRawData.payload.pvt.day;
             time.hour       = ubloxRawData.payload.pvt.hour;
             time.min        = ubloxRawData.payload.pvt.min;
             time.sec        = ubloxRawData.payload.pvt.sec;
-            
+
             break;
-                
+
         default:
             break;
         }
@@ -176,7 +176,7 @@ static void Ublox_PayloadDecode(UBLOX_t_RAW_t ubloxRawData)
     else if(ubloxRawData.class == UBLOX_CFG_CLASS)
     {
     }
-    
+
     recvStatus = 1;
 }
 
