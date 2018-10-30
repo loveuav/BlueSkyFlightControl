@@ -576,6 +576,8 @@ void FcSetPID(uint8_t id, PID_t pid)
     fc.pid[id].kP = pid.kP;
     fc.pid[id].kI = pid.kI;
     fc.pid[id].kD = pid.kD;
+    
+    PIDWriteToFlash();
 }
 
 /**********************************************************************************************************
