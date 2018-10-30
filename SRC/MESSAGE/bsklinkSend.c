@@ -27,6 +27,8 @@
 #include "ublox.h"
 #include "flightStatus.h"
 
+uint8_t pid_ack;
+
 /**********************************************************************************************************
 *函 数 名: BsklinkSendFlightData
 *功能说明: 发送基本飞行数据
@@ -530,6 +532,57 @@ void BsklinkSendPidPos(uint8_t* sendFlag)
     BsklinkMsgFormat(msg, msgToSend);
     //发送消息帧
     DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSendPidAck
+*功能说明: 发送PID读写响应
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendPidAck(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_PAYLOAD_PID_ACK_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    payload.flag = pid_ack;
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_PID_ACK;                       //消息ID
+    msg.length   = sizeof(BSKLINK_PAYLOAD_PID_ACK_t);            //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSetPidAck
+*功能说明: 设置PID读写响应值
+*形    参: 响应值
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSetPidAck(uint8_t ack)
+{
+    pid_ack = ack;
+    BsklinkSendEnable(BSKLINK_MSG_ID_PID_ACK);
 }
 
 /**********************************************************************************************************

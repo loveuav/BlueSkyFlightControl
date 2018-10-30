@@ -39,6 +39,7 @@ enum
     BSKLINK_MSG_ID_BATTERY          = 0x0A,     //电池信息
     BSKLINK_MSG_ID_PID_ATT          = 0x10,     //姿态PID参数
     BSKLINK_MSG_ID_PID_POS          = 0x11,     //位置PID参数
+    BSKLINK_MSG_ID_PID_ACK          = 0x12,     //PID读写响应
     BSKLINK_MSG_ID_SETUP            = 0x15,     //飞控设置
     BSKLINK_MSG_ID_GPS              = 0x20,     //GPS数据
     BSKLINK_MSG_ID_SYS_ERROR 		= 0x25,		//系统错误信息
@@ -190,6 +191,19 @@ typedef struct
     float posY_kp;          //Y轴位置环P
     float posZ_kp;          //Z轴位置环P
 } BSKLINK_PAYLOAD_PID_POS_t;
+
+//PID读写响应
+typedef struct
+{
+    uint8_t flag;           //读写标志
+    uint8_t res;            //预留
+} BSKLINK_PAYLOAD_PID_ACK_t;
+
+enum
+{
+    PID_WRITE_FAILED = 1,	//PID写入失败
+    PID_WRITE_SUCCESS,		//PID写入成功
+};
 
 //GPS数据
 typedef struct

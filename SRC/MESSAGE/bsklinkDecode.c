@@ -10,6 +10,7 @@
  * @日期     2018.07
 **********************************************************************************************************/
 #include "bsklinkDecode.h"
+#include "bsklinkSend.h"
 #include "message.h"
 #include "bsklink.h"
 #include <string.h>
@@ -152,7 +153,10 @@ static void BsklinkDecodeSetAttPid(BSKLINK_PAYLOAD_PID_ATT_t payload)
 
     //解锁状态下不允许修改PID参数
     if(GetArmedStatus() == ARMED)
+    {
+        BsklinkSetPidAck(PID_WRITE_FAILED);
         return;
+    }
 
     //横滚角速度PID
     pid.kP = payload.roll_kp;
@@ -180,6 +184,8 @@ static void BsklinkDecodeSetAttPid(BSKLINK_PAYLOAD_PID_ATT_t payload)
     //偏航角度PID
     pid.kP = payload.yawAngle_kp;
     FcSetPID(YAW_OUTER, pid);
+
+    BsklinkSetPidAck(PID_WRITE_SUCCESS);
 }
 
 /**********************************************************************************************************
@@ -194,7 +200,10 @@ static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload)
 
     //解锁状态下不允许修改PID参数
     if(GetArmedStatus() == ARMED)
+    {
+        BsklinkSetPidAck(PID_WRITE_FAILED);
         return;
+    }
 
     //X轴速度PID
     pid.kP = payload.velX_kp;
@@ -222,5 +231,7 @@ static void BsklinkDecodeSetPosPid(BSKLINK_PAYLOAD_PID_POS_t payload)
     //Z轴位置PID
     pid.kP = payload.posZ_kp;
     FcSetPID(POS_Z, pid);
+
+    BsklinkSetPidAck(PID_WRITE_SUCCESS);
 }
 

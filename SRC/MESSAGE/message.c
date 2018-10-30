@@ -128,6 +128,8 @@ void MessageSendLoop(void)
             BsklinkSendPidAtt(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_ATT]);                   //姿态PID
         else if(bsklinkSendFlag[BSKLINK_MSG_ID_PID_POS] == ENABLE)
             BsklinkSendPidPos(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_POS]);                   //位置PID
+        else if(bsklinkSendFlag[BSKLINK_MSG_ID_PID_ACK] == ENABLE)
+            BsklinkSendPidAck(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_ACK]);                   //PID读写响应
         else
         {
             //根据发送列表来使能对应的数据帧发送标志位
