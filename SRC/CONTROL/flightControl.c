@@ -31,6 +31,9 @@ static void PIDWriteToFlash(void);
 **********************************************************************************************************/
 void FlightControlInit(void)
 {
+    //电机控制初始化
+    MotorInit();
+    
     //PID参数初始化
     PIDReset();
 

@@ -59,6 +59,9 @@ enum PARAM_TYPE
     PARAM_PID_POS_OUTER_X_KP,
     PARAM_PID_POS_OUTER_Y_KP,
     PARAM_PID_POS_OUTER_Z_KP,
+    /*********电调校准标志*********/
+    PARAM_ESC_CALI_FLAG,
+    /******************************/
     PARAM_NUM
 };
 

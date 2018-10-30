@@ -134,6 +134,10 @@ static void BsklinkDecodeSensorCaliCmd(BSKLINK_PAYLOAD_SENSOR_CALI_CMD_t payload
         break;
 
     case ESC:   		//电调
+        if(payload.caliFlag == true)
+        {
+           EscCalibrateEnable();
+        }
         break;
 
     default:

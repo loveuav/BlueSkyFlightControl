@@ -63,6 +63,7 @@ const char* paramStrings[] =
     "POS_OUTER_X_KP",
     "POS_OUTER_Y_KP",
     "POS_OUTER_Z_KP"
+    "ESC_CALI_FLAG"
 };
 
 static void ParamReadFromFlash(void);

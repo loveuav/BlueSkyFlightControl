@@ -12,6 +12,9 @@
 #include "motor.h"
 #include "drv_pwm.h"
 #include "flightStatus.h"
+#include "message.h"
+#include "sensor.h"
+#include "parameter.h"
 
 //油门行程为[0:2000]
 #define MINTHROTTLE	    200                     //最小油门值           
@@ -21,6 +24,7 @@
 #define motorType quadX
 
 static int16_t motorPWM[8];
+uint8_t escCaliFlag = 0;
 
 //四轴X型
 const MOTOR_TYPE_t quadX =
@@ -68,6 +72,17 @@ const MOTOR_TYPE_t octoFlatX =
 };
 
 /**********************************************************************************************************
+*函 数 名: MotorInit
+*功能说明: 电机控制初始化
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void MotorInit(void)
+{
+    ParamGetData(PARAM_ESC_CALI_FLAG, &escCaliFlag, 1);
+}
+
+/**********************************************************************************************************
 *函 数 名: MotorControl
 *功能说明: 电机控制
 *形    参: 横滚控制量 俯仰控制量 偏航控制量 油门控制量
@@ -76,7 +91,6 @@ const MOTOR_TYPE_t octoFlatX =
 void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
 {
     int16_t maxMotorValue;
-    uint8_t escCaliFlag = 0;
     static int16_t motorResetPWM[8];
 
     //电机动力分配
@@ -116,6 +130,8 @@ void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
         else
         {
             escCaliFlag = 0;
+            //保存电调校准标志
+            ParamUpdateData(PARAM_ESC_CALI_FLAG, &escCaliFlag);
         }
     }
 
@@ -139,6 +155,23 @@ void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle)
             MotorPWMSet(i+1, motorResetPWM[i]);
         }
     }
+}
+
+/**********************************************************************************************************
+*函 数 名: EscCalibrateEnable
+*功能说明: 电调油门行程校准使能
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void EscCalibrateEnable(void)
+{
+    uint8_t caliFlag = 1;
+    
+    //保存电调校准标志
+    ParamUpdateData(PARAM_ESC_CALI_FLAG, &caliFlag);
+    
+    //发送校准结果
+    MessageSensorCaliFeedbackEnable(ESC, 0, 1);
 }
 
 /**********************************************************************************************************

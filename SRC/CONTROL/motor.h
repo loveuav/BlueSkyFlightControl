@@ -17,7 +17,9 @@ typedef struct
     MOTOR_MIXER_t motorMixer[8];
 } MOTOR_TYPE_t;
 
+void MotorInit(void);
 void MotorControl(int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle);
+void EscCalibrateEnable(void);
 void MotorStop(void);
 int16_t* GetMotorValue(void);
 int8_t GetMotorNum(void);
