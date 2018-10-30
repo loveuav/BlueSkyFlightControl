@@ -45,39 +45,13 @@
 
 ## 飞控硬件配置
 
-主控：STM32F405RGT6
+![飞控配置](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/飞控配置.jpg)
 
-陀螺仪：ICM20689 （带硬件恒温）
-
-气压计：MS5611
-
-GPS：u-blox M8
-
-磁力计：QMC5883（在GPS模块上，无板载罗盘）
-
-信号输入接口：PPM & SBUS (共用一路接口，飞控自动识别信号）
-
-信号输出接口：8路PWM
-
-其余接口：
-
-电流计接口 	X 1（飞控供电及电压电流测量）
-
-USB			X 1
-
-串口		  X 2
-
-SWD			X 1
-
-CAN		    X 1	
-
-TF卡座	  X 1
-
-板子尺寸： 36 x 36 mm （尺寸及安装孔位置与标准穿越机飞控一致）
+飞控板即将上线
 
 ## 天穹地面站
 
-正在开发中
+已在飞控Q群发布测试版，有需要的移步Q群（群文件）下载
 
 ![天穹地面站](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/BlueSkyPilot.jpg)
 
