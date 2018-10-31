@@ -47,7 +47,7 @@
 
 ![飞控配置](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/飞控配置.jpg)
 
-飞控板即将上线
+[购买飞控板](https://item.taobao.com/item.htm?spm=a1z10.3-c-s.w4002-1694068282.10.3d006ada1kJAJG&id=580800534157)
 
 ## 天穹地面站
 
