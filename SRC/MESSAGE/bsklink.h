@@ -44,8 +44,9 @@ enum
     BSKLINK_MSG_ID_GPS              = 0x20,     //GPS数据
     BSKLINK_MSG_ID_SYS_ERROR 		= 0x25,		//系统错误信息
     BSKLINK_MSG_ID_SYS_WARNING 		= 0x26,		//系统警告信息
-    BSKLINK_MSG_ID_NAV_ERROR        = 0x30,     //导航相关误差数据
-    BSKLINK_MSG_ID_CONTROL_ERROR    = 0x31,     //控制相关误差数据
+    BSKLINK_MSG_ID_ATT_ANALYSE      = 0x30,     //姿态估计与控制误差分析
+    BSKLINK_MSG_ID_VEL_ANALYSE      = 0x31,     //速度估计与控制误差分析
+    BSKLINK_MSG_ID_POS_ANALYSE      = 0x32,     //位置估计与控制误差分析
     BSKLINK_MSG_ID_HEARTBEAT		= 0xFE		//心跳包
 };
 
@@ -220,6 +221,19 @@ typedef struct
     int16_t velE;           //东向速度 单位：cm/s
     int16_t velD;           //天向速度 单位：cm/s
 } BSKLINK_PAYLOAD_GPS_t;
+
+//姿态估计与控制误差分析
+typedef struct
+{
+    Vector3i_t gyro;            //角速度 单位：0.1°/s
+    Vector3i_t gyroLpf;         //角速度(滤波) 单位：0.1°/s
+    Vector3i_t gyroTarget;      //目标角速度 单位：0.1°/s
+    Vector3i_t angle;           //姿态角 单位：0.1°
+    Vector3i_t angleTarget;     //目标姿态角 单位：0.1°
+    Vector3i_t angleMeasure;    //姿态角测量值 单位：0.1°
+    Vector3i_t angleEstError;   //姿态角估计误差 单位：0.1°
+    Vector3i_t angleCtlError;   //姿态角控制误差 单位：0.1°
+} BSKLINK_MSG_ID_ATT_ANALYSE_t;
 
 //心跳包
 typedef struct

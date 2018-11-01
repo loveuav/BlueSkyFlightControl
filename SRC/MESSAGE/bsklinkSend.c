@@ -586,6 +586,68 @@ void BsklinkSetPidAck(uint8_t ack)
 }
 
 /**********************************************************************************************************
+*函 数 名: BsklinkSendAttAnalyse
+*功能说明: 发送姿态估计与控制分析数据
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendAttAnalyse(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_MSG_ID_ATT_ANALYSE_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    payload.gyro.x          = GyroGetData().x * 10;             //角速度 单位：0.1°/s
+    payload.gyro.y          = GyroGetData().y * 10;
+    payload.gyro.z          = GyroGetData().z * 10;
+    payload.gyroLpf.x       = GyroLpfGetData().x * 10;          //角速度(滤波) 单位：0.1°/s
+    payload.gyroLpf.y       = GyroLpfGetData().y * 10;
+    payload.gyroLpf.z       = GyroLpfGetData().z * 10;
+    payload.gyroTarget.x    = GetAttInnerCtlTarget().x * 10;    //目标角速度 单位：0.1°/s
+    payload.gyroTarget.y    = GetAttInnerCtlTarget().y * 10;
+    payload.gyroTarget.z    = GetAttInnerCtlTarget().z * 10;
+    payload.angle.x         = GetCopterAngle().x * 10;          //姿态角 单位：0.1°
+    payload.angle.y         = GetCopterAngle().y * 10;
+    payload.angle.z         = GetCopterAngle().z * 10;
+    payload.angleTarget.x   = GetAttOuterCtlTarget().x * 10;    //目标姿态角 单位：0.1°
+    payload.angleTarget.y   = GetAttOuterCtlTarget().y * 10;
+    payload.angleTarget.z   = GetAttOuterCtlTarget().z * 10;
+    payload.angleMeasure.x  = GetAngleMeasure().x * 10;         //姿态角测量值 单位：0.1°
+    payload.angleMeasure.y  = GetAngleMeasure().y * 10;
+    payload.angleMeasure.z  = GetAngleMeasure().z * 10;
+    payload.angleEstError.x = GetAngleEstError().x * 10;        //姿态角估计误差 单位：0.1°
+    payload.angleEstError.y = GetAngleEstError().y * 10;
+    payload.angleEstError.z = GetAngleEstError().x * 10;
+    payload.angleCtlError.x = GetAttOuterCtlError().x * 10;     //姿态角控制误差 单位：0.1°
+    payload.angleCtlError.y = GetAttOuterCtlError().y * 10;
+    payload.angleCtlError.z = GetAttOuterCtlError().z * 10;
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_ATT_ANALYSE;                   //消息ID
+    msg.length   = sizeof(BSKLINK_MSG_ID_ATT_ANALYSE_t);         //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
 *函 数 名: BsklinkSendHeartBeat
 *功能说明: 发送心跳包
 *形    参: 发送标志指针

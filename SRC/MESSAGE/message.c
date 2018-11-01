@@ -79,14 +79,15 @@ void MessageInit(void)
 
     /*初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ*/
     //bsklink发送频率
-    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 15;
-    bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR]             = 5;
+    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 5;
+    bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR]             = 3;
     bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1;
-    bsklinkSendFreq[BSKLINK_MSG_ID_RC_DATA]            = 5;
+    bsklinkSendFreq[BSKLINK_MSG_ID_RC_DATA]            = 3;
     bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = 0;
     bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS]      = 1;
     bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = 2;
     bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;
+    bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = 35;
     bsklinkSendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
     //mavlink发送频率
     mavlinkSendFreq[MAVLINK_MSG_ID_SYS_STATUS]         = 1;
@@ -142,6 +143,7 @@ void MessageSendLoop(void)
             BsklinkSendRcData(&bsklinkSendFlag[BSKLINK_MSG_ID_RC_DATA]);                   //遥控通道数据
             BsklinkSendMotor(&bsklinkSendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
             BsklinkSendGps(&bsklinkSendFlag[BSKLINK_MSG_ID_GPS]);                          //GPS数据
+            BsklinkSendAttAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_ATT_ANALYSE]);           //姿态估计与控制分析
             BsklinkSendHeartBeat(&bsklinkSendFlag[BSKLINK_MSG_ID_HEARTBEAT]);              //心跳包
         }
     }
