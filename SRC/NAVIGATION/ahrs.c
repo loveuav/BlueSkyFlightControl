@@ -269,15 +269,16 @@ static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_
     gyro_bias.z = ConstrainFloat(gyro_bias.z, -1.0f, 1.0f);
 
     /************************************近似计算姿态角误差，用于观察和调试**********************************/
-    Vector3f_t angleObserv;
-    AccVectorToRollPitchAngle(&angleObserv, acc);
-    ahrs.angleError.x = ahrs.angleError.x * 0.999f + (angle->x - Degrees(angleObserv.x)) * 0.001f;
-    ahrs.angleError.y = ahrs.angleError.y * 0.999f + (angle->y - Degrees(angleObserv.y)) * 0.001f;
+    AccVectorToRollPitchAngle(&ahrs.angleMeasure, acc);
+    ahrs.angleMeasure.x = Degrees(ahrs.angleMeasure.x);
+    ahrs.angleMeasure.y = Degrees(ahrs.angleMeasure.y);
+    ahrs.angleError.x = ahrs.angleError.x * 0.999f + (angle->x - ahrs.angleMeasure.x) * 0.001f;
+    ahrs.angleError.y = ahrs.angleError.y * 0.999f + (angle->y - ahrs.angleMeasure.y) * 0.001f;
 
     Vector3f_t magEf;
     BodyFrameToEarthFrame(*angle, mag, &magEf);
-    angleObserv.z = WrapDegree360(Degrees(atan2f(-magEf.y, magEf.x)) + GetMagDeclination());
-    ahrs.angleError.z = ahrs.angleError.z * 0.999f + (angle->z - angleObserv.z) * 0.001f;
+    ahrs.angleMeasure.z = WrapDegree360(Degrees(atan2f(-magEf.y, magEf.x)) + GetMagDeclination());
+    ahrs.angleError.z = ahrs.angleError.z * 0.999f + (angle->z - ahrs.angleMeasure.z) * 0.001f;
     /********************************************************************************************************/
 }
 
@@ -526,4 +527,28 @@ Vector3f_t GetCentripetalAccBf(void)
 {
     return ahrs.centripetalAccBf;
 }
+
+/**********************************************************************************************************
+*函 数 名: GetAngleMeasure
+*功能说明: 获取姿态角测量值
+*形    参: 无
+*返 回 值: 姿态角测量值
+**********************************************************************************************************/
+Vector3f_t GetAngleMeasure(void)
+{
+    return ahrs.angleMeasure;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetAngleEstError
+*功能说明: 获取姿态角估计误差
+*形    参: 无
+*返 回 值: 姿态角误差
+**********************************************************************************************************/
+Vector3f_t GetAngleEstError(void)
+{
+    return ahrs.angleError;
+}
+
+
 

@@ -6,7 +6,8 @@
 typedef struct {
     Vector3f_t angle;
     Vector3f_t angleError;
-
+    Vector3f_t angleMeasure;
+    
     Vector3f_t accEf;
     Vector3f_t accEfLpf;
     Vector3f_t accBfOffset;
@@ -29,6 +30,8 @@ Vector3f_t GetCopterAccEf(void);
 Vector3f_t GetCopterAccEfLpf(void);
 Vector3f_t GetCentripetalAcc(void);
 Vector3f_t GetCentripetalAccBf(void);
+Vector3f_t GetAngleMeasure(void);
+Vector3f_t GetAngleEstError(void);
 
 #endif
 
