@@ -86,6 +86,11 @@ Vector3f_t GetAttOuterCtlError(void);
 Vector3f_t GetPosInnerCtlError(void);
 Vector3f_t GetPosOuterCtlError(void);
 
+Vector3f_t GetAttInnerCtlTarget(void);
+Vector3f_t GetAttOuterCtlTarget(void);
+Vector3f_t GetPosInnerCtlTarget(void);
+Vector3f_t GetPosOuterCtlTarget(void);
+
 void FlightControlReset(void);
 PID_t FcGetPID(uint8_t id);
 void FcSetPID(uint8_t id, PID_t pid);
