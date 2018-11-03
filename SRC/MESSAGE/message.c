@@ -17,8 +17,6 @@
 #include "mavlinkParam.h"
 #include "drv_usart.h"
 #include "drv_usb.h"
-#include "bsklink.h"
-#include "common/mavlink.h"
 
 #include "ahrs.h"
 #include "flightControl.h"
@@ -80,14 +78,16 @@ void MessageInit(void)
     /*初始化各帧的发送频率，各帧频率和不能超过MAX_SEND_FREQ*/
     //bsklink发送频率
     bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = 5;
+    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS]      = 1;
     bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR]             = 3;
     bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1;
     bsklinkSendFreq[BSKLINK_MSG_ID_RC_DATA]            = 3;
-    bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = 0;
-    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS]      = 1;
+    bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = 20;
     bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = 2;
     bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;
-    bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = 35;
+    bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = 30;
+    bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = 0;
+    bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = 0;
     bsklinkSendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
     //mavlink发送频率
     mavlinkSendFreq[MAVLINK_MSG_ID_SYS_STATUS]         = 1;
@@ -131,6 +131,8 @@ void MessageSendLoop(void)
             BsklinkSendPidPos(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_POS]);                   //位置PID
         else if(bsklinkSendFlag[BSKLINK_MSG_ID_PID_ACK] == ENABLE)
             BsklinkSendPidAck(&bsklinkSendFlag[BSKLINK_MSG_ID_PID_ACK]);                   //PID读写响应
+        else if(bsklinkSendFlag[BSKLINK_MSG_ID_FREQ_SETUP] == ENABLE)
+            BsklinkSendFreqSetup(&bsklinkSendFlag[BSKLINK_MSG_ID_FREQ_SETUP]);             //消息发送频率设置
         else
         {
             //根据发送列表来使能对应的数据帧发送标志位
@@ -260,6 +262,42 @@ void MavlinkSendEnable(uint8_t msgid)
 }
 
 /**********************************************************************************************************
+*函 数 名: BsklinkSetMsgFreq
+*功能说明: 消息频率设置
+*形    参: 消息
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSetMsgFreq(BSKLINK_MSG_ID_FREQ_SETUP_t payload)
+{
+    uint16_t freqSum = 0;
+    
+    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_DATA]        = payload.flightData;
+    bsklinkSendFreq[BSKLINK_MSG_ID_FLIGHT_STATUS]      = payload.flightStatus;
+    bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR]             = payload.sensor;
+    bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = payload.sensorCaliData;
+    bsklinkSendFreq[BSKLINK_MSG_ID_RC_DATA]            = payload.rcData;
+    bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = payload.motor;
+    bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = payload.battery;
+    bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = payload.gps;
+    bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = payload.attAnalyse;
+    bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = payload.velAnalyse;
+    bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = payload.posAnalyse;
+    
+    for(uint8_t i=0; i<0xFF; i++)
+        freqSum += bsklinkSendFreq[i];
+    
+    if(freqSum <= MAX_SEND_FREQ)
+    {    
+        //重新生成消息发送列表
+        SendFreqSort(bsklinkSortResult, bsklinkSendFreq);
+        SendListCreate(bsklinkSendFreq, bsklinkSortResult, bsklinkSendList);
+        
+        //返回设置成功消息
+        BsklinkSendEnable(BSKLINK_MSG_ID_FREQ_SETUP);
+    }
+}
+
+/**********************************************************************************************************
 *函 数 名: SendFreqSort
 *功能说明: 根据消息发送频率来给消息ID排序
 *形    参: 排序结果数组指针 发送频率数组指针
@@ -330,6 +368,10 @@ static void SendListCreate(uint8_t* sendFreq, uint8_t* sortResult, uint8_t* send
     if(sendNum > MAX_SEND_FREQ)
         return;
 
+    //清空发送列表
+    for(i=0; i<MAX_SEND_FREQ; i++)
+        sendList[i] = 0;
+    
     //开始生成发送列表
     for(i=0; i<0xFF; i++)
     {

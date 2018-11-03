@@ -2,6 +2,8 @@
 #define _MESSAGE_H_
 
 #include "mathTool.h"
+#include "bsklink.h"
+#include "common/mavlink.h"
 
 #define MAX_SEND_FREQ   100         //最大发送频率 单位:Hz
 
@@ -20,6 +22,7 @@ typedef union
 void MessageInit(void);
 void MessageSendLoop(void);
 void MessageSensorCaliFeedbackEnable(uint8_t type, uint8_t step, uint8_t success);
+void BsklinkSetMsgFreq(BSKLINK_MSG_ID_FREQ_SETUP_t payload);
 void BsklinkSendEnable(uint8_t msgid);
 void MavlinkSendEnable(uint8_t msgid);
 void DataSend(uint8_t *data, uint8_t length);

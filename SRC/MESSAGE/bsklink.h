@@ -44,9 +44,10 @@ enum
     BSKLINK_MSG_ID_GPS              = 0x20,     //GPS数据
     BSKLINK_MSG_ID_SYS_ERROR 		= 0x25,		//系统错误信息
     BSKLINK_MSG_ID_SYS_WARNING 		= 0x26,		//系统警告信息
-    BSKLINK_MSG_ID_ATT_ANALYSE      = 0x30,     //姿态估计与控制误差分析
-    BSKLINK_MSG_ID_VEL_ANALYSE      = 0x31,     //速度估计与控制误差分析
-    BSKLINK_MSG_ID_POS_ANALYSE      = 0x32,     //位置估计与控制误差分析
+    BSKLINK_MSG_ID_ATT_ANALYSE      = 0x30,     //姿态估计与控制数据
+    BSKLINK_MSG_ID_VEL_ANALYSE      = 0x31,     //速度估计与控制数据
+    BSKLINK_MSG_ID_POS_ANALYSE      = 0x32,     //位置估计与控制数据
+    BSKLINK_MSG_ID_FREQ_SETUP       = 0xF0,     //消息发送频率设置
     BSKLINK_MSG_ID_HEARTBEAT		= 0xFE		//心跳包
 };
 
@@ -222,7 +223,7 @@ typedef struct
     int16_t velD;           //天向速度 单位：cm/s
 } BSKLINK_PAYLOAD_GPS_t;
 
-//姿态估计与控制误差分析
+//姿态估计与控制数据
 typedef struct
 {
     Vector3i_t gyro;            //角速度 单位：0.1°/s
@@ -235,15 +236,63 @@ typedef struct
     Vector3i_t angleCtlError;   //姿态角控制误差 单位：0.1°
 } BSKLINK_MSG_ID_ATT_ANALYSE_t;
 
+//速度估计与控制数据
+typedef struct
+{
+    Vector3i_t accel;           //地理系运动加速度 单位：cm/s²
+    Vector3i_t accelLpf;        //地理系运动加速度（滤波） 单位：cm/s²
+    Vector3i_t velocity;        //速度估计值  单位：cm/s
+    Vector3i_t velTarget;       //速度目标  单位：cm/s
+    Vector3i_t gpsVel;          //GPS速度  单位：cm/s
+    int16_t    opticalVelX;     //光流速度x轴  单位：cm/s
+    int16_t    opticalVelY;     //光流速度y轴  单位：cm/s
+    int16_t    baroVel;         //气压速度  单位：cm/s
+    int16_t    tofVel;          //超声波/TOF速度  单位：cm/s
+    Vector3i_t velEstError;     //速度估计误差 单位：cm/s
+    Vector3i_t velCtlError;     //速度控制误差 单位：cm/s
+} BSKLINK_MSG_ID_VEL_ANALYSE_t;
+
+//位置估计与控制数据
+typedef struct
+{
+    Vector3l_t position;        //位置估计值  单位：cm
+    Vector3l_t posTarget;       //位置目标  单位：cm
+    Vector3l_t gpsPos;          //GPS位置  单位：cm
+    int32_t    opticalPosX;     //光流位置x轴  单位：cm
+    int32_t    opticalPosY;     //光流位置y轴  单位：cm
+    int32_t    baroAlt;         //气压高度  单位：cm
+    int32_t    tofAlt;          //超声波/TOF高度  单位：cm
+    Vector3i_t posEstError;     //位置估计误差 单位：cm
+    Vector3i_t posCtlError;     //位置控制误差 单位：cm
+} BSKLINK_MSG_ID_POS_ANALYSE_t;
+
+//消息发送频率设置
+typedef struct
+{
+    uint8_t flag;                   //设置返回标志位
+
+    uint8_t flightData;
+    uint8_t flightStatus;
+    uint8_t sensor;
+    uint8_t sensorCaliData;
+    uint8_t rcData;
+    uint8_t motor;
+    uint8_t battery;
+    uint8_t gps;
+    uint8_t attAnalyse;
+    uint8_t velAnalyse;
+    uint8_t posAnalyse;
+} BSKLINK_MSG_ID_FREQ_SETUP_t;
+
 //心跳包
 typedef struct
 {
-    uint8_t type;			//硬件类型
-    uint8_t version_high;	//飞控版本号高位
-    uint8_t version_mid;	//飞控版本号中位
-    uint8_t version_low;	//飞控版本号低位
-    int32_t time;           //系统时间 单位：毫秒
-    int8_t  freq;			//最大发送频率
+    uint8_t  type;			//硬件类型
+    uint8_t  version_high;	//飞控版本号高位
+    uint8_t  version_mid;	//飞控版本号中位
+    uint8_t  version_low;	//飞控版本号低位
+    int32_t  time;          //系统时间 单位：毫秒
+    uint16_t freq;			//最大发送频率
 } BSKLINK_PAYLOAD_HEARTBEAT_t;
 
 #pragma pack ()

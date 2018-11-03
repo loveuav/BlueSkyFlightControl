@@ -648,6 +648,45 @@ void BsklinkSendAttAnalyse(uint8_t* sendFlag)
 }
 
 /**********************************************************************************************************
+*函 数 名: BsklinkSendFreqSetup
+*功能说明: 发送消息频率设置
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendFreqSetup(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_MSG_ID_FREQ_SETUP_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    payload.flag = 1;        
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_FREQ_SETUP;                    //消息ID
+    msg.length   = sizeof(BSKLINK_MSG_ID_FREQ_SETUP_t);          //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
 *函 数 名: BsklinkSendHeartBeat
 *功能说明: 发送心跳包
 *形    参: 发送标志指针
