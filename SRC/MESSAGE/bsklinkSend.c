@@ -623,7 +623,7 @@ void BsklinkSendAttAnalyse(uint8_t* sendFlag)
     payload.angleMeasure.z  = GetAngleMeasure().z * 10;
     payload.angleEstError.x = GetAngleEstError().x * 10;        //姿态角估计误差 单位：0.1°
     payload.angleEstError.y = GetAngleEstError().y * 10;
-    payload.angleEstError.z = GetAngleEstError().x * 10;
+    payload.angleEstError.z = GetAngleEstError().z * 10;
     payload.angleCtlError.x = GetAttOuterCtlError().x * 10;     //姿态角控制误差 单位：0.1°
     payload.angleCtlError.y = GetAttOuterCtlError().y * 10;
     payload.angleCtlError.z = GetAttOuterCtlError().z * 10;
@@ -636,6 +636,126 @@ void BsklinkSendAttAnalyse(uint8_t* sendFlag)
 
     msg.msgid 	 = BSKLINK_MSG_ID_ATT_ANALYSE;                   //消息ID
     msg.length   = sizeof(BSKLINK_MSG_ID_ATT_ANALYSE_t);         //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSendVelAnalyse
+*功能说明: 发送速度估计与控制分析数据
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendVelAnalyse(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_MSG_ID_VEL_ANALYSE_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    payload.accel.x       = GetCopterAccel().x * GRAVITY_ACCEL * 100;     //加速度 单位：cm/s²
+    payload.accel.y       = GetCopterAccel().y * GRAVITY_ACCEL * 100;
+    payload.accel.z       = GetCopterAccel().z * GRAVITY_ACCEL * 100;
+    payload.accelLpf.x    = GetCopterAccEfLpf().x * GRAVITY_ACCEL * 100;  //加速度(滤波) 单位：cm/s²
+    payload.accelLpf.y    = GetCopterAccEfLpf().y * GRAVITY_ACCEL * 100;
+    payload.accelLpf.z    = GetCopterAccEfLpf().z * GRAVITY_ACCEL * 100;
+    payload.velocity.x    = GetCopterVelocity().x;                        //速度 单位：cm/s
+    payload.velocity.y    = GetCopterVelocity().y;
+    payload.velocity.z    = GetCopterVelocity().z;
+    payload.velTarget.x   = GetPosInnerCtlTarget().x;                     //目标速度 单位：cm/s
+    payload.velTarget.y   = GetPosInnerCtlTarget().y;
+    payload.velTarget.z   = GetPosInnerCtlTarget().z;
+    payload.gpsVel.x      = GetCopterVelMeasure().x;                      //GPS速度 单位：cm/s
+    payload.gpsVel.y      = GetCopterVelMeasure().y;
+    payload.gpsVel.z      = GpsGetVelocity().z;
+    payload.opticalVelX   = 0;                                            //光流速度 单位：cm/s
+    payload.opticalVelY   = 0;
+    payload.baroVel       = GetCopterVelMeasure().z;
+    payload.tofVel        = 0;
+    payload.velEstError.x = 0;                                            //速度估计误差 单位：cm/s
+    payload.velEstError.y = 0;
+    payload.velEstError.z = 0;
+    payload.velCtlError.x = GetPosInnerCtlError().x;                      //速度控制误差 单位：cm/s
+    payload.velCtlError.y = GetPosInnerCtlError().y;
+    payload.velCtlError.z = GetPosInnerCtlError().z;
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_VEL_ANALYSE;                   //消息ID
+    msg.length   = sizeof(BSKLINK_MSG_ID_VEL_ANALYSE_t);         //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSendPosAnalyse
+*功能说明: 发送位置估计与控制分析数据
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendPosAnalyse(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_MSG_ID_POS_ANALYSE_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    payload.position.x    = GetCopterPosition().x;               //位置估计值 单位：cm
+    payload.position.y    = GetCopterPosition().y;
+    payload.position.z    = GetCopterPosition().z;
+    payload.posTarget.x   =  GetPosOuterCtlTarget().x;           //位置目标 单位：cm
+    payload.posTarget.y   = GetPosOuterCtlTarget().y;
+    payload.posTarget.z   = GetPosOuterCtlTarget().z;
+    payload.gpsPos.x      = GetCopterPosMeasure().x;             //GPS位置 单位：cm
+    payload.gpsPos.y      = GetCopterPosMeasure().y;
+    payload.gpsPos.z      = 0;
+    payload.opticalPosX   = 0;                                   //光流位置 单位：cm
+    payload.opticalPosY   = 0;
+    payload.baroAlt       = GetCopterPosMeasure().z;             //气压高度 单位：cm
+    payload.tofAlt        = 0;                                   //TOF高度 单位：cm
+    payload.posEstError.x = 0;                                   //高度估计误差 单位：cm
+    payload.posEstError.y = 0;
+    payload.posEstError.z = 0;
+    payload.posCtlError.x = GetPosOuterCtlError().x;             //高度控制误差 单位：cm
+    payload.posCtlError.y = GetPosOuterCtlError().y;
+    payload.posCtlError.z = GetPosOuterCtlError().z;
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_POS_ANALYSE;                   //消息ID
+    msg.length   = sizeof(BSKLINK_MSG_ID_POS_ANALYSE_t);         //数据负载长度
     memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
 
     BsklinkMsgCalculateSum(&msg);                                //计算校验和
@@ -665,7 +785,7 @@ void BsklinkSendFreqSetup(uint8_t* sendFlag)
         *sendFlag = DISABLE;
 
     //数据负载填充
-    payload.flag = 1;        
+    payload.flag = 1;
 
     /*********************************************消息帧赋值******************************************/
     msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头

@@ -47,6 +47,7 @@ enum
     BSKLINK_MSG_ID_ATT_ANALYSE      = 0x30,     //姿态估计与控制数据
     BSKLINK_MSG_ID_VEL_ANALYSE      = 0x31,     //速度估计与控制数据
     BSKLINK_MSG_ID_POS_ANALYSE      = 0x32,     //位置估计与控制数据
+    BSKLINK_MSG_ID_USER_DEFINE      = 0x33,     //自定义数据
     BSKLINK_MSG_ID_FREQ_SETUP       = 0xF0,     //消息发送频率设置
     BSKLINK_MSG_ID_HEARTBEAT		= 0xFE		//心跳包
 };
@@ -265,6 +266,23 @@ typedef struct
     Vector3i_t posEstError;     //位置估计误差 单位：cm
     Vector3i_t posCtlError;     //位置控制误差 单位：cm
 } BSKLINK_MSG_ID_POS_ANALYSE_t;
+
+//自定义数据
+typedef struct
+{
+    int16_t data1;
+    int16_t data2;
+    int16_t data3;
+    int16_t data4;
+    int16_t data5;
+    int16_t data6;
+    int16_t data7;
+    int16_t data8;
+    int16_t data9;
+    int16_t data10;
+    int16_t data11;
+    int16_t data12;
+} BSKLINK_MSG_ID_USER_DEFINE_t;
 
 //消息发送频率设置
 typedef struct

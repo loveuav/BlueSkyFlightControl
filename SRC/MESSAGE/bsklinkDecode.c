@@ -91,7 +91,7 @@ void BsklinkDecode(uint8_t data)
         break;
 
     case BSKLINK_MSG_ID_FREQ_SETUP:
-    {    
+    {
         BSKLINK_MSG_ID_FREQ_SETUP_t payload;
         memcpy(&payload, msg.payload, msg.length);
         //设置消息发送频率
