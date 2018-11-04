@@ -80,6 +80,7 @@ void GpsDataPreTreat(void)
 #ifdef USE_VELNED
         gps.velocity.x = gpsRaw.velN;
         gps.velocity.y = gpsRaw.velE;
+        gps.velocity.z = gpsRaw.velD;
 #else
         GpsCalcVelocity(gps.latitude, gps.longitude);
 #endif
