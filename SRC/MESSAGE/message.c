@@ -144,6 +144,7 @@ void MessageSendLoop(void)
             BsklinkSendSensorCaliData(&bsklinkSendFlag[BSKLINK_MSG_ID_SENSOR_CALI_DATA]);  //传感器校准数据
             BsklinkSendRcData(&bsklinkSendFlag[BSKLINK_MSG_ID_RC_DATA]);                   //遥控通道数据
             BsklinkSendMotor(&bsklinkSendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
+            BsklinkSendBattery(&bsklinkSendFlag[BSKLINK_MSG_ID_BATTERY]);                  //电池数据
             BsklinkSendGps(&bsklinkSendFlag[BSKLINK_MSG_ID_GPS]);                          //GPS数据
             BsklinkSendAttAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_ATT_ANALYSE]);           //姿态估计与控制数据
             BsklinkSendVelAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_VEL_ANALYSE]);           //速度估计与控制数据

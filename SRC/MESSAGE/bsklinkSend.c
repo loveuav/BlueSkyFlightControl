@@ -26,6 +26,7 @@
 #include "gps.h"
 #include "ublox.h"
 #include "flightStatus.h"
+#include "battery.h"
 
 uint8_t pid_ack;
 
@@ -435,6 +436,57 @@ void BsklinkSendMotor(uint8_t* sendFlag)
 }
 
 /**********************************************************************************************************
+*函 数 名: BsklinkSendBattery
+*功能说明: 发送电池数据
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendBattery(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_PAYLOAD_BATTERY_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    payload.voltage = GetBatteryVoltage();      //电池电压 单位：0.01V
+    payload.current = GetBatteryCurrent();      //电池电流 单位：0.01A
+    payload.capacityPer = 0xFF;                 //电池电量百分比（0xFF表示无电量数据）
+    payload.capacity = 0;                       //电池设计容量 单位：mah
+    payload.capRemain = 0;                      //电池当前剩余容量 单位：mah
+    payload.temperature = 0;                    //电池温度 单位：0.01°
+    payload.cellNum = 4;                        //电芯节数
+    payload.cellVolt[0] = 0;                    //电芯电压（最多6节） 单位：0.01V
+    payload.cellVolt[1] = 0;
+    payload.cellVolt[2] = 0;
+    payload.cellVolt[3] = 0;
+    payload.cellVolt[4] = 0;
+    payload.cellVolt[5] = 0;
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_BATTERY;                       //消息ID
+    msg.length   = sizeof(BSKLINK_PAYLOAD_BATTERY_t);            //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
 *函 数 名: BsklinkSendPidAtt
 *功能说明: 发送姿态PID
 *形    参: 发送标志指针
@@ -512,7 +564,7 @@ void BsklinkSendPidPos(uint8_t* sendFlag)
     payload.velZ_ki = FcGetPID(VEL_Z).kI;
     payload.velZ_kd = FcGetPID(VEL_Z).kD;
     payload.posX_kp = FcGetPID(POS_X).kP;
-    payload.posY_kp = FcGetPID(POS_Z).kP;
+    payload.posY_kp = FcGetPID(POS_Y).kP;
     payload.posZ_kp = FcGetPID(POS_Z).kP;
 
     /*********************************************消息帧赋值******************************************/

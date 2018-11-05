@@ -11,6 +11,7 @@ void BsklinkSendSensorCaliCmd(uint8_t* sendFlag, uint8_t type, uint8_t step, uin
 void BsklinkSendGps(uint8_t* sendFlag);
 void BsklinkSendRcData(uint8_t* sendFlag);
 void BsklinkSendMotor(uint8_t* sendFlag);
+void BsklinkSendBattery(uint8_t* sendFlag);
 void BsklinkSendPidAtt(uint8_t* sendFlag);
 void BsklinkSendPidPos(uint8_t* sendFlag);
 void BsklinkSendPidAck(uint8_t* sendFlag);
