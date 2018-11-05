@@ -209,7 +209,11 @@ bool Soft_I2c_Start(uint8_t deviceNum)
     Soft_I2c_SCL_H(deviceNum);
     Soft_I2c_Delay(deviceNum);
     if(!Soft_I2c_SDA_Read(deviceNum))
+    {
+        //复位I2C总线
+        Soft_I2c_SCL_L(deviceNum);
         return 0;
+    }
     Soft_I2c_SDA_L(deviceNum);
     Soft_I2c_Delay(deviceNum);
     if(Soft_I2c_SDA_Read(deviceNum))
