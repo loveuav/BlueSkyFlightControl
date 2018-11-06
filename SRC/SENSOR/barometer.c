@@ -65,10 +65,10 @@ void BaroDataPreTreat(void)
     BaroCompensate(&baroAltTemp);
 
     //气压高度低通滤波
-    baro.alt = baro.alt * 0.75f + baroAltTemp * 0.25f;
+    baro.alt = baro.alt * 0.5f + baroAltTemp * 0.5f;
 
     //计算气压变化速度，并进行低通滤波
-    baro.velocity = baro.velocity * 0.75f + ((baro.alt - baro.lastAlt) / deltaT) * 0.25f;
+    baro.velocity = baro.velocity * 0.65f + ((baro.alt - baro.lastAlt) / deltaT) * 0.35f;
     baro.lastAlt = baro.alt;
 
     //检测气压传感器是否工作正常
