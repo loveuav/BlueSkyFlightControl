@@ -280,8 +280,8 @@ void BsklinkSetMsgFreq(BSKLINK_MSG_ID_FREQ_SETUP_t payload)
     bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = payload.sensorCaliData;
     bsklinkSendFreq[BSKLINK_MSG_ID_RC_DATA]            = payload.rcData;
     bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = payload.motor;
-    bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = payload.battery;
-    bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = payload.gps;
+    bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = payload.gps;
+    bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = payload.battery;
     bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = payload.attAnalyse;
     bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = payload.velAnalyse;
     bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = payload.posAnalyse;
