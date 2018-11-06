@@ -429,11 +429,19 @@ bool Soft_I2C_Multi_Read(uint8_t deviceNum, u8 SlaveAddress,u8 REG_Address,u8 * 
         return false;
     }
     Soft_I2c_SendByte(deviceNum, REG_Address);
-    Soft_I2c_WaitAck(deviceNum);
+    if(!Soft_I2c_WaitAck(deviceNum))
+    {
+        Soft_I2c_Stop(deviceNum);
+        return false;
+    }
 
     Soft_I2c_Start(deviceNum);
     Soft_I2c_SendByte(deviceNum, SlaveAddress+1);
-    Soft_I2c_WaitAck(deviceNum);
+    if(!Soft_I2c_WaitAck(deviceNum))
+    {
+        Soft_I2c_Stop(deviceNum);
+        return false;
+    }
 
     for(i=1; i<size; i++)
     {

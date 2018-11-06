@@ -94,7 +94,9 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
         //地磁传感器数据更新 100Hz
         if(count % 2 == 0)
         {
+            vTaskSuspendAll();
             MagSensorUpdate();
+            xTaskResumeAll();
         }
 
         //气压传感器数据更新 50Hz

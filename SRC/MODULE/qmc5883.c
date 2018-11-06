@@ -35,7 +35,7 @@ static Vector3i_t magRaw;
 *形    参: 寄存器地址 写入数据
 *返 回 值: 无
 **********************************************************************************************************/
-static void QMC5883_WriteReg(u8 REG_Address,u8 REG_data)
+static void QMC5883_WriteReg(uint8_t REG_Address, uint8_t REG_data)
 {
     Soft_I2c_Single_Write(MAG_I2C, QMC5883L_Addr, REG_Address, REG_data);
 }
@@ -46,9 +46,20 @@ static void QMC5883_WriteReg(u8 REG_Address,u8 REG_data)
 *形    参: 寄存器地址
 *返 回 值: 寄存器数据
 **********************************************************************************************************/
-static uint8_t QMC5883_ReadReg(u8 REG_Address)
+static uint8_t QMC5883_ReadReg(uint8_t REG_Address)
 {
     return Soft_I2C_Single_Read(MAG_I2C, QMC5883L_Addr, REG_Address);
+}
+
+/**********************************************************************************************************
+*函 数 名: QMC5883_MultiRead
+*功能说明: 连续读取QMC5883寄存器的数据
+*形    参: 寄存器地址 读出缓冲区 长度
+*返 回 值: 成功标志位
+**********************************************************************************************************/
+static bool QMC5883_MultiRead(uint8_t REG_Address, uint8_t* buffer, uint8_t length)
+{
+    return Soft_I2C_Multi_Read(MAG_I2C, QMC5883L_Addr, REG_Address, buffer, length);
 }
 
 /**********************************************************************************************************
@@ -92,18 +103,13 @@ void QMC5883_Update(void)
 {
     uint8_t buffer[6];
 
-    buffer[1] = QMC5883_ReadReg(QMC5883L_HX_L);
-    buffer[0] = QMC5883_ReadReg(QMC5883L_HX_H);
-    magRaw.x = (int16_t)buffer[0] << 8 | buffer[1];
-
-    buffer[3] = QMC5883_ReadReg(QMC5883L_HY_L);
-    buffer[2] = QMC5883_ReadReg(QMC5883L_HY_H);
-    magRaw.y = (int16_t)buffer[2] << 8 | buffer[3];
-
-    buffer[5] = QMC5883_ReadReg(QMC5883L_HZ_L);
-    buffer[4] = QMC5883_ReadReg(QMC5883L_HZ_H);
-    magRaw.z = (int16_t)buffer[4] << 8 | buffer[5];
-
+    if(!QMC5883_MultiRead(QMC5883L_HX_L, buffer, 6))
+        return;
+    
+    magRaw.x = (int16_t)buffer[1] << 8 | buffer[0];
+    magRaw.y = (int16_t)buffer[3] << 8 | buffer[2];
+    magRaw.z = (int16_t)buffer[5] << 8 | buffer[4];   
+    
     //统一传感器坐标系（并非定义安装方向）
     magRaw.x = magRaw.x;
     magRaw.y = -magRaw.y;
