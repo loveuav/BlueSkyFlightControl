@@ -747,6 +747,11 @@
               <FileType>1</FileType>
               <FilePath>..\SRC\MODULE\mmc3630.c</FilePath>
             </File>
+            <File>
+              <FileName>rgb.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MODULE\rgb.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
