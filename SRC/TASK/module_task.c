@@ -13,6 +13,7 @@
 
 #include "module.h"
 #include "battery.h"
+#include "rgb.h"
 #include "parameter.h"
 #include "flightStatus.h"
 
@@ -118,6 +119,9 @@ portTASK_FUNCTION(vSensorUpdateTask, pvParameters)
         BatteryVoltageUpdate();
         BatteryCurrentUpdate();
 
+        //RGB闪烁
+        RGB_Flash();
+        
         count++;
 
         //睡眠5ms

@@ -23,6 +23,7 @@
 #include "drv_adc.h"
 #include "drv_ppm.h"
 #include "drv_can.h"
+#include "rgb.h"
 
 static void SysPeriphClockInit(void);
 
@@ -40,6 +41,9 @@ void BoardInit(void)
     //外设时钟使能
     SysPeriphClockInit();
 
+    //RGB初始化
+    RGB_Init();
+    
     //SPI初始化
     Spi_GPIO_Init();
     Spi_Open(GYRO_SPI);
