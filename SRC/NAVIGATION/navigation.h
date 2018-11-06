@@ -5,8 +5,11 @@
 
 typedef struct {
     Vector3f_t accel;
+    Vector3f_t accel_bias;
+    
     Vector3f_t velocity;
     Vector3f_t velMeasure;
+    
     Vector3f_t position;
     Vector3f_t posMeasure;
 } NAVGATION_t;

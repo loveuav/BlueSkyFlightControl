@@ -54,7 +54,6 @@ void VelocityEstimate(void)
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static Vector3f_t accel_bias = {0, 0, 0};
     static float velErrorIntRate = 0.00001f;
 
     //计算时间间隔，用于积分
@@ -93,9 +92,9 @@ void VelocityEstimate(void)
     }
 
     //修正加速度零偏
-    nav.accel.x += accel_bias.x;
-    nav.accel.y += accel_bias.y;
-    nav.accel.z += accel_bias.z;
+    nav.accel.x += nav.accel_bias.x;
+    nav.accel.y += nav.accel_bias.y;
+    nav.accel.z += nav.accel_bias.z;
 
     //加速度积分，并转换单位为cm
     input.x = nav.accel.x * GRAVITY_ACCEL * deltaT * 100;
@@ -107,13 +106,13 @@ void VelocityEstimate(void)
     nav.velocity = kalmanVel.state;
 
     //加速度（导航系）零偏估计
-    accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * deltaT * velErrorIntRate;
-    accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * deltaT * velErrorIntRate;
-    accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * deltaT * velErrorIntRate;
+    nav.accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * deltaT * velErrorIntRate;
+    nav.accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * deltaT * velErrorIntRate;
+    nav.accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * deltaT * velErrorIntRate;
 
-    accel_bias.x  = ConstrainFloat(accel_bias.x, -0.03, 0.03);
-    accel_bias.y  = ConstrainFloat(accel_bias.y, -0.03, 0.03);
-    accel_bias.z  = ConstrainFloat(accel_bias.z, -0.03, 0.03);
+    nav.accel_bias.x  = ConstrainFloat(nav.accel_bias.x, -0.03, 0.03);
+    nav.accel_bias.y  = ConstrainFloat(nav.accel_bias.y, -0.03, 0.03);
+    nav.accel_bias.z  = ConstrainFloat(nav.accel_bias.z, -0.03, 0.03);
 }
 
 /**********************************************************************************************************
