@@ -300,6 +300,7 @@ typedef struct
     uint8_t attAnalyse;
     uint8_t velAnalyse;
     uint8_t posAnalyse;
+    uint8_t userDefine;
 } BSKLINK_MSG_ID_FREQ_SETUP_t;
 
 //心跳包

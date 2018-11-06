@@ -88,6 +88,7 @@ void MessageInit(void)
     bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = 30;
     bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = 2;
     bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = 2;
+    bsklinkSendFreq[BSKLINK_MSG_ID_USER_DEFINE]        = 0;
     bsklinkSendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
     //mavlink发送频率
     mavlinkSendFreq[MAVLINK_MSG_ID_SYS_STATUS]         = 1;
@@ -149,6 +150,7 @@ void MessageSendLoop(void)
             BsklinkSendAttAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_ATT_ANALYSE]);           //姿态估计与控制数据
             BsklinkSendVelAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_VEL_ANALYSE]);           //速度估计与控制数据
             BsklinkSendPosAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_POS_ANALYSE]);           //位置估计与控制数据
+            BsklinkSendUserDefine(&bsklinkSendFlag[BSKLINK_MSG_ID_USER_DEFINE]);           //自定义数据
             BsklinkSendHeartBeat(&bsklinkSendFlag[BSKLINK_MSG_ID_HEARTBEAT]);              //心跳包
         }
     }
@@ -285,7 +287,8 @@ void BsklinkSetMsgFreq(BSKLINK_MSG_ID_FREQ_SETUP_t payload)
     bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = payload.attAnalyse;
     bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = payload.velAnalyse;
     bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = payload.posAnalyse;
-
+    bsklinkSendFreq[BSKLINK_MSG_ID_USER_DEFINE]        = payload.userDefine;
+    
     for(uint8_t i=0; i<0xFF; i++)
         freqSum += bsklinkSendFreq[i];
 

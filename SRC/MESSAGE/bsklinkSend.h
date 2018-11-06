@@ -19,6 +19,7 @@ void BsklinkSetPidAck(uint8_t ack);
 void BsklinkSendAttAnalyse(uint8_t* sendFlag);
 void BsklinkSendVelAnalyse(uint8_t* sendFlag);
 void BsklinkSendPosAnalyse(uint8_t* sendFlag);
+void BsklinkSendUserDefine(uint8_t* sendFlag);
 void BsklinkSendFreqSetup(uint8_t* sendFlag);
 void BsklinkSendHeartBeat(uint8_t* sendFlag);
 
