@@ -51,9 +51,9 @@
 
 ## 天穹地面站
 
-已在飞控Q群发布测试版，有需要的移步Q群（群文件）下载
-
 ![天穹地面站](https://github.com/loveuav/BlueSkyFlightControl/blob/master/PIC/BlueSkyPilot.jpg)
+
+简介及下载：[天穹地面站——专为飞控研发而生](https://blog.csdn.net/loveuav/article/details/83592374)
 
 ## QGroundControl地面站
 
