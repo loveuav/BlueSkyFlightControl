@@ -224,10 +224,8 @@ void AltCovarianceSelfAdaptation(void)
         }
         else if(GetAltControlStatus() == ALT_CHANGED)
         {
-//            kalmanVel.r[8] = 2000;
-//            kalmanPos.r[8] = 1000;
-            kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
-            kalmanPos.r[8] = Sq(40 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
+            kalmanVel.r[8] = 2500;
+            kalmanPos.r[8] = 1000;
         }
         else
         {
