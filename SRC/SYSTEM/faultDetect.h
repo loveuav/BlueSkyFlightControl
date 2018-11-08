@@ -36,17 +36,18 @@ enum ERROR_TYPE
 //警告类型
 enum WARNNING_TYPE
 {
-    SYSTEM_INITIALIZING,        //系统正在初始化
     WARNNING_RESERVE1,
+    SYSTEM_INITIALIZING,        //系统正在初始化
+    WARNNING_RESERVE2,
     GYRO_NEED_CALIBRATED,	    //建议校准陀螺仪传感器
     ACC_NEED_CALIBRATED,	    //建议校准加速度传感器
     MAG_NEED_CALIBRATED,	    //建议校准地磁传感器
-    WARNNING_RESERVE2,
     WARNNING_RESERVE3,
     WARNNING_RESERVE4,
     WARNNING_RESERVE5,
-    MAG_DISTURBING,             //地磁传感器受干扰
     WARNNING_RESERVE6,
+    MAG_DISTURBING,             //地磁传感器受干扰
+    WARNNING_RESERVE7,
     LOW_BATTERY,                //低电量/电压
     LOW_BATTERY_FOR_RETURN,     //电量/电压低于返航所需
     WARNNING_NUM

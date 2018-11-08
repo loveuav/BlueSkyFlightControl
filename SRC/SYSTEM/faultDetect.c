@@ -33,6 +33,8 @@ void FaultDetectInit(void)
     {
         warnning[i] = 0;
     }
+    
+    FaultDetectSetWarnning(SYSTEM_INITIALIZING);
 }
 
 /**********************************************************************************************************

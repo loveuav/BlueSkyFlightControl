@@ -17,6 +17,7 @@
 #include "flightStatus.h"
 #include "accelerometer.h"
 #include "navigation.h"
+#include "faultDetect.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -403,7 +404,10 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
         }
         //完成零偏计算，系统初始化结束
         if(offset_cnt == 0)
+        {
             SetInitStatus(INIT_FINISH);
+            FaultDetectResetWarnning(SYSTEM_INITIALIZING);
+        }
     }
 }
 
