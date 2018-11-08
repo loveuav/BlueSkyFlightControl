@@ -224,6 +224,18 @@ typedef struct
     int16_t velD;           //天向速度 单位：cm/s
 } BSKLINK_PAYLOAD_GPS_t;
 
+//系统错误信息
+typedef struct
+{
+    uint8_t error[20];
+} BSKLINK_PAYLOAD_SYS_ERROR_t;
+
+//系统警告信息
+typedef struct
+{
+    uint8_t warning[20];
+} BSKLINK_PAYLOAD_SYS_WARNING_t;
+
 //姿态估计与控制数据
 typedef struct
 {

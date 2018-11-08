@@ -27,6 +27,7 @@
 #include "ublox.h"
 #include "flightStatus.h"
 #include "battery.h"
+#include "faultDetect.h"
 
 uint8_t pid_ack;
 
@@ -635,6 +636,100 @@ void BsklinkSetPidAck(uint8_t ack)
 {
     pid_ack = ack;
     BsklinkSendEnable(BSKLINK_MSG_ID_PID_ACK);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSendSysError
+*功能说明: 发送系统错误信息
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendSysError(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_PAYLOAD_SYS_ERROR_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+    uint8_t cnt = 0;
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    for(uint8_t i=0; i<ERROR_NUM; i++)
+    {
+        if(cnt < 20)
+        {
+            if(FaultDetectGetErrorStatus(i))
+                payload.error[cnt++] = i;
+        }
+    }
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_SYS_ERROR;                     //消息ID
+    msg.length   = sizeof(BSKLINK_PAYLOAD_SYS_ERROR_t);          //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
+}
+
+/**********************************************************************************************************
+*函 数 名: BsklinkSendSysWarning
+*功能说明: 发送系统警告信息
+*形    参: 发送标志指针
+*返 回 值: 无
+**********************************************************************************************************/
+void BsklinkSendSysWarning(uint8_t* sendFlag)
+{
+    BSKLINK_MSG_t msg;
+    BSKLINK_PAYLOAD_SYS_WARNING_t payload;
+    uint8_t msgToSend[BSKLINK_MAX_PAYLOAD_LENGTH+10];
+    uint8_t cnt = 0;
+
+    if(*sendFlag == DISABLE)
+        return;
+    else
+        *sendFlag = DISABLE;
+
+    //数据负载填充
+    for(uint8_t i=0; i<WARNNING_NUM; i++)
+    {
+        if(cnt < 20)
+        {
+            if(FaultDetectGetWarnningStatus(i))
+                payload.warning[cnt++] = i;
+        }
+    }
+
+    /*********************************************消息帧赋值******************************************/
+    msg.head1 	 = BSKLINK_MSG_HEAD_1;                           //帧头
+    msg.head2 	 = BSKLINK_MSG_HEAD_2;
+    msg.deviceid = BSKLINK_DEVICE_ID;                            //设备ID
+    msg.sysid 	 = BSKLINK_SYS_ID;							     //系统ID
+
+    msg.msgid 	 = BSKLINK_MSG_ID_SYS_WARNING;                   //消息ID
+    msg.length   = sizeof(BSKLINK_PAYLOAD_SYS_WARNING_t);        //数据负载长度
+    memcpy(msg.payload, &payload, msg.length);                   //拷贝数据负载
+
+    BsklinkMsgCalculateSum(&msg);                                //计算校验和
+    /*************************************************************************************************/
+
+    //消息帧格式化
+    BsklinkMsgFormat(msg, msgToSend);
+    //发送消息帧
+    DataSend(msgToSend+1, msgToSend[0]);
 }
 
 /**********************************************************************************************************

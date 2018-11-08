@@ -82,13 +82,15 @@ void MessageInit(void)
     bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR]             = 3;
     bsklinkSendFreq[BSKLINK_MSG_ID_SENSOR_CALI_DATA]   = 1;
     bsklinkSendFreq[BSKLINK_MSG_ID_RC_DATA]            = 3;
-    bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = 2;
-    bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = 2;
+    bsklinkSendFreq[BSKLINK_MSG_ID_MOTOR]              = 1;
+    bsklinkSendFreq[BSKLINK_MSG_ID_GPS]                = 1;
     bsklinkSendFreq[BSKLINK_MSG_ID_BATTERY]            = 1;
     bsklinkSendFreq[BSKLINK_MSG_ID_ATT_ANALYSE]        = 30;
-    bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = 2;
-    bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = 2;
+    bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = 1;
+    bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = 1;
     bsklinkSendFreq[BSKLINK_MSG_ID_USER_DEFINE]        = 0;
+    bsklinkSendFreq[BSKLINK_MSG_ID_SYS_ERROR]          = 1;     //固定1Hz
+    bsklinkSendFreq[BSKLINK_MSG_ID_SYS_WARNING]        = 1;     //固定1Hz
     bsklinkSendFreq[BSKLINK_MSG_ID_HEARTBEAT]          = 1;     //心跳包发送频率为固定1Hz
     //mavlink发送频率
     mavlinkSendFreq[MAVLINK_MSG_ID_SYS_STATUS]         = 1;
@@ -147,6 +149,8 @@ void MessageSendLoop(void)
             BsklinkSendMotor(&bsklinkSendFlag[BSKLINK_MSG_ID_MOTOR]);					   //电机输出
             BsklinkSendBattery(&bsklinkSendFlag[BSKLINK_MSG_ID_BATTERY]);                  //电池数据
             BsklinkSendGps(&bsklinkSendFlag[BSKLINK_MSG_ID_GPS]);                          //GPS数据
+            BsklinkSendSysError(&bsklinkSendFlag[BSKLINK_MSG_ID_SYS_ERROR]);               //系统错误信息
+            BsklinkSendSysWarning(&bsklinkSendFlag[BSKLINK_MSG_ID_SYS_WARNING]);           //系统警告信息
             BsklinkSendAttAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_ATT_ANALYSE]);           //姿态估计与控制数据
             BsklinkSendVelAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_VEL_ANALYSE]);           //速度估计与控制数据
             BsklinkSendPosAnalyse(&bsklinkSendFlag[BSKLINK_MSG_ID_POS_ANALYSE]);           //位置估计与控制数据
@@ -288,7 +292,7 @@ void BsklinkSetMsgFreq(BSKLINK_MSG_ID_FREQ_SETUP_t payload)
     bsklinkSendFreq[BSKLINK_MSG_ID_VEL_ANALYSE]        = payload.velAnalyse;
     bsklinkSendFreq[BSKLINK_MSG_ID_POS_ANALYSE]        = payload.posAnalyse;
     bsklinkSendFreq[BSKLINK_MSG_ID_USER_DEFINE]        = payload.userDefine;
-    
+
     for(uint8_t i=0; i<0xFF; i++)
         freqSum += bsklinkSendFreq[i];
 
