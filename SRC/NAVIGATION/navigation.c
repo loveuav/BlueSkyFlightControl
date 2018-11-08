@@ -54,8 +54,9 @@ void VelocityEstimate(void)
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static float velErrorIntRate = 0.00001f;
-
+    static float velErrorIntRate = 0.0005f;
+    static float posErrorIntRate = 0.00005f;
+    
     //计算时间间隔，用于积分
     deltaT = (GetSysTimeUs() - previousT) * 1e-6;
     deltaT = ConstrainFloat(deltaT, 0.0005, 0.005);
@@ -84,6 +85,17 @@ void VelocityEstimate(void)
         //获取气压速度测量值
         nav.velMeasure.z = BaroGetVelocity();
 
+        //加速度（导航系）零偏估计
+        nav.accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * 0.01f * 0.04f * velErrorIntRate;
+        nav.accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * 0.01f * 0.04f * velErrorIntRate;
+        nav.accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * 0.01f * 0.04f * velErrorIntRate;
+
+        nav.accel_bias.z += (nav.posMeasure.z - kalmanPos.statusSlidWindow[kalmanPos.slidWindowSize - kalmanPos.fuseDelay.z].z) * 0.01f * 0.04f * posErrorIntRate;
+        
+        nav.accel_bias.x  = ConstrainFloat(nav.accel_bias.x, -0.03, 0.03);
+        nav.accel_bias.y  = ConstrainFloat(nav.accel_bias.y, -0.03, 0.03);
+        nav.accel_bias.z  = ConstrainFloat(nav.accel_bias.z, -0.03, 0.03);
+        
         fuseFlag = true;
     }
     else
@@ -104,15 +116,6 @@ void VelocityEstimate(void)
     //速度估计
     KalmanUpdate(&kalmanVel, input, nav.velMeasure, fuseFlag);
     nav.velocity = kalmanVel.state;
-
-    //加速度（导航系）零偏估计
-    nav.accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * deltaT * velErrorIntRate;
-    nav.accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * deltaT * velErrorIntRate;
-    nav.accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * deltaT * velErrorIntRate;
-
-    nav.accel_bias.x  = ConstrainFloat(nav.accel_bias.x, -0.03, 0.03);
-    nav.accel_bias.y  = ConstrainFloat(nav.accel_bias.y, -0.03, 0.03);
-    nav.accel_bias.z  = ConstrainFloat(nav.accel_bias.z, -0.03, 0.03);
 }
 
 /**********************************************************************************************************
@@ -208,7 +211,7 @@ void AltCovarianceSelfAdaptation(void)
         else
         {
             kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
-            kalmanPos.r[8] = 500;
+            kalmanPos.r[8] = 1000;
         }
     }
     else if(GetPosControlStatus() == POS_HOLD)
@@ -221,13 +224,15 @@ void AltCovarianceSelfAdaptation(void)
         }
         else if(GetAltControlStatus() == ALT_CHANGED)
         {
-            kalmanVel.r[8] = 2000;
-            kalmanPos.r[8] = 200;
+//            kalmanVel.r[8] = 2000;
+//            kalmanPos.r[8] = 1000;
+            kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
+            kalmanPos.r[8] = Sq(40 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
         }
         else
         {
             kalmanVel.r[8] = 1500;
-            kalmanPos.r[8] = 500;
+            kalmanPos.r[8] = 1000;
         }
     }
     else
