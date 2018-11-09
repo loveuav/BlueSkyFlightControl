@@ -827,10 +827,10 @@ void BsklinkSendVelAnalyse(uint8_t* sendFlag)
     payload.gpsVel.x      = GetCopterVelMeasure().x;                      //GPS速度 单位：cm/s
     payload.gpsVel.y      = GetCopterVelMeasure().y;
     payload.gpsVel.z      = GpsGetVelocity().z;
-    payload.opticalVelX   = 0;                                            //光流速度 单位：cm/s
-    payload.opticalVelY   = 0;
+    payload.opticalVelX   = GetAccelBias().x * 10000;                     //光流速度 单位：cm/s
+    payload.opticalVelY   = GetAccelBias().y * 10000;
     payload.baroVel       = GetCopterVelMeasure().z;
-    payload.tofVel        = 0;
+    payload.tofVel        = GetAccelBias().z * 10000;
     payload.velEstError.x = 0;                                            //速度估计误差 单位：cm/s
     payload.velEstError.y = 0;
     payload.velEstError.z = 0;

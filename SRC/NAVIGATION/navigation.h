@@ -22,6 +22,7 @@ void AltCovarianceSelfAdaptation(void);
 void PosCovarianceSelfAdaptation(void);
 
 Vector3f_t GetCopterAccel(void);
+Vector3f_t GetAccelBias(void);
 Vector3f_t GetCopterVelocity(void);
 Vector3f_t GetCopterVelMeasure(void);
 Vector3f_t GetCopterPosition(void);

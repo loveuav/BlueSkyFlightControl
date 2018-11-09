@@ -54,8 +54,8 @@ void VelocityEstimate(void)
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static float velErrorIntRate = 0.0005f;
-    static float posErrorIntRate = 0.00005f;
+    static Vector3f_t velErrorIntRate = {0.0003f, 0.0003f, 0.0003f};
+    static float posErrorIntRate = 0.00003f;
     
     //计算时间间隔，用于积分
     deltaT = (GetSysTimeUs() - previousT) * 1e-6;
@@ -84,14 +84,17 @@ void VelocityEstimate(void)
         nav.velMeasure.y = gpsVel.y;
         //获取气压速度测量值
         nav.velMeasure.z = BaroGetVelocity();
-
+       
         //加速度（导航系）零偏估计
-        nav.accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * 0.01f * 0.04f * velErrorIntRate;
-        nav.accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * 0.01f * 0.04f * velErrorIntRate;
-        nav.accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * 0.01f * 0.04f * velErrorIntRate;
+        velErrorIntRate.z = 0.0003f / ConstrainFloat(abs(nav.velocity.z) / 20, 1, 30);
+        
+        nav.accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * 0.01f * 0.04f * velErrorIntRate.x;
+        nav.accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * 0.01f * 0.04f * velErrorIntRate.y;
+        nav.accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * 0.01f * 0.04f * velErrorIntRate.z;
 
         nav.accel_bias.z += (nav.posMeasure.z - kalmanPos.statusSlidWindow[kalmanPos.slidWindowSize - kalmanPos.fuseDelay.z].z) * 0.01f * 0.04f * posErrorIntRate;
         
+        //零偏限幅
         nav.accel_bias.x  = ConstrainFloat(nav.accel_bias.x, -0.03, 0.03);
         nav.accel_bias.y  = ConstrainFloat(nav.accel_bias.y, -0.03, 0.03);
         nav.accel_bias.z  = ConstrainFloat(nav.accel_bias.z, -0.03, 0.03);
@@ -305,7 +308,7 @@ static void KalmanVelInit(void)
     kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.state));
     kalmanVel.fuseDelay.x = 220;    //0.22s延时
     kalmanVel.fuseDelay.y = 220;    //0.22s延时
-    kalmanVel.fuseDelay.z = 200;    //0.2s延时
+    kalmanVel.fuseDelay.z = 100;    //0.1s延时
 }
 
 /**********************************************************************************************************
@@ -336,7 +339,7 @@ static void KalmanPosInit(void)
     kalmanPos.statusSlidWindow = pvPortMalloc(kalmanPos.slidWindowSize * sizeof(kalmanPos.state));
     kalmanPos.fuseDelay.x = 200;    //0.2s延时
     kalmanPos.fuseDelay.y = 200;    //0.2s延时
-    kalmanPos.fuseDelay.z = 100;    //0.1s延时
+    kalmanPos.fuseDelay.z = 50;    //0.05s延时
 }
 
 /**********************************************************************************************************
@@ -373,6 +376,17 @@ void NavigationReset(void)
 Vector3f_t GetCopterAccel(void)
 {
     return nav.accel;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetAccelBias
+*功能说明: 获取加速度bias
+*形    参: 无
+*返 回 值: 加速度bias值
+**********************************************************************************************************/
+Vector3f_t GetAccelBias(void)
+{
+    return nav.accel_bias;
 }
 
 /**********************************************************************************************************
