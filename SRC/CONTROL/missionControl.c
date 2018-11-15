@@ -36,12 +36,7 @@ void ReturnToHome(void);
 **********************************************************************************************************/
 void MissionControl(void)
 {
-    RCCOMMAND_t rcCommand;
     uint8_t flightMode;
-    RCTARGET_t rcTarget;
-
-    static float rollRate  = (float)MAXANGLE / MAXRCDATA;
-    static float pitchRate = (float)MAXANGLE / MAXRCDATA;
 
     //获取当前飞行模式
     flightMode = GetFlightMode();
@@ -78,16 +73,6 @@ void MissionControl(void)
         //返航步骤标志位复位
         rthStep = 0;
     }
-
-    //获取摇杆数据
-    rcCommand = GetRcCommad();
-
-    //通用控制部分，将摇杆量转换为横滚俯仰的目标控制角度
-    rcTarget.roll  = rcCommand.roll  * rollRate;
-    rcTarget.pitch = rcCommand.pitch * pitchRate;
-
-    //设置目标控制量
-    SetRcTarget(rcTarget);
 }
 
 /**********************************************************************************************************
