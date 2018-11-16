@@ -219,7 +219,7 @@ static void RcCheckSticks(void)
     }
 
     //摇杆若回中，则重置解锁标志位，此时可以再次通过外八操作将飞机上锁
-    if(rcData.throttle > 1300)
+    if(rcData.throttle > MINCHECK + 50)
         armedCheckFlag = 0;
 
     //摇杆内八字持续5s，进入罗盘校准
