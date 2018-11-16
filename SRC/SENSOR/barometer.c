@@ -13,6 +13,7 @@
 #include "module.h"
 #include "board.h"
 #include "faultDetect.h"
+#include "flightStatus.h"
 #include "navigation.h"
 #include "gps.h"
 
@@ -38,7 +39,6 @@ static void BaroDetectCheck(int32_t baroAlt);
 void BaroDataPreTreat(void)
 {
     static uint64_t lastTime = 0;
-    static uint16_t offset_cnt = 300;
     int32_t baroAltTemp;
 
     float deltaT = (GetSysTimeUs() - lastTime) * 1e-6;
@@ -50,14 +50,10 @@ void BaroDataPreTreat(void)
     BaroTemperatureRead(&baro.temperature);
 
     //计算气压高度的初始零偏值
-    if(GetSysTimeMs() > 1500)
+    if(GetInitStatus() == HEAT_FINISH)
     {
-        if(offset_cnt)
-        {
-            offset_cnt--;
-            baro.alt_offset += baroAltTemp;
-            baro.alt_offset *= 0.5f;
-        }
+        baro.alt_offset += baroAltTemp;
+        baro.alt_offset *= 0.5f;
     }
     baroAltTemp -= baro.alt_offset;
 
