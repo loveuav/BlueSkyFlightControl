@@ -72,6 +72,10 @@ portTASK_FUNCTION(vNavigationTask, pvParameters)
             //位置估计
             PositionEstimate();
         }
+        else
+        {
+            NavigationReset();
+        }
     }
 }
 

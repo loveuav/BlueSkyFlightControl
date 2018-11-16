@@ -54,7 +54,7 @@ void VelocityEstimate(void)
     Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static Vector3f_t velErrorIntRate = {0.0003f, 0.0003f, 0.0003f};
+    static Vector3f_t velErrorIntRate = {0.0005f, 0.0005f, 0.0005f};
     static float posErrorIntRate = 0.00003f;
     
     //计算时间间隔，用于积分
@@ -85,8 +85,26 @@ void VelocityEstimate(void)
         //获取气压速度测量值
         nav.velMeasure.z = BaroGetVelocity();
        
-        //加速度（导航系）零偏估计
-        velErrorIntRate.z = 0.0003f / ConstrainFloat(abs(nav.velocity.z) / 20, 1, 30);
+        /************************************加速度（导航系）零偏估计***********************************/
+        //系统初始化结束后的一段时间内，加快零偏估计速度
+        if((GetSysTimeMs() -  GetInitFinishTime()) < 20000)
+        {
+            velErrorIntRate.x = 0.001f;
+            velErrorIntRate.y = 0.001f;
+            velErrorIntRate.z = 0.003f;
+        }
+        else if((GetSysTimeMs() -  GetInitFinishTime()) < 40000)
+        {
+            velErrorIntRate.x = 0.0005f;
+            velErrorIntRate.y = 0.0005f;
+            velErrorIntRate.z = 0.001f;
+        }
+        else
+        {
+            velErrorIntRate.x = 0.0003f;
+            velErrorIntRate.y = 0.0003f;
+            velErrorIntRate.z = 0.0005f / ConstrainFloat(abs(nav.velocity.z) / 20, 1, 30);
+        }
         
         nav.accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * 0.01f * 0.04f * velErrorIntRate.x;
         nav.accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * 0.01f * 0.04f * velErrorIntRate.y;

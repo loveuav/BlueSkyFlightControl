@@ -83,6 +83,7 @@ uint8_t GetPlaceStatus(void);
 
 void SetInitStatus(uint8_t status);
 uint8_t GetInitStatus(void);
+uint32_t GetInitFinishTime(void);
 
 void SetFlightStatus(uint8_t status);
 uint8_t GetFlightStatus(void);

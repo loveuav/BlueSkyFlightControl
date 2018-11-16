@@ -22,14 +22,15 @@
 
 typedef struct
 {
-    uint8_t init;           //初始化状态
-    uint8_t failsafe;       //失控保护状态
-    uint8_t armed;          //电机锁定状态
-    uint8_t flight;         //飞行状态
-    uint8_t placement;      //放置状态
-    uint8_t altControl;     //高度控制状态
-    uint8_t posControl;     //位置控制状态
-    uint8_t mode;
+    uint8_t  init;           //初始化状态
+    uint8_t  failsafe;       //失控保护状态
+    uint8_t  armed;          //电机锁定状态
+    uint8_t  flight;         //飞行状态
+    uint8_t  placement;      //放置状态
+    uint8_t  altControl;     //高度控制状态
+    uint8_t  posControl;     //位置控制状态
+    uint8_t  mode;
+    uint32_t initFinishTime; //初始化完成时间
 } FLIGHT_STATUS_t;
 
 FLIGHT_STATUS_t flyStatus;
@@ -377,6 +378,9 @@ uint8_t GetPosControlStatus(void)
 void SetInitStatus(uint8_t status)
 {
     flyStatus.init = status;
+    
+    if(status == INIT_FINISH)
+        flyStatus.initFinishTime = GetSysTimeMs();
 }
 
 /**********************************************************************************************************
@@ -388,6 +392,17 @@ void SetInitStatus(uint8_t status)
 uint8_t GetInitStatus(void)
 {
     return flyStatus.init;
+}
+
+/**********************************************************************************************************
+*函 数 名: GetInitFinishTime
+*功能说明: 获取飞控初始化完成时间
+*形    参: 无
+*返 回 值: 时间(ms)
+**********************************************************************************************************/
+uint32_t GetInitFinishTime(void)
+{
+    return flyStatus.initFinishTime;
 }
 
 /**********************************************************************************************************

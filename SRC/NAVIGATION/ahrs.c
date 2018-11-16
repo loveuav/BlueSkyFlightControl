@@ -203,6 +203,7 @@ static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_
 {
     Vector3f_t deltaAngle;
     static Vector3f_t gError;
+    static Vector3f_t gErrorIntRate = {0.2f, 0.2f, 0.05f};
     static Vector3f_t gyro_bias = {0, 0, 0};    //陀螺仪零偏
     static Vector3f_t input = {0, 0, 0};
     float dcMat[9];
@@ -259,10 +260,28 @@ static void AttitudeEstimateUpdate(Vector3f_t* angle, Vector3f_t gyro, Vector3f_
         gError.z = 0;
     }
 
-    //陀螺仪零偏估计
-    gyro_bias.x += (gError.x * deltaT) * 0.2f;
-    gyro_bias.y += (gError.y * deltaT) * 0.2f;
-    gyro_bias.z += (gError.z * deltaT) * 0.05f;
+    /********************************************陀螺仪零偏估计******************************************/
+    //系统初始化结束后的一段时间内，加快零偏估计速度
+    if(GetInitStatus() ==  INIT_FINISH && (GetSysTimeMs() -  GetInitFinishTime()) < 15000)
+    {
+        gErrorIntRate.x = 1.0f;
+        gErrorIntRate.y = 1.0f;
+        gErrorIntRate.z = 0.2f;
+    }
+    else
+    {
+        gErrorIntRate.x = 0.2f;
+        gErrorIntRate.y = 0.2f;
+        gErrorIntRate.z = 0.05f;
+    }
+    
+    //加热完成前传感器零偏变化较大，因此不进行零偏估计
+    if(GetInitStatus() >= HEAT_FINISH)
+    {
+        gyro_bias.x += (gError.x * deltaT) * gErrorIntRate.x;
+        gyro_bias.y += (gError.y * deltaT) * gErrorIntRate.y;
+        gyro_bias.z += (gError.z * deltaT) * gErrorIntRate.z;
+    }
 
     //陀螺仪零偏限幅
     gyro_bias.x = ConstrainFloat(gyro_bias.x, -1.0f, 1.0f);
