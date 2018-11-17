@@ -148,4 +148,20 @@ void Sbus_SetRcDataCallback(RcDataCallback rcDataCallback)
     rcDataCallbackFunc = rcDataCallback;
 }
 
-
+/**********************************************************************************************************
+*函 数 名: Sbus_Disable
+*功能说明: SBUS输入关闭
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
+void Sbus_Disable(void)
+{
+    USART_TypeDef * usart[] = {USART1, USART2, USART3, UART4, UART5, USART6};
+    
+    if(SBUS_UART <= 6)
+    {
+        USART_ClearITPendingBit(usart[SBUS_UART - 1], USART_IT_RXNE);
+        USART_ITConfig(usart[SBUS_UART - 1], USART_IT_RXNE, DISABLE);
+        USART_Cmd(usart[SBUS_UART - 1], DISABLE);
+    }
+}

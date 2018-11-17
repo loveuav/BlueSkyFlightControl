@@ -10,6 +10,7 @@
  * @日期     2018.05
 **********************************************************************************************************/
 #include "drv_ppm.h"
+#include "drv_sbus.h"
 
 #define PULSE_MIN   300
 #define PULSE_MAX   1800
@@ -42,7 +43,8 @@ void PPM_SetRcDataCallback(RcDataCallback rcDataCallback)
 void PPM_Cal(uint16_t pulseHigh)
 {
     static uint8_t chan = 0;
-
+    static uint8_t  initFlag = 0;
+    
     //脉宽高于一定值说明一帧数据已经结束
     if(pulseHigh > 5000)
     {
@@ -60,6 +62,13 @@ void PPM_Cal(uint16_t pulseHigh)
             (*rcDataCallbackFunc)(ppm.data);
 
         chan = 0;
+        
+        if(!initFlag)
+        {
+            //禁用SBUS输入
+            Sbus_Disable();
+            initFlag = 1;
+        }
     }
     else
     {
@@ -370,85 +379,85 @@ void PPM_Decode(void)
             periodVal2 = TIM_GetCapture1(timer[PPM_TIM - 1]);
 #endif
 #if( PPM_CH == 2 )
-            if(timer[PPM_TIM - 1]->SR & TIM_IT_CC2)
-            {
-                timer[PPM_TIM - 1]->SR = ~TIM_IT_CC2;
-                timer[PPM_TIM - 1]->SR = ~TIM_FLAG_CC2OF;
-                if(PPM_GPIO->IDR & PPM_PIN)
-                {
-                    periodVal1 = TIM_GetCapture2(timer[PPM_TIM - 1]);
-                }
-                else
-                {
-                    periodVal2 = TIM_GetCapture2(timer[PPM_TIM - 1]);
+    if(timer[PPM_TIM - 1]->SR & TIM_IT_CC2)
+    {
+        timer[PPM_TIM - 1]->SR = ~TIM_IT_CC2;
+        timer[PPM_TIM - 1]->SR = ~TIM_FLAG_CC2OF;
+        if(PPM_GPIO->IDR & PPM_PIN)
+        {
+            periodVal1 = TIM_GetCapture2(timer[PPM_TIM - 1]);
+        }
+        else
+        {
+            periodVal2 = TIM_GetCapture2(timer[PPM_TIM - 1]);
 #endif
 #if( PPM_CH == 3 )
-                    if(timer[PPM_TIM - 1]->SR & TIM_IT_CC3)
-                    {
-                        timer[PPM_TIM - 1]->SR = ~TIM_IT_CC3;
-                        timer[PPM_TIM - 1]->SR = ~TIM_FLAG_CC3OF;
-                        if(PPM_GPIO->IDR & PPM_PIN)
-                        {
-                            periodVal1 = TIM_GetCapture3(timer[PPM_TIM - 1]);
-                        }
-                        else
-                        {
-                            periodVal2 = TIM_GetCapture3(timer[PPM_TIM - 1]);
+    if(timer[PPM_TIM - 1]->SR & TIM_IT_CC3)
+    {
+        timer[PPM_TIM - 1]->SR = ~TIM_IT_CC3;
+        timer[PPM_TIM - 1]->SR = ~TIM_FLAG_CC3OF;
+        if(PPM_GPIO->IDR & PPM_PIN)
+        {
+            periodVal1 = TIM_GetCapture3(timer[PPM_TIM - 1]);
+        }
+        else
+        {
+            periodVal2 = TIM_GetCapture3(timer[PPM_TIM - 1]);
 #endif
 #if( PPM_CH == 4 )
-                            if(timer[PPM_TIM - 1]->SR & TIM_IT_CC4)
-                            {
-                                timer[PPM_TIM - 1]->SR = ~TIM_IT_CC4;
-                                timer[PPM_TIM - 1]->SR = ~TIM_FLAG_CC4OF;
-                                if(PPM_GPIO->IDR & PPM_PIN)
-                                {
-                                    periodVal1 = TIM_GetCapture4(timer[PPM_TIM - 1]);
-                                }
-                                else
-                                {
-                                    periodVal2 = TIM_GetCapture4(timer[PPM_TIM - 1]);
+    if(timer[PPM_TIM - 1]->SR & TIM_IT_CC4)
+    {
+        timer[PPM_TIM - 1]->SR = ~TIM_IT_CC4;
+        timer[PPM_TIM - 1]->SR = ~TIM_FLAG_CC4OF;
+        if(PPM_GPIO->IDR & PPM_PIN)
+        {
+            periodVal1 = TIM_GetCapture4(timer[PPM_TIM - 1]);
+        }
+        else
+        {
+            periodVal2 = TIM_GetCapture4(timer[PPM_TIM - 1]);
 #endif
 
-                                    if(periodVal2 >= periodVal1)
-                                        pulseHigh = periodVal2 - periodVal1;
-                                    else
-                                        pulseHigh = 0xffff - periodVal1 + periodVal2;
+            if(periodVal2 >= periodVal1)
+                pulseHigh = periodVal2 - periodVal1;
+            else
+                pulseHigh = 0xffff - periodVal1 + periodVal2;
 
-                                    PPM_Cal(pulseHigh);
-                                }
-                            }
-                        }
+            PPM_Cal(pulseHigh);
+        }
+    }
+}
 
-                        /**********************************************************************************************************
-                        *函 数 名: TIMx_IRQHandler
-                        *功能说明: 定时器中断函数
-                        *形    参: 无
-                        *返 回 值: 无
-                        **********************************************************************************************************/
+/**********************************************************************************************************
+*函 数 名: TIMx_IRQHandler
+*功能说明: 定时器中断函数
+*形    参: 无
+*返 回 值: 无
+**********************************************************************************************************/
 #if(TIM1_PPM_IN == 1)
-                        void TIM1_CC_IRQHandler(void)
-                        {
-                            PPM_Decode();
-                        }
+void TIM1_CC_IRQHandler(void)
+{
+    PPM_Decode();
+}
 #endif
 
 #if(TIM2_PPM_IN == 1)
-                        void TIM2_IRQHandler(void)
-                        {
-                            PPM_Decode();
-                        }
+void TIM2_IRQHandler(void)
+{
+    PPM_Decode();
+}
 #endif
 
 #if(TIM3_PPM_IN == 1)
-                        void TIM3_IRQHandler(void)
-                        {
-                            PPM_Decode();
-                        }
+void TIM3_IRQHandler(void)
+{
+    PPM_Decode();
+}
 #endif
 
 #if(TIM4_PPM_IN == 1)
-                        void TIM4_IRQHandler(void)
-                        {
-                            PPM_Decode();
-                        }
+void TIM4_IRQHandler(void)
+{
+    PPM_Decode();
+}
 #endif
