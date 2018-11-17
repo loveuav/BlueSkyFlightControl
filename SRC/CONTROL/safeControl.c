@@ -10,6 +10,7 @@
  * @日期     2018.08
 **********************************************************************************************************/
 #include "safeControl.h"
+#include "flightControl.h"
 #include "flightStatus.h"
 #include "navigation.h"
 #include "ahrs.h"
@@ -116,7 +117,40 @@ static void LowPowerProtect(void)
 **********************************************************************************************************/
 static void CrashProtect(void)
 {
-
+    static uint16_t crashCheckCnt1 = 0;
+    static uint16_t crashCheckCnt2 = 0;
+    
+    //翻机超过2秒上锁
+    if(RollOverDetect())
+    {
+        crashCheckCnt1++;
+		
+		if(crashCheckCnt1 > 200) 
+		{
+			SetArmedStatus(DISARMED);
+			crashCheckCnt1 = 0;
+		}	
+    }
+    else
+    {
+        crashCheckCnt1 = 0;
+    }
+    
+    //姿态控制误差超过45°并持续3秒，则上锁
+    if(abs(GetAttOuterCtlError().x) > 45 || abs(GetAttOuterCtlError().y) > 45)
+    {
+        crashCheckCnt2++;
+        
+        if(crashCheckCnt2 > 300) 
+		{
+			SetArmedStatus(DISARMED);
+			crashCheckCnt2 = 0;
+		}	
+    }
+    else
+    {
+        crashCheckCnt2 = 0;
+    }
 }
 
 
