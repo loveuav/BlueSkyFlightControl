@@ -74,9 +74,10 @@ void PPM_Cal(uint16_t pulseHigh)
     {
         if (pulseHigh > PULSE_MIN && pulseHigh < PULSE_MAX)
         {
-            ppm.captures[chan] = (pulseHigh - 600) + 1000;
-
-            chan++;
+            if(chan < 16)
+            {
+                ppm.captures[chan++] = (pulseHigh - 600) + 1000;
+            }
         }
     }
 }
