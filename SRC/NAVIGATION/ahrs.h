@@ -33,6 +33,8 @@ Vector3f_t GetCentripetalAccBf(void);
 Vector3f_t GetAngleMeasure(void);
 Vector3f_t GetAngleEstError(void);
 
+uint8_t RollOverDetect(void);
+
 #endif
 
 
