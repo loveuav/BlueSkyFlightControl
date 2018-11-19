@@ -13,7 +13,7 @@
 #include "matrix3.h"
 
 //单位矩阵
-float I[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+static float I[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
 
 static void KalmanSlidWindowUpdate(Kalman_t* kalman);
 
@@ -108,7 +108,7 @@ void KalmanObserveMapMatSet(Kalman_t* kalman, float* h)
 {
     uint8_t i;
 
-    //状态转移矩阵赋值
+    //观测映射矩阵赋值
     for(i=0; i<9; i++)
     {
         kalman->h[i] = h[i];
