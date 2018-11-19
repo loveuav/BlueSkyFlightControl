@@ -357,7 +357,7 @@ void EarthFrameToBodyFrame(Vector3f_t angle, Vector3f_t vector, Vector3f_t* vect
 **********************************************************************************************************/
 static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* accEf, Vector3f_t* accEfLpf, Vector3f_t* accBfOffset)
 {
-    static uint16_t offset_cnt = 8000;	//计算零偏的次数
+    static uint16_t offset_cnt = 5000;	//计算零偏的次数
     static Vector3f_t accAngle;   //用于计算初始零偏
     Vector3f_t gravityBf;
 
@@ -408,15 +408,15 @@ static void TransAccToEarthFrame(Vector3f_t angle, Vector3f_t acc, Vector3f_t* a
             gravityBf.z = 1;
             EarthFrameToBodyFrame(accAngle, gravityBf, &gravityBf);
 
-            accBfOffset->x = accBfOffset->x * 0.998f + (acc.x - gravityBf.x) * 0.002f;
-            accBfOffset->y = accBfOffset->y * 0.998f + (acc.y - gravityBf.y) * 0.002f;
-            accBfOffset->z = accBfOffset->z * 0.998f + (acc.z - gravityBf.z) * 0.002f;
+            accBfOffset->x = accBfOffset->x * 0.993f + (acc.x - gravityBf.x) * 0.007f;
+            accBfOffset->y = accBfOffset->y * 0.993f + (acc.y - gravityBf.y) * 0.007f;
+            accBfOffset->z = accBfOffset->z * 0.993f + (acc.z - gravityBf.z) * 0.007f;
             offset_cnt--;
         }
         else
         {
             //计算过程中如果出现晃动，则重新开始
-            offset_cnt 	   = 8000;
+            offset_cnt 	   = 5000;
             accBfOffset->x = 0;
             accBfOffset->y = 0;
             accBfOffset->z = 0;
