@@ -13,6 +13,7 @@
 #include "ahrs.h"
 #include "board.h"
 #include "kalman3.h"
+#include "kalmanVel.h"
 #include "gps.h"
 #include "barometer.h"
 #include "flightStatus.h"
@@ -21,7 +22,7 @@
 #include "task.h"
 
 NAVGATION_t nav;
-Kalman_t kalmanVel;
+KalmanVel_t kalmanVel;
 Kalman_t kalmanPos;
 
 static void KalmanVelInit(void);
@@ -51,12 +52,9 @@ void VelocityEstimate(void)
     static uint64_t previousT;
     float deltaT;
     Vector3f_t gpsVel;
-    Vector3f_t input;
     static uint32_t count;
     static bool fuseFlag;
-    static Vector3f_t velErrorIntRate = {0.0005f, 0.0005f, 0.0005f};
-    static float posErrorIntRate = 0.00003f;
-    
+
     //计算时间间隔，用于积分
     deltaT = (GetSysTimeUs() - previousT) * 1e-6;
     deltaT = ConstrainFloat(deltaT, 0.0005, 0.005);
@@ -85,58 +83,25 @@ void VelocityEstimate(void)
         //获取气压速度测量值
         nav.velMeasure.z = BaroGetVelocity();
        
-        /************************************加速度（导航系）零偏估计***********************************/
-        //系统初始化结束后的一段时间内，加快零偏估计速度
-        if((GetSysTimeMs() -  GetInitFinishTime()) < 20000)
-        {
-            velErrorIntRate.x = 0.001f;
-            velErrorIntRate.y = 0.001f;
-            velErrorIntRate.z = 0.003f;
-        }
-        else if((GetSysTimeMs() -  GetInitFinishTime()) < 40000)
-        {
-            velErrorIntRate.x = 0.0005f;
-            velErrorIntRate.y = 0.0005f;
-            velErrorIntRate.z = 0.001f;
-        }
-        else
-        {
-            velErrorIntRate.x = 0.0003f;
-            velErrorIntRate.y = 0.0003f;
-            velErrorIntRate.z = 0.0005f / ConstrainFloat(abs(nav.velocity.z) / 20, 1, 30);
-        }
-        
-        nav.accel_bias.x += (nav.velMeasure.x - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.x].x) * 0.01f * 0.04f * velErrorIntRate.x;
-        nav.accel_bias.y += (nav.velMeasure.y - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.y].y) * 0.01f * 0.04f * velErrorIntRate.y;
-        nav.accel_bias.z += (nav.velMeasure.z - kalmanVel.statusSlidWindow[kalmanVel.slidWindowSize - kalmanVel.fuseDelay.z].z) * 0.01f * 0.04f * velErrorIntRate.z;
-
-        nav.accel_bias.z += (nav.posMeasure.z - kalmanPos.statusSlidWindow[kalmanPos.slidWindowSize - kalmanPos.fuseDelay.z].z) * 0.01f * 0.04f * posErrorIntRate;
-        
-        //零偏限幅
-        nav.accel_bias.x  = ConstrainFloat(nav.accel_bias.x, -0.03, 0.03);
-        nav.accel_bias.y  = ConstrainFloat(nav.accel_bias.y, -0.03, 0.03);
-        nav.accel_bias.z  = ConstrainFloat(nav.accel_bias.z, -0.03, 0.03);
-        
         fuseFlag = true;
     }
     else
     {
         fuseFlag = false;
     }
-
-    //修正加速度零偏
-    nav.accel.x += nav.accel_bias.x;
-    nav.accel.y += nav.accel_bias.y;
-    nav.accel.z += nav.accel_bias.z;
-
-    //加速度积分，并转换单位为cm
-    input.x = nav.accel.x * GRAVITY_ACCEL * deltaT * 100;
-    input.y = nav.accel.y * GRAVITY_ACCEL * deltaT * 100;
-    input.z = nav.accel.z * GRAVITY_ACCEL * deltaT * 100;
-
-    //速度估计
-    KalmanUpdate(&kalmanVel, input, nav.velMeasure, fuseFlag);
-    nav.velocity = kalmanVel.state;
+    
+    /*
+    更新卡尔曼滤波器
+    估计飞行速度及加速度bias
+    */
+    KalmanVelUpdate(&kalmanVel, nav.accel, nav.velMeasure, deltaT, fuseFlag);
+    
+    nav.velocity.x = kalmanVel.state[0];
+    nav.velocity.y = kalmanVel.state[1];
+    nav.velocity.z = kalmanVel.state[2];
+    nav.accel_bias.x = kalmanVel.state[3];
+    nav.accel_bias.y = kalmanVel.state[4];
+    nav.accel_bias.z = kalmanVel.state[5];
 }
 
 /**********************************************************************************************************
@@ -226,13 +191,13 @@ void AltCovarianceSelfAdaptation(void)
     {
         if(GetAltControlStatus() == ALT_HOLD)
         {
-            kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(accelMag * 1.5f, 0, 1.5f)));
-            kalmanPos.r[8] = Sq(40 * (1 + ConstrainFloat(accelMag, 0, 1.0f)));
+            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(accelMag * 1.5f, 0, 1.5f)));
+            kalmanPos.r[8]    = Sq(40 * (1 + ConstrainFloat(accelMag, 0, 1.0f)));
         }
         else
         {
-            kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
-            kalmanPos.r[8] = 1000;
+            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
+            kalmanPos.r[8]    = 1000;
         }
     }
     else if(GetPosControlStatus() == POS_HOLD)
@@ -240,24 +205,24 @@ void AltCovarianceSelfAdaptation(void)
         //悬停时,气压误差会随着环境风速的变化而增大
         if(GetAltControlStatus() == ALT_HOLD)
         {
-            kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
-            kalmanPos.r[8] = Sq(37 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
+            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
+            kalmanPos.r[8]    = Sq(37 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
         }
         else if(GetAltControlStatus() == ALT_CHANGED)
         {
-            kalmanVel.r[8] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
-            kalmanPos.r[8] = Sq(30 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
+            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
+            kalmanPos.r[8]    = Sq(30 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
         }
         else
         {
-            kalmanVel.r[8] = 1500;
-            kalmanPos.r[8] = 1000;
+            kalmanVel.r[2][2] = 1500;
+            kalmanPos.r[8]    = 1000;
         }
     }
     else
     {
-        kalmanVel.r[8] = 2000;
-        kalmanPos.r[8] = 1000;
+        kalmanVel.r[2][2] = 2000;
+        kalmanPos.r[8]    = 1000;
     }
 }
 
@@ -274,7 +239,7 @@ void PosCovarianceSelfAdaptation(void)
 
     if(GetPosControlStatus() == POS_HOLD)
     {
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
+        kalmanVel.r[0][0] = kalmanVel.r[1][1] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
 
         kalmanPos.r[0] = ConstrainFloat(sqrtf(kalmanPos.r[0]) + 0.002f, 10, 100);
         kalmanPos.r[4] = ConstrainFloat(sqrtf(kalmanPos.r[4]) + 0.002f, 10, 100);
@@ -283,17 +248,17 @@ void PosCovarianceSelfAdaptation(void)
     }
     else if(GetPosControlStatus() == POS_CHANGED)
     {
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
+        kalmanVel.r[0][0] = kalmanVel.r[1][1] = Sq(8 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
         kalmanPos.r[0] = kalmanPos.r[4] = 10;
     }
     else if(GetPosControlStatus() == POS_BRAKE)
     {
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(45);
+        kalmanVel.r[0][0] = kalmanVel.r[1][1] = Sq(45);
         kalmanPos.r[0] = kalmanPos.r[4] = 10;
     }
     else if(GetPosControlStatus() == POS_BRAKE_FINISH)
     {
-        kalmanVel.r[0] = kalmanVel.r[4] = Sq(10 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
+        kalmanVel.r[0][0] = kalmanVel.r[1][1] = Sq(10 * (1 + ConstrainFloat((gpsAcc - 0.8f), -0.2, +1)));
         kalmanPos.r[0] = kalmanPos.r[4] = 10;
     }
 }
@@ -306,24 +271,59 @@ void PosCovarianceSelfAdaptation(void)
 **********************************************************************************************************/
 static void KalmanVelInit(void)
 {
-    float qMatInit[9] = {0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.03};
-    float rMatInit[9] = {50, 0,  0, 0, 50, 0, 0, 0, 2500};
-    float pMatInit[9] = {5, 0, 0, 0, 5, 0, 0, 0, 8};
-    float fMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    float hMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    float bMatInit[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    float qMatInit[6][6] = {{0.05, 0, 0, 0, 0, 0},
+                            {0, 0.05, 0, 0, 0, 0},
+                            {0, 0, 0.03, 0, 0, 0},      
+                            {0.003, 0, 0, 0, 0, 0},
+                            {0, 0.003, 0, 0, 0, 0},
+                            {0, 0, 0.003, 0, 0, 0}};
 
+    float rMatInit[6][6] = {{50, 0, 0, 0, 0, 0},
+                            {0, 50, 0, 0, 0, 0},
+                            {0, 0, 2500, 0, 0, 0},      
+                            {0, 0, 0, 500000, 0, 0},
+                            {0, 0, 0, 0, 500000, 0},
+                            {0, 0, 0, 0, 0, 500000}};
+
+    float pMatInit[6][6] = {{5, 0, 0, 0, 0, 0},
+                            {0, 5, 0, 0, 0, 0},
+                            {0, 0, 5, 0, 0, 0},      
+                            {2, 0, 0, 2, 0, 0},
+                            {0, 2, 0, 0, 2, 0},
+                            {0, 0, 6, 0, 0, 2}};    //增大协方差P的初值，可以提高初始化时bias的收敛速度
+
+    float hMatInit[6][6] = {{1, 0, 0, 0, 0, 0},
+                            {0, 1, 0, 0, 0, 0},
+                            {0, 0, 1, 0, 0, 0},      
+                            {1, 0, 0, 0, 0, 0},
+                            {0, 1, 0, 0, 0, 0},
+                            {0, 0, 1, 0, 0, 0}};    //增加少许高通滤波效果
+
+    float fMatInit[6][6] = {{1, 0, 0, 0, 0, 0},
+                            {0, 1, 0, 0, 0, 0},
+                            {0, 0, 1, 0, 0, 0},      
+                            {0, 0, 0, 1, 0, 0},
+                            {0, 0, 0, 0, 1, 0},
+                            {0, 0, 0, 0, 0, 1}};
+    
+    float bMatInit[6][6] = {{1, 0, 0, 0, 0, 0},
+                            {0, 1, 0, 0, 0, 0},
+                            {0, 0, 1, 0, 0, 0},      
+                            {0, 0, 0, 0, 0, 0},
+                            {0, 0, 0, 0, 0, 0},
+                            {0, 0, 0, 0, 0, 0}};
+    
     //初始化卡尔曼滤波器的相关矩阵
-    KalmanQMatSet(&kalmanVel, qMatInit);
-    KalmanRMatSet(&kalmanVel, rMatInit);
-    KalmanBMatSet(&kalmanVel, bMatInit);
-    KalmanCovarianceMatSet(&kalmanVel, pMatInit);
-    KalmanStateTransMatSet(&kalmanVel, fMatInit);
-    KalmanObserveMapMatSet(&kalmanVel, hMatInit);
-
+    KalmanVelQMatSet(&kalmanVel, qMatInit);
+    KalmanVelRMatSet(&kalmanVel, rMatInit);
+    KalmanVelCovarianceMatSet(&kalmanVel, pMatInit);
+    KalmanVelObserveMapMatSet(&kalmanVel, hMatInit);
+    KalmanVelStateTransMatSet(&kalmanVel, fMatInit);
+    KalmanVelBMatSet(&kalmanVel, bMatInit);
+                            
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
-    kalmanVel.slidWindowSize = 220;
-    kalmanVel.statusSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(kalmanVel.state));
+    kalmanVel.slidWindowSize = 250;
+    kalmanVel.stateSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(Vector3f_t));
     kalmanVel.fuseDelay.x = 220;    //0.22s延时
     kalmanVel.fuseDelay.y = 220;    //0.22s延时
     kalmanVel.fuseDelay.z = 100;    //0.1s延时
@@ -368,9 +368,9 @@ static void KalmanPosInit(void)
 **********************************************************************************************************/
 void NavigationReset(void)
 {
-    kalmanVel.state.x = 0;
-    kalmanVel.state.y = 0;
-    kalmanVel.state.z = 0;
+    kalmanVel.state[0] = 0;
+    kalmanVel.state[1] = 0;
+    kalmanVel.state[2] = 0;
 
     if(GpsGetFixStatus())
     {

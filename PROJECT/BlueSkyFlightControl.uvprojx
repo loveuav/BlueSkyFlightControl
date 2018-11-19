@@ -613,9 +613,19 @@
               <FilePath>..\SRC\MATH\matrix3.c</FilePath>
             </File>
             <File>
+              <FileName>matrix6.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MATH\matrix6.c</FilePath>
+            </File>
+            <File>
               <FileName>kalman3.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\SRC\MATH\kalman3.c</FilePath>
+            </File>
+            <File>
+              <FileName>kalmanVel.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\SRC\MATH\kalmanVel.c</FilePath>
             </File>
             <File>
               <FileName>pid.c</FileName>
