@@ -44,10 +44,6 @@ void TransVelToBodyFrame(Vector3f_t velEf, Vector3f_t* velBf, float yaw);
 void TransVelToEarthFrame(Vector3f_t velBf, Vector3f_t* velEf, float yaw);
 static void GpsDetectCheck(float gpsTime);
 
-#ifndef USE_VELNED
-static void GpsCalcVelocity(double lat, double lon);
-#endif
-
 GPS_t gps;
 
 /**********************************************************************************************************
@@ -75,15 +71,10 @@ void GpsDataPreTreat(void)
         //将gps经纬度坐标转换为本地坐标系位置（cm）
         GpsTransToLocalPosition(&gps.position, gps.latitude, gps.longitude);
 
-        //通过坐标变化计算移动速度
-        //如果直接从GPS模块获取速度值则无需调用此函数
-#ifdef USE_VELNED
+        //获取GPS速度值
         gps.velocity.x = gpsRaw.velN;
         gps.velocity.y = gpsRaw.velE;
-        gps.velocity.z = gpsRaw.velD;
-#else
-        GpsCalcVelocity(gps.latitude, gps.longitude);
-#endif
+        gps.velocity.z = -gpsRaw.velD;
 
     }
 
@@ -239,6 +230,7 @@ void TransVelToBodyFrame(Vector3f_t velEf, Vector3f_t* velBf, float yaw)
 
     velBf->x = velEf.x * cosYaw + velEf.y * sinYaw;
     velBf->y = -velEf.x * sinYaw + velEf.y * cosYaw;
+    velBf->z = velEf.z;
 }
 
 /**********************************************************************************************************
