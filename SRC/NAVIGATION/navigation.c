@@ -42,7 +42,7 @@ void NavigationInit(void)
 
 /**********************************************************************************************************
 *函 数 名: VelocityEstimate
-*功能说明: 飞行速度估计 目前只融合了GPS与气压，以后还会有光流、TOF等模块数据的参与
+*功能说明: 飞行速度估计 融合加速度、GPS、气压计及TOF等多个传感器的数据
 *          速度的计算均在机体坐标系下进行，所以GPS速度在参与融合时需要先转换到机体坐标系
 *形    参: 无
 *返 回 值: 无
@@ -54,7 +54,7 @@ void VelocityEstimate(void)
     Vector3f_t gpsVel;
     static uint32_t count;
     static bool fuseFlag;
-
+        
     //计算时间间隔，用于积分
     deltaT = (GetSysTimeUs() - previousT) * 1e-6;
     deltaT = ConstrainFloat(deltaT, 0.0005, 0.005);
@@ -76,13 +76,25 @@ void VelocityEstimate(void)
         {
             gpsVel.x = 0;
             gpsVel.y = 0;
+            gpsVel.z = 0;
         }
 
-        nav.velMeasure.x = gpsVel.x;
-        nav.velMeasure.y = gpsVel.y;
-        //获取气压速度测量值
-        nav.velMeasure.z = BaroGetVelocity();
-       
+        nav.velMeasure[0] = gpsVel.x;           //GPS速度x轴
+        nav.velMeasure[1] = gpsVel.y;           //GPS速度y轴
+        nav.velMeasure[2] = gpsVel.z;           //GPS速度z轴
+        nav.velMeasure[3] = BaroGetVelocity();  //气压速度值
+        nav.velMeasure[4] = 0;                  //TOF速度值
+        nav.velMeasure[5] = 0; 
+        
+        //GPS已定位且精度高于一定值时才使用GPS速度z轴数据
+        if(GpsGetFixStatus() && (GpsGetAccuracy() < 1.5f))
+            KalmanVelUseMeasurement(&kalmanVel, GPS_VEL_Z, true);
+        else if((!GpsGetFixStatus()) || (GpsGetAccuracy() > 2.0f))
+            KalmanVelUseMeasurement(&kalmanVel, GPS_VEL_Z, false);
+            
+        //禁用TOF速度观测量：尚未装备TOF传感器
+        KalmanVelUseMeasurement(&kalmanVel, TOF_VEL, false);
+        
         fuseFlag = true;
     }
     else
@@ -94,14 +106,7 @@ void VelocityEstimate(void)
     更新卡尔曼滤波器
     估计飞行速度及加速度bias
     */
-    KalmanVelUpdate(&kalmanVel, nav.accel, nav.velMeasure, deltaT, fuseFlag);
-    
-    nav.velocity.x = kalmanVel.state[0];
-    nav.velocity.y = kalmanVel.state[1];
-    nav.velocity.z = kalmanVel.state[2];
-    nav.accel_bias.x = kalmanVel.state[3];
-    nav.accel_bias.y = kalmanVel.state[4];
-    nav.accel_bias.z = kalmanVel.state[5];
+    KalmanVelUpdate(&kalmanVel, &nav.velocity, &nav.accel_bias, nav.accel, nav.velMeasure, deltaT, fuseFlag);
 }
 
 /**********************************************************************************************************
@@ -191,12 +196,12 @@ void AltCovarianceSelfAdaptation(void)
     {
         if(GetAltControlStatus() == ALT_HOLD)
         {
-            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(accelMag * 1.5f, 0, 1.5f)));
+            kalmanVel.r[3][3] = Sq(50 * (1 + ConstrainFloat(accelMag * 1.5f, 0, 1.5f)));
             kalmanPos.r[8]    = Sq(40 * (1 + ConstrainFloat(accelMag, 0, 1.0f)));
         }
         else
         {
-            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
+            kalmanVel.r[3][3] = Sq(50 * (1 + ConstrainFloat(accelMag, 0, 0.5f)));
             kalmanPos.r[8]    = 1000;
         }
     }
@@ -205,25 +210,28 @@ void AltCovarianceSelfAdaptation(void)
         //悬停时,气压误差会随着环境风速的变化而增大
         if(GetAltControlStatus() == ALT_HOLD)
         {
-            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
+            kalmanVel.r[3][3] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
             kalmanPos.r[8]    = Sq(37 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
         }
         else if(GetAltControlStatus() == ALT_CHANGED)
         {
-            kalmanVel.r[2][2] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
+            kalmanVel.r[3][3] = Sq(50 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 0.5f)));
             kalmanPos.r[8]    = Sq(30 * (1 + ConstrainFloat(windSpeed * 0.8f + windSpeedAcc * 0.2f, 0, 1.0f)));
         }
         else
         {
-            kalmanVel.r[2][2] = 1500;
+            kalmanVel.r[3][3] = 1500;
             kalmanPos.r[8]    = 1000;
         }
     }
     else
     {
-        kalmanVel.r[2][2] = 2000;
+        kalmanVel.r[3][3] = 2000;
         kalmanPos.r[8]    = 1000;
     }
+    
+    //根据GPS定位精度改变GPS速度z轴的噪声方差
+    kalmanVel.r[2][2] = Sq(50 * (ConstrainFloat(GpsGetAccuracy() - 0.5f, 0.9f, 1.5f)));
 }
 
 /**********************************************************************************************************
@@ -278,12 +286,12 @@ static void KalmanVelInit(void)
                             {0, 0.003, 0, 0, 0, 0},
                             {0, 0, 0.003, 0, 0, 0}};
 
-    float rMatInit[6][6] = {{50, 0, 0, 0, 0, 0},
-                            {0, 50, 0, 0, 0, 0},
-                            {0, 0, 2500, 0, 0, 0},      
-                            {0, 0, 0, 500000, 0, 0},
-                            {0, 0, 0, 0, 500000, 0},
-                            {0, 0, 0, 0, 0, 500000}};
+    float rMatInit[6][6] = {{50, 0, 0, 0, 0, 0},            //GPS速度x轴数据噪声方差
+                            {0, 50, 0, 0, 0, 0},            //GPS速度y轴数据噪声方差
+                            {0, 0, 2000, 0, 0, 0},          //GPS速度z轴数据噪声方差     
+                            {0, 0, 0, 2500, 0, 0},          //气压速度数据噪声方差
+                            {0, 0, 0, 0, 2000, 0},          //TOF速度数据噪声方差
+                            {0, 0, 0, 0, 0, 500000}};       //z轴速度高通滤波系数
 
     float pMatInit[6][6] = {{5, 0, 0, 0, 0, 0},
                             {0, 5, 0, 0, 0, 0},
@@ -295,9 +303,9 @@ static void KalmanVelInit(void)
     float hMatInit[6][6] = {{1, 0, 0, 0, 0, 0},
                             {0, 1, 0, 0, 0, 0},
                             {0, 0, 1, 0, 0, 0},      
-                            {1, 0, 0, 0, 0, 0},
-                            {0, 1, 0, 0, 0, 0},
-                            {0, 0, 1, 0, 0, 0}};    //增加少许高通滤波效果
+                            {0, 0, 1, 0, 0, 0},
+                            {0, 0, 1, 0, 0, 0},
+                            {0, 0, 1, 0, 0, 0}};    //h[5][2]:速度z轴增加少许高通滤波效果
 
     float fMatInit[6][6] = {{1, 0, 0, 0, 0, 0},
                             {0, 1, 0, 0, 0, 0},
@@ -324,9 +332,11 @@ static void KalmanVelInit(void)
     //状态滑动窗口，用于解决卡尔曼状态估计量与观测量之间的相位差问题
     kalmanVel.slidWindowSize = 250;
     kalmanVel.stateSlidWindow = pvPortMalloc(kalmanVel.slidWindowSize * sizeof(Vector3f_t));
-    kalmanVel.fuseDelay.x = 220;    //0.22s延时
-    kalmanVel.fuseDelay.y = 220;    //0.22s延时
-    kalmanVel.fuseDelay.z = 100;    //0.1s延时
+    kalmanVel.fuseDelay[GPS_VEL_X] = 220;    //GPS速度x轴数据延迟参数：0.22s
+    kalmanVel.fuseDelay[GPS_VEL_Y] = 220;    //GPS速度y轴数据延迟参数：0.22s
+    kalmanVel.fuseDelay[GPS_VEL_Z] = 220;    //GPS速度z轴数据延迟参数：0.22s
+    kalmanVel.fuseDelay[BARO_VEL]  = 100;    //气压速度数据延迟参数：0.1s
+    kalmanVel.fuseDelay[TOF_VEL]   = 30;     //TOF速度数据延迟参数：
 }
 
 /**********************************************************************************************************
@@ -424,7 +434,7 @@ Vector3f_t GetCopterVelocity(void)
 *形    参: 无
 *返 回 值: 速度值
 **********************************************************************************************************/
-Vector3f_t GetCopterVelMeasure(void)
+float* GetCopterVelMeasure(void)
 {
     return nav.velMeasure;
 }

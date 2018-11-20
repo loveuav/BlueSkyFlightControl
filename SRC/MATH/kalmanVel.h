@@ -12,7 +12,7 @@ typedef struct {
     //状态滑动窗口
     Vector3f_t* stateSlidWindow;
     //观测信号相位补偿值
-    Vector3i_t fuseDelay;
+    int16_t fuseDelay[6];
     //残差矩阵
     float residual[6];
     //状态转移矩阵
@@ -35,7 +35,8 @@ typedef struct {
     float r[6][6];
 } KalmanVel_t;
 
-void KalmanVelUpdate(KalmanVel_t* kalman, Vector3f_t accel, Vector3f_t observe, float deltaT, bool flag);
+void KalmanVelUpdate(KalmanVel_t* kalman, Vector3f_t* velocity, Vector3f_t* bias, Vector3f_t accel, 
+                     float observe[6], float deltaT, bool fuseFlag);
 
 void KalmanVelStateTransMatSet(KalmanVel_t* kalman, float f[6][6]);
 void KalmanVelObserveMapMatSet(KalmanVel_t* kalman, float h[6][6]);
@@ -43,6 +44,8 @@ void KalmanVelCovarianceMatSet(KalmanVel_t* kalman, float p[6][6]);
 void KalmanVelQMatSet(KalmanVel_t* kalman, float q[6][6]);
 void KalmanVelRMatSet(KalmanVel_t* kalman, float r[6][6]);
 void KalmanVelBMatSet(KalmanVel_t* kalman, float b[6][6]);
+
+void KalmanVelUseMeasurement(KalmanVel_t* kalman, uint8_t num, bool flag);
 
 #endif
 
