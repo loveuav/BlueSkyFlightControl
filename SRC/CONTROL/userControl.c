@@ -213,7 +213,7 @@ static void AutoControl(RCCOMMAND_t rcCommand, RCTARGET_t* rcTarget)
         if(GetPosControlStatus() == POS_CHANGED)
         {
             //计算减速速度（斜率）
-            brakeFilter = Pythagorous2(velCtlTarget.x, velCtlTarget.y) / (500 * 1.2f);  //500Hz运行频率，1.2s刹车时间
+            brakeFilter = Pythagorous2(velCtlTarget.x, velCtlTarget.y) / (500 * 1.0f);  //500Hz运行频率，1.0s刹车时间
             brakeFilter = ConstrainFloat(brakeFilter, 0.3, 2);
 
             //更新位置控制状态为刹车
