@@ -122,6 +122,8 @@ bool BsklinkParseChar(BSKLINK_MSG_t* msg, uint8_t data)
         msg->length = data;
         if(msg->length == 0)
             msg->recvStatus += 2;
+        else if(msg->length > 100)
+            msg->recvStatus = 0;
         else
             msg->recvStatus++;
         break;
