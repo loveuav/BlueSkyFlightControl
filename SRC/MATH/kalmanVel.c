@@ -245,12 +245,9 @@ static void KalmanVelSlidWindowUpdate(KalmanVel_t* kalman)
         kalman->stateSlidWindow[i] = kalman->stateSlidWindow[i+1];
     }
 
-    for(i=0; i<6; i++)
-    {
-        kalman->stateSlidWindow[kalman->slidWindowSize - 1].x = kalman->state[0];
-        kalman->stateSlidWindow[kalman->slidWindowSize - 1].y = kalman->state[1];
-        kalman->stateSlidWindow[kalman->slidWindowSize - 1].z = kalman->state[2];
-    }
+    kalman->stateSlidWindow[kalman->slidWindowSize - 1].x = kalman->state[0];
+    kalman->stateSlidWindow[kalman->slidWindowSize - 1].y = kalman->state[1];
+    kalman->stateSlidWindow[kalman->slidWindowSize - 1].z = kalman->state[2];
 }
 
 /**********************************************************************************************************
