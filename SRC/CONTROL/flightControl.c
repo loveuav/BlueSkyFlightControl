@@ -674,7 +674,7 @@ static void PIDReset(void)
     //该参数下姿态控制精度可达0.1°（悬停），测试机架为F330和F450，电调为BLS
     PID_SetParam(&fc.pid[ROLL_INNER],  5.0, 15.0, 0.2, 250, 35);
     PID_SetParam(&fc.pid[PITCH_INNER], 5.0, 15.0, 0.2, 250, 35);
-    PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 100, 35);
+    PID_SetParam(&fc.pid[YAW_INNER],   8.0, 10.0, 0, 250, 35);
     PID_SetParam(&fc.pid[ROLL_OUTER],  10.0, 0, 0, 0, 0);
     PID_SetParam(&fc.pid[PITCH_OUTER], 8.0, 0, 0, 0, 0);
     PID_SetParam(&fc.pid[YAW_OUTER],   6.0, 0, 0, 0, 0);
