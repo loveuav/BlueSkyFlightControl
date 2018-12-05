@@ -123,7 +123,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
     static float velLpf;
     float altInnerControlOutput;
     //悬停油门中点
-    int16_t throttleMid = 1000;
+    int16_t throttleMid = 900;
 
     /****************************************************************************************
         目前高度控制由高度环P控制以及速度环PID控制串联而成
@@ -150,7 +150,7 @@ static float AltitudeInnerControl(float velZ, float deltaT)
     altInnerControlOutput += throttleMid;
 
     //油门输出限幅
-    altInnerControlOutput = ConstrainFloat(altInnerControlOutput, 200, 1800);
+    altInnerControlOutput = ConstrainFloat(altInnerControlOutput, -300, 1800);
 
     return altInnerControlOutput;
 }

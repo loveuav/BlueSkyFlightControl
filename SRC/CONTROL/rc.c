@@ -72,9 +72,9 @@ void RcInit(void)
     rcData.aux12    = 1500;
 
     //设置各辅助通道对应的飞行模式
-    rcAuxMode[AUX1][LOW]  = MANUAL;
-    rcAuxMode[AUX1][MID]  = SEMIAUTO;
-    rcAuxMode[AUX1][HIGH] = AUTO;
+    rcAuxMode[AUX1][LOW]  = SEMIAUTO;
+    rcAuxMode[AUX1][MID]  = AUTO;
+    rcAuxMode[AUX1][HIGH] = RETURNTOHOME;
 
     rcAuxMode[AUX2][LOW]  = 0xFF;//AUTO;
     rcAuxMode[AUX2][MID]  = 0xFF;//AUTOLAND;
