@@ -1,4 +1,5 @@
 OBJ/
+build/
 *.TMP
 PROJECT/*.txt
 PROJECT/*.ini

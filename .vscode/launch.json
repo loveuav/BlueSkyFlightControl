@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Cortex Debug",
+        "cwd": "${workspaceRoot}",
+        "executable": "./build/BlueSkyPilot.elf", 
+        "request": "launch",
+        "type": "cortex-debug",
+        "servertype": "openocd",
+        "configFiles": [
+          "interface/jlink.cfg",
+          "target/stm32f4x.cfg" 
+        ]
+      }
+    ]
+  }

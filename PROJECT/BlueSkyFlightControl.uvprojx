@@ -14,16 +14,16 @@
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
-          <Device>STM32F407VG</Device>
+          <Device>STM32F405RGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
           <PackID>Keil.STM32F4xx_DFP.2.13.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
-          <Cpu>IROM(0x08000000,0x100000) IRAM(0x20000000,0x20000) IRAM2(0x10000000,0x10000) CPUTYPE("Cortex-M4") FPU2 CLOCK(168000000) ELITTLE</Cpu>
+          <Cpu>IRAM(0x20000000,0x00020000) IRAM2(0x10000000,0x00010000) IROM(0x08000000,0x00100000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024 -FS08000000 -FL0100000 -FP0($$Device:STM32F407VG$Flash\STM32F4xx_1024.FLM))</FlashDriverDll>
-          <DeviceId>6103</DeviceId>
-          <RegisterFile>$$Device:STM32F407VG$Device\Include\stm32f4xx.h</RegisterFile>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024 -FS08000000 -FL0100000 -FP0($$Device:STM32F405RGTx$CMSIS\Flash\STM32F4xx_1024.FLM))</FlashDriverDll>
+          <DeviceId>0</DeviceId>
+          <RegisterFile>$$Device:STM32F405RGTx$Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -33,7 +33,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:STM32F407VG$SVD\STM32F40x.svd</SFDFile>
+          <SFDFile>$$Device:STM32F405RGTx$CMSIS\SVD\STM32F40x.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -138,7 +138,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3>"" ()</Flash3>
+          <Flash3></Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -193,7 +193,7 @@
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
-            <RwSelD>3</RwSelD>
+            <RwSelD>4</RwSelD>
             <CodeSel>0</CodeSel>
             <OptFeed>0</OptFeed>
             <NoZi1>0</NoZi1>
@@ -338,7 +338,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F40_41xxx,USE_STDPERIPH_DRIVER,__TARGET_FPU_VFP,ARM_MATH_MATRIX_CHECK,ARM_MATH_ROUNDING,ARM_MATH_CM4,__CC_ARM,__FPU_PRESENT,USE_USB_OTG_FS</Define>
               <Undefine></Undefine>
-              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\Include;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common;..\STMLIB\SDIO;..\FatFs;..\SRC\LOG</IncludePath>
+              <IncludePath>..\PROJECT;..\FWLIB;..\SRC\DRIVER;..\SRC\SYSTEM;..\SRC\MATH;..\SRC\MODULE;..\SRC\SENSOR;..\SRC\NAVIGATION;..\FreeRTOS\Source\include;..\FreeRTOS\Source\portable\RVDS\ARM_CM4F;..\SRC\TASK;..\SRC\CONTROL;..\STMLIB\inc;..\STMLIB\CORE;..\STMLIB;..\SRC\MESSAGE;..\STMLIB\USB;..\STMLIB\USB\STM32_USB_OTG_Driver\inc;..\STMLIB\USB\STM32_USB_Device_Library\Core\inc;..\STMLIB\USB\STM32_USB_Device_Library\Class\cdc\inc;..\MAVLINK;..\MAVLINK\common;..\STMLIB\SDIO;..\FatFs;..\SRC\LOG</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -910,7 +910,7 @@
             <File>
               <FileName>startup_stm32f40_41xxx.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\STMLIB\CORE\startup_stm32f40_41xxx.s</FilePath>
+              <FilePath>..\STMLIB\startup\MDK\startup_stm32f40_41xxx.s</FilePath>
             </File>
           </Files>
         </Group>

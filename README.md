@@ -33,11 +33,24 @@
 
 ## 下载与编译
 
+### 方式一（Windows & Keil）
+
 - 使用git克隆项目到本地
 
 - 安装Keil MDK 5.25，编译飞控工程
 
 >[详细图文说明](https://blog.csdn.net/loveuav/article/details/88913174)
+
+### 方式二 （Linux & GCC）
+- 安装arm-none-eabi-gcc
+- git clone https://github.com/loveuav/BlueSkyFlightControl.git
+- cd BlueSkyFlightControl
+- mkdir build
+- cd build
+- cmake -DCMAKE_BUILD_TYPE=Debug ..
+- make -j
+
+>[教程](https://blog.csdn.net/loveuav/article/details/101361408)
 
 
 ## 飞控硬件配置
@@ -69,24 +82,19 @@ QQ:352707983
 
 针对飞控初学者编写的一系列教程，可配合开源飞控项目：[天穹飞控](https://github.com/loveuav/BlueSkyFlightControl)一起学习，效率更高。
 
-作者：**BlueSky**
-
-欢迎斧正和指导，QQ:352707983 
-
-先挖个坑，再慢慢来填······
 
 ### 目录
 
 #### 【概述篇】
 
-##### [一.多旋翼飞控发展史](http://bbs.loveuav.com/thread-693-1-1.html)
+##### [一.多旋翼飞控发展史](https://blog.csdn.net/loveuav/article/details/88913196)
 
 ##### [二.多旋翼飞控技术综述](https://blog.csdn.net/loveuav/article/details/81605417)
 
 #### 【预备篇】
 
-##### [一.元器件选型及飞控电路设计](http://bbs.loveuav.com/thread-11314-1-1.html)
-##### [二.飞控代码下载与编译](http://bbs.loveuav.com/thread-11422-1-1.html)
+##### [一.元器件选型及飞控电路设计](https://blog.csdn.net/loveuav/article/details/88913188)
+##### [二.飞控代码下载与编译](https://blog.csdn.net/loveuav/article/details/88913174)
 ##### 三.天穹地面站的使用
 ##### [四.QGroundControl地面站的使用](http://bbs.loveuav.com/thread-11450-1-1.html)
 

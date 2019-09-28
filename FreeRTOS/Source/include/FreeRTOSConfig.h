@@ -44,8 +44,9 @@
 /* Ensure stdint is only used by the compiler, and not the assembler. */
 #if defined(__ICCARM__) || defined(__CC_ARM) ||defined(__GUNC__)
 #include <stdint.h>
-extern uint32_t SystemCoreClock;
 #endif
+
+extern uint32_t SystemCoreClock;
 
 //--------------------------------------------
 #define configCPU_USAGE_CALCULATE 1
